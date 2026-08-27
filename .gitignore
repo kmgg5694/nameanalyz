@@ -1,0 +1,5 @@
+# Hanja reference data (Unihan, CSV) — local only, not for GitHub Pages
+_hanja_src/
+
+# Temporary OCR / extraction scripts and outputs
+_tmp_*
