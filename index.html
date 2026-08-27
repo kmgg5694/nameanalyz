@@ -129,15 +129,23 @@ Error generating stack: `+l.message+`
         for (var i = 0; i < btns.length; i++) {
           btns[i].classList.toggle("on", btns[i].getAttribute("data-lang") === lang);
         }
-        v.pause();
+        v.muted = true;
+        v.playsInline = true;
+        v.setAttribute("playsinline", "");
         wrap.classList.remove("hidden");
+        function start() {
+          v.muted = true;
+          var p = v.play();
+          if (p && p.catch) p.catch(function () {});
+        }
         if (v.getAttribute("data-lang") !== lang) {
           v.setAttribute("data-lang", lang);
           v.src = "/nameanalyz/videos/" + encodeURIComponent(files[lang]);
-          v.load();
+          v.onloadeddata = start;
+        } else {
+          try { v.currentTime = 0; } catch (e) {}
+          start();
         }
-        var p = v.play();
-        if (p && p.catch) p.catch(function () {});
         return true;
       };
       (function startIntroOnOpen() {
