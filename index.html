@@ -125,7 +125,7 @@ Error generating stack: `+l.message+`
         var wrap = document.getElementById("introPlayerWrap");
         var v = document.getElementById("introVideo");
         var btns = document.querySelectorAll(".intro-btn");
-        if (!wrap || !v || !files[lang]) return;
+        if (!wrap || !v || !files[lang]) return false;
         for (var i = 0; i < btns.length; i++) {
           btns[i].classList.toggle("on", btns[i].getAttribute("data-lang") === lang);
         }
@@ -138,6 +138,20 @@ Error generating stack: `+l.message+`
         }
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
+        return true;
       };
+      (function startIntroOnOpen() {
+        function tryStart() {
+          if (window.__introStarted) return true;
+          if (!window.playIntro("ko")) return false;
+          window.__introStarted = true;
+          return true;
+        }
+        if (tryStart()) return;
+        var obs = new MutationObserver(function () {
+          if (tryStart()) obs.disconnect();
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+      })();
     </script></body>
 </html>
