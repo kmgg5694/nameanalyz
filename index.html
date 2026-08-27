@@ -13,12 +13,8 @@
     <style>
       .intro-sec{padding:14px 12px;background:oklch(0.97 0.006 82);border:1px solid oklch(0.76 0.022 72);border-radius:12px;text-align:center;}
       .intro-ttl{font-size:14px;font-weight:700;color:oklch(0.35 0.12 68);letter-spacing:2px;margin-bottom:10px;}
-      .intro-langs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
-      .intro-btn{padding:8px 14px;min-height:40px;font-size:13px;font-weight:700;border:1px solid oklch(0.76 0.022 72);border-radius:8px;background:#fff;color:oklch(0.22 0.02 60);cursor:pointer;font-family:inherit;}
-      .intro-btn.on{background:oklch(0.52 0.16 68);color:#fff;border-color:oklch(0.42 0.16 65);}
       .intro-player{margin-top:12px;border-radius:8px;overflow:hidden;background:#000;}
       .intro-player video{width:100%;height:auto;display:block;vertical-align:top;}
-      .intro-player.hidden{display:none!important;}
     </style>
   <meta property="og:type" content="website">
 		<meta property="og:url" content="https://kmgg5694.github.io/nameanalyz/">
@@ -118,21 +114,14 @@ Error generating stack: `+l.message+`
 		</script>
     <script>
       window.playIntro = function (lang) {
-        var files = {
-          ko: "이름풀이_한국어단독_39초_볼륨업3.mp4",
-          en: "영어이름풀이_영어단독_21초_볼륨업4.mp4"
-        };
+        lang = "ko";
+        var file = "이름풀이_한국어단독_39초_볼륨업3.mp4";
         var wrap = document.getElementById("introPlayerWrap");
         var v = document.getElementById("introVideo");
-        var btns = document.querySelectorAll(".intro-btn");
-        if (!wrap || !v || !files[lang]) return false;
-        for (var i = 0; i < btns.length; i++) {
-          btns[i].classList.toggle("on", btns[i].getAttribute("data-lang") === lang);
-        }
+        if (!wrap || !v) return false;
         v.muted = true;
         v.playsInline = true;
         v.setAttribute("playsinline", "");
-        wrap.classList.remove("hidden");
         function start() {
           v.muted = true;
           var p = v.play();
@@ -140,10 +129,9 @@ Error generating stack: `+l.message+`
         }
         if (v.getAttribute("data-lang") !== lang) {
           v.setAttribute("data-lang", lang);
-          v.src = "/nameanalyz/videos/" + encodeURIComponent(files[lang]);
+          v.src = "/nameanalyz/videos/" + encodeURIComponent(file);
           v.onloadeddata = start;
         } else {
-          try { v.currentTime = 0; } catch (e) {}
           start();
         }
         return true;
