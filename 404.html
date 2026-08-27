@@ -13,8 +13,14 @@
     <style>
       .intro-sec{padding:14px 12px;background:oklch(0.97 0.006 82);border:1px solid oklch(0.76 0.022 72);border-radius:12px;text-align:center;}
       .intro-ttl{font-size:14px;font-weight:700;color:oklch(0.35 0.12 68);letter-spacing:2px;margin-bottom:10px;}
-      .intro-player{margin-top:12px;border-radius:8px;overflow:hidden;background:#000;}
+      .intro-player{margin-top:12px;border-radius:8px;overflow:visible;background:#000;}
       .intro-player video{width:100%;height:auto;display:block;vertical-align:top;}
+      .intro-player video::-webkit-media-controls-play-button,
+      .intro-player video::-webkit-media-controls-mute-button,
+      .intro-player video::-webkit-media-controls-overlay-play-button,
+      .intro-player video::-webkit-media-controls-volume-control-container{
+        transform:scale(2);transform-origin:center;margin:0 10px;
+      }
     </style>
   <meta property="og:type" content="website">
 		<meta property="og:url" content="https://kmgg5694.github.io/nameanalyz/">
