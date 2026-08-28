@@ -67,7 +67,13 @@
 		<meta name="twitter:title" content="김만기주역이름풀이">
 		<meta name="twitter:image" content="https://files.manuscdn.com/webdev_screenshots/2026/06/07/F9WZR4debZa3cRuX87gTg6.png?x-oss-process=image/resize,w_1200/crop,h_630,x_0,y_0">
 		<meta name="twitter:image:width" content="1200">
-		<meta name="twitter:image:height" content="630"><link rel="canonical" href="https://kmgg5694.github.io/nameanalyz/english" /></head>
+		<meta name="twitter:image:height" content="630"><link rel="canonical" href="https://kmgg5694.github.io/nameanalyz/english" />
+    <meta name="theme-color" content="#6d28d9" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Name Reading" />
+    <link rel="manifest" href="./manifest.json" />
+</head>
 
   <body>
     <script id="manus-runtime">window.__MANUS_HOST_DEV__ = false;
@@ -246,6 +252,8 @@ Error generating stack: `+l.message+`
         obs.observe(document.documentElement, { childList: true, subtree: true });
         setTimeout(function () { obs.disconnect(); }, 15000);
       })();
-    </script></body>
+    </script>
+    <script src="../pwa-install.js"></script>
+</body>
 
 </html>
