@@ -16,6 +16,7 @@
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
+      html.kb-open{padding-bottom:52vh;}
       *,*::before,*::after{box-sizing:border-box;}
       [data-loc="client/src/pages/EnglishName.tsx:564"]{width:100%;max-width:100%;overflow-x:hidden;}
       [data-loc="client/src/pages/EnglishName.tsx:566"]{flex-wrap:wrap;gap:8px;box-sizing:border-box;}
@@ -62,17 +63,35 @@
         [data-loc="client/src/pages/EnglishName.tsx:643"]{margin-bottom:0.3rem !important;}
         [data-loc="client/src/pages/EnglishName.tsx:646"]{
           display:grid !important;
-          grid-template-columns:2fr 1.5fr 1.5fr !important;
-          align-items:end !important;
+          grid-template-columns:1fr 1fr 1fr !important;
+          align-items:stretch !important;
           gap:0.5rem !important;
         }
-        [data-loc="client/src/pages/EnglishName.tsx:646"] > *{min-width:0 !important;}
+        [data-loc="client/src/pages/EnglishName.tsx:646"] > *{
+          min-width:0 !important;
+          padding:0 !important;
+          display:flex !important;
+          flex-direction:column !important;
+          justify-content:flex-end !important;
+        }
+        [data-loc="client/src/pages/EnglishName.tsx:649"],
+        [data-loc="client/src/pages/EnglishName.tsx:665"],
+        [data-loc="client/src/pages/EnglishName.tsx:681"]{min-height:1.4em;margin-bottom:0.15rem !important;}
         [data-loc="client/src/pages/EnglishName.tsx:607"],
         [data-loc="client/src/pages/EnglishName.tsx:619"],
         [data-loc="client/src/pages/EnglishName.tsx:631"],
         [data-loc="client/src/pages/EnglishName.tsx:652"],
-        [data-loc="client/src/pages/EnglishName.tsx:664"],
-        [data-loc="client/src/pages/EnglishName.tsx:676"]{padding:0.45rem 0.5rem !important;font-size:16px !important;}
+        [data-loc="client/src/pages/EnglishName.tsx:668"],
+        [data-loc="client/src/pages/EnglishName.tsx:684"]{
+          padding:0 0.5rem !important;
+          font-size:16px !important;
+          line-height:42px !important;
+          height:42px !important;
+          min-height:42px !important;
+          box-sizing:border-box !important;
+          scroll-margin-top:12vh;
+          scroll-margin-bottom:56vh;
+        }
         [data-loc="client/src/pages/EnglishName.tsx:1052"],
         [data-loc="client/src/pages/EnglishName.tsx:1092"]{grid-template-columns:1fr 1fr !important;}
         .intro-sec{padding:8px 10px;margin-bottom:8px;}
@@ -263,6 +282,47 @@ Error generating stack: `+l.message+`
         }
         return true;
       };
+      (function liftInputsAboveKeyboard() {
+        function isField(el) {
+          if (!el || el.tagName !== "INPUT") return false;
+          var loc = el.getAttribute("data-loc") || "";
+          return /EnglishName\.tsx:(607|619|631|652|668|684)/.test(loc);
+        }
+        function lift(el) {
+          if (!isField(el)) return;
+          var vv = window.visualViewport;
+          var vh = vv ? vv.height : window.innerHeight;
+          var off = vv ? vv.offsetTop : 0;
+          var r = el.getBoundingClientRect();
+          var target = off + Math.max(48, vh * 0.12);
+          var delta = r.top - target;
+          if (Math.abs(delta) > 4) {
+            var top = Math.max(0, (window.scrollY || document.documentElement.scrollTop || 0) + delta);
+            document.documentElement.scrollTop = top;
+            window.scrollTo(0, top);
+          }
+        }
+        document.addEventListener("pointerdown", function (e) {
+          if (isField(e.target)) document.documentElement.classList.add("kb-open");
+        }, true);
+        document.addEventListener("focusin", function (e) {
+          if (!isField(e.target)) return;
+          document.documentElement.classList.add("kb-open");
+          setTimeout(function () { lift(e.target); }, 50);
+          setTimeout(function () { lift(e.target); }, 280);
+          setTimeout(function () { lift(e.target); }, 550);
+        });
+        document.addEventListener("focusout", function () {
+          setTimeout(function () {
+            if (!isField(document.activeElement)) document.documentElement.classList.remove("kb-open");
+          }, 0);
+        });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", function () {
+            if (isField(document.activeElement)) lift(document.activeElement);
+          });
+        }
+      })();
       (function startIntroOnOpen() {
         function tryStart() {
           var wrap = document.getElementById("introPlayerWrap");
