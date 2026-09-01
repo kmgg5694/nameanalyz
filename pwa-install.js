@@ -159,6 +159,11 @@
   var hideStored = false;
   try { hideStored = sessionStorage.getItem("pwaBarHide") === "1"; } catch (e) {}
 
+  window.addEventListener("beforeprint", function () {
+    hideSheet();
+    hideBar();
+  });
+
   if (iOS) {
     if (wantInstall) showSheet();
     else if (!hideStored) showBar(t.bar);
