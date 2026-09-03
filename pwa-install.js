@@ -145,9 +145,11 @@
   window.addEventListener("beforeinstallprompt", function (e) {
     e.preventDefault();
     deferredPrompt = e;
-    showBar(t.install);
-    if (wantInstall && android) {
-      document.getElementById("pwaGo").textContent = t.install;
+    if (wantInstall) {
+      showBar(t.install);
+      if (android) {
+        document.getElementById("pwaGo").textContent = t.install;
+      }
     }
   });
   window.addEventListener("appinstalled", function () {
@@ -164,9 +166,9 @@
     hideBar();
   });
 
+  // 첫 방문 지인이 「설치」 배너에 막히지 않도록, 설치 링크(?install=1)일 때만 자동 표시
   if (iOS) {
     if (wantInstall) showSheet();
-    else if (!hideStored) showBar(t.bar);
   } else if (android && wantInstall) {
     showBar(t.wait);
     setTimeout(function () {
