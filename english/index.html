@@ -61,7 +61,7 @@
         display:inline-block;white-space:nowrap;padding-left:100%;
         font-size:clamp(22px,6.8vw,38px);font-weight:800;letter-spacing:.02em;
         color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 3px #000;
-        animation:introCapScroll 14s linear infinite;will-change:transform;
+        animation:introCapScroll 8s linear infinite;will-change:transform;
       }
       @keyframes introCapScroll{
         0%{transform:translateX(0)}
@@ -242,13 +242,14 @@ Error generating stack: `+l.message+`
             "</button>";
           wrap.appendChild(bar);
         }
-        if (!wrap.querySelector(".intro-caption")) {
-          var cap = document.createElement("div");
+        var cap = wrap.querySelector(".intro-caption");
+        if (!cap) {
+          cap = document.createElement("div");
           cap.className = "intro-caption";
           cap.setAttribute("aria-hidden", "true");
-          cap.innerHTML = '<span class="intro-caption-text">영어 이름풀이 하세요.</span>';
           wrap.appendChild(cap);
         }
+        cap.innerHTML = '<span class="intro-caption-text">Try a name reading. You\'ll have fun.</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
           muteBtn.setAttribute("data-muted", v.muted ? "1" : "0");
