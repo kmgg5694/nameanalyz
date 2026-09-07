@@ -34,7 +34,10 @@
       .intro-btn{padding:8px 14px;min-height:40px;font-size:13px;font-weight:700;border:1px solid #ddd6fe;border-radius:8px;background:#fff;color:#5b21b6;cursor:pointer;font-family:inherit;}
       .intro-btn.on{background:#7c3aed;color:#fff;border-color:#6d28d9;}
       .intro-player{position:relative;margin-top:12px;border-radius:8px;overflow:hidden;background:#000;}
-      .intro-player video{width:100%;height:auto;display:block;vertical-align:top;}
+      .intro-player video{
+        width:100%;height:auto;max-height:360px;aspect-ratio:16/9;
+        object-fit:cover;object-position:center top;display:block;vertical-align:top;
+      }
       .intro-player video::-webkit-media-controls-overlay-play-button,
       .intro-player video::-webkit-media-controls-start-playback-button,
       .intro-player video::-webkit-media-controls-play-button,
@@ -50,6 +53,20 @@
       .intro-media-btn .ic-sound{display:none;}
       .intro-media-btn[data-muted="0"] .ic-muted{display:none;}
       .intro-media-btn[data-muted="0"] .ic-sound{display:block;}
+      .intro-caption{
+        position:absolute;left:0;right:0;bottom:14%;z-index:4;
+        overflow:hidden;pointer-events:none;height:1.45em;line-height:1.45;
+      }
+      .intro-caption-text{
+        display:inline-block;white-space:nowrap;padding-left:100%;
+        font-size:clamp(22px,6.8vw,38px);font-weight:800;letter-spacing:.02em;
+        color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 3px #000;
+        animation:introCapScroll 14s linear infinite;will-change:transform;
+      }
+      @keyframes introCapScroll{
+        0%{transform:translateX(0)}
+        100%{transform:translateX(-100%)}
+      }
       @media (max-width:640px){
         [data-loc="client/src/pages/EnglishName.tsx:566"]{padding:8px 12px !important;}
         [data-loc="client/src/pages/EnglishName.tsx:568"]{font-size:0.95rem !important;line-height:1.25 !important;}
@@ -95,11 +112,16 @@
         }
         [data-loc="client/src/pages/EnglishName.tsx:1052"],
         [data-loc="client/src/pages/EnglishName.tsx:1092"]{grid-template-columns:1fr 1fr !important;}
-        .intro-sec{padding:8px 10px;margin-bottom:8px;}
+        .intro-sec{padding:10px 10px;margin-bottom:10px;}
         .intro-ttl{font-size:12px;margin-bottom:6px;}
         .intro-btn{padding:6px 10px;min-height:34px;font-size:12px;}
-        .intro-player{margin-top:6px;}
-        .intro-player video{height:100px;max-height:100px;object-fit:cover;object-position:center top;}
+        .intro-player{margin-top:8px;}
+        .intro-player video{
+          height:220px;max-height:240px;aspect-ratio:auto;
+          object-fit:cover;object-position:center top;
+        }
+        .intro-caption{bottom:12%;}
+        .intro-caption-text{font-size:clamp(20px,7vw,28px);}
         .intro-media-btn{width:48px;height:48px;}
         .intro-media-btn svg{width:24px;height:24px;}
       }
@@ -219,6 +241,13 @@ Error generating stack: `+l.message+`
             '<svg class="ic-sound" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>' +
             "</button>";
           wrap.appendChild(bar);
+        }
+        if (!wrap.querySelector(".intro-caption")) {
+          var cap = document.createElement("div");
+          cap.className = "intro-caption";
+          cap.setAttribute("aria-hidden", "true");
+          cap.innerHTML = '<span class="intro-caption-text">영어 이름풀이 하세요.</span>';
+          wrap.appendChild(cap);
         }
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
