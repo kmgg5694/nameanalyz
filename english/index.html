@@ -16,6 +16,14 @@
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
+      /* Mobile text wrap: keep words intact; no auto-hyphen fragments */
+      body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
+        word-break: keep-all;
+        overflow-wrap: break-word;
+        -webkit-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+      }
       #result-full-capture{scroll-margin-top:112px;}
       html.kb-open{padding-bottom:52vh;}
       *,*::before,*::after{box-sizing:border-box;}

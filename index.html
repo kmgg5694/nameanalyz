@@ -11,6 +11,14 @@
     <script type="module" crossorigin src="./assets/index-kw5.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
+      /* Mobile text wrap: keep CJK words intact; no auto-hyphen fragments */
+      body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
+        word-break: keep-all;
+        overflow-wrap: break-word;
+        -webkit-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+      }
       .intro-sec{padding:14px 12px;margin-bottom:1rem;background:oklch(0.97 0.006 82);border:1px solid oklch(0.76 0.022 72);border-radius:12px;text-align:center;}
       #koNameInput{scroll-margin-top:120px;scroll-margin-bottom:24px;}
       #result-full-capture{scroll-margin-top:112px;}
