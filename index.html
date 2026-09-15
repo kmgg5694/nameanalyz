@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <script src="./assets/korean-lunar-calendar.js"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915above"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915video"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -161,21 +161,49 @@ Error generating stack: `+l.message+`
 
 
     <style id="intro-video-styles">
-      :root { --intro-bar-h: 40px; }
+      :root { --intro-bar-h: 220px; }
       .intro-sec{
         position:fixed; top:0; left:0; right:0;
         z-index:60; margin:0; padding:0; width:100%; max-width:none;
+        background:#1a140f;
+        box-shadow:0 2px 10px rgba(0,0,0,.28);
       }
       .intro-player{
         position:relative;
-        height:var(--intro-bar-h);
+        width:100%;
+        max-width:720px;
+        margin:0 auto;
+        background:#1a140f;
+      }
+      #introVideo{
+        display:block;
+        width:100%;
+        height:auto;
+        max-height:180px;
+        object-fit:cover;
+        background:#000;
+        vertical-align:top;
+      }
+      .intro-controls{
+        position:relative;
+        height:40px;
         background:#2B2118;
-        display:flex; align-items:center;
-        padding:0 48px 0 14px;
+        display:flex; align-items:center; gap:10px;
+        padding:0 48px 0 12px;
         box-sizing:border-box;
+      }
+      .intro-label{
+        flex:0 0 auto;
+        color:#E3C4A1;
+        font-size:12px;
+        font-weight:700;
+        letter-spacing:-0.02em;
+        white-space:nowrap;
+        font-family:"Noto Sans KR",sans-serif;
       }
       .intro-seek{
         -webkit-appearance:none; appearance:none;
+        flex:1 1 auto;
         width:100%; height:4px; margin:0;
         background:#3C3229; border-radius:999px; outline:none; cursor:pointer;
       }
@@ -197,30 +225,38 @@ Error generating stack: `+l.message+`
         background:rgba(255,253,249,.92); color:#8C2D19;
         box-shadow:0 2px 8px rgba(0,0,0,.25);
         display:flex; align-items:center; justify-content:center;
+        cursor:pointer;
       }
       .intro-mute svg{width:16px;height:16px;fill:currentColor;display:block;}
       .intro-mute .ic-sound{display:none;}
       .intro-mute[data-muted="0"] .ic-muted{display:none;}
       .intro-mute[data-muted="0"] .ic-sound{display:block;}
-      /* 태극 헤더( sticky top-0 )를 소개바 아래로 */
+      /* 태극 헤더를 소개 영상 아래로 */
       #root .sticky.top-0 { top: var(--intro-bar-h) !important; }
       #root .sticky.top-\[58px\] { top: calc(58px + var(--intro-bar-h)) !important; }
       #root { padding-top: var(--intro-bar-h); }
+      @media (max-width: 480px){
+        :root { --intro-bar-h: 200px; }
+        #introVideo{ max-height:160px; }
+      }
       @media print{
-        .intro-sec,.intro-mute,.intro-seek,#introVideo{display:none!important;}
+        .intro-sec,.intro-mute,.intro-seek,#introVideo,.intro-controls{display:none!important;}
         #root { padding-top: 0 !important; }
         #root .sticky.top-0, #root .sticky.top-\[58px\] { top: 0 !important; }
       }
     </style>
     <section class="intro-sec" aria-label="소개영상">
       <div class="intro-player" id="introPlayerWrap">
-        <audio id="introVideo" playsinline muted autoplay preload="auto"
-          src="./audio/kmgg_full_introduction_50s.m4a"></audio>
-        <input class="intro-seek" id="introSeek" type="range" min="0" max="50" step="0.1" value="0" aria-label="재생 위치" />
-        <button type="button" class="intro-mute" data-muted="1" aria-label="음소거">
-          <svg class="ic-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12zm3.5 0a8 8 0 0 1-8 8v-2a6 6 0 0 0 6-6h2zm-11-7L5 8H2v8h3l4 3V5zM19.07 4.93l-1.41 1.41A7.96 7.96 0 0 1 20 12a7.96 7.96 0 0 1-2.34 5.66l1.41 1.41A9.95 9.95 0 0 0 22 12a9.95 9.95 0 0 0-2.93-7.07z"/></svg>
-          <svg class="ic-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12z"/></svg>
-        </button>
+        <video id="introVideo" playsinline muted autoplay preload="auto"
+          src="./videos/이름풀이_한국어단독.mp4"></video>
+        <div class="intro-controls">
+          <span class="intro-label">소개영상</span>
+          <input class="intro-seek" id="introSeek" type="range" min="0" max="33" step="0.1" value="0" aria-label="재생 위치" />
+          <button type="button" class="intro-mute" data-muted="1" aria-label="소리 켜기">
+            <svg class="ic-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12zm3.5 0a8 8 0 0 1-8 8v-2a6 6 0 0 0 6-6h2zm-11-7L5 8H2v8h3l4 3V5zM19.07 4.93l-1.41 1.41A7.96 7.96 0 0 1 20 12a7.96 7.96 0 0 1-2.34 5.66l1.41 1.41A9.95 9.95 0 0 0 22 12a9.95 9.95 0 0 0-2.93-7.07z"/></svg>
+            <svg class="ic-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12z"/></svg>
+          </button>
+        </div>
       </div>
     </section>
     <script>
@@ -236,11 +272,21 @@ Error generating stack: `+l.message+`
       }
       function dur() {
         var d = v.duration;
-        return (Number.isFinite(d) && d > 0) ? d : 50;
+        return (Number.isFinite(d) && d > 0) ? d : 33;
       }
       function syncSeekMax() {
         if (!seek) return;
         seek.max = String(dur());
+      }
+      function fitBar() {
+        try {
+          var sec = document.querySelector('.intro-sec');
+          if (!sec) return;
+          var h = Math.ceil(sec.getBoundingClientRect().height);
+          if (h > 80) {
+            document.documentElement.style.setProperty('--intro-bar-h', h + 'px');
+          }
+        } catch (e) {}
       }
       function tryPlay() {
         v.muted = true;
@@ -248,6 +294,7 @@ Error generating stack: `+l.message+`
         if (p && p.catch) p.catch(function () {});
         syncMute();
         syncSeekMax();
+        fitBar();
       }
       btn.addEventListener('click', function () {
         v.muted = !v.muted;
@@ -273,14 +320,15 @@ Error generating stack: `+l.message+`
       tryPlay();
       v.addEventListener('loadeddata', tryPlay);
       v.addEventListener('canplay', tryPlay);
-      v.addEventListener('loadedmetadata', syncSeekMax);
+      v.addEventListener('loadedmetadata', function () { syncSeekMax(); fitBar(); });
+      window.addEventListener('resize', fitBar);
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) tryPlay();
       });
     })();
     </script>
 
-<div id="root"></div>
+    <div id="root"></div>
     <script
       defer
       src="https://manus-analytics.com/umami"
