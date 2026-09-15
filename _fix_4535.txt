@@ -1,1 +1,0 @@
-pathname+"?"+g.toString():location.href,ko=!!S,msg=ko?"링크가 복사되었습니다.\n카카오톡 열기 → 붙여넣기(길게 누르기)":"Link copied.\nPaste it in KakaoTalk or Messages.",copy=function(){var ta=document.createElement("textarea");ta.value=shareUrl;ta.style.cssText="position:fixed;left:-9999px";document.body.appendChild(ta);ta.

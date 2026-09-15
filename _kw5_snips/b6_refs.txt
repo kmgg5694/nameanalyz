@@ -1,3 +1,0 @@
-2007484: ...c/App.tsx:15",path:"/english",component:B6}),m.jsx(Tt,{"data-loc":"client/src/App.tsx:16",...
-
-count B6=2

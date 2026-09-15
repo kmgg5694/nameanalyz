@@ -3,3 +3,10 @@ _hanja_src/
 
 # Temporary OCR / extraction scripts and outputs
 _tmp_*
+
+# Local agent scratch / patch helpers (never publish)
+_*
+_kw5_snips/
+_video_build/
+assets/_hex_*
+.cursor/오늘작업*.md

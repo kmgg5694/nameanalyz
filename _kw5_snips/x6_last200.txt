@@ -1,1 +1,0 @@
-",flexShrink:0,color:Rn[ao.ohang]||"#374151"},children:ao.ohang}),m.jsx("span",{style:{fontSize:"12px",color:"#78716c",flexShrink:0},children:(ao.wonHoek??ao.strokes)+"획"})]},ao.char+"-"+n))})]})})});

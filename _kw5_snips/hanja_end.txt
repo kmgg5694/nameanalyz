@@ -1,1 +1,0 @@
-hange:Yn,onManualOhangChange:es,onSearchClick:Se,pickerOpen:v===G,pickerItems:Vn,onPickHanja:Je},G))

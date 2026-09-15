@@ -1,6 +1,0 @@
-won_gyeok	1
-hyeong_gyeok	0
-i_gyeok	0
-jeong_gyeok	0
-wonhyeong	0
-yuanheng	0

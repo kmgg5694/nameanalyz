@@ -1,3 +1,0 @@
-E.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:1042",style:{backgroundColor:"#ffffff",borderRadius:"0.75rem",padding:"1.25rem",marginBottom:"1.5rem",border:"2px solid #7c3aed",boxShadow:"0
-...
-:{fontWeight:700,marginTop:"10px",color:"#5b21b6"},children:verdict})]})]})})(),E.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:1175",style:{marginBo

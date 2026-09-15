@@ -1,1 +1,0 @@
-ren:Me[f.middleRep]})]})]})}),m.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:1038",style:{fontSize:"0.9rem",color:"#b45309",fontWeight:700,marginTop:"0.3rem"},children:["★ ",v?`가장 강한 기운: ${ze[f.dominant]} (${f.ohangCounts[f.dominant]}개)`:`Strongest element: ${Me[f.dominant]} (${f.ohangCounts[f.dominant]}x)`]})]}),m.jsx("div",{"da

@@ -1,1 +1,0 @@
-EnglishName.tsx:748",style:{fontSize:"1rem",fontWeight:700,color:"#5c2d00",marginBottom:"1rem"},children:["🌿 ",S?"음령오행 (音靈五行) 분석":"Name Energy Elements"]}),[{labelKo:`성: ${W||w.lastName}`,labelEn:w.lastName,label:`Last Name: ${w.lastName}`,ohangs:w.lastOhangs,rep:w.lastRep},{labelKo:`이름: ${ie||w.fir

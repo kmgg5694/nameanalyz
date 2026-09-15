@@ -1,1 +1,0 @@
-p",{"data-loc":"client/src/pages/Home.tsx:1342",className:"mt-2",style:{color:"#1c1917"},children:["한글이름의 초년 수리는 ",m.jsxs("span",{"data-loc":"client/src/pages/Home.tsx:1343",style:{color:Eo(G.data.type),fontWeight:"bold"},children:[G.suri,"수(",G.data.name,")"]}),"입니다.",G.data.des

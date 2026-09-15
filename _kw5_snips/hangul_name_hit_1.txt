@@ -1,1 +1,0 @@
-ldren:m.jsx("div",{style:{fontSize:"0.78rem",color:"oklch(0.35 0.06 230)",lineHeight:1.7},children:"한글이름만 있는 분은 한문칸에 본인 성씨만 한문찾기에서 찾아서 입력해 주시면 풀이가 완성됩니다."})}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:684",className:"space-y-3",children:[0,1,2].map(G=>m.jsx(x6,{"data-loc

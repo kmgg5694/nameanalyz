@@ -1,1 +1,0 @@
-==="male"?"👨 남성":"👩 여성"},G))})]})]}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:676",className:"ink-card p-5 space-y-4",children:[m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:677",classN

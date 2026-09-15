@@ -1,8 +1,0 @@
-537314 EnglishName.tsx:602",style:{display:"gri
-gridTemplateColumns:"1fr 1fr 1fr",gap:"0.75rem",marginBottom:"1rem",alignItems:"
-539816 EnglishName.tsx:646",style:{display:"gri
-gridTemplateColumns:"2fr 1.5fr 1.5fr",gap:"0.75rem"},children:[E.jsxs("div",{"da
-564300 EnglishName.tsx:1052",style:{display:"gr
-gridTemplateColumns:"repeat(4, 1fr)",gap:"0.5rem"},children:[{label:"원격(元格)",lab
-566941 EnglishName.tsx:1092",style:{display:"gr
-gridTemplateColumns:"repeat(4, 1fr)",gap:"0.5rem"},children:[{label:"원격(元格)",lab

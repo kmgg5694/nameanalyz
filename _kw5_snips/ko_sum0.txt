@@ -1,1 +1,0 @@
-ter",borderBottom:"2px solid #d97706",paddingBottom:"6px",marginBottom:"10px"},children:"요약보기"}),m.jsxs("div",{"data-loc":"client/src/components/PrCard.tsx:219",style:{fontSize:"10px",color:"#44403c",

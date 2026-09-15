@@ -1,1 +1,0 @@
-{char:"价",strokes:6,busoo:"人",busooStrokes:2,remainStrokes:4,wonHoek:6,ohang:"火",soundOhang:"木",meaning:"착할 개",detail:"착하다, 크다, 심부름 꾼. 값 가",readings:["가","개"]},{char:"伽",strokes:7,busoo:"人",busooStrokes:2,remainStrokes:5,wonHoek:7,ohang:"火",soundOhang:"木",meaning:"절 가",detail:"절, 사찰, 가지",readings:["가"]},{char:"佳",strok
