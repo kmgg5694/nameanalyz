@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <script src="./assets/korean-lunar-calendar.js"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915firsttgvid"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915soundvid"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -215,9 +215,7 @@ Error generating stack: `+l.message+`
         font-size:1.45rem; font-weight:700; line-height:1.35;
         color:#2B2118;
       }
-      .intro-ttl em{
-        font-style:normal; color:#8C2D19;
-      }
+      .intro-ttl em{ font-style:normal; color:#8C2D19; }
       .intro-desc{
         margin:0 0 14px;
         font-size:13px; line-height:1.55;
@@ -233,20 +231,15 @@ Error generating stack: `+l.message+`
         display:block; width:100%; height:auto;
         max-height:52vw; background:#000; vertical-align:top;
       }
-      .intro-mute{
+      .intro-stop{
         position:absolute; right:10px; bottom:10px; z-index:4;
-        width:40px; height:40px; border-radius:50%; border:0; padding:0;
-        background:rgba(255,253,249,.92); color:#8C2D19;
-        box-shadow:0 2px 8px rgba(0,0,0,.28);
-        display:flex; align-items:center; justify-content:center;
-        cursor:pointer;
+        border:0; border-radius:999px; padding:10px 16px;
+        background:#8C2D19; color:#FFFDF9;
+        font-size:13px; font-weight:700;
+        box-shadow:0 2px 8px rgba(0,0,0,.28); cursor:pointer;
       }
-      .intro-mute svg{width:18px;height:18px;fill:currentColor;display:block;}
-      .intro-mute .ic-sound{display:none;}
-      .intro-mute[data-muted="0"] .ic-muted{display:none;}
-      .intro-mute[data-muted="0"] .ic-sound{display:block;}
       @media print{
-        .intro-sec,.intro-mute,#introVideo{display:none!important;}
+        .intro-sec,#introVideo,.intro-stop{display:none!important;}
       }
     </style>
     <section class="intro-sec" aria-label="소개영상">
@@ -262,40 +255,31 @@ Error generating stack: `+l.message+`
         <h2 class="intro-ttl">당신의 이름! <em>안녕하십니까?</em></h2>
         <p class="intro-desc">한 인간의 과거, 현재, 미래를 현미경 들여다보듯 명쾌하게 해석합니다. 음령오행(한글) 2개와 자원오행(한문) 2개, 총 4개 기운의 상생을 확인해 보세요.</p>
         <div class="intro-player" id="introPlayerWrap">
-          <video id="introVideo" playsinline muted autoplay preload="auto" controls
+          <video id="introVideo" playsinline autoplay preload="auto"
             src="./videos/video_final_intro_dubbed_ass.mp4"></video>
-          <button type="button" class="intro-mute" data-muted="1" aria-label="소리 켜기">
-            <svg class="ic-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12zm3.5 0a8 8 0 0 1-8 8v-2a6 6 0 0 0 6-6h2zm-11-7L5 8H2v8h3l4 3V5zM19.07 4.93l-1.41 1.41A7.96 7.96 0 0 1 20 12a7.96 7.96 0 0 1-2.34 5.66l1.41 1.41A9.95 9.95 0 0 0 22 12a9.95 9.95 0 0 0-2.93-7.07z"/></svg>
-            <svg class="ic-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-4.5-4.5v9A4.5 4.5 0 0 0 16.5 12z"/></svg>
-          </button>
+          <button type="button" class="intro-stop" id="introStop" aria-label="정지">정지</button>
         </div>
       </div>
     </section>
     <script>
     (function () {
       var v = document.getElementById('introVideo');
-      var btn = document.querySelector('.intro-mute');
+      var btn = document.getElementById('introStop');
       if (!v || !btn) return;
-      function syncMute() {
-        btn.setAttribute('data-muted', v.muted ? '1' : '0');
-        btn.setAttribute('aria-label', v.muted ? '소리 켜기' : '음소거');
-      }
-      function tryPlay() {
-        v.muted = true;
+      function go() {
+        v.muted = false;
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
-        syncMute();
       }
-      btn.addEventListener('click', function () {
-        v.muted = !v.muted;
-        v.play().catch(function () {});
-        syncMute();
-      });
-      tryPlay();
-      v.addEventListener('loadeddata', tryPlay);
-      v.addEventListener('canplay', tryPlay);
+      go();
+      v.addEventListener('loadeddata', go);
+      v.addEventListener('canplay', go);
       document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) tryPlay();
+        if (!document.hidden) go();
+      });
+      btn.addEventListener('click', function () {
+        v.pause();
+        v.currentTime = 0;
       });
     })();
     </script>
