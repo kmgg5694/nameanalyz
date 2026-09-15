@@ -1,0 +1,16 @@
+﻿?붿빟蹂닿린 2243743
+chunk len 22241
+0 'y-end gap-2 no-print flex-wrap",children:[m.jsx(v6,{"data-loc":"client/src/pages/Home.tsx:727",name:t.name,input:t}),m.jsx("button",{"data-loc":"client/src/pages/Home.tsx:728",onCl'
+1 'n",{"data-loc":"client/src/pages/Home.tsx:shareNative",onClick:()=>{var g=new URLSearchParams;if(t&&t.name){g.set("name",t.name);g.set("gender",t.gender||"male");g.set("rk",t.rank|'
+2 't/src/pages/Home.tsx:shareNative",onClick:()=>{var g=new URLSearchParams;if(t&&t.name){g.set("name",t.name);g.set("gender",t.gender||"male");g.set("rk",t.rank||"staff");g.set("hc",'
+3 '|[]).map(function(b){return b===""||b==null?"0":String(b)}).join(","));g.set("result","1")}var u=t&&t.name?window.location.origin+window.location.pathname+"?"+g.toString():location'
+4 '.userAgent||"")||!navigator.share){copy();return;}navigator.share({title:"源留뚭린 二쇱뿭 ?깅챸???대쫫???,text:(t&&t.name?t.name+" ?대쫫???寃곌낵?낅땲?? ?꾨옒 二쇱냼瑜??대㈃ 諛⑷툑 ???댁슜??洹몃?濡??섏샃?덈떎.":"?대쫫???)+String.fromCha'
+5 'ent||"")||!navigator.share){copy();return;}navigator.share({title:"源留뚭린 二쇱뿭 ?깅챸???대쫫???,text:(t&&t.name?t.name+" ?대쫫???寃곌낵?낅땲?? ?꾨옒 二쇱냼瑜??대㈃ 諛⑷툑 ???댁슜??洹몃?濡??섏샃?덈떎.":"?대쫫???)+String.fromCharCode(1'
+6 'me.tsx:740",id:"pr-card-capture",children:m.jsx(y6,{"data-loc":"client/src/pages/Home.tsx:741",name:t.name,gender:t.gender,hanjaChars:t.hanjaChars,hangeulOhang:K,hanjaOhang:t.hanja'
+7 'a-loc":"client/src/pages/Home.tsx:773",className:"text-4xl font-bold tracking-widest mb-2",children:t.name}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:774",className:"text'
+
+birth note context:
+le:{textAlign:"center",fontSize:"12px",fontWeight:700,color:"#92400e",marginBottom:"4px"},children:"?꾩깮?쇱? ?뚮젰湲곗??낅땲??"}),m.jsx("div",{style:{textAlign:"center",fontSize:"13px",fontWeight:700,color:"#92400e",letterSpacing:"1px",marginBottom:"6px"},children:"?꾩깮?????}),m.jsx("div",{style:{textAlign:"center",fontSize:"11px",color:"#78350f",marginBottom:"6px"},children:`湲곗????꾪빀 ${birthSuri.nums[0]} 쨌 ??${birthSuri.nums[1]} 쨌 ??${birthSuri.nums[2]}`}),m.jsx("table",{className:"w-full text-xs border-collapse",style:{minWidth:"280px"},children:m.jsxs("tbody",{children:[m.jsxs("tr",{style:{borderBottom:"1px
+
+birth input label 2270439
+lient/src/pages/Home.tsx:577",className:"ink-card p-5 space-y-4",children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:birthBox",style:{marginBottom:"6px"},children:[m.jsx("div",{style:{textAlign:"center",fontSize:"13px",fontWeight:700,color:"#92400e",letterSpacing:"2px",marginBottom:"4px"},children:"?꾩깮??}),m.jsx("table",{style:{width:"100%",maxWidth:"280px",margin:"0 auto",borderCollapse:"collapse",fontSize:"12px",color:"#78350f"},children:m.jsxs("tbody",{children:[m.jsxs("tr",{children

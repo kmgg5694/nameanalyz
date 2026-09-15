@@ -1,0 +1,9 @@
+'Name Analysis' -1
+'Enter your name' -1
+'Start Reading' 541841
+:"#fff",fontSize:"1rem",fontWeight:700,cursor:!n.trim()||!s.trim()?"not-allowed":"pointer"},children:["🔮 ",S?"이름풀이 시작":"Start Reading"]}),O&&E.jsx("button",{"data-loc":"client/src/pages/EnglishName.tsx:711",onClick:ce,style:{padding:"0.75rem 1.25rem",borderRadius:"0.5rem",border:"2px solid #aaa",bac
+---
+'e==="input"' 122927
+ouseMoveCapture":case"onMouseUp":case"onMouseUpCapture":case"onMouseEnter":(r=!r.disabled)||(e=e.type,r=!(e==="button"||e==="input"||e==="select"||e==="textarea")),e=!r;break e;default:e=!1}if(e)return null;if(a&&typeof a!="function")throw Error(o(231,t,typeof a));return a}var Pn=!(typeof window>"u"
+---
+'Your Name' -1

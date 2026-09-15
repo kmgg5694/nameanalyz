@@ -1,0 +1,8 @@
+ra caution is advised during that period."}),(()=>{const x=()=>{const K=`${w.lastName} ${w.firstName}${w.middleName?" "+w.middleName:""}`,I=d&&m&&b?`
+탄생일: ${d}.${m}.${b}`:"",fe=`
+
+[이름 수리 4격]
+원격: ${w.won}수 ${w.wonData.name} / ${w.wonGwe?.name??"-"}
+형격: ${w.hyeong}수 ${w.hyeongData.name} / ${w.hyeongGwe?.name??"-"}
+이격: ${w.i}수 ${w.iData.name} / ${w.iGwe?.name??"-"}
+정격: ${w.jeong}수 ${w.jeongData.name}

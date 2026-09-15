@@ -1,0 +1,1 @@
+,Je=N.useCallback(G=>{v===null||(u(co=>{const wo=[...co.hanjaChars],_o=[...co.hanjaOhang],No=[...co.hanjaManualStrokes];return wo[v]=G.char,_o[v]=G.ohang,No[v]=G.wonHoek??G.strokes,{...co,hanjaChars:w

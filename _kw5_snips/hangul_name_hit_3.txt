@@ -1,0 +1,1 @@
+p",{"data-loc":"client/src/pages/Home.tsx:1311",className:"mt-2",style:{color:"#1c1917"},children:["한글이름의 총운은 ",m.jsxs("span",{"data-loc":"client/src/pages/Home.tsx:1312",style:{color:Eo(wo.data.type),fontWeight:"bold"},children:[wo.suri,"수(",wo.data.name,")"]}),"입니다.",wo.data.de

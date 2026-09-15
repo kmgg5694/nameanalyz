@@ -1,0 +1,5 @@
+(()=>{const ho=vo=>vo==="taboo"||vo==="bad"||vo==="caution"?"#cc0000":"#1c1917",
+---
+ent/src/pages/Home.tsx:1288",className:"mt-3 space-y-2",children:cards})})()]}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:1307",children:[m.jsx("p",{"
+---978---
+oc":"client/src/pages/Home.tsx:971",colSpan:uo?10:5,className:"py-0"})})]})})}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:978",className:"mt-2 border 

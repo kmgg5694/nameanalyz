@@ -1,0 +1,28 @@
+
+===== focus #1 @202556 =====
+(o,n,k)}finally{o.refCleanup=null,o=o.alternate,o!=null&&(o.refCleanup=null)}else if(typeof s=="function")try{s(null)}catch(k){Jo(o,n,k)}else s.current=null}function Gb(o){var n=o.type,s=o.memoizedProps,r=o.stateNode;try{o:switch(n){case"button":case"input":case"select":case"textarea":s.autoFocus&&r.focus();break o;case"img":s.src?r.src=s.src:s.srcSet&&(r.srcset=s.srcSet)}}catch(k){Jo(o,o.return,k)}}function Oh(o,n,s){try{var r=o.stateNode;yH(r,o.type,s,n),r[Zn]=n}catch(k){Jo(o,o.return,k)}}func
+
+===== focus #2 @228452 =====
+){var P=so.createRange();P.setStart(R.node,R.offset),Z.removeAllRanges(),Co>en?(Z.addRange(P),Z.extend(A.node,A.offset)):(P.setEnd(A.node,A.offset),Z.addRange(P))}}}}for(so=[],Z=H;Z=Z.parentNode;)Z.nodeType===1&&so.push({element:Z,left:Z.scrollLeft,top:Z.scrollTop});for(typeof H.focus=="function"&&H.focus(),H=0;H<so.length;H++){var I=so[H];I.element.scrollLeft=I.left,I.element.scrollTop=I.top}}ok=!!Ph,Yh=Ph=null}finally{Zo=k,B.p=r,j.T=s}}o.current=n,En=2}}function l1(){if(En===2){En=0;var o=Ys,n
+
+===== focus #3 @327124 =====
+"change",({matches:$})=>{B($?"dark":"light")})}catch{U.addListener(({matches:to})=>{try{B(to?"dark":"light")}catch(go){console.error(go)}})}},[p]),ko.useEffect(()=>{W.length<=1&&z(!1)},[W]),ko.useEffect(()=>{const U=$=>{var to;if(c.every(xo=>$[xo]||$.code===xo)){var uo;z(!0),(uo=D.current)==null||uo.focus()}$.code==="Escape"&&(document.activeElement===D.current||(to=D.current)!=null&&to.contains(document.activeElement))&&z(!1)};return document.addEventListener("keydown",U),()=>document.removeEve
+
+===== focus #4 @327419 =====
+l||uo.focus()}$.code==="Escape"&&(document.activeElement===D.current||(to=D.current)!=null&&to.contains(document.activeElement))&&z(!1)};return document.addEventListener("keydown",U),()=>document.removeEventListener("keydown",U)},[c]),ko.useEffect(()=>{if(D.current)return()=>{So.current&&(So.current.focus({preventScroll:!0}),So.current=null,x.current=!1)}},[D.current]),ko.createElement("section",{ref:t,"aria-label":`${K} ${io}`,tabIndex:-1,"aria-live":"polite","aria-relevant":"additions text","a
+
+===== focus #5 @328138 =====
+"data-sonner-theme":j,"data-y-position":go,"data-x-position":uo,style:{"--front-toast-height":`${((to=q[0])==null?void 0:to.height)||0}px`,"--width":`${y4}px`,"--gap":`${ao}px`,...T,...T4(O,w)},onBlur:xo=>{x.current&&!xo.currentTarget.contains(xo.relatedTarget)&&(x.current=!1,So.current&&(So.current.focus({preventScroll:!0}),So.current=null))},onFocus:xo=>{xo.target instanceof HTMLElement&&xo.target.dataset.dismissible==="false"||x.current||(x.current=!0,So.current=xo.relatedTarget)},onMouseEnte
+
+===== focus #6 @1888434 =====
+indow.location.origin}${window.location.pathname}?${g.toString()}`;try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(c);else{const b=document.createElement("textarea");b.value=c,b.style.position="fixed",b.style.left="-9999px",document.body.appendChild(b),b.focus(),b.select(),document.execCommand("copy"),document.body.removeChild(b)}u(!0),setTimeout(()=>u(!1),3e3),alert(`링크가 복사되었습니다!
+
+카카오톡 열기 → 나에게 보내기 → 붙여넣기(길게 누르기)
+
+링크를 열면 풍이 결과가 바로 표시됩니다.`)}catch{pro
+
+===== focus #7 @1893161 =====
+useCallback((G,mo)=>{u(co=>{const wo=[...co.hanjaManualStrokes];return wo[G]=mo,{...co,hanjaManualStrokes:wo}})},[]),es=N.useCallback((G,mo)=>{u(co=>{const wo=[...co.hanjaOhang];return wo[G]=mo,{...co,hanjaOhang:wo}})},[]),Se=N.useCallback((G,mo)=>{G&&b(G),Q(mo),a("hanja"),setTimeout(()=>{w.current?.focus();const co=w.current;if(co){const wo=co.value.length;co.setSelectionRange(wo,wo)}},100)},[]),Te=Ee.filter(G=>i===""||G.name.includes(i)),Hn={라:"나",래:"내",랑:"낭",략:"약",량:"양",려:"여",력:"역",련:"연",렬:"열
+
+===== focus #8 @1954730 =====
+#fde68a",dot:"#d97706"},金:{bg:"#f8fafc",text:"#374151",border:"#d1d5db",dot:"#6b7280"},水:{bg:"#eff6ff",text:"#1e3a8a",border:"#bfdbfe",dot:"#2563eb"}};function T6(){const[e,a]=N.useState(""),[t,u]=N.useState([]),[i,g]=N.useState(null),[c,b]=N.useState([]),S=N.useRef(null);N.useEffect(()=>{S.current?.focus()},[]),N.useEffect(()=>{if(!e.trim()){u([]);return}const w=e.trim(),p=Ln.filter(y=>C6(xk(y.meaning),w,y.sound));u(p.slice(0,200))},[e]);const l=async w=>{try{await navigator.clipboard.writeText

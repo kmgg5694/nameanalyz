@@ -1,0 +1,1 @@
+":"client/src/pages/Home.tsx:570",className:"max-w-lg mx-auto space-y-6",style:{scrollMarginTop:"110px"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:571",className:"text-center space-y-2",children:[m.jsx("h2",{"data-loc":"client/src/pages/Home.tsx:572"

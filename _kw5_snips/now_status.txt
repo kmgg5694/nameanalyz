@@ -1,0 +1,42 @@
+=== kw5 counts ===
+    5  기운이 강합니다
+    5  기운이 없습니다
+    1  Td={
+    0  Td[
+    1  Nd={
+    1  A6={
+    1  R6={
+    1  ohangExt
+    1  hg-mid-ext
+    3  재물운 보존력
+    4  양부모·관청
+    2  왕따
+    0  가장 강한
+    6  겉으로 드러내는
+    1  내적 기운
+    2  ohangCounts
+    0  EnglishName.tsx:803
+    0  EnglishName.tsx:825
+    0  EnglishName.tsx:1038
+    1  Home.tsx:ohangExt
+    1  So.label
+    1  function B6(
+    1  function j6(
+=== eTNX counts ===
+    5  기운이 강합니다
+    5  기운이 없습니다
+    8  겉으로 드러내는
+    0  재물운 보존력
+    1  왕따
+    2  양부모·관청
+   10  middleRep
+    5  ohangCounts
+    1  EnglishName.tsx:782
+    1  EnglishName.tsx:787
+    0  EnglishName.tsx:803
+    1  EnglishName.tsx:815
+    0  EnglishName.tsx:825
+    0  EnglishName.tsx:850
+   15  lastRep
+   27  firstRep
+    1  uy={

@@ -1,0 +1,1 @@
+d protect wealth."):balanced?(S?"상생 1개·상극 1개로 반반입니다. 재물운과 인간관계가 특별히 좋지도, 특별히 나쁘지도 않은 중간 상태입니다.":"One generating and one controlling — neither especially good nor bad; a middle state."):(S?"상생이 1개 이하입니다. 사주에 아무리 큰 재물운이 있어도 이름이 뒷받침하지 못해 밥이나 먹고 사는 수준에 그칩니다. 나쁜 이름을 가진 사람은 수백억 유산을 상속받아도 지키지 못하고 나락으로 떨어질 

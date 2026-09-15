@@ -1,0 +1,12 @@
+const fs = require("fs");
+const ko = fs.readFileSync("C:/Users/a8071/Projects/nameanalyz/assets/index-kw5.js", "utf8");
+const needle = 'Home.tsx:1113';
+const i = ko.indexOf(needle);
+fs.writeFileSync("C:/Users/a8071/Projects/nameanalyz/_kw5_snips/ko_home_sum.txt", ko.slice(i, i + 5500));
+console.log("home1113", i);
+console.log("hint", ko.includes("밑줄표시 된 수리"));
+console.log("snBtn count", (ko.match(/snBtn\(/g) || []).length);
+const j = ko.indexOf("function j6()");
+console.log("tip state", ko.slice(j, j + 200));
+const tip = ko.indexOf("Home.tsx:tipMask");
+console.log("tipMask", tip);

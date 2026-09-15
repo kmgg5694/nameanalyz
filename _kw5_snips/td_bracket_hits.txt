@@ -1,0 +1,3 @@
+00,color:"#666"},children:["(",f.ohangCounts[f.dominant],v?"개":"x",")"]})]}),(v?Td[f.dominant]:Nd[f.dominant]).map((q,oo)=>m.jsx("p",{"data-loc":"client/src/pag
+---
+`:`${Me[z]} — energy shown outwardly`," (",f.ohangCounts[z],v?"개":"x",")"]}),(v?Td[z]:Nd[z]).map((no,J)=>m.jsx("p",{"data-loc":"client/src/pages/EnglishName.tsx

@@ -1,0 +1,11 @@
+${w.hyeong}수 ${w.hyeongData.name} / ${w.hyeongGwe?.name??"-"}
+이격: ${w.i}수 ${w.iData.name} / ${w.iGwe?.name??"-"}
+정격: ${w.jeong}수 ${w.jeongData.name} / ${w.jeongGwe?.name??"-"}`,be=w.birthSuri?`
+
+[탄생일 원형이정 4격]
+원격: ${w.birthSuri.won}수 ${w.birthWonData?.name??""} / ${w.birthWonGwe?.name??"-"}
+형격: ${w.birthSuri.hyeong}수 ${w.birthHyeongData?.name??""} / ${w.birthHyeongGwe?.name??"-"}
+이격: ${w.birthSuri.i}수 ${w.birthIData?.name??""} / ${w.birthIGwe?.name??"-"}
+정격: ${w.birthSuri.jeong}수 ${w.birthJeongData?.name??""} / ${w.birthJeongGwe?.name??"-"}`:"";return`📋 이름풀이 요약 — ${K}${I}${fe}${be}
+
+※ 백춘황 주역 성명

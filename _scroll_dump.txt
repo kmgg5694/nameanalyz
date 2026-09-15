@@ -1,0 +1,67 @@
+scrollIntoView: 1
+  ;setTimeout(()=>{var el=document.getElementById("result-full-capture");if(el)el.scrollIntoView({block:"start"});window.print()},300)},className:"flex items-center gap-2 px-4 py-2 rounded-lg border bor
+scrollTo: 13
+  ,Z=H;Z=Z.parentNode;)Z.nodeType===1&&so.push({element:Z,left:Z.scrollLeft,top:Z.scrollTop});for(typeof H.focus=="function"&&H.focus(),H=0;H<so.length;H++){var I=so[H];I.element.scrollLeft=I.left,I.ele
+  .focus(),H=0;H<so.length;H++){var I=so[H];I.element.scrollLeft=I.left,I.element.scrollTop=I.top}}ok=!!Ph,Yh=Ph=null}finally{Zo=k,B.p=r,j.T=s}}o.current=n,En=2}}function l1(){if(En===2){En=0;var o=Ys,n
+   be(e).getComputedStyle(e)}function Pk(e){return Ue(e)?{scrollLeft:e.scrollLeft,scrollTop:e.scrollTop}:{scrollLeft:e.scrollX,scrollTop:e.scrollY}}function ka(e){if(Rr(e)==="html")return e;const a=e.as
+scrollMargin: 3
+  ":"client/src/pages/Home.tsx:570",className:"max-w-lg mx-auto space-y-6",style:{scrollMarginTop:"110px"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:571",className:"text-center space
+  "client/src/pages/Home.tsx:1450",className:"max-w-3xl mx-auto space-y-4",style:{scrollMarginTop:"110px"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:1451",className:"text-center",chi
+  "client/src/pages/Home.tsx:1508",className:"max-w-3xl mx-auto space-y-4",style:{scrollMarginTop:"110px"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:1509",className:"text-center",chi
+scrollPadding: 1
+  ",{"data-loc":"client/src/pages/Home.tsx:567",className:"container py-6",style:{scrollPaddingTop:"110px"},children:[e==="input"&&m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:570",className:"max
+Je(: 10
+  ){return Ue(e)?e:e.contextElement}function jr(e){const a=Sm(e);if(!Ie(a))return Je(1);const t=a.getBoundingClientRect(),{width:u,height:i,$:g}=Vl(a);let c=(g?Ck(t.width):t.width)/u,b=(g?Ck(t.height):t
+  !Number.isFinite(c))&&(c=1),(!b||!Number.isFinite(b))&&(b=1),{x:c,y:b}}const xp=Je(0);function $l(e){const a=be(e);return!bm()||!a.visualViewport?xp:{x:a.visualViewport.offsetLeft,y:a.visualViewport.o
+  id 0&&(a=!1),t===void 0&&(t=!1);const i=e.getBoundingClientRect(),g=Sm(e);let c=Je(1);a&&(u?Ue(u)&&(c=jr(u)):c=jr(e));const b=vp(g,t,u)?$l(g):Je(0);let S=(i.left+b.x)/c.x,l=(i.top+b.y)/c.y,O=i.width/c
+hanjaChars: 23
+  1a56db":"#1c1917":"#1c1917",y6=N.forwardRef(function(a,t){const{name:u,gender:i,hanjaChars:g,hangeulOhang:c,hanjaOhang:b,hasHanja:S,hgSuriGwe:l,hjSuriGwe:O,indeokGrade:w,indeokColor:p,spouseLabel:y,ch
+  name",a.name),g.set("gender",a.gender),g.set("rk",a.rank||"staff"),g.set("hc",a.hanjaChars.join(",")),g.set("ho",a.hanjaOhang.join(",")),g.set("hs",a.hanjaManualStrokes.map(b=>b===""?"0":String(b)).jo
+  =No.split(",").map(an=>an==="0"?"":Number(an));return{name:mo,gender:co,rank:rk,hanjaChars:Mo,hanjaOhang:Ro,hanjaManualStrokes:Tn}}return{name:"",gender:"male",rank:"staff",hanjaOhang:["","",""],hanja
+hjShow: 15
+  mber(wo);const co=Ln.find(_o=>_o.char===G);return co?co.wonHoek??co.strokes:0}),hjShow=ro.length>=3,uo=hjShow&&go[0]>0&&go[1]>0&&go[2]>0,W=K[0]&&K[1]?dk(K[0],K[1]):"bihwa",_=K[1]&&K[2]?dk(K[1],K[2]):"
+  nd(_o=>_o.char===G);return co?co.wonHoek??co.strokes:0}),hjShow=ro.length>=3,uo=hjShow&&go[0]>0&&go[1]>0&&go[2]>0,W=K[0]&&K[1]?dk(K[0],K[1]):"bihwa",_=K[1]&&K[2]?dk(K[1],K[2]):"bihwa",L=hjO[0]&&hjO[1]
+  ter font-bold text-base",style:{color:"#1c1917"},children:ho},`hg-name-${bo}`)),hjShow&&m.jsxs(m.Fragment,{children:[m.jsx("td",{"data-loc":"client/src/pages/Home.tsx:833",className:"py-1 px-2 text-ce
+result-full-capture: 2
+  })]}),e==="result"&&m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:716",id:"result-full-capture",className:"max-w-2xl mx-auto space-y-6",children:f?m.jsxs(m.Fragment,{children:[tip&&m.jsx("div",{"
+  ";if(pb)pb.style.display="none";setTimeout(()=>{var el=document.getElementById("result-full-capture");if(el)el.scrollIntoView({block:"start"});window.print()},300)},className:"flex items-center gap-2 
+Home.tsx:6: 20
+  Home.tsx:66",className:"rounded-lg border p-3",style:{borderColor:"oklch(0.76 0.022 72)",backgroundColor:"oklch(0.97 0.008 82)"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:67",class
+  Home.tsx:67",className:"flex items-center gap-3",children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:69",className:"w-12 text-center flex-shrink-0",children:[m.jsx("div",{"data-loc":"client/
+  Home.tsx:69",className:"w-12 text-center flex-shrink-0",children:[m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:70",className:"text-xl font-bold",style:{color:"oklch(0.35 0.18 65)"},children:t}),
+Home.tsx:7: 20
+  Home.tsx:70",className:"text-xl font-bold",style:{color:"oklch(0.35 0.18 65)"},children:t}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:71",className:"text-xs font-medium",style:{color:"oklch(0
+  Home.tsx:71",className:"text-xs font-medium",style:{color:"oklch(0.38 0.018 60)"},children:u})]}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:74",className:"font-bold",style:{color:"oklch(0.50 
+  Home.tsx:74",className:"font-bold",style:{color:"oklch(0.50 0.015 60)"},children:"→"}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:76",className:"flex-1",children:[m.jsxs("div",{"data-loc":"cl
+Home.tsx:8: 30
+  Home.tsx:83",children:i}):m.jsx("span",{"data-loc":"client/src/pages/Home.tsx:85",style:{color:"oklch(0.55 0.12 65)",fontSize:"1.25rem",fontWeight:"bold"},children:t})}),m.jsx("button",{"data-loc":"cl
+  Home.tsx:85",style:{color:"oklch(0.55 0.12 65)",fontSize:"1.25rem",fontWeight:"bold"},children:t})}),m.jsx("button",{"data-loc":"client/src/pages/Home.tsx:88",type:"button",className:"px-2 py-1.5 roun
+  Home.tsx:88",type:"button",className:"px-2 py-1.5 rounded text-xs font-bold border-2 transition-colors hover:opacity-80",style:{borderColor:"oklch(0.55 0.12 65)",color:"oklch(0.35 0.18 65)",background
+Home.tsx:9: 28
+  Home.tsx:98",style:{height:"2rem",display:"flex",alignItems:"center",gap:"0.5rem",minWidth:"5rem"},children:i?m.jsxs(m.Fragment,{children:[m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:101",class
+  Home.tsx:903",className:"py-1 px-2 text-center",style:{color:"#d97706"},children:"|"}),[_o,No,Mo,Ro].map((ho,bo)=>m.jsxs("td",{"data-loc":"client/src/pages/Home.tsx:905",className:"py-1 text-center",s
+  Home.tsx:905",className:"py-1 text-center",style:{color:Eo(ho.data.type),fontSize:"10px",lineHeight:1.25,whiteSpace:"nowrap"},children:fmtNm(ho.data.name).map((nm,ii)=>m.jsx("div",{style:{whiteSpace:"
+Home.tsx:10: 19
+  Home.tsx:101",className:"px-2 py-0.5 rounded-full text-sm font-bold border-2",style:{borderColor:Q,color:Q,backgroundColor:`${f}20`,whiteSpace:"nowrap"},children:E||"?"}),m.jsx("div",{"data-loc":"clie
+  Home.tsx:107",className:"text-sm font-bold",style:{color:Q,whiteSpace:"nowrap"},children:T!==null?`${T}획`:"DB미등록"})]}):p?m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:112",className:"px-2 py-0.5 
+  Home.tsx:1002",className:"flex items-center justify-center gap-1",style:{flex:1},children:t.hanjaChars.map((ho,bo)=>{const Wo=ho?(Ln.find(po=>po.char===ho&&po.ohang===t.hanjaOhang[bo])||Ln.find(po=>po
+Home.tsx:11: 41
+  Home.tsx:112",className:"px-2 py-0.5 rounded-full text-sm font-bold border-2",style:{borderColor:"#374151",color:"#374151",backgroundColor:`${Rn.金}20`,whiteSpace:"nowrap"},children:"金(항상)"}):null})]})
+  Home.tsx:1112",className:"ink-card p-4 border-2",style:{background:"#fffdf5",borderColor:"#b45309",marginTop:"8px"},children:[m.jsx("h3",{"data-loc":"client/src/pages/Home.tsx:1113",className:"text-ba
+  Home.tsx:1113",className:"text-base font-bold text-center mb-4",style:{color:"#92400e",letterSpacing:"3px",borderBottom:"2px solid #d97706",paddingBottom:"8px"},children:"요약보기"}),m.jsx("p",{"data-loc"
+Home.tsx:12: 9
+  Home.tsx:122",style:{height:v?"auto":0,overflow:"hidden",transition:"height 0.1s"},children:v&&m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:124",className:"flex items-center gap-3 mt-2",childre
+  Home.tsx:124",className:"flex items-center gap-3 mt-2",children:[m.jsx("label",{"data-loc":"client/src/pages/Home.tsx:125",className:"text-xs font-semibold",style:{color:"#92400e"},children:"획수:"}),m.
+  Home.tsx:125",className:"text-xs font-semibold",style:{color:"#92400e"},children:"획수:"}),m.jsx("input",{"data-loc":"client/src/pages/Home.tsx:126",type:"number",min:1,max:64,placeholder:"획수",value:g,o
+Home.tsx:13: 39
+  Home.tsx:133",className:"text-xs",style:{color:"#92400e"},children:"획"}),m.jsx("label",{"data-loc":"client/src/pages/Home.tsx:134",className:"text-xs font-semibold",style:{color:"#92400e"},children:"오
+  Home.tsx:134",className:"text-xs font-semibold",style:{color:"#92400e"},children:"오행:"}),m.jsxs("select",{"data-loc":"client/src/pages/Home.tsx:135",value:c,onChange:ao=>l(a,ao.target.value),className
+  Home.tsx:135",value:c,onChange:ao=>l(a,ao.target.value),className:"border-2 rounded px-2 py-1 text-xs font-bold focus:outline-none focus:ring-2",style:{borderColor:"#d97706",color:"#78350f",background
+Home.tsx:14: 40
+  Home.tsx:141",value:"",children:"오행 선택"}),Lw.map(ao=>m.jsx("option",{"data-loc":"client/src/pages/Home.tsx:142",value:ao,children:ao},ao))]})]})})]})]}),m.jsx("div",{"data-loc":"client/src/pages/Home.
+  Home.tsx:142",value:ao,children:ao},ao))]})]})})]})]}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:150",style:{height:"1.25rem",overflow:"hidden"},children:p&&m.jsx("p",{"data-loc":"client/src/
+  Home.tsx:1400",children:[m.jsx("p",{"data-loc":"client/src/pages/Home.tsx:1401",style:{color:"#1c1917"},children:"중년(41~55세)을 보겠습니다."}),m.jsxs("p",{"data-loc":"client/src/pages/Home.tsx:1404",classNam
+Home.tsx:15: 29
+  Home.tsx:150",style:{height:"1.25rem",overflow:"hidden"},children:p&&m.jsx("p",{"data-loc":"client/src/pages/Home.tsx:152",className:"text-xs pl-1",style:{color:Rn.金},children:"★ 김(金)씨 — 한자 관계없이 항상 金 
+  Home.tsx:152",className:"text-xs pl-1",style:{color:Rn.金},children:"★ 김(金)씨 — 한자 관계없이 항상 金 오행"})}),d&&m.jsxs("div",{style:{marginTop:"8px",border:"1px solid oklch(0.80 0.02 72)",borderRadius:"8px",bac
+  Home.tsx:1508",className:"max-w-3xl mx-auto space-y-4",style:{scrollMarginTop:"110px"},children:[m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:1509",className:"text-center",children:[m.jsx("h2",

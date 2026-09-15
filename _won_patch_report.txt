@@ -1,0 +1,17 @@
+OK x1	labelEn:"Won Gyeok (元格) — Early Life" → labelEn:"Early Fortune"
+OK x1	labelEn:"Hyeong Gyeok (亨格) — Youth" → labelEn:"Prime Years"
+OK x1	labelEn:"Yi Gyeok (利格) — Middle Age" → labelEn:"Midlife Peak"
+OK x1	labelEn:"Jeong Gyeok (貞格) — Destiny" → labelEn:"Ultimate Destiny"
+OK x1	labelEn:"Won Gyeok — Early Life" → labelEn:"Early Fortune"
+OK x1	labelEn:"Hyeong Gyeok — Youth" → labelEn:"Prime Years"
+OK x1	labelEn:"Yi Gyeok — Middle Age" → labelEn:"Midlife Peak"
+OK x1	labelEn:"Jeong Gyeok — Destiny" → labelEn:"Ultimate Destiny"
+OK x1	S?"초년":"Early" → S?"초년":"Early Fortune"
+OK x1	S?"장년":"Prime" → S?"장년":"Prime Years"
+OK x1	S?"중년":"Middle" → S?"중년":"Midlife Peak"
+OK x1	S?"말년":"Later" → S?"말년":"Ultimate Destiny"
+OK x1	S?"탄생일 원형이정 (元亨利貞) 풀이":"Birth Date Destiny Reading (元亨利貞)" → S?"탄생일 원형이정 (元亨利貞) 풀이":"Birth Date Life Stages"
+OK x1	S?"탄생일 (원형이정 풀이용, 선택)":"Date of Birth (for Destiny Reading,  → S?"탄생일 (원형이정 풀이용, 선택)":"Date of Birth (for life-stage readin
+
+leftovers:
+(none)

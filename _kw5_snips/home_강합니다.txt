@@ -1,0 +1,5 @@
+강합니다 in j6 body before xk: 0
+결핍 in j6: 0
+Td in j6 body: 0
+ohangCounts in j6: 0
+j6_len=63015

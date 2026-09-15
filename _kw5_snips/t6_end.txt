@@ -1,0 +1,3 @@
+function T6(){const[e,a]=N.useState(""),[t,u]=N.useState([]),[i,g]=N.useState(null),[c,b]=N.useState([]),S=N.useRef(null);N.useEffect(()=>{S.current?.focus()},[]),N.useEffect(()=>{if(!e.trim()){u([]);
+...
+",65:"Modesty",66:"Repeated Joy",67:"Caution",68:"Harmony",69:"Conflict",70:"Empty Road",71:"Decline",72:"Obstacle",73:"Retreat",74:"Standstill",75:"Waiting",76:"Stagnation",77:"Repeated Thunder",78:"Repeated Mountain",79:"Repeated Water",80:"Repeated Earth",81:"Return to Origin"},Td={木:["木(목)의 기운이 

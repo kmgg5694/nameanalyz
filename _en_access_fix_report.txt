@@ -1,0 +1,45 @@
+OK x1	S?"월 (1-12)":"Mo (1-12)" → S?"월 (1-12)":"Month (1–12)"
+OK x1	S?"음령오행 (音靈五行) 분석":"Phonetic Five Elements (音靈五行)" → S?"음령오행 (音靈五行) 분석":"Name Energy Elements"
+MISS	Phonetic Five Elements (音靈五行)
+OK x1	S?"【음령오행 요약】":"【Phonetic Elements Summary】" → S?"【음령오행 요약】":"【Name Energy Summary】"
+OK x1	S?"오행 3자 구조 해설 (나를 중심으로)":"Three-Element Structure → S?"오행 3자 구조 해설 (나를 중심으로)":"Name Flow (You in the M
+OK x1	S?"오행 3자 구조 — 원활":"Three-Element Structure — Harmo → S?"오행 3자 구조 — 원활":"Name Flow — Harmonious"
+OK x1	Middle (self) ${Ie[Y]} (${Y}) — energy shown outwa → You (middle) ${Ie[Y]} — energy you show outwardly
+OK x1	S?"요약 내용이 복사되었습니다. 카카오톡에 붙여넣기 하세요!":"Summary copie → S?"요약 내용이 복사되었습니다. 카카오톡에 붙여넣기 하세요!":"Summary copie
+OK x1	S?"아래 주소를 복사해서 카카오톡에 붙여넣으세요:":"Copy this link and  → S?"아래 주소를 복사해서 카카오톡에 붙여넣으세요:":"Copy this link and 
+OK x1	Share KakaoTalk → Share Link
+OK x1	Open KakaoTalk → Send to Me → Paste (long press) → Open Messages or any app → paste the link
+OK x1	S?"이름 재물운: 청색 재물괘가 없습니다.":"Name wealth luck: no bl → S?"이름 재물운: 청색 재물괘가 없습니다.":"Name wealth luck: no st
+OK x1	S?"사주 재물운: 청색 재물괘가 없습니다.":"Birth wealth luck: no b → S?"사주 재물운: 청색 재물괘가 없습니다.":"Birth wealth luck: no s
+MISS	no blue wealth hexagram
+MISS	blue wealth hexagram
+OK x1	S?"이름 - 수리":"Name · No." → S?"이름 - 수리":"Name Numbers"
+OK x1	S?"이름 - 주역":"Name · Hex." → S?"이름 - 주역":"Name Hexagrams"
+OK x1	S?"생년월일 - 수리":"Birth · No." → S?"생년월일 - 수리":"Birth Numbers"
+OK x1	S?"생년월일 - 주역":"Birth · Hex." → S?"생년월일 - 주역":"Birth Hexagrams"
+OK x1	S?"구분":"Type" → S?"구분":"Row"
+OK x1	S?"이름 수리: 흉수가 없습니다.":"Name numerology: no inauspic → S?"이름 수리: 흉수가 없습니다.":"Name numbers: no caution num
+OK x1	S?"이름 주역 흉: 흉괘가 없습니다.":"Name hexagrams: no inauspi → S?"이름 주역 흉: 흉괘가 없습니다.":"Name hexagrams: no caution
+OK x1	S?"사주 수리: 흉수가 없습니다.":"Birth numerology: no inauspi → S?"사주 수리: 흉수가 없습니다.":"Birth numbers: no caution nu
+OK x1	S?"사주 주역 흉: 흉괘가 없습니다.":"Birth hexagrams: no inausp → S?"사주 주역 흉: 흉괘가 없습니다.":"Birth hexagrams: no cautio
+OK x1	S?"⚠ 흉괘":"⚠ Inauspicious" → S?"⚠ 흉괘":"⚠ Caution"
+OK x1	S?"★ 재물괘":"★ Wealth Hexagram" → S?"★ 재물괘":"★ Wealth Sign"
+OK x1	Birth numerology caution: → Birth numbers caution:
+OK x1	Name numerology caution: → Name numbers caution:
+OK x1	S?"성(위)과 이름(나)이 상생이라 윗사람 운이 열려 있습니다.":"Last→First  → S?"성(위)과 이름(나)이 상생이라 윗사람 운이 열려 있습니다.":"Last name s
+OK x1	S?"이름(나)과 아래가 상생이라 아랫사람 운이 열려 있습니다.":"Self→end is  → S?"이름(나)과 아래가 상생이라 아랫사람 운이 열려 있습니다.":"First name s
+OK x1	S?"상생 2개 — 재물운을 키우고 지켜 나갈 수 있는 이름입니다.":"Two genera → S?"상생 2개 — 재물운을 키우고 지켜 나갈 수 있는 이름입니다.":"Two suppor
+MISS	S?"김만기주역이름풀이":"김만기주역이름풀이"
+OK x1	S?"수리 81수 + 주역 64괘 풀이":"Numerology (81) + I Ching  → S?"수리 81수 + 주역 64괘 풀이":"Name Numbers & Life Cards"
+OK x1	S?"전체 오행 분포":"Five Elements Distribution" → S?"전체 오행 분포":"Element Balance"
+OK x1	S?"결론: 이름과 사주의 흉·재물 무게가 비슷합니다.":"Conclusion: the n → S?"결론: 이름과 사주의 흉·재물 무게가 비슷합니다.":"Conclusion: the n
+MISS	S?"이름의 기운이 사주를 돕지 못하고 오히려 방해합니다.":"The name's energy does not support 
+OK x1	birth chart → birth date reading
+MISS	S?"알림: 밑줄 친 수리명·주역명을 누르면 전체 뜻을 볼 수 있습니다.":"Notice: Tap an underlined n
+OK x1	Notice: Tap an underlined number name or hexagram  → Tip: Tap an underlined number or card name to read
+OK x1	S?"탄생일 (인생 단계 풀이용, 선택)":"Date of Birth (for life-s → S?"탄생일 (인생 단계 풀이용, 선택)":"Date of Birth (optional —
+OK	html title/og → English Name Reading
+
+leftovers:
+音靈五行 x1
+KakaoTalk x1

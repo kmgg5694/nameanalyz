@@ -1,0 +1,12 @@
+const fs = require("fs");
+const t = fs.readFileSync("C:/Users/a8071/Projects/nameanalyz/assets/index-kw5.js", "utf8");
+const i = t.indexOf('{char:"价"');
+fs.writeFileSync("C:/Users/a8071/Projects/nameanalyz/_kw5_snips/jia_after.txt", t.slice(i, i + 320));
+const p = t.indexOf("이 목록만 스크롤하세요");
+fs.writeFileSync("C:/Users/a8071/Projects/nameanalyz/_kw5_snips/picker_after.txt", t.slice(p, p + 1800));
+const jiaOk = t.includes('meaning:"착할 개",detail:"착하다, 크다, 심부름 꾼. 값 가"');
+const aoDetail = (t.match(/ao\.detail/g) || []).length;
+const detailFields = (t.match(/,detail:"/g) || []).length;
+console.log("jia_ok", jiaOk);
+console.log("ao.detail", aoDetail);
+console.log("detail_fields", detailFields);

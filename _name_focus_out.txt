@@ -1,0 +1,27 @@
+﻿
+===== focus at 2257334 =====
+")+" ?대쫫???寃곌낵?낅땲??\n?꾨옒 二쇱냼瑜??대㈃ 諛⑷툑 ???댁슜??洹몃?濡??섏샃?덈떎.\n"+c;try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(shareTxt);else{const b=document.createElement("textarea");b.value=shareTxt,b.style.position="fixed",b.style.left="-9999px",document.body.appendChild(b),b.focus(),b.select(),document.execCommand("copy"),document.body.removeChild(b)}u(!0),setTimeout(()=>u(!1),3e3),alert(`留곹겕媛 蹂듭궗?섏뿀?듬땲??
+
+移댁뭅?ㅽ넚 ?닿린 ???섏뿉寃?蹂대궡湲???
+
+===== focus at 2347648 =====
+fde68a",dot:"#d97706"},??{bg:"#f8fafc",text:"#374151",border:"#d1d5db",dot:"#6b7280"},麗?{bg:"#eff6ff",text:"#1e3a8a",border:"#bfdbfe",dot:"#2563eb"}};function T6(){const[e,a]=N.useState(""),[t,u]=N.useState([]),[i,g]=N.useState(null),[c,b]=N.useState([]),S=N.useRef(null);N.useEffect(()=>{S.current?.focus()},[]),N.useEffect(()=>{if(!e.trim()){u([]);return}const w=e.trim(),p=Ln.filter(y=>C6(xk(y.meaning),w,y.sound));u(p.slice(0,200))},[e]);const l=
+
+===== focus at 2389934 =====
+birthJeongData?.name??""} / ${f.birthJeongGwe?.name??"-"}`:"";return`?뱥 ?대쫫????붿빟 ??${J}${j}${B}${D}
+
+??諛깆텣??二쇱뿭 ?깅챸???대쫫???},oo=J=>{const j=document.createElement("textarea");j.value=J,j.style.position="fixed",j.style.top="-9999px",j.style.left="-9999px",j.style.opacity="0",document.body.appendChild(j),j.focus(),j.select();let B=!1;try{B=document.execCommand("copy")}catch{B=!1}return document.body.removeChild(j),B},M=()=>{const J=oo(q());alert(J?v?"?붿빟 
+
+onFocus count in form region 7
+liftKoField in form 6
+onTouchStart in form 7
+
+=== state init ===
+[birth,setBirth]=N.useState({lunar:["","",""],solar:["","",""]}),[t,u]=N.useState(()=>{const G=new URLSearchParams(window.location.search),mo=G.get("name");if(mo){const co=G.get("gender")||"male",rk=G.get("rk")==="ceo"?"ceo":"staff",wo=G.get("hc")||",",_o=G.get("ho")||",",No=G.get("hs")||"0,0,0",Mo=wo.split(","),Ro=_o.split(","),Tn=No.split(",").map(an=>an==="0"?"":Number(an));return{name:mo,gender:co,rank:rk,hanjaChars:Mo,hanjaOhang:Ro,hanjaManualStrokes:Tn}}return{name:"",gender:"male",rank:"staff",hanjaOhang:["","",""],hanjaChars:["","",""],hanjaManualStrokes:["","",""]}}),[i,g]=N.useState(""),[c,b]=N.useState(""),[S,l]=N.useState(0),O=N.useRef(null),w=N.useRef(null),sr=N.useRef(!1),p=44,y=20,[E,T]=N.useState(null),[v,Q]=N.useState(null),[f,ao]=N.useState(()=>{const G=new URLSearchParam
+?쒓??대쫫 near form [2280685, 2290433, 2318877, 2324586, 2326117]
+ldren:m.jsx("div",{style:{fontSize:"0.78rem",color:"oklch(0.35 0.06 230)",lineHeight:1.7},children:"?쒓??대쫫留??덈뒗 遺꾩? ?쒕Ц移몄뿉 蹂몄씤 ?깆뵪留??쒕Ц李얘린?먯꽌 李얠븘???낅젰??二쇱떆硫???닿? ?꾩꽦?⑸땲??"})}),m.jsx("div",{"data-loc":"client/src/pages/Home.tsx:684",className:"space-y-3",children:[0,1,2].map(G=>m.jsx(x6,{"data-loc":"client/src/pages/
+---
+er font-bold",style:{color:"#92400e",fontSize:"13px",letterSpacing:"1px",padding:"2px 0"},children:"?쒓??대쫫???})}),m.jsxs("tr",{"data-loc":"client/src/pages/Home.tsx:826",style:{borderBottom:"1px solid #d97706"},children:[m.jsx("td",{"data-loc":"client/src/pages/Home.tsx:827",className:"pr-1 font-bold 
+---
+. ????? 媛?대뜲, 媛?대뜲? ?꾨옒???곸깮?곴레?쇰줈 議곗쭅쨌遺??愿怨꾨? ?댁꽍?⑸땲?? ?쒖옄?대쫫??媛숈? 諛⑹떇?쇰줈 遊낅땲??":"?ㅽ뻾? 二쇰? ?щ엺?ㅺ낵 ?대뼡 ?멸컙愿怨꾨? 留븍뒗吏瑜??섑??낅땲?? ?쒓??대쫫 媛?대뜲 湲?먮? 蹂몄씤?쇰줈 蹂닿퀬, ?꾩そ(?깆뵪)? ?좎궛?곸냽쨌怨듬Т?먃룹꽑諛곗쓽 ?꾩?쨌諛곗슦?먯슫?? ?꾨옒履??앹옄)? ?숇즺쨌?꾨같쨌?먮?瑜??섑??낅땲?? ?쒖옄?대쫫??媛숈? 諛⑹떇?쇰줈 遊낅땲??"}),m.jsx("p",{"data-loc":"client/src/pages/Home.tsx:1210",className:"mt-2",style:{color:"#1c1917"},chi
+---

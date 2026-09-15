@@ -1,0 +1,6 @@
+s803=1987947
+iife=1988809
+end850marker=1990282
+from 803 to 850 len=2335
+between iife and 850: :no},J))]},`missing-${z}`))]})})()]}),m.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:850",style:{b
+before 803: 름이 성을 극하는 관계입니다.":" Controlling (相剋) ❌ — First Name controls Last Name."})()]}),

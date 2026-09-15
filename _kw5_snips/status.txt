@@ -1,0 +1,38 @@
+=== kw5 ===
+    0  기운이 강합니다
+    0  기운이 없습니다
+    0  Td={
+    1  ohangExt
+    0  hg-mid-ext
+    4  재물운 보존력
+    0  양부모·관청
+    5  왕따
+    0  가장 강한
+    6  겉으로 드러내는
+    2  내적 기운
+    2  ohangCounts
+    0  Strongest
+    2  Missing 
+    0  기운 결핍
+    0  function dy(
+    1  function B6(
+    1  function j6(
+=== eTNX ===
+    8  기운이 강합니다
+    5  기운이 없습니다
+    0  Td={
+    0  ohangExt
+    0  hg-mid-ext
+    2  재물운 보존력
+    1  양부모·관청
+    3  왕따
+    0  가장 강한
+    6  겉으로 드러내는
+    0  내적 기운
+    9  ohangCounts
+    0  Strongest
+    2  Missing 
+    0  기운 결핍
+    1  function dy(
+    0  function B6(
+    0  function j6(

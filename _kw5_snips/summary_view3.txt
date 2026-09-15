@@ -1,0 +1,15 @@
+
+===== #0 =====
+erSpacing:"3px",borderBottom:"2px solid #d97706",paddingBottom:"8px"},children:"요약보기"}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:1116",className:"text-center mb-4",children:[m.jsx("span",{"data-loc":"client/src/pages/Home.tsx:1117",className:"text-sm font-bold",style:{
+
+===== #1 =====
+rem",fontWeight:700,color:"#5b21b6",marginBottom:"1rem"},children:["📋 ",v?"이름풀이 요약보기":"Reading Summary"]}),m.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:901",style:{marginBottom:"1rem"},children:[m.jsx("div",{"data-loc":"client/src/pages/EnglishName.tsx:902",style:{f
+
+1100 idx -1
+1120 -1
+
+=== 883 ===
+Home.tsx:883",className:"py-1 text-center font-bold",style:{color:Eo(ho.data.type),cursor:"pointer",textDecoration:"underline",textUnderlineOffset:"2px"},onClick:()=>setTip({ttl:ho.suri+"수 · "+String(ho.data.name||"").replace(/\([^)]*\)/g,""),bdy:ho.data.desc||"",col:Eo(ho.data.type)}),children:ho.suri},`hg-suri-${bo}`)),uo&&_o&&No&&Mo&&Ro&&m.jsxs(m.Fragment,{children:[m.jsx("td",{"data-loc":"client/src/pages/Home.tsx:887",className:"py-1 px-2 te
+
+=== 936 ===
+Home.tsx:936",className:"py-1 text-center font-semibold",style:{color:bo===1?"#b45309":"#92400e",fontSize:"10px",lineHeight:1.25,whiteSpace:"nowrap",cursor:nm!=="-"?"pointer":"default",textDecoration:nm!=="-"?"underline":"none",textUnderlineOffset:"2px"},onClick:()=>{nm!=="-"&&setTip({ttl:nm,bdy:ds,col:bo===1?"#b45309":"#92400e"})},children:wrap2(nm).map((tx,ii)=>m.jsx("div",{style:{whiteSpace:"nowrap"},children:tx},ii))},`hg-gwe-${bo}`)}),uo&&_o&&No&&Mo&&Ro&&Io&&m.jsxs(m.Fragment,{children:[m.jsx("td",{"data-loc":"client/src/pages/Home.tsx:940",className:"py-1 px-2 text-center",style:{color:"#d97706"},children:"|"}),[_o,No,Mo,Ro].map((ho,bo)=>{const nm=ho.gwe?.name||(bo===1?`(${Io.upperName

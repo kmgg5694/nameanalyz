@@ -1,0 +1,2 @@
+idx=1890779
+function j6(){const[e,a]=N.useState("input"),[tip,setTip]=N.useState(null),[t,u]=N.useState(()=>{const G=new URLSearchParams(window.location.search),mo=G.get("name");if(mo){const co=G.get("gender")||"male",rk=G.get("rk")==="ceo"?"ceo":"staff",wo=G.get("hc")||",,",_o=G.get("ho")||",,",No=G.get("hs")||"0,0,0",Mo=wo.split(","),Ro=_o.split(","),Tn=No.split(",").map(an=>an==="0"?"":Number(an));return{n

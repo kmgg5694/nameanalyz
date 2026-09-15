@@ -1,0 +1,18 @@
+﻿birthSuri [2263487, 2287416, 2287434, 2287455, 2287471, 2300434, 2301024, 2301049, 2301074, 2302746, 2310048, 2310732]
+birth.lunar [2263518, 2263541, 2263562, 2271290, 2271921, 2272552]
+birth.solar [2273298, 2273929, 2274560]
+?꾩깮??[2270449, 2300751, 2300904, 2367640, 2377634, 2382423, 2385175, 2385235, 2385298, 2385355, 2388386, 2388682]
+?대쫫???[2238719, 2257039, 2268180, 2285623, 2285654, 2285697, 2289205, 2289775, 2295123, 2329993, 2330667, 2344964]
+bn() [392477, 392514, 392551, 392588, 2275524]
+liftKoField(G.target) [2271503, 2272134, 2272765, 2273511, 2274142, 2274773]
+e==="result" [2264316, 2282813]
+e==="input" [2269601]
+
+bn at 2264142
+bn=()=>{t.name.trim().length<2||(sr.current=!0,(()=>{const el=document.activeElement;el&&el.blur&&el.blur()})(),ao(!0),a("result"))};N.useLayoutEffect(()=>{if(sr.current&&f&&e==="result"){sr.current=!1;const sc=n=>{const el=document.getElementById("result-full-capture");if(el){const top=el.getBoundingClientRect().top+window.scrollY-112;window.scrollTo(0,Math.max(0,top))}else n<40&&setTimeout(()=>sc(n+1),50)};requestAnimationFrame(()=>requestAnimationFrame(()=>sc(0)))}},[f,e]);N.useEffect(()=>{const G=new URLSearchParams(window.location.search);G.get("result")==="1"&&G.get("name")&&a("result")},[]);const se=N.useCallback((G,mo)=>{u(co=>{const wo=[...co.hanjaChars];wo[G]=mo;const _o=[...co.hanjaOhang];if(mo){const No=Ln.find(Mo=>Mo.char===mo);No?_o[G]=No.ohang:G===0&&co.name[0]==="源"?_o[0]="
+
+?뚮젰湲곗? note 2300751
+,style:{marginTop:"10px",paddingTop:"8px",borderTop:"1px dashed #d97706"},children:[m.jsx("div",{style:{textAlign:"center",fontSize:"12px",fontWeight:700,color:"#92400e",marginBottom:"4px"},children:"?꾩깮?쇱? ?뚮젰湲곗??낅땲??"}),m.jsx("div",{style:{textAlign:"center",fontSize:"13px",fontWeight:700,color:"#92400e",letterSpacing:"1px",marginBottom:"6px"},children:"?꾩깮?????}),m.jsx("div",{style:{textAlign:"center",fontSize:"11px",color:"#78350f",marginBottom:"6px"},children:`湲곗????꾪빀 ${birthSuri.nums[0]} 쨌 ??${birthSuri.nums[1]} 쨌 ??${birthSuri.nums[2]}`}),m.jsx("table",{className:"w-full text-xs border-collaps
+
+input branch samples
+0 '.tsx:567",className:"container py-6",style:{scrollPaddingTop:"110px"},children:[e==="input"&&m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:570",className:"max-w-lg mx-auto space-y-6",style:{scro'

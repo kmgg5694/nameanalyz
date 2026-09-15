@@ -1,0 +1,79 @@
+geon @431992
+direct map None
+gwaName: 0
+hexTitle: 0
+guaName: 0
+trigram: 0
+hexagramName: 0
+nameKo: 0
+nameHangul: 0
+hanjaName: 0
+geon nameEn in obj: None
+upper lower @431998
+수`,type:"normal",shortDesc:"해석 데이터 없음",desc:"해당 수리에 대한 상세 해석이 준비 중입니다."}}const zT=[{id:1,name:"건위천",upper:1,lower:1,desc:"지만 범인은 괘의 위력에 압도당해 흉운을 면하기 어렵다. 이괘는 정격에 와야 도움이된다. 초년에 들면 학교 다닐때 1등을 하거나 보스기질이 있다. 일반인이 이괘를 얻으면 불감당. 하기 싫은것 절대 안한다. 주역 64괘 중 최고 지존의 괘로써 황제와 같은 기운을 뿜어내 보통 사람들에게는 이 기운이 들면 압도 당해 흉운을 면하기 어렵다.  고로 점점 나도 모르게 조연이나 남의 지시, 간섭, 통제를 견디기 힘들어 직장생활 적응이 어렵다. 위에 올라 서려는 기운 이기 때문이다. 하늘은 쉬지 않고 움직
+total nameEn=145
+nameEn 82-149 (possible hex):
+82	Geon Wi Cheon
+83	Cheon Taek Ri
+84	Cheon Hwa Dong In
+85	Cheon Roe Mu Mang
+86	Cheon Pung Gu
+87	Cheon Su Song
+88	Cheon San Dun
+89	Cheon Ji Bi
+90	Taek Cheon Kwae
+91	Tae Wi Taek
+92	Taek Hwa Hyeok
+93	Taek Roe Su
+94	Taek Pung Dae Gwa
+95	Taek Su Gon
+96	Taek San Ham
+97	Taek Ji Chwe
+98	Hwa Cheon Dae Yu
+99	Hwa Taek Gyu
+100	I Wi Hwa
+101	Hwa Roe Seo Hap
+102	Hwa Pung Jeong
+103	Hwa Su Mi Je
+104	Hwa San Ryeo
+105	Hwa Ji Jin
+106	Noe Cheon Dae Jang
+107	Noe Taek Gwi Mae
+108	Noe Hwa Pung
+109	Jin Wi Roe
+110	Noe Pung Hang
+111	Noe Su Hae
+112	Noe San So Gwa
+113	Noe Ji Ye
+114	Pung Cheon So Chuk
+115	Pung Taek Jung Bu
+116	Pung Hwa Ga In
+117	Pung Roe Ik
+118	Son Wi Pung
+119	Pung Su Hwan
+120	Pung San Jeom
+121	Pung Ji Gwan
+122	Su Cheon Su
+123	Su Taek Jeol
+124	Su Hwa Gi Je
+125	Su Roe Dun
+126	Su Pung Jeong
+127	Gam Wi Su
+128	Su San Geon
+129	Su Ji Bi
+130	San Cheon Dae Chuk
+131	San Taek Son
+132	San Hwa Bi
+133	San Roe I
+134	San Pung Go
+135	San Su Mong
+136	Gan Wi San
+137	San Ji Bak
+138	Ji Cheon Tae
+139	Ji Taek Rim
+140	Ji Hwa Myeong I
+141	Ji Roe Bok
+142	Ji Pung Seung
+143	Ji Su Sa
+144	Ji San Gyeom
+145	Gon Wi Ji

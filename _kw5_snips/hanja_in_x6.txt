@@ -1,0 +1,8 @@
+HIT 1 @45
+x6=ko.memo(function({idx:a,char:t,position:u,hanjaChar:i,hanjaManualStroke:g,hanjaOhangVal:c,onHanjaChange:b,onManualStrokeCh
+
+HIT 2 @57
+x6=ko.memo(function({idx:a,char:t,position:u,hanjaChar:i,hanjaManualStroke:g,hanjaOhangVal:c,onHanjaChange:b,onManualStrokeChange:S,onMan
+
+HIT 3 @77
+x6=ko.memo(function({idx:a,char:t,position:u,hanjaChar:i,hanjaManualStroke:g,hanjaOhangVal:c,onHanjaChange:b,onManualStrokeChange:S,onManualOhangChange:l,onS

@@ -1,0 +1,4 @@
+between end of block and gender (200 chars):
+'=="sangsaeng"?"bg-green-100 text-green-800":_==="sanggeuk"?"bg-red-100 text-red-800":"bg-stone-100 text-stone-700"}`,children:["나→아래: ",_==="sangsaeng"?"상생 ✅":_==="sanggeuk"?"상극 ❌":"비화 ➖"]})]})]})]}),m.jsxs("div",{"data-loc":"client/src/pages/Home.tsx:655",children:[m.jsx("label"'
+LAST 60 of block:
+'"sangsaeng"?"상생 ✅":_==="sanggeuk"?"상극 ❌":"비화 ➖"]})]})]})]}),'

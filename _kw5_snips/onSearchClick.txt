@@ -1,0 +1,1 @@
+[G]||"",position:["성씨","가운데","끝자"][G],hanjaChar:t.hanjaChars[G],hanjaManualStroke:t.hanjaManualStrokes[G],hanjaOhangVal:t.hanjaOhang[G],onHanjaChange:se,onManualStrokeChange:Yn,onManualOhangChange:es,onSearchClick:Se},G))})]}),m.jsx("button",{"data-loc":"client/src/pages/Home.tsx

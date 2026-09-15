@@ -1,0 +1,12 @@
+탄생일 (원형이정 풀이용, 선택)
+탄생일 원형이정 (元亨利貞) 풀이
+}`,be=w.birthSuri?`
+
+[탄생일 원형이정 4격]
+원격: ${w.birthSuri.won}수 ${w.birthWo
+label:"원격(元格) — 초년운"
+label:"형격(亨格) — 청년운"
+label:"이격(利格) — 중년운"
+label:"정격(貞格) — 총운"
+labelEn:"Early Fortune"
+labelEn:"Prime Years"

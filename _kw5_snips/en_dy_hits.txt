@@ -1,0 +1,11 @@
+de=( @2449 de=(x,B)=>S?B:sy[x]?.nameEn??B,C=x=>sy[x],P=x=>oy[x],H=(x,B)=>S?x:oy[B]?.nameEn??x,se=x=>S?We[x]:`${
+H=( @2502 H=(x,B)=>S?x:oy[B]?.nameEn??x,se=x=>S?We[x]:`${Ie[x]} (${x})`,le=({label:x,labelEn:B,suri:z,data:N,g
+.desc @3574 .desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-loc":"client/src/pages/EnglishName.tsx:485",style:{col
+.desc @3585 .descEn??N.desc)&&E.jsx("p",{"data-loc":"client/src/pages/EnglishName.tsx:485",style:{color:"#111111
+.desc @3595 .desc)&&E.jsx("p",{"data-loc":"client/src/pages/EnglishName.tsx:485",style:{color:"#111111",fontSize
+shortDesc @3524 shortDesc:C(z)?.shortDescEn??N.shortDesc})]}),(S?N.desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-loc"
+shortDesc @3540 shortDescEn??N.shortDesc})]}),(S?N.desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-loc":"client/src/pag
+shortDesc @3555 shortDesc})]}),(S?N.desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-loc":"client/src/pages/EnglishName.
+wonData @1642 wonData:da,hyeongData:Un,iData:Ia,jeongData:Tt,wonGwe:rt,hyeongGwe:dn,iGwe:Qt,jeongGwe:Wa,upper:Ye,l
+wonData @34245 wonData,gwe:w.wonGwe,period:"1~23세",periodEn:"Age 1~23",gwePeriod:"주역괘 나이: 1~30세",gwePeriodEn:"I Chi
+wonData @38386 wonData,gwe:w.wonGwe},{label:"형격(亨格)",labelEn:"Hyeong Gyeok",sub:S?"청년 · 24~40세":"Youth · Age 24~40"

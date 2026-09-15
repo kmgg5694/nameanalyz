@@ -1,0 +1,61 @@
+438: data-loc":"client/src/pages/EnglishName.tsx:438",style:{display:"inline-block",padding:"1px 6px",borderRadius:"9999px",fontSize:"0.75rem",fontWeight:700,color:mt[x],backgroundColor:ly[x],border:`1px solid ${mt[x]}`},chil
+
+468: data-loc":"client/src/pages/EnglishName.tsx:468",style:{marginBottom:"1.5rem",padding:"1rem",borderRadius:"0.5rem",backgroundColor:"#ffffff",border:"1px solid #ccc"},children:[E.jsxs("div",{"data-loc":"client/src/pages/E
+
+470: data-loc":"client/src/pages/EnglishName.tsx:470",style:{fontWeight:700,fontSize:"1rem",color:"#5c2d00",marginBottom:"0.5rem"},children:["▶ ",S?E.jsxs(E.Fragment,{children:[x," — ",K]}):E.jsxs(E.Fragment,{children:[B," — 
+
+474: data-loc":"client/src/pages/EnglishName.tsx:474",style:{marginBottom:"0.4rem"},children:[E.jsxs("span",{"data-loc":"client/src/pages/EnglishName.tsx:475",style:{fontWeight:700,color:UT(N.type)},children:[(S||Q)&&`수리 ${z}
+
+475: data-loc":"client/src/pages/EnglishName.tsx:475",style:{fontWeight:700,color:UT(N.type)},children:[(S||Q)&&`수리 ${z}수 (${N.name})`,Q,!S&&!Q&&`No.${z} — ${de(z,N.name)}`]}),E.jsx("span",{"data-loc":"client/src/pages/Englis
+
+480: data-loc":"client/src/pages/EnglishName.tsx:480",style:{marginLeft:"0.5rem",fontSize:"0.8rem",color:"#444444"},children:S?N.shortDesc:C(z)?.shortDescEn??N.shortDesc})]}),(S?N.desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-
+
+485: data-loc":"client/src/pages/EnglishName.tsx:485",style:{color:"#111111",fontSize:"0.9rem",lineHeight:1.7,marginBottom:"0.5rem"},children:S?N.desc:C(z)?.descEn??N.desc}),Y&&E.jsxs("div",{"data-loc":"client/src/pages/Engli
+
+490: data-loc":"client/src/pages/EnglishName.tsx:490",style:{marginTop:"0.4rem"},children:[E.jsxs("span",{"data-loc":"client/src/pages/EnglishName.tsx:491",style:{fontWeight:700,color:GT(Y)},children:[(S||Q)&&`주역괘: ${Y.name}`
+
+491: data-loc":"client/src/pages/EnglishName.tsx:491",style:{fontWeight:700,color:GT(Y)},children:[(S||Q)&&`주역괘: ${Y.name}`,(S||Q)&&fe&&E.jsxs("span",{"data-loc":"client/src/pages/EnglishName.tsx:493",style:{fontSize:"0.78rem
+
+493: data-loc":"client/src/pages/EnglishName.tsx:493",style:{fontSize:"0.78rem",color:"#555",fontWeight:400,marginLeft:"0.4rem"},children:["(",fe,")"]}),Q,Q,!S&&!Q&&`I Ching: ${H(Y.name,Y.id)}`,!S&&!Q&&be&&E.jsxs("span",{"dat
+
+497: data-loc":"client/src/pages/EnglishName.tsx:497",style:{fontSize:"0.78rem",color:"#555",fontWeight:400,marginLeft:"0.4rem"},children:["(",be,")"]})]}),Y.isTaboo&&E.jsx("span",{"data-loc":"client/src/pages/EnglishName.tsx
+
+499: data-loc":"client/src/pages/EnglishName.tsx:499",style:{marginLeft:"0.4rem",fontSize:"0.75rem",color:"#FF0000",fontWeight:700},children:S?"⚠ 흉괘":"⚠ Inauspicious"}),Y.isBest&&E.jsx("span",{"data-loc":"client/src/pages/Eng
+
+500: data-loc":"client/src/pages/EnglishName.tsx:500",style:{marginLeft:"0.4rem",fontSize:"0.75rem",color:"#0000FF",fontWeight:700},children:S?"★ 재물괘":"★ Wealth Hexagram"}),E.jsx("p",{"data-loc":"client/src/pages/EnglishName.
+
+501: data-loc":"client/src/pages/EnglishName.tsx:501",style:{color:"#111111",fontSize:"0.9rem",lineHeight:1.7,marginTop:"0.3rem"},children:S?Y.desc:P(Y.id)?.descEn??Y.desc})]})]});return E.jsxs("div",{"data-loc":"client/src/p
+
+564: data-loc":"client/src/pages/EnglishName.tsx:564",style:{minHeight:"100vh",backgroundColor:"#ffffff",fontFamily:'"Noto Serif KR", serif'},children:[E.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:566",style:{ba
+
+566: data-loc":"client/src/pages/EnglishName.tsx:566",style:{backgroundColor:"#7c3aed",padding:"1rem 1.5rem",display:"flex",alignItems:"center",justifyContent:"space-between"},children:[E.jsxs("div",{"data-loc":"client/src/pa
+
+567: data-loc":"client/src/pages/EnglishName.tsx:567",style:{display:"flex",alignItems:"center",gap:"1rem"},children:[E.jsx("h1",{"data-loc":"client/src/pages/EnglishName.tsx:568",style:{color:"#fff",fontSize:"1.2rem",fontWei
+
+568: data-loc":"client/src/pages/EnglishName.tsx:568",style:{color:"#fff",fontSize:"1.2rem",fontWeight:700,margin:0},children:"🌐 Kim Mangi Name Lab — English Name Reading"}),(W||q)&&E.jsx("span",{"data-loc":"client/src/pages/
+
+572: data-loc":"client/src/pages/EnglishName.tsx:572",style:{color:"#fde68a",fontSize:"1rem",fontWeight:700},children:q?"...":`${W} ${ie}${$?` ${$}`:""}`})]}),E.jsx("div",{"data-loc":"client/src/pages/EnglishName.tsx:577",sty
+
+577: data-loc":"client/src/pages/EnglishName.tsx:577",style:{display:"flex",gap:"0.3rem",flexShrink:0},children:E.jsx("button",{"data-loc":"client/src/pages/EnglishName.tsx:578",onClick:()=>D(S?"en":"ko"),style:{padding:"0.35
+
+578: data-loc":"client/src/pages/EnglishName.tsx:578",onClick:()=>D(S?"en":"ko"),style:{padding:"0.35rem 0.75rem",borderRadius:"9999px",border:"2px solid #e9d5ff",backgroundColor:S?"#fef3c7":"#e9d5ff",color:S?"#92400e":"#5b21
+
+595: data-loc":"client/src/pages/EnglishName.tsx:595",style:{maxWidth:"800px",margin:"0 auto",padding:"1.5rem 1rem"},children:[E.jsxs("div",{"data-loc":"client/src/pages/EnglishName.tsx:598",style:{backgroundColor:"#fff",bord
+
+598: data-loc":"client/src/pages/EnglishName.tsx:598",style:{backgroundColor:"#fff",borderRadius:"0.75rem",padding:"1.5rem",marginBottom:"1.5rem",boxShadow:"0 1px 4px rgba(0,0,0,0.08)",border:"1px solid #e7e5e4"},children:[E.
+
+599: data-loc":"client/src/pages/EnglishName.tsx:599",style:{fontSize:"1.1rem",fontWeight:700,color:"#7c3aed",marginBottom:"1rem"},children:["✏️ ",S?"영어 이름 입력":"Enter English Name"]}),E.jsxs("div",{"data-loc":"client/src/page
+
+602: data-loc":"client/src/pages/EnglishName.tsx:602",style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.75rem",marginBottom:"1rem",alignItems:"start"},children:[E.jsxs("div",{"data-loc":"client/src/pages/EnglishN
+
+603: data-loc":"client/src/pages/EnglishName.tsx:603",children:[E.jsx("label",{"data-loc":"client/src/pages/EnglishName.tsx:604",style:{display:"block",fontSize:"0.8rem",fontWeight:600,color:"#5c2d00",marginBottom:"0.3rem",wh
+
+604: data-loc":"client/src/pages/EnglishName.tsx:604",style:{display:"block",fontSize:"0.8rem",fontWeight:600,color:"#5c2d00",marginBottom:"0.3rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:S?"성 
+
+607: data-loc":"client/src/pages/EnglishName.tsx:607",type:"text",value:n,onChange:x=>{i(x.target.value),A(!1)},placeholder:"e.g. Kennedy",style:{width:"100%",padding:"0.6rem 0.75rem",border:"2px solid #aaa",borderRadius:"0.4
+
+615: data-loc":"client/src/pages/EnglishName.tsx:615",children:[E.jsx("label",{"data-loc":"client/src/pages/EnglishName.tsx:616",style:{display:"block",fontSize:"0.8rem",fontWeight:600,color:"#5c2d00",marginBottom:"0.3rem",wh
+
+616: data-loc":"client/src/pages/EnglishName.tsx:616",style:{display:"block",fontSize:"0.8rem",fontWeight:600,color:"#5c2d00",marginBottom:"0.3rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:S?"이름
+
+619: data-loc":"client/src/pages/EnglishName.tsx:619",type:"text",value:s,onChange:x=>{o(x.target.value),A(!1)},placeholder:"e.g. John",style:{width:"100%",padding:"0.6rem 0.75rem",border:"2px solid #aaa",borderRadius:"0.4rem

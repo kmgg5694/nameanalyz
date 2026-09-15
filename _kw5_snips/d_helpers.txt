@@ -1,0 +1,23 @@
+dy len 44856
+de= count=1 first=2479
+C= count=1 first=2510
+P= count=1 first=2521
+H= count=1 first=2532
+nameEn count=2 first=2500
+C(N) count=2 first=41124
+function C count=0 first=-1
+const C count=0 first=-1
+de(N count=0 first=-1
+const de= @-1 
+de=(N @-1 
+de=(n @-1 
+,de= @2478 ,de=(x,B)=>S?B:sy[x]?.nameEn??B,C=x=>sy[x],P=x=>oy[x],H=(x,B)=>S?x:oy[B]?.nameEn??x,se=x=>S?We[x]:`${Ie[x]} (${x})`,le=({label:x,labelEn:B,suri:z,data:N,gwe:Y,period:K,periodEn:I,gwePeriod:fe,gwePeriodEn:be})=>E.jsxs("di
+de=N=> @-1 
+de=(Y @-1 
+first C= @2510 e=(x,B)=>S?B:sy[x]?.nameEn??B,C=x=>sy[x],P=x=>oy[x],H=(x,B)=>S?x:oy[B]?.nameEn??x,se=x=>S?We[x]:`${Ie[x]} (${x})`,le=({label:x,labelEn:B,suri:z,data:N,gwe:Y,period:K,periodEn:I,gwePeriod:fe,gwePeriodEn:be})=>E.
+descEn @3616 44"},children:S?N.shortDesc:C(z)?.shortDescEn??N.shortDesc})]}),(S?N.desc:C(z)?.descEn??N.desc)&&E.jsx("p",{"data-loc":"client/src/pages/EnglishName.tsx:485",st
+rfind const C= -1
+C=Y=> -1 
+P=K=> -1 
+H=K=> -1
+H=(K -1 

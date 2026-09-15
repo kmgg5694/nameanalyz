@@ -1,0 +1,7 @@
+"탄생일 (원형이정 풀이용, 선택)"
+"탄생일 원형이정 (元亨利貞) 풀이"
+"}`,be=w.birthSuri?`
+
+[탄생일 원형이정 4격]
+원격: ${w.birthSuri.won}수 ${w.birthWonData?.name??"
+th>0||verdict)&&E.jsxs("div",{style:{marginTop:"12px",fontSize:"0.9rem",lineHeight:1.75,color:"#1c1917"},children:[E.jsx

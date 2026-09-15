@@ -1,0 +1,1 @@
+p",{"data-loc":"client/src/pages/Home.tsx:1404",className:"mt-2",style:{color:"#1c1917"},children:["한글이름의 중년 수리는 ",m.jsxs("span",{"data-loc":"client/src/pages/Home.tsx:1405",style:{color:Eo(co.data.type),fontWeight:"bold"},children:[co.suri,"수(",co.data.name,")"]}),"입니다.",co.data

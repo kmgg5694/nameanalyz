@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>요약보기 표 미리보기</title>
+  <style>
+    body { margin: 0; background: #f4efe4; font-family: "Noto Serif KR", "Malgun Gothic", serif; }
+    .wrap { max-width: 420px; margin: 16px auto; padding: 0 12px 40px; }
+    .card {
+      background: #fffdf5; border: 2px solid #b45309; border-radius: 10px; padding: 16px 12px;
+    }
+    h3 {
+      margin: 0 0 10px; text-align: center; color: #92400e; letter-spacing: 3px;
+      border-bottom: 2px solid #d97706; padding-bottom: 8px; font-size: 1.05rem;
+    }
+    .hint { text-align: center; color: #92400e; font-size: 0.82rem; line-height: 1.6; margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+    th, td { padding: 5px 2px; text-align: center; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+    th { color: #78350f; font-weight: 700; border-bottom: 2px solid #d97706; }
+    td.lab { text-align: left; color: #92400e; font-weight: 700; white-space: nowrap; padding-left: 2px; width: 5.4rem; font-size: 11px; }
+    button.u {
+      background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+      font: inherit; font-weight: 700; color: #1c1917;
+      text-decoration: underline; text-underline-offset: 2px; white-space: nowrap;
+    }
+    button.u.bad { color: #cc0000; }
+    .cell { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+    .age { display: block; font-size: 8px; font-weight: 600; color: #78716c; letter-spacing: -0.2px; white-space: nowrap; margin-top: 1px; }
+    .tot { margin-top: 14px; font-size: 0.9rem; line-height: 1.7; color: #1c1917; }
+    .tot b { color: #92400e; }
+    .mask {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      align-items: center; justify-content: center; padding: 1.2rem; z-index: 20;
+    }
+    .mask.on { display: flex; }
+    .pop {
+      background: #fffdf5; border: 2px solid #b45309; border-radius: 12px;
+      max-width: 28rem; width: 100%; padding: 1rem 1.1rem;
+    }
+    .pop h4 { margin: 0 0 8px; color: #92400e; }
+    .pop p { margin: 0; line-height: 1.7; }
+    .pop button { margin-top: 12px; width: 100%; padding: 8px; border: 0; border-radius: 6px; background: #b45309; color: #fff; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h3>요약보기</h3>
+      <p class="hint">밑줄 친 수리와 주역괘를 누르면 뜻을 전부 볼 수 있습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>초년</th>
+            <th>장년</th>
+            <th>중년</th>
+            <th>말년</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="lab">이름 - 수리</td>
+            <td><div class="cell"><button class="u bad" data-t="이산파멸 · 1~23세" data-b="이산파멸의 뜻입니다.">이산파멸</button><span class="age">1~23세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="중인신망 · 24~40세" data-b="중인신망의 뜻입니다.">중인신망</button><span class="age">24~40세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="명망사해 · 41~55세" data-b="명망사해의 뜻입니다.">명망사해</button><span class="age">41~55세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="두령지모 · 56세~" data-b="두령지모의 뜻입니다.">두령지모</button><span class="age">56세~</span></div></td>
+          </tr>
+          <tr>
+            <td class="lab">이름 - 주역</td>
+            <td><div class="cell"><button class="u" data-t="화수미제 · 1~30세" data-b="화수미제의 뜻입니다.">화수미제</button><span class="age">1~30세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="화천대유 · 31~50세" data-b="화천대유의 뜻입니다.">화천대유</button><span class="age">31~50세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="화풍정 · 51~55세" data-b="화풍정의 뜻입니다.">화풍정</button><span class="age">51~55세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="이위화 · 56세~" data-b="이위화의 뜻입니다.">이위화</button><span class="age">56세~</span></div></td>
+          </tr>
+          <tr>
+            <td class="lab">생년월일 - 수리</td>
+            <td><div class="cell"><button class="u bad" data-t="재화연속 · 1~23세" data-b="재화연속의 뜻입니다.">재화연속</button><span class="age">1~23세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="일확천금 · 24~40세" data-b="일확천금의 뜻입니다.">일확천금</button><span class="age">24~40세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="일확천금 · 41~55세" data-b="일확천금의 뜻입니다.">일확천금</button><span class="age">41~55세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="비룡승천 · 56세~" data-b="비룡승천의 뜻입니다.">비룡승천</button><span class="age">56세~</span></div></td>
+          </tr>
+          <tr>
+            <td class="lab">생년월일 - 주역</td>
+            <td><div class="cell"><button class="u" data-t="산택손 · 1~30세" data-b="산택손의 뜻입니다.">산택손</button><span class="age">1~30세</span></div></td>
+            <td><div class="cell"><button class="u bad" data-t="간위산 · 31~50세" data-b="간위산의 뜻입니다. 30~50대 큰 위기가 있으니 조심해야 합니다.">간위산</button><span class="age">31~50세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="산뢰이 · 51~55세" data-b="산뢰이의 뜻입니다.">산뢰이</button><span class="age">51~55세</span></div></td>
+            <td><div class="cell"><button class="u" data-t="산뢰이 · 56세~" data-b="산뢰이의 뜻입니다.">산뢰이</button><span class="age">56세~</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tot">
+        <b>총평</b><br>
+        이름의 주역괘는 매우 좋았음<br>
+        사주(생년월일)의 주역괘는 매우 안 좋으니, 나쁜 사주에 비해 좋은 이름을 가진 사람임<br>
+        그러나 사주에 간위산 30~50대의 큰 위기가 있으니 조심해야 함
+      </div>
+    </div>
+  </div>
+  <div class="mask" id="mask">
+    <div class="pop">
+      <h4 id="ttl"></h4>
+      <p id="bdy"></p>
+      <button type="button" id="cls">닫기</button>
+    </div>
+  </div>
+  <script>
+    const mask = document.getElementById("mask");
+    document.querySelectorAll("button.u").forEach(btn => {
+      btn.onclick = () => {
+        document.getElementById("ttl").textContent = btn.dataset.t;
+        document.getElementById("bdy").textContent = btn.dataset.b;
+        mask.classList.add("on");
+      };
+    });
+    document.getElementById("cls").onclick = () => mask.classList.remove("on");
+    mask.onclick = e => { if (e.target === mask) mask.classList.remove("on"); };
+  </script>
+</body>
+</html>

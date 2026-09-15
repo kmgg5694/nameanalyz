@@ -1,0 +1,7 @@
+OK x1 S?"위쪽(성→나) 상생 — 양부모·관청·선배·배우자 운이 원활함":"Above (Last→First) generating —
+OK x1 S?"아래쪽(나→끝) 상생 — 동료·후배·자녀운이 열려 있음":"Below (self→end) generating — coll
+OK x1 S?"상극이 2개인 이름은 학창시절 왕따를 당하기 쉬운 기운입니다.":"Both links controlling — this 
+MISS Above (Last→First) generating — parents, workplace, seniors, spouse fo
+MISS Below (self→end) generating — colleagues, juniors, children fortune op
+LEFT
+(none)

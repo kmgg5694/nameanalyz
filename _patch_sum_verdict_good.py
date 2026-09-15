@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+from pathlib import Path
+import subprocess
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
+p = Path(r"C:\Users\a8071\Projects\nameanalyz\assets\index-kw5.js")
+kw = p.read_text(encoding="utf-8")
+
+old = (
+    'bdRed=bdG.filter(g=>g.isTaboo).length,ps=[];'
+    'ps.push("요약을 초년·장년·중년·말년으로 보면 수리가 흉(빨간색)이면 내가 몸으로 때워도 되지만, 주역괘의 흉(빨간색)은 꼭 상처를 남기니 피할 수가 없습니다.");'
+    'if(nmRed>=3)ps.push("이 이름의 주역괘는 한문"+nmHjRed+"개, 한글"+nmHgRed+"개로 빨간 흉괘가 "+nmRed+"개나 되어, 이름이 사주의 멱살을 잡고 쥐락펴락 하니 암이나 교통사고사가 예상됩니다.");'
+    'else if(nmRed>=1)ps.push("이름 주역괘에 빨간 흉괘가 "+nmRed+"개 있어, 그 시기에는 사건·중병·도산 등으로 고생하게 됩니다.");'
+    'if(bdG.length){if(nmRed>=3&&bdRed<=2){ps.push("사주는 좋은 기운이 몰려오거나 부름을 받아 상류층 삶을 살아갈 수 있는 형국이더라도, 이름의 기운이 내 사주를 처벌하니 중도하차하는 형상입니다.");'
+    'ps.push("결론은 잘못된 이름이 중간정도의 나의 사주를 짓밟는 형상이니 사주에 비해 아주 나쁜 이름의 소유자입니다.")}'
+    'else if(nmRed>bdRed){ps.push("이름의 흉괘가 사주보다 더 강해 사주의 흐름을 눌러 버리는 형상입니다.");'
+    'ps.push("결론은 잘못된 이름이 나의 사주를 짓밟는 형상이니 사주에 비해 나쁜 이름의 소유자입니다.")}'
+    'else if(nmRed===0&&bdRed===0)ps.push("이름과 사주의 주역괘가 모두 크게 깨지지 않아, 이름과 사주가 서로 거스르지 않는 편입니다.")}'
+    'else if(nmRed>=1)ps.push("이 괘는 사건, 사망, 중병, 도산 등으로 고생하게 됩니다.");'
+    'return ps.join(" ")})()'
+)
+
+new = (
+    'bdRed=bdG.filter(g=>g.isTaboo).length,'
+    'nmBlue=nmAll.filter(g=>g.isBest).length,'
+    'bdBlue=bdG.filter(g=>g.isBest).length,ps=[];'
+    'ps.push("요약을 초년·장년·중년·말년으로 보면 수리가 흉(빨간색)이면 내가 몸으로 때워도 되지만, 주역괘의 흉(빨간색)은 꼭 상처를 남기니 피할 수가 없습니다.");'
+    'if(nmRed>=3)ps.push("이 이름의 주역괘는 한문"+nmHjRed+"개, 한글"+nmHgRed+"개로 빨간 흉괘가 "+nmRed+"개나 되어, 이름이 사주의 멱살을 잡고 쥐락펴락 하니 암이나 교통사고사가 예상됩니다.");'
+    'else if(nmRed>=1)ps.push("이름 주역괘에 빨간 흉괘가 "+nmRed+"개 있어, 그 시기에는 사건·중병·도산 등으로 고생하게 됩니다.");'
+    'if(bdG.length){'
+    'if(nmRed>=3&&bdRed<=2){ps.push("사주는 좋은 기운이 몰려오거나 부름을 받아 상류층 삶을 살아갈 수 있는 형국이더라도, 이름의 기운이 내 사주를 처벌하니 중도하차하는 형상입니다.");'
+    'ps.push("결론은 잘못된 이름이 중간정도의 나의 사주를 짓밟는 형상이니 사주에 비해 아주 나쁜 이름의 소유자입니다.")}'
+    'else if(nmRed>bdRed){ps.push("이름의 흉괘가 사주보다 더 강해 사주의 흐름을 눌러 버리는 형상입니다.");'
+    'ps.push("결론은 잘못된 이름이 나의 사주를 짓밟는 형상이니 사주에 비해 나쁜 이름의 소유자입니다.")}'
+    'else if(bdRed>=3&&nmRed<=1){ps.push("사주는 흉이 많아 매우 나쁜 형국이어도, 이름의 주역괘에 출세운과 재물운이 받쳐 주어 아주 잘 나가는 삶을 살 수 있는 경우도 있습니다.");'
+    'ps.push("이런 경우에는 사주에 비해 좋은 이름을 가졌네요.")}'
+    'else if(nmRed<bdRed||nmBlue>bdBlue){ps.push("사주의 흉보다 이름의 주역괘가 더 받쳐 주어, 출세운과 재물운이 사주를 도와주는 형상입니다.");'
+    'ps.push("이런 경우에는 사주에 비해 좋은 이름을 가졌네요.")}'
+    'else if(nmRed===0&&bdRed===0)ps.push("이름과 사주의 주역괘가 모두 크게 깨지지 않아, 이름과 사주가 서로 거스르지 않는 편입니다.")}'
+    'else if(nmRed>=1)ps.push("이 괘는 사건, 사망, 중병, 도산 등으로 고생하게 됩니다.");'
+    'return ps.join(" ")})()'
+)
+
+if old not in kw:
+    j = kw.find("Home.tsx:1193")
+    Path(r"C:\Users\a8071\Projects\nameanalyz\_kw5_snips\verdict_miss.txt").write_text(
+        kw[j:j + 2200], encoding="utf-8"
+    )
+    raise SystemExit("miss — see _kw5_snips/verdict_miss.txt")
+
+kw = kw.replace(old, new, 1)
+p.write_text(kw, encoding="utf-8")
+r = subprocess.run(["node", "--check", str(p)], capture_output=True)
+print("syntax", r.returncode)
+if r.returncode:
+    print(r.stderr.decode("utf-8", errors="replace")[-500:])
+else:
+    print("OK", "사주에 비해 좋은 이름을 가졌네요" in kw, "출세운과 재물운이 받쳐" in kw)

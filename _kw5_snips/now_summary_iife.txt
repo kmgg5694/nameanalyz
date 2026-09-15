@@ -1,0 +1,2 @@
+idx=1926535
+(()=>{const ho=vo=>vo==="taboo"||vo==="bad"||vo==="caution"?"#cc0000":"#1c1917",bo=vo=>vo?vo.isTaboo?"#cc0000":vo.isBest?"#1a56db":"#1c1917":"#1c1917",fmtNm=n=>{const h=String(n||"").replace(/\([^)]*\)/g,"").replace(/\s+/g,"");const a=[];for(let i=0;i<h.length;i+=2)a.push(h.slice(i,i+2));return a.length?a:["-"]},wrap2=n=>{const h=String(n||"").trim();if(!h||h==="-")return["-"];const a=[];for(let i=0;i<h.length;i+=2)a.push(h.slice(i,i+2));return a},snBtn=(ttl,bdy,col,kids)=>m.jsxs("button",{type:

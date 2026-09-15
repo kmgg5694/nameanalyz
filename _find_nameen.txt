@@ -1,0 +1,57 @@
+nameEn: 149 @ [448514, 449142, 449827, 450473, 451178, 451694, 452263, 452787]
+suriEn: 0 @ []
+SURI: 0 @ []
+gwaEn: 0 @ []
+hexName: 0 @ []
+The Creative: 0 @ []
+New Beginning: 0 @ []
+Geonwi: 0 @ []
+Hwaji: 0 @ []
+Bakyak: 0 @ []
+초년: 23 @ [410391, 412077, 414827, 415867, 417265, 423106, 428310, 428480]
+nameMap: 0 @ []
+
+--- nameEn @448514 ---
+르면 길하고 강하게 맞서면 흉하다. 자신의 뜻을 굽히고 때를 기다리는 인내가 필요하다.",isTaboo:!0,isBest:!1}],sy={1:{nameEn:"Chulbal Gwonwi",shortDescEn:"Great authority, steady and reliable, wealth, honor, longevity. The first yang number — the fundamental root of all creation.",descEn:"This is the origin of all things and the root of every energy in the universe. Like the bright sun rising to the zenith, it brings power, wealth, and glory. Wherever a person with this number goes, they naturally become the cent
+
+--- nameEn @449142 ---
+ive self-confidence can invite misfortune, so humility must never be lost."},2:{nameEn:"Bunri Pagoe",shortDescEn:"No family support, lack of follow-through, loneliness, turbulent life, family breakdown — separation, instability, illness, low vitality.",descEn:'Though talent and skill may bring a brief taste of wealth and glory, the underlying vitality is weak — like a castle built on sand, it collapses without warning. Every time this name is called, it is as if a spell of "s
+
+--- nameEn @449827 ---
+mately leading to a lonely old age. A name change is strongly recommended.'},3:{nameEn:"Jidojeok Inmul",shortDescEn:"Honor and wealth combined, early success, wisdom and courage united, achieving great deeds and fame. A leader who establishes themselves before age 30.",descEn:"Quick-witted and wise, broad-minded, cheerful and energetic — this number handles affairs with decisiveness. Many with this number establish their footing in their field and gain recognition before age 
+
+--- nameEn @450473 ---
+nd spread their fame throughout the world — a supremely auspicious number."},4:{nameEn:"Jesa Bulseong",shortDescEn:"Weak and unfortunate, loneliness, illness, collapse, romantic troubles, ruin, short life — sudden disasters and failures.",descEn:'This is the worst of all inauspicious numbers — nothing comes to fruition. At first everything seems to go smoothly, but just when success feels within reach, disaster strikes without warning and the cup of failure is drained. A life
+
+--- nameEn @451178 ---
+ of "do not succeed" is being cast. A name change is strongly recommended.'},5:{nameEn:"Bugwi Bongnok",shortDescEn:"Blessings and prosperity, health and longevity, leader of the masses, outstanding wisdom, wealth and success, rising to prominence. Gentle and sociable with strong resistance to illness.",descEn:"Gentle and solid in character, sociable and well-trusted — this number allows everything to be accomplished smoothly. Healthy with strong resistance to illness. Gradual
+
+--- nameEn @451694 ---
+inence, and enjoying wealth and longevity — a supremely auspicious number."},6:{nameEn:"Gyeseung Baljeon",shortDescEn:"Diligent and sincere, conviction, wealth and glory. Women take charge of the household and enjoy harmonious family life. Great ancestral blessings. Benefactors provide assistance.",descEn:"Gentle and steadfast by nature, accumulating wisdom and virtue while receiving ancestral blessings — this number brings wealth and glory. With unwavering conviction and str
+
+--- nameEn @452263 ---
+bility to take charge of the household and enjoy a harmonious family life."},7:{nameEn:"Maengho Chullim",shortDescEn:"Great success, healthy body and mind, unwavering resolve, abundant activity, the spirit of a true champion. Strong will and independence, persistent and energetic.",descEn:"Like a fierce tiger emerging from the forest — roaring with success. With iron-clad will and abundant energy, pushing forward confidently in all things with the spirit of a champion. Throug
+
+--- nameEn @452787 ---
+ number can attain both power and wealth — a supremely auspicious fortune."},8:{nameEn:"Subok Gyeomjeon",shortDescEn:"An auspicious number combining wealth and long life. Strong inner core beneath a gentle exterior — cool-headed and precise in character.",descEn:"An auspicious number that combines both wealth and longevity. Outwardly gentle yet inwardly strong, with a cool-headed and precise character. Steady accumulation of blessings through perseverance and integrity."},9:{
+
+--- nameEn @453187 ---
+cter. Steady accumulation of blessings through perseverance and integrity."},9:{nameEn:"Daejae Muyong",shortDescEn:"Great talent but wasted. Must pass through trials to find the path to success. Chronic illness, short life, accidents, disability — talent in arts and athletics.",descEn:"Great talent but unable to put it to use. Born with outstanding ability, yet that talent fails to fully bloom and withers away. The law of extremes — rising to the top only to fall in an instan
+
+--- nameEn @453787 ---
+nts, or disability are embedded within. Health must be carefully guarded."},10:{nameEn:"Mansa Heomang",shortDescEn:"Short life and emptiness, indecisiveness, early death in middle age, all beginnings without endings. Like sweeping the yard on a windy day.",descEn:"Like sweeping the yard on a windy day. Clever and capable, making fine plans, but weak in follow-through — dreams too large, missing the moment, collapsing midway. Studies abandoned, business failed, family fortune 
+
+--- nameEn @454482 ---
+g balance, exceptional wealth and status can be achieved as an exception."},11:{nameEn:"Jungin Sinmang",shortDescEn:"Sharp mind, family revival, diligent, gentle, steady, wealth, honor, and authority. Excellent interpersonal skills and warm-hearted.",descEn:"Many people like and follow this person. A bright mind, reviving the family name, diligent and gentle — earning wealth, honor, and authority through excellent interpersonal relationships and a warm heart."},12:{nameEn:"Ba
+
+--- nameEn @454872 ---
+authority through excellent interpersonal relationships and a warm heart."},12:{nameEn:"Bagyak Bakbok",shortDescEn:"Temporary success, loneliness, frustration, economic hardship, weak will, failure midway.",descEn:"Weak in will and thin in blessings — unable to achieve one's goals. With parental support, success may seem near, but failure inevitably comes midway, leaving one busy with empty pursuits. Like pouring water into a bottomless jar — no matter how hard one tries, the
+
+--- nameEn @455593 ---
+g balance, exceptional wealth and status can be achieved as an exception."},13:{nameEn:"Chongmyeong Jimo",shortDescEn:"Outstanding wisdom, mental development, foresight, literary arts, rising to prominence, reading the trends of the times, obtaining academic degrees. Destined for great success at an early age, passing even the hardest exams.",descEn:"A supremely auspicious fortune — commanding the world with both power and wealth. Wise and intelligent, with skilled and sharp 
+
+--- nameEn @456501 ---
+rategic ability to serve as chief of staff for three armies is possessed."},14:{nameEn:"Isan Pamyeol",shortDescEn:"Temporary success, family breakdown, frustration and failure, loneliness and anguish, illness, divorce, marital discord — heroic spirit displayed but ultimately ruined.",descEn:"This number does not end well. Displaying heroic qualities and briefly gaining great fame, but most cases end in ruin. Setting out with great ambitions, plans fall apart; death by acciden
+
+--- nameEn @457243 ---
+gram combination is favorable, great wealth fortune may manifest instead."},15:{nameEn:"Gungye Ilhak",shortDescEn:"A crane among chickens — wealth and glory, leadership and blessings, self-made success, misfortune avoids this person. Better looking and more talented than others.",descEn:"Strong leadership — guiding and leading others. However, if two 15s appear together, the nail that sticks out gets hammered down."},16:{nameEn:"Deokmang Yubok",shortDescEn:"Kind character, vi
