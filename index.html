@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <script src="./assets/korean-lunar-calendar.js"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915audio"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260915print"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -40,6 +40,63 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="이름풀이" />
     <link rel="manifest" href="./manifest.json" />
+
+<style id="print-a4-fix">
+@media print {
+  @page { size: A4 portrait; margin: 12mm 10mm; }
+  html, body {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #fff !important;
+    color: #1a1008 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.35 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* 소개·내비·PWA·버튼 숨김 */
+  .intro-sec, #introPlayerWrap, #introVideo, .intro-mute,
+  .no-print, header, nav, [role="tablist"], .tab-nav,
+  #pwaSheet, #pwaBar, #manus-previewer-content-root,
+  button, .intro-player, audio, video {
+    display: none !important;
+  }
+  /* 인쇄 버튼 행도 숨김(이미 no-print) — 결과만 */
+  #root, #result-full-capture, #result-full-capture * {
+    visibility: visible !important;
+  }
+  body * { box-shadow: none !important; }
+  [class*="sticky"], [class*="fixed"], .fixed, .sticky {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+  #result-full-capture {
+    display: block !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .max-w-2xl, .mx-auto { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+  .ink-card, .suri-card, section, article, table {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  table { width: 100% !important; border-collapse: collapse !important; font-size: 9.5pt !important; }
+  table th, table td { padding: 3px 4px !important; border: 1px solid #c8a96e !important; }
+  img, svg { max-width: 100% !important; height: auto !important; }
+  a { color: inherit !important; text-decoration: none !important; }
+  .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+  /* 입력/괘탭 숨기고 결과만 */
+  [data-tab="input"], [data-tab="gwe"], [data-tab="hanja"] { display: none !important; }
+}
+</style>
 </head>
   <body>
     <script id="manus-runtime">window.__MANUS_HOST_DEV__ = false;
