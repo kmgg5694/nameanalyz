@@ -21,8 +21,8 @@
         window.__CORE_SUMMARIES__.hex = h;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260916sumcore5"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260916sumcore"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260916scroll1"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260916scroll1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -278,6 +278,7 @@ Error generating stack: `+l.message+`
     (function () {
       var v = document.getElementById('introVideo');
       var btn = document.getElementById('introMuteBtn');
+      var wrap = document.getElementById('introPlayerWrap');
       if (!v || !btn) return;
       v.muted = true;
       function syncBtn() {
@@ -289,15 +290,34 @@ Error generating stack: `+l.message+`
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
       }
+      function releaseScroll() {
+        try { v.pause(); } catch (e) {}
+        if (wrap) wrap.style.maxHeight = '120px';
+      }
       tryPlay();
       v.addEventListener('loadeddata', tryPlay, { once: true });
       syncBtn();
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
         v.muted = !v.muted;
         if (!v.muted) tryPlay();
         syncBtn();
       });
       v.addEventListener('volumechange', syncBtn);
+      /* 인스타·폰: 스크롤하면 영상이 화면을 붙잡지 않게 */
+      var released = false;
+      function onScroll() {
+        if (released) return;
+        if ((window.scrollY || document.documentElement.scrollTop || 0) > 24) {
+          released = true;
+          releaseScroll();
+        }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('touchstart', function (e) {
+        if (wrap && wrap.contains(e.target)) return;
+        onScroll();
+      }, { passive: true });
     })();
     </script>
 
