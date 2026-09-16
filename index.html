@@ -242,7 +242,7 @@ Error generating stack: `+l.message+`
         display:block; width:100%; height:auto;
         max-height:52vw; background:#000; vertical-align:top;
       }
-      .intro-stop{
+      .intro-mute-btn{
         position:absolute; right:10px; bottom:10px; z-index:4;
         border:0; border-radius:999px; padding:10px 16px;
         background:#8C2D19; color:#FFFDF9;
@@ -250,7 +250,7 @@ Error generating stack: `+l.message+`
         box-shadow:0 2px 8px rgba(0,0,0,.28); cursor:pointer;
       }
       @media print{
-        .intro-sec,#introVideo,.intro-stop{display:none!important;}
+        .intro-sec,#introVideo,.intro-mute-btn{display:none!important;}
       }
     </style>
     <section class="intro-sec" aria-label="소개영상">
@@ -266,32 +266,36 @@ Error generating stack: `+l.message+`
         <h2 class="intro-ttl">당신의 이름! <em>안녕하십니까?</em></h2>
         <p class="intro-desc">한 인간의 과거, 현재, 미래를 현미경 들여다보듯 명쾌하게 해석합니다. 음령오행(한글) 2개와 자원오행(한문) 2개, 총 4개 기운의 상생을 확인해 보세요.</p>
         <div class="intro-player" id="introPlayerWrap">
-          <video id="introVideo" playsinline autoplay preload="auto"
+          <video id="introVideo" playsinline autoplay muted preload="auto"
             src="./videos/video_final_intro_dubbed_ass.mp4"></video>
-          <button type="button" class="intro-stop" id="introStop" aria-label="정지">정지</button>
+          <button type="button" class="intro-mute-btn" id="introMuteBtn" aria-label="소리 켜기">소리 켜기</button>
         </div>
       </div>
     </section>
     <script>
     (function () {
       var v = document.getElementById('introVideo');
-      var btn = document.getElementById('introStop');
+      var btn = document.getElementById('introMuteBtn');
       if (!v || !btn) return;
-      function go() {
-        v.muted = false;
+      v.muted = true;
+      function syncBtn() {
+        var on = !v.muted;
+        btn.textContent = on ? '소리 끄기' : '소리 켜기';
+        btn.setAttribute('aria-label', on ? '소리 끄기' : '소리 켜기');
+      }
+      function tryPlay() {
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
       }
-      go();
-      v.addEventListener('loadeddata', go);
-      v.addEventListener('canplay', go);
-      document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) go();
-      });
+      tryPlay();
+      v.addEventListener('loadeddata', tryPlay, { once: true });
+      syncBtn();
       btn.addEventListener('click', function () {
-        v.pause();
-        v.currentTime = 0;
+        v.muted = !v.muted;
+        if (!v.muted) tryPlay();
+        syncBtn();
       });
+      v.addEventListener('volumechange', syncBtn);
     })();
     </script>
 
