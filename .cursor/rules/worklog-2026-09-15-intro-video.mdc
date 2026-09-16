@@ -1,0 +1,31 @@
+---
+description: 2026-09-15 소개영상 수정본 보관 위치 (유튜브·네이버 업로드용)
+alwaysApply: true
+---
+
+# 2026-09-15 소개영상 수정본 (하늘)
+
+보흘님이 「소개영상」「수정본」「유튜브」「네이버」「바탕화면 영상」「보관」을 찾으면 이 기록을 기준으로 답한다.
+
+## 파일 (마누스 50초 신버전 소리 입힌 수정본)
+
+- **바탕화면 보관본 (유튜브·네이버 업로드용):**  
+  `C:\Users\a8071\OneDrive\Desktop\김만기_소개영상_수정본_안녕하십니까_50초.mp4`  
+  (약 7,323,923 bytes, 2026-09-15)
+- **허브 저장소:**  
+  `C:\Users\a8071\Projects\kmgg5694.github.io\videos\video_final_intro_dubbed_ass.mp4`
+- **이름풀이 저장소:**  
+  `C:\Users\a8071\Projects\nameanalyz\videos\video_final_intro_dubbed_ass.mp4`
+
+## 내용
+
+- 영상: Manus `video_final_intro_dubbed_ass` 계열
+- 소리: Manus 50초 `kmgg_full_introduction_50s.m4a`로 교체한 수정본
+- 화면 HTML 문구: 「당신의 이름! 안녕하십니까?」
+- 유튜브·네이버는 사이트 푸시와 별개 → 이 파일을 직접 업로드해야 함
+
+## 관련 커밋 (참고)
+
+- 허브 소리 교체: `c6f7a91`
+- nameanalyz 소리 교체: `e3e9453`
+- 자동재생+정지: 허브 `04ebdb2`, nameanalyz `6ba8dc2`
