@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>81수리 · 64괘 핵심요약본</title>
+  <style>
+    body { font-family: "Noto Sans KR", sans-serif; margin: 0; background: #f7f1e6; color: #2b2118; }
+    header { padding: 16px; background: #8c2d19; color: #fffdf9; }
+    header h1 { margin: 0 0 6px; font-size: 1.2rem; }
+    header p { margin: 0; font-size: 13px; opacity: .9; }
+    nav { display: flex; gap: 8px; padding: 12px 16px; background: #fffdf9; border-bottom: 1px solid #e8dfd0; position: sticky; top: 0; }
+    nav button { border: 1px solid #c9a06a; background: #fff; border-radius: 999px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+    nav button.on { background: #8c2d19; color: #fff; border-color: #8c2d19; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 12px 16px 40px; }
+    .card { background: #fffdf9; border: 1px solid #e8dfd0; border-radius: 12px; padding: 12px 14px; margin: 0 0 10px; }
+    .meta { font-size: 12px; color: #8c2d19; font-weight: 700; margin-bottom: 4px; }
+    .name { font-weight: 700; margin-bottom: 6px; }
+    .core { font-size: 14px; line-height: 1.55; }
+    .tone-길수, .tone-길괘 { color: #1d4ed8; }
+    .tone-흉수, .tone-흉괘 { color: #b91c1c; }
+    .tone-주의 { color: #b45309; }
+    .tone-평수, .tone-중성 { color: #57534e; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>핵심요약본 방</h1>
+    <p>원본은 그대로 · 결론 해설용 짧은 문장만 검수</p>
+  </header>
+  <nav>
+    <button type="button" class="on" data-tab="suri">81수리</button>
+    <button type="button" data-tab="hex">64괘</button>
+  </nav>
+  <div class="wrap" id="list"></div>
+  <script>
+  (async function () {
+    const list = document.getElementById('list');
+    const tabs = [...document.querySelectorAll('nav button')];
+    let suri = null, hex = null, cur = 'suri';
+
+    async function load() {
+      suri = await (await fetch('./suri-core.json')).json();
+      hex = await (await fetch('./hex-core.json')).json();
+      render();
+    }
+    function render() {
+      const pack = cur === 'suri' ? suri : hex;
+      const items = pack.items || [];
+      list.innerHTML = items.map(it => {
+        const key = cur === 'suri' ? `#${it.num}` : `#${it.id}`;
+        const toneClass = 'tone-' + (it.tone || '');
+        return `<article class="card">
+          <div class="meta ${toneClass}">${key} · ${it.tone}</div>
+          <div class="name">${it.name}</div>
+          <div class="core">${it.core}</div>
+        </article>`;
+      }).join('');
+    }
+    tabs.forEach(b => b.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.toggle('on', x === b));
+      cur = b.getAttribute('data-tab');
+      render();
+    }));
+    load().catch(e => { list.textContent = 'JSON을 불러오지 못했습니다. 로컬 서버로 열어 주세요. ' + e; });
+  })();
+  </script>
+</body>
+</html>

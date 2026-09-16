@@ -1,0 +1,15 @@
+---
+description: 81수리·64괘 핵심요약본 방 (결론 해설용, 원본 비침범)
+alwaysApply: false
+---
+
+# 핵심요약본 방
+
+보흘님이 「핵심요약」「81수리 요약」「64괘 요약」「결론 해설용」을 찾으면:
+
+- 경로: `data/core-summaries/`
+- 수리: `suri-core.json` (1~81)
+- 괘: `hex-core.json` (1~64)
+- 미리보기: `data/core-summaries/preview.html`
+- **원본** `assets/index-kw5.js`의 `d6`/`Ee`는 수정하지 않는다.
+- UI 연결은 별도 요청 시에만 한다.
