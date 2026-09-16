@@ -79,6 +79,19 @@
     const helpList = [];
     /** 이름 길괘가 사주 흉을 받치는 목록 */
     const supportList = [];
+    /** 말년 길/흉이 초·장·중을 가중하는 설명 */
+    const amplifyParts = [];
+
+    const malIdx = ages.indexOf("말년");
+    const malNs = malIdx >= 0 ? nmS[malIdx] : null;
+    const malNg = malIdx >= 0 ? nmG[malIdx] : null;
+    const malBs = hasB && malIdx >= 0 ? bdS[malIdx] : null;
+    const malBg = hasB && malIdx >= 0 ? bdG[malIdx] : null;
+    const malBad = !!(malNg && gweBad(malNg)) || !!(malNs && suriBad(malNs.data));
+    const malGood = !!(malNg && gweGood(malNg));
+    const malSajuBad =
+      hasB && (!!(malBg && gweBad(malBg)) || !!(malBs && suriBad(malBs.data)));
+    const malSajuGood = hasB && !!(malBg && gweGood(malBg));
 
     ages.forEach(function (ag, ii) {
       const ns = nmS[ii];
@@ -227,6 +240,85 @@
         }
       }
 
+      // 말년(총운) 길·흉 → 초·장·중 가중 해설
+      if (ag === "말년") {
+        if (malBad && malSajuBad) {
+          bits.push(
+            "▶ 말년 가중: 이름·사주 말년이 모두 흉이라 인생 전반에 흠집이 깊어지기 쉽습니다."
+          );
+        } else if (malGood && malSajuBad) {
+          bits.push(
+            "▶ 말년 삭감: 이름 말년 「길」이 사주 말년 「흉」을 삭감해 주어, 일단 좋은 이름 기운입니다."
+          );
+        } else if (malBad && malSajuGood) {
+          bits.push(
+            "▶ 말년 주의: 사주 말년은 길해도 이름 말년 「흉」이 전체를 눌러 초·장·중에도 부담이 갑니다."
+          );
+        } else if (malGood && malSajuGood) {
+          bits.push(
+            "▶ 말년 강화: 이름·사주 말년이 모두 길이니 인생 지표가 밝고 초·장·중 길도 더 세집니다."
+          );
+        } else if (malGood) {
+          bits.push(
+            "▶ 말년 「길」: 삶의 지표·지침이 밝아 초·장·중에도 좋은 기운을 더해 줍니다."
+          );
+        } else if (malBad) {
+          bits.push(
+            "▶ 말년 「흉」: 인생 전반에 흠집이 생기기 쉽고, 초·장·중 흉을 만나면 그 흉이 더 보태집니다."
+          );
+        }
+      } else if (ag === "초년" || ag === "장년" || ag === "중년") {
+        const periodBad = !!(nBadG || nBadS);
+        const periodGood = !!nGoodG;
+        const sajuPeriodBad = !!(bBadG || bBadS);
+        const sajuPeriodGood = !!bGoodG;
+        if (malBad && periodBad) {
+          const msg =
+            "▶ 말년 흉 가중: 말년(총운) 「흉」에 " +
+            ag +
+            " 「흉」이 더해져, 그 시기 시련이 한층 커지고 쓸어가듯 몰아칠 수 있습니다.";
+          bits.push(msg);
+          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+        } else if (malGood && periodGood) {
+          const msg =
+            "▶ 말년 길 강화: 말년(총운) 「길」에 " +
+            ag +
+            " 「길」이 더해져, 그 시기 좋은 기운이 더 세집니다.";
+          bits.push(msg);
+          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+        } else if (malGood && periodBad) {
+          const msg =
+            "▶ 말년 길 완충: 말년 「길」이 " +
+            ag +
+            " 「흉」을 덜어 주어, 그 시기 상처가 한결 가벼워질 수 있습니다.";
+          bits.push(msg);
+          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+        } else if (malBad && periodGood) {
+          const msg =
+            "▶ 말년 흉 속 길: 말년은 「흉」이어도 " +
+            ag +
+            " 「길」은 그 나이대(±3년)만 버티는 힘이 됩니다.";
+          bits.push(msg);
+          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+        }
+        if (hasB && malGood && sajuPeriodBad) {
+          const msg =
+            "이름 말년 「길」이 사주 " + ag + " 「흉」에도 영향·삭감력을 행사합니다.";
+          bits.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "·사주】 " + msg);
+        } else if (hasB && malBad && sajuPeriodBad) {
+          const msg =
+            "이름 말년 「흉」이 사주 " + ag + " 「흉」과 겹치면 그 시기 부담이 더 커집니다.";
+          bits.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "·사주】 " + msg);
+        } else if (hasB && malGood && sajuPeriodGood) {
+          const msg =
+            "이름 말년 「길」이 사주 " + ag + " 「길」을 도와 그 시기 좋은 운이 더 열립니다.";
+          bits.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "·사주】 " + msg);
+        }
+      }
+
       ageParts.push(bits.join(" "));
     });
 
@@ -270,6 +362,15 @@
     compareParts.push(
       "【나이대 원칙】 말년(총운)만 인생 전체에 영향하며 말년의 흉·길이 초년·장년·중년에도 영향력을 행사합니다. 초년·장년·중년은 자기 나이대에만 영향력을 행사합니다. 나이대 경계 오차는 플러스·마이너스 약 3년 내외입니다."
     );
+    if (amplifyParts.length) {
+      compareParts.push("【말년 가중·강화】 " + amplifyParts.join(" "));
+    } else if (malGood || malBad) {
+      compareParts.push(
+        malGood
+          ? "【말년 가중·강화】 이름 말년은 「길」입니다. 초·장·중 길과 만나면 더 세지고, 사주 흉이 있어도 말년 길이 삭감·완충합니다."
+          : "【말년 가중·강화】 이름 말년은 「흉」입니다. 초·장·중 흉과 만나면 그 흉이 더 보태지니 해당 시기를 각별히 조심하십시오."
+      );
+    }
 
     let verdict = "";
     function listGweNames(arr) {
