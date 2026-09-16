@@ -267,6 +267,9 @@
     );
 
     compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
+    compareParts.push(
+      "【나이대 원칙】 이름에 전체적인 영향력을 발휘하는 곳은 말년(총운)만이 가능하고, 초년·장년·중년은 자기 나이대에만 영향력을 행사합니다. 나이대 경계 오차는 플러스·마이너스 약 3년 내외입니다."
+    );
 
     let verdict = "";
     function listGweNames(arr) {
@@ -348,7 +351,9 @@
     }
 
     compareParts.push(verdict);
-    compareParts.push("이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다.");
+    compareParts.push(
+      "이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다. (말년만 인생 전체에 미치며, 나머지 나이대는 해당 시기±3년 안입니다.)"
+    );
 
     return {
       ageText: ageParts.join("\n\n"),
