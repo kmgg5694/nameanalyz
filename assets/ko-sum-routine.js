@@ -110,6 +110,17 @@
     return esc(nm) + "(중성)";
   }
 
+
+  window.paintGH = function paintGH(s) {
+    return String(s || "")
+      .replace(/「길」/g, '<span style="color:#0000FF;font-weight:700">「길」</span>')
+      .replace(/「흉」/g, '<span style="color:#FF0000;font-weight:700">「흉」</span>')
+      .replace(/청색길괘/g, '<span style="color:#0000FF;font-weight:700">청색길괘</span>')
+      .replace(/길괘/g, '<span style="color:#0000FF;font-weight:700">길괘</span>')
+      .replace(/흉괘/g, '<span style="color:#FF0000;font-weight:700">흉괘</span>')
+      .replace(/흉수/g, '<span style="color:#FF0000;font-weight:700">흉수</span>');
+  };
+
   /** @param ctx bundle에서 넘기는 데이터 */
   window.koSumRoutine = function koSumRoutine(ctx) {
     const ages = ctx.ages || ["말년", "초년", "장년", "중년"];
