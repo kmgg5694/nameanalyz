@@ -14,7 +14,8 @@
   }
 
   function suriGood(d) {
-    return !!d && d.type === "best";
+    // 수리는 길수(청색) 개념 없음 — 흉만 구분
+    return false;
   }
 
   function gweBad(g) {
@@ -51,7 +52,7 @@
   function suriLabel(d, num) {
     if (!d) return "";
     const nm = strip(d.name);
-    const tag = suriBad(d) ? "흉수" : suriGood(d) ? "길수" : "평수";
+    const tag = suriBad(d) ? "흉수" : "평수";
     return num + "수 「" + nm + "」(" + tag + ")";
   }
 
@@ -103,13 +104,13 @@
           ? "수리 " +
             suriLabel(nd, ns.suri) +
             " — " +
-            (pickCore("suri", ns, null) || (nd.shortDesc || nd.desc || "").slice(0, 80))
+            (pickCore("suri", ns, null) || "")
           : "수리 해당 없음";
         const gwePart = nBadG
           ? "주역 " +
             gweLabel(ng) +
             " — " +
-            (pickCore("gwe", null, ng) || (ng.desc || "").slice(0, 80))
+            (pickCore("gwe", null, ng) || "")
           : "주역 해당 없음";
         bits.push("▶ 흉(수리·주역 대조): " + suriPart + " ↔ " + gwePart);
       }
@@ -119,13 +120,13 @@
           ? "수리 " +
             suriLabel(nd, ns.suri) +
             " — " +
-            (pickCore("suri", ns, null) || (nd.shortDesc || nd.desc || "").slice(0, 80))
+            (pickCore("suri", ns, null) || "")
           : "수리 해당 없음";
         const gwePart = nGoodG
           ? "주역 " +
             gweLabel(ng) +
             " — " +
-            (pickCore("gwe", null, ng) || (ng.desc || "").slice(0, 80))
+            (pickCore("gwe", null, ng) || "")
           : "주역 해당 없음";
         bits.push("▶ 길(수리·주역 대조): " + suriPart + " ↔ " + gwePart);
       }
@@ -138,11 +139,11 @@
         if (bBadS || bBadG) {
           const segs = [];
           if (bBadS) {
-            const c = pickCore("suri", bs, null) || (bd.shortDesc || bd.desc || "").slice(0, 60);
+            const c = pickCore("suri", bs, null) || "";
             segs.push("사주 흉·수리 " + suriLabel(bd, bs.suri) + (c ? " — " + c : ""));
           }
           if (bBadG) {
-            const c = pickCore("gwe", null, bg) || (bg.desc || "").slice(0, 60);
+            const c = pickCore("gwe", null, bg) || "";
             segs.push("사주 흉·주역 " + gweLabel(bg) + (c ? " — " + c : ""));
           }
           bits.push("사주 쪽 흉: " + segs.join(" / "));
@@ -150,11 +151,11 @@
         if (bGoodS || bGoodG) {
           const segs = [];
           if (bGoodS) {
-            const c = pickCore("suri", bs, null) || (bd.shortDesc || bd.desc || "").slice(0, 60);
+            const c = pickCore("suri", bs, null) || "";
             segs.push("사주 길·수리 " + suriLabel(bd, bs.suri) + (c ? " — " + c : ""));
           }
           if (bGoodG) {
-            const c = pickCore("gwe", null, bg) || (bg.desc || "").slice(0, 60);
+            const c = pickCore("gwe", null, bg) || "";
             segs.push("사주 길·주역 " + gweLabel(bg) + (c ? " — " + c : ""));
           }
           bits.push("사주 쪽 길: " + segs.join(" / "));
@@ -256,13 +257,13 @@
     compareParts.push(
       "【흉·길 비교】 이름 — 흉(수리+주역) " +
         nBad +
-        "개·길(수리+주역) " +
+        "개·길(주역만) " +
         nGood +
         "개" +
-        (hasB ? " / 사주 — 흉(수리+주역) " + bBad + "개·길(수리+주역) " + bGood + "개" : "")
+        (hasB ? " / 사주 — 흉(수리+주역) " + bBad + "개·길(주역만) " + bGood + "개" : "")
     );
     compareParts.push(
-      "위 【초년】~【말년】에서 흉·길마다 수리와 주역을 ↔로 대조해 보았습니다."
+      "수리는 흉만 구별하고(청색 길수 없음), 위 【초년】~【말년】에서 흉·길 주역과 흉 수리를 핵심요약으로 대조합니다."
     );
 
     compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
