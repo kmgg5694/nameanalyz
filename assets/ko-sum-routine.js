@@ -9,6 +9,51 @@
       .trim();
   }
 
+  const C_RED = "#FF0000";
+  const C_BLUE = "#0000FF";
+
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function paint(s, color) {
+    return (
+      '<span style="color:' +
+      color +
+      ';font-weight:700">' +
+      esc(s) +
+      "</span>"
+    );
+  }
+
+  function paintRed(s) {
+    return paint(s, C_RED);
+  }
+
+  function paintBlue(s) {
+    return paint(s, C_BLUE);
+  }
+
+  /** 「길」「흉」 표시어에 색 */
+  function colorGilHyung(s) {
+    return String(s || "")
+      .replace(/「길」/g, paintBlue("「길」"))
+      .replace(/「흉」/g, paintRed("「흉」"));
+  }
+
+  /** 결론 등 평문용 — 흉수·흉괘·길괘 표시도 색 */
+  function colorMarks(s) {
+    return colorGilHyung(s)
+      .replace(/청색길괘/g, paintBlue("청색길괘"))
+      .replace(/길괘/g, paintBlue("길괘"))
+      .replace(/흉괘/g, paintRed("흉괘"))
+      .replace(/흉수/g, paintRed("흉수"));
+  }
+
   function suriBad(d) {
     return !!d && (d.type === "taboo" || d.type === "caution" || d.type === "bad");
   }
@@ -40,11 +85,11 @@
   function pickCore(kind, item, gwe) {
     if (kind === "suri" && item && item.suri) {
       const c = coreSuri(item.suri);
-      if (c) return c.replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, "");
+      if (c) return esc(c.replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, ""));
     }
     if (kind === "gwe" && gwe) {
       const c = coreHex(gwe);
-      if (c) return c.replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "");
+      if (c) return esc(c.replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, ""));
     }
     return "";
   }
@@ -52,14 +97,17 @@
   function suriLabel(d, num) {
     if (!d) return "";
     const nm = strip(d.name);
-    const tag = suriBad(d) ? "흉수" : "평수";
-    return num + "수 「" + nm + "」(" + tag + ")";
+    const head = num + "수 「" + nm + "」";
+    if (suriBad(d)) return paintRed(head) + "(" + paintRed("흉수") + ")";
+    return esc(head) + "(평수)";
   }
 
   function gweLabel(g) {
     if (!g) return "";
-    const tag = gweBad(g) ? "흉괘" : gweGood(g) ? "길괘" : "중성";
-    return "「" + strip(g.name) + "」(" + tag + ")";
+    const nm = "「" + strip(g.name) + "」";
+    if (gweBad(g)) return paintRed(nm) + "(" + paintRed("흉괘") + ")";
+    if (gweGood(g)) return paintBlue(nm) + "(" + paintBlue("길괘") + ")";
+    return esc(nm) + "(중성)";
   }
 
   /** @param ctx bundle에서 넘기는 데이터 */
@@ -179,10 +227,12 @@
             hitList.push({ ag: ag, ng: ng, bg: bg });
             if (bBadG) {
               bits.push(
-                "주역괘: 이름·사주 모두 흉괘(" +
-                  strip(ng.name) +
+                "주역괘: 이름·사주 모두 " +
+                  paintRed("흉괘") +
+                  "(" +
+                  paintRed("「" + strip(ng.name) + "」") +
                   "·" +
-                  strip(bg.name) +
+                  paintRed("「" + strip(bg.name) + "」") +
                   ")가 겹쳐 " +
                   ag +
                   "에 큰 시련·상처가 배가됩니다."
@@ -213,10 +263,12 @@
               );
             } else if (bGoodG) {
               bits.push(
-                "주역괘: 이름·사주 길괘(" +
-                  strip(ng.name) +
+                "주역괘: 이름·사주 " +
+                  paintBlue("길괘") +
+                  "(" +
+                  paintBlue("「" + strip(ng.name) + "」") +
                   "·" +
-                  strip(bg.name) +
+                  paintBlue("「" + strip(bg.name) + "」") +
                   ")가 맞물려 " +
                   ag +
                   "에 순조롭습니다."
@@ -319,7 +371,7 @@
         }
       }
 
-      ageParts.push(bits.join(" "));
+      ageParts.push(colorGilHyung(bits.join(" ")));
     });
 
     let nBad = 0,
@@ -457,8 +509,12 @@
     );
 
     return {
-      ageText: ageParts.join("\n\n"),
-      conclusion: compareParts.join(" "),
+      ageText: ageParts.join("<br><br>"),
+      conclusion: compareParts
+        .map(function (p) {
+          return p.indexOf("<span") >= 0 ? p : colorMarks(p);
+        })
+        .join("<br>"),
     };
   };
 })();
