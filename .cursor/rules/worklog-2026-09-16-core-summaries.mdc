@@ -11,5 +11,7 @@ alwaysApply: false
 - 수리: `suri-core.json` (1~81)
 - 괘: `hex-core.json` (1~64)
 - 미리보기: `data/core-summaries/preview.html`
+- **해설 스펙(공부·재물·출세·정상추락·장애 등):** `suri81-fortune-select.md` + `suri81-fortune-spec.json`  
+  규칙: `.cursor/rules/worklog-2026-09-18-suri-fortune-spec.mdc`
 - **원본** `assets/index-kw5.js`의 `d6`/`Ee`는 수정하지 않는다.
 - UI 연결은 별도 요청 시에만 한다.
