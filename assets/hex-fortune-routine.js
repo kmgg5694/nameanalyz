@@ -1,6 +1,6 @@
 /* 64괘·수리 기운 해당 판정 — 이름 한글/한문 나이대 매칭 (원본 d6/Ee 비침범) */
 (function () {
-  /** 19항목 해설 스펙 (보흘 지정) */
+  /** 기운 해당 판정 스펙 (보흘 지정) — 표기 예시는 참고용, 항목별 문구는 해당 판정에 맞춤 */
   const CATS = [
     {
       id: 1,
@@ -21,11 +21,12 @@
     },
     { id: 4, title: "신분상승", hex: ["뇌택귀매", "지풍승"] },
     { id: 5, title: "천하태평", hex: ["천뢰무망", "지산겸"] },
-    { id: 6, title: "결혼운", special: "ohang" },
-    { id: 7, title: "관재구설·소송", hex: ["천수송"] },
-    { id: 8, title: "신용불량·파산", hex: ["천산둔", "천지비"] },
+    { id: 6, title: "결혼운", special: "ohang", ohangSide: "up" },
+    { id: 7, title: "자녀운", special: "ohang", ohangSide: "down" },
+    { id: 8, title: "관재구설·소송", hex: ["천수송"] },
+    { id: 9, title: "신용불량·파산", hex: ["천산둔", "천지비"] },
     {
-      id: 9,
+      id: 10,
       title: "백혈병·소아암·혈액암·난치병",
       hex: ["천지비"],
       hexWithCompanion: {
@@ -33,26 +34,26 @@
         companions: ["천지비", "지화명이"],
       },
     },
-    { id: 10, title: "약물중독·불의의 사고", hex: ["화택규"] },
-    { id: 11, title: "맹장염·복막염", hex: ["택천쾌"] },
+    { id: 11, title: "약물중독·불의의 사고", hex: ["화택규"] },
+    { id: 12, title: "맹장염·복막염", hex: ["택천쾌"] },
     {
-      id: 12,
+      id: 13,
       title: "이혼·자살",
       hex: ["풍천소축"],
       suri: [2],
       suriNames: { 2: "분리파괴" },
     },
-    { id: 13, title: "금전·주거 고민", hex: ["수뢰둔", "수산건"] },
-    { id: 14, title: "수난·도난·병난", hex: ["감위수"] },
-    { id: 15, title: "심복의 배반", hex: ["산지박"] },
-    { id: 16, title: "산넘어 산", hex: ["간위산"] },
+    { id: 14, title: "금전·주거 고민", hex: ["수뢰둔", "수산건"] },
+    { id: 15, title: "수난·도난·병난", hex: ["감위수"] },
+    { id: 16, title: "심복의 배반", hex: ["산지박"] },
+    { id: 17, title: "산넘어 산", hex: ["간위산"] },
     {
-      id: 17,
+      id: 18,
       title: "돈·재물·건강 상실 / 우울·건강상실",
       hex: ["산풍고", "지화명이"],
     },
-    { id: 18, title: "싸움·시비·다툼", hex: ["지수사"] },
-    { id: 19, title: "부동산운", suri: [35], suriNames: { 35: "온유화순" } },
+    { id: 19, title: "싸움·시비·다툼", hex: ["지수사"] },
+    { id: 20, title: "부동산운", suri: [35], suriNames: { 35: "온유화순" } },
   ];
 
   function stripName(n) {
@@ -106,17 +107,31 @@
 
       if (cat.special === "ohang") {
         const o = ctx.ohang || {};
-        let tip = "오행의 생·극 변화로 판정";
-        if (o.upHg === "sanggeuk" || o.upHj === "sanggeuk") {
-          tip = "위쪽 오행 극 — 배우자·선배운 막힘 가능 (오행으로 판정)";
-        } else if (o.upHg === "sangsaeng" || o.upHj === "sangsaeng") {
-          tip = "위쪽 오행 생 — 배우자·선배운 원활 쪽 (오행으로 판정)";
+        const side = cat.ohangSide || "up";
+        let tip = "해당없음";
+        let ok = false;
+        if (side === "down") {
+          if (o.dnHg === "sanggeuk" || o.dnHj === "sanggeuk") {
+            tip = "아래쪽 오행 극 — 자녀·후배·동료운 막힘 가능 (오행으로 판정)";
+            ok = true;
+          } else if (o.dnHg === "sangsaeng" || o.dnHj === "sangsaeng") {
+            tip = "아래쪽 오행 생 — 자녀·후배·동료운 원활 쪽 (오행으로 판정)";
+            ok = true;
+          }
+        } else {
+          if (o.upHg === "sanggeuk" || o.upHj === "sanggeuk") {
+            tip = "위쪽 오행 극 — 배우자·선배운 막힘 가능 (오행으로 판정)";
+            ok = true;
+          } else if (o.upHg === "sangsaeng" || o.upHj === "sangsaeng") {
+            tip = "위쪽 오행 생 — 배우자·선배운 원활 쪽 (오행으로 판정)";
+            ok = true;
+          }
         }
         lines.push({
           id: cat.id,
           title: cat.id + ". " + cat.title,
           body: tip,
-          ok: tip.indexOf("막힘") >= 0 || tip.indexOf("원활") >= 0,
+          ok: ok,
         });
         return;
       }
