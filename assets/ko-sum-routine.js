@@ -59,8 +59,17 @@
   }
 
   function suriGood(d) {
-    // 수리는 길수(청색) 개념 없음 — 흉만 구분
-    return false;
+    // UI 청색 길수는 없음. 핵심요약에서는 type/best·길수면 길 쪽으로 표기
+    return !!d && (d.type === "best" || d.type === "good");
+  }
+
+  function gweNameOf(g) {
+    return g && g.name ? strip(g.name) : "";
+  }
+
+  function isHwagtaekGyu(g) {
+    const n = gweNameOf(g);
+    return n === "화택규" || n.indexOf("화택규") === 0;
   }
 
   function gweBad(g) {
@@ -99,6 +108,7 @@
     const nm = strip(d.name);
     const head = num + "수 「" + nm + "」";
     if (suriBad(d)) return paintRed(head) + "(" + paintRed("흉수") + ")";
+    if (suriGood(d)) return esc(head) + "(길수)";
     return esc(head) + "(평수)";
   }
 
@@ -110,6 +120,37 @@
     return esc(nm) + "(중성)";
   }
 
+  /** 수리·주역 — 항상 양쪽 설명 (해당 없음 금지). 한글/한문 각각 수리·주역 줄로 나눔 */
+  function formatSuriPart(ns) {
+    if (!ns || ns.suri == null || !ns.data) return "수리 자료 없음";
+    const c = pickCore("suri", ns, null);
+    return suriLabel(ns.data, ns.suri) + (c ? " — " + c : "");
+  }
+
+  function formatGwePart(ng) {
+    if (!ng) return "주역 자료 없음";
+    const c = pickCore("gwe", null, ng);
+    return gweLabel(ng) + (c ? " — " + c : "");
+  }
+
+  function toneWord(ns, ng) {
+    const nd = ns && ns.data;
+    const bad = suriBad(nd) || gweBad(ng);
+    const good = suriGood(nd) || gweGood(ng);
+    if (bad && good) return "흉·길 혼재";
+    if (bad) return "흉";
+    if (good) return "길";
+    return "평";
+  }
+
+  /** who=한글|한문 → 수리 한 줄 + 주역 한 줄 */
+  function explainWhoLines(who, ns, ng) {
+    const tone = toneWord(ns, ng);
+    return [
+      "▶ " + who + " 수리(" + tone + "): " + formatSuriPart(ns),
+      "▶ " + who + " 주역(" + tone + "): " + formatGwePart(ng),
+    ];
+  }
 
   window.paintGH = function paintGH(s) {
     return String(s || "")
@@ -126,13 +167,16 @@
     const ages = ctx.ages || ["말년", "초년", "장년", "중년"];
     const nmS = ctx.nmS || [];
     const nmG = ctx.nmG || [];
+    const hjS = ctx.hjS || [];
+    const hjG = ctx.hjG || [];
+    const hasHanja = !!ctx.hasHanja;
     const bdS = ctx.bdS || [];
     const bdG = ctx.bdG || [];
     const hasB = !!ctx.hasB;
 
     const ageParts = [];
     const compareParts = [];
-    /** 이름 흉괘가 사주 시기를 치는 목록: [{ag, ng, bg}] */
+    /** 이름 흉괘가 사주 시기를 치는 목록: [{ag, ng, bg, who}] */
     const hitList = [];
     /** 이름 길괘(청색)가 사주를 돕는 목록 */
     const helpList = [];
@@ -140,29 +184,62 @@
     const supportList = [];
     /** 말년 길/흉이 초·장·중을 가중하는 설명 */
     const amplifyParts = [];
+    /** 화택규 장년·말년 연속 등 특별 경고 */
+    const specialWarn = [];
 
     const malIdx = ages.indexOf("말년");
+    const jangIdx = ages.indexOf("장년");
     const malNs = malIdx >= 0 ? nmS[malIdx] : null;
     const malNg = malIdx >= 0 ? nmG[malIdx] : null;
+    const malHs = hasHanja && malIdx >= 0 ? hjS[malIdx] : null;
+    const malHg = hasHanja && malIdx >= 0 ? hjG[malIdx] : null;
     const malBs = hasB && malIdx >= 0 ? bdS[malIdx] : null;
     const malBg = hasB && malIdx >= 0 ? bdG[malIdx] : null;
-    const malBad = !!(malNg && gweBad(malNg)) || !!(malNs && suriBad(malNs.data));
-    const malGood = !!(malNg && gweGood(malNg));
+    const malBad =
+      !!(malNg && gweBad(malNg)) ||
+      !!(malNs && suriBad(malNs.data)) ||
+      !!(malHg && gweBad(malHg)) ||
+      !!(malHs && suriBad(malHs.data));
+    const malGood =
+      (!!(malNg && gweGood(malNg)) || !!(malNs && suriGood(malNs.data))) &&
+      !(malHg && gweBad(malHg)) &&
+      !(malHs && suriBad(malHs.data));
     const malSajuBad =
       hasB && (!!(malBg && gweBad(malBg)) || !!(malBs && suriBad(malBs.data)));
     const malSajuGood = hasB && !!(malBg && gweGood(malBg));
 
+    function checkHwagtaekPair(gArr, who) {
+      if (jangIdx < 0 || malIdx < 0 || !gArr) return;
+      if (isHwagtaekGyu(gArr[jangIdx]) && isHwagtaekGyu(gArr[malIdx])) {
+        specialWarn.push(
+          "【주의】 " +
+            who +
+            " 장년·말년에 주역 「화택규」가 연속됩니다. 심장마비로 사망하기 쉬운 기운이니, 다른 자리의 길괘만 보고 좋다고 단정하면 안 됩니다."
+        );
+      }
+    }
+    checkHwagtaekPair(nmG, "한글");
+    if (hasHanja) checkHwagtaekPair(hjG, "한문");
+    if (hasB) checkHwagtaekPair(bdG, "탄생일");
+
     ages.forEach(function (ag, ii) {
       const ns = nmS[ii];
       const ng = nmG[ii];
+      const hs = hasHanja ? hjS[ii] : null;
+      const hg = hasHanja ? hjG[ii] : null;
       const bs = hasB ? bdS[ii] : null;
       const bg = hasB ? bdG[ii] : null;
       const nd = ns && ns.data;
+      const hd = hs && hs.data;
       const bd = bs && bs.data;
       const nBadS = suriBad(nd);
       const nGoodS = suriGood(nd);
       const nBadG = gweBad(ng);
       const nGoodG = gweGood(ng);
+      const hBadS = suriBad(hd);
+      const hGoodS = suriGood(hd);
+      const hBadG = gweBad(hg);
+      const hGoodG = gweGood(hg);
       const bBadS = suriBad(bd);
       const bGoodS = suriGood(bd);
       const bBadG = gweBad(bg);
@@ -171,77 +248,25 @@
       const bits = [];
       bits.push("【" + ag + "】");
 
-      if (nBadS || nBadG) {
-        const suriPart = nBadS
-          ? "수리 " +
-            suriLabel(nd, ns.suri) +
-            " — " +
-            (pickCore("suri", ns, null) || "")
-          : "수리 해당 없음";
-        const gwePart = nBadG
-          ? "주역 " +
-            gweLabel(ng) +
-            " — " +
-            (pickCore("gwe", null, ng) || "")
-          : "주역 해당 없음";
-        bits.push("▶ 흉(수리·주역 대조): " + suriPart + " ↔ " + gwePart);
-      }
-
-      if (nGoodS || nGoodG) {
-        const suriPart = nGoodS
-          ? "수리 " +
-            suriLabel(nd, ns.suri) +
-            " — " +
-            (pickCore("suri", ns, null) || "")
-          : "수리 해당 없음";
-        const gwePart = nGoodG
-          ? "주역 " +
-            gweLabel(ng) +
-            " — " +
-            (pickCore("gwe", null, ng) || "")
-          : "주역 해당 없음";
-        bits.push("▶ 길(수리·주역 대조): " + suriPart + " ↔ " + gwePart);
-      }
-
-      if (!nBadS && !nBadG && !nGoodS && !nGoodG) {
-        bits.push("이름 기운은 평이한 편입니다.");
-      }
+      // 한글 수리·한글 주역·한문 수리·한문 주역 — 네 가지 전부 해설
+      Array.prototype.push.apply(bits, explainWhoLines("한글", ns, ng));
+      if (hasHanja) Array.prototype.push.apply(bits, explainWhoLines("한문", hs, hg));
 
       if (hasB) {
-        if (bBadS || bBadG) {
-          const segs = [];
-          if (bBadS) {
-            const c = pickCore("suri", bs, null) || "";
-            segs.push("사주 흉·수리 " + suriLabel(bd, bs.suri) + (c ? " — " + c : ""));
-          }
-          if (bBadG) {
-            const c = pickCore("gwe", null, bg) || "";
-            segs.push("사주 흉·주역 " + gweLabel(bg) + (c ? " — " + c : ""));
-          }
-          bits.push("사주 쪽 흉: " + segs.join(" / "));
-        }
-        if (bGoodS || bGoodG) {
-          const segs = [];
-          if (bGoodS) {
-            const c = pickCore("suri", bs, null) || "";
-            segs.push("사주 길·수리 " + suriLabel(bd, bs.suri) + (c ? " — " + c : ""));
-          }
-          if (bGoodG) {
-            const c = pickCore("gwe", null, bg) || "";
-            segs.push("사주 길·주역 " + gweLabel(bg) + (c ? " — " + c : ""));
-          }
-          bits.push("사주 쪽 길: " + segs.join(" / "));
-        }
+        // 탄생일(사주)도 수리·주역 전부 해설 (길·흉·평 관계없이)
+        Array.prototype.push.apply(bits, explainWhoLines("탄생일", bs, bg));
 
-        if (ng && bg) {
-          if (nBadG) {
-            hitList.push({ ag: ag, ng: ng, bg: bg });
+        function pushGweVsSaju(who, nameG, badG, goodG) {
+          if (!nameG || !bg) return;
+          if (badG) {
+            hitList.push({ ag: ag, ng: nameG, bg: bg, who: who });
             if (bBadG) {
               bits.push(
-                "주역괘: 이름·사주 모두 " +
+                who +
+                  " 주역괘: 이름·사주 모두 " +
                   paintRed("흉괘") +
                   "(" +
-                  paintRed("「" + strip(ng.name) + "」") +
+                  paintRed("「" + strip(nameG.name) + "」") +
                   "·" +
                   paintRed("「" + strip(bg.name) + "」") +
                   ")가 겹쳐 " +
@@ -250,22 +275,24 @@
               );
             } else {
               bits.push(
-                "주역괘: " +
+                who +
+                  " 주역괘: " +
                   ag +
                   "에 이름 " +
-                  gweLabel(ng) +
+                  gweLabel(nameG) +
                   "가 사주 " +
                   gweLabel(bg) +
                   "를 치어(눌러) 그 시기 운이 막히기 쉽습니다."
               );
             }
-          } else if (nGoodG) {
-            helpList.push({ ag: ag, ng: ng, bg: bg });
+          } else if (goodG) {
+            helpList.push({ ag: ag, ng: nameG, bg: bg, who: who });
             if (bBadG) {
-              supportList.push({ ag: ag, ng: ng, bg: bg });
+              supportList.push({ ag: ag, ng: nameG, bg: bg, who: who });
               bits.push(
-                "주역괘: 이름 " +
-                  gweLabel(ng) +
+                who +
+                  " 주역괘: 이름 " +
+                  gweLabel(nameG) +
                   "가 사주 " +
                   gweLabel(bg) +
                   "의 흉을 받쳐 주어 " +
@@ -274,10 +301,11 @@
               );
             } else if (bGoodG) {
               bits.push(
-                "주역괘: 이름·사주 " +
+                who +
+                  " 주역괘: 이름·사주 " +
                   paintBlue("길괘") +
                   "(" +
-                  paintBlue("「" + strip(ng.name) + "」") +
+                  paintBlue("「" + strip(nameG.name) + "」") +
                   "·" +
                   paintBlue("「" + strip(bg.name) + "」") +
                   ")가 맞물려 " +
@@ -285,25 +313,44 @@
                   "에 순조롭습니다."
               );
             } else {
-              bits.push("주역괘: " + ag + "은 이름 길괘 " + gweLabel(ng) + " 기운이 돕습니다.");
+              bits.push(
+                who +
+                  " 주역괘: " +
+                  ag +
+                  "은 이름 길괘 " +
+                  gweLabel(nameG) +
+                  " 기운이 돕습니다."
+              );
             }
           }
-        } else if (ng && nBadG && hasB) {
-          hitList.push({ ag: ag, ng: ng, bg: null });
+        }
+        pushGweVsSaju("한글", ng, nBadG, nGoodG);
+        if (hasHanja) pushGweVsSaju("한문", hg, hBadG, hGoodG);
+        if (ng && nBadG && hasB && !bg) {
+          hitList.push({ ag: ag, ng: ng, bg: null, who: "한글" });
           bits.push(
-            "주역괘: " +
+            "한글 주역괘: " +
               ag +
               "은 이름 " +
               gweLabel(ng) +
               " 흉괘가 사주를 치는 형국이라 조심해야 합니다."
           );
-        } else if (ng && nGoodG && hasB) {
-          helpList.push({ ag: ag, ng: ng, bg: bg || null });
-          bits.push("주역괘: " + ag + "은 이름 길괘 " + gweLabel(ng) + " 기운이 돕습니다.");
+        }
+        if (hasHanja && hg && hBadG && hasB && !bg) {
+          hitList.push({ ag: ag, ng: hg, bg: null, who: "한문" });
+          bits.push(
+            "한문 주역괘: " +
+              ag +
+              "은 이름 " +
+              gweLabel(hg) +
+              " 흉괘가 사주를 치는 형국이라 조심해야 합니다."
+          );
         }
       }
 
-      // 말년(총운) 길·흉 → 초·장·중 가중 해설
+      const periodBad = !!(nBadG || nBadS || hBadG || hBadS);
+      const periodGood =
+        !!(nGoodG || nGoodS || hGoodG || hGoodS) && !periodBad;
       if (ag === "말년") {
         if (malBad && malSajuBad) {
           bits.push(
@@ -331,8 +378,6 @@
           );
         }
       } else if (ag === "초년" || ag === "장년" || ag === "중년") {
-        const periodBad = !!(nBadG || nBadS);
-        const periodGood = !!nGoodG;
         const sajuPeriodBad = !!(bBadG || bBadS);
         const sajuPeriodGood = !!bGoodG;
         if (malBad && periodBad) {
@@ -385,18 +430,32 @@
       ageParts.push(colorGilHyung(bits.join(" ")));
     });
 
+    if (specialWarn.length) {
+      ageParts.unshift(colorMarks(specialWarn.join(" ")));
+    }
+
     let nBad = 0,
       nGood = 0,
       bBad = 0,
       bGood = 0;
-    nmS.forEach(function (x) {
-      if (suriBad(x && x.data)) nBad++;
-      if (suriGood(x && x.data)) nGood++;
-    });
-    nmG.forEach(function (g) {
-      if (gweBad(g)) nBad++;
-      if (gweGood(g)) nGood++;
-    });
+    function tallySuri(arr) {
+      (arr || []).forEach(function (x) {
+        if (suriBad(x && x.data)) nBad++;
+        if (suriGood(x && x.data)) nGood++;
+      });
+    }
+    function tallyGwe(arr) {
+      (arr || []).forEach(function (g) {
+        if (gweBad(g)) nBad++;
+        if (gweGood(g)) nGood++;
+      });
+    }
+    tallySuri(nmS);
+    tallyGwe(nmG);
+    if (hasHanja) {
+      tallySuri(hjS);
+      tallyGwe(hjG);
+    }
     if (hasB) {
       bdS.forEach(function (x) {
         const d = x && x.data;
@@ -410,16 +469,21 @@
     }
 
     compareParts.push(
-      "【흉·길 비교】 이름 — 흉(수리+주역) " +
+      "【흉·길 비교】 이름(한글" +
+        (hasHanja ? "+한문" : "") +
+        ") — 흉(수리+주역) " +
         nBad +
-        "개·길(주역만) " +
+        "개·길(수리+주역) " +
         nGood +
         "개" +
-        (hasB ? " / 사주 — 흉(수리+주역) " + bBad + "개·길(주역만) " + bGood + "개" : "")
+        (hasB ? " / 사주 — 흉(수리+주역) " + bBad + "개·길(수리+주역) " + bGood + "개" : "")
     );
     compareParts.push(
-      "수리는 흉만 구별하고(청색 길수 없음), 위 【말년】을 먼저 본 뒤 【초년】~【중년】에서 흉·길 주역과 흉 수리를 핵심요약으로 대조합니다."
+      "말년·초년·장년·중년마다 한글·한문·탄생일의 수리와 주역을 빠짐없이 해설합니다. 「수리 해당 없음」은 쓰지 않습니다."
     );
+    if (specialWarn.length) {
+      compareParts.push(specialWarn.join(" "));
+    }
 
     compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
     compareParts.push(
@@ -462,10 +526,20 @@
       const nameGoodGwes = [];
       ages.forEach(function (ag, ii) {
         const g = nmG[ii];
-        if (gweBad(g)) nameBadGwes.push("「" + strip(g.name) + "」(" + ag + ")");
-        if (gweGood(g)) nameGoodGwes.push("「" + strip(g.name) + "」(" + ag + ")");
+        if (gweBad(g)) nameBadGwes.push("한글「" + strip(g.name) + "」(" + ag + ")");
+        if (gweGood(g)) nameGoodGwes.push("한글「" + strip(g.name) + "」(" + ag + ")");
+        if (hasHanja) {
+          const h = hjG[ii];
+          if (gweBad(h)) nameBadGwes.push("한문「" + strip(h.name) + "」(" + ag + ")");
+          if (gweGood(h)) nameGoodGwes.push("한문「" + strip(h.name) + "」(" + ag + ")");
+        }
       });
-      if (nameBadGwes.length > 0) {
+      if (specialWarn.length) {
+        verdict =
+          "【결론】 " +
+          specialWarn.join(" ") +
+          " 한글 길괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
+      } else if (nameBadGwes.length > 0) {
         verdict =
           "【결론】 생년월일 없이 이름만 봤습니다. 이름 흉괘 " +
           nameBadGwes.join("·") +
@@ -479,8 +553,17 @@
         verdict =
           "【결론】 생년월일 없이 이름만 봤습니다. 이름에 뚜렷한 흉괘·길괘는 없습니다.";
       }
-    } else if (hitList.length > 0) {
-      // 「이름 흉괘 무엇 무엇이 사주를 시기별로 친다」
+    } else if (specialWarn.length) {
+      verdict =
+        "【결론】 " +
+        specialWarn.join(" ") +
+        (hitList.length
+          ? " 또한 이름 흉괘 " +
+            listGweNames(hitList).join("·") +
+            "가 사주를 시기별로 칩니다."
+          : "") +
+        " 한글 길괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
+    } else if (hitList.length > 0) {      // 「이름 흉괘 무엇 무엇이 사주를 시기별로 친다」
       const nameList = listGweNames(hitList);
       const byAge = hitList.map(function (h) {
         if (h.bg) {
