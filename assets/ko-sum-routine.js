@@ -562,6 +562,159 @@
     });
 
     // —— 인쇄 서술 (연속 문단, 【총운】【초년】 헤더 없음) ——
+    // 1) 한글 vs 한문 좋은 기운 개수 비교 → 2) 이름 전체 vs 탄생일 → 3) 오행·시기 해설
+
+    function collectGweLists(gArr) {
+      const good = [];
+      const bad = [];
+      (gArr || []).forEach(function (g) {
+        if (!g || !g.name) return;
+        if (gweGood(g)) good.push(g);
+        if (gweBad(g)) bad.push(g);
+      });
+      return { good: good, bad: bad };
+    }
+
+    function joinGweNames(list) {
+      return (list || [])
+        .map(function (g) {
+          return gweNameHtml(g);
+        })
+        .join(", ");
+    }
+
+    function buildHangulHanjaCompare() {
+      if (!hasHanja) return "";
+      const hg = collectGweLists(nmG);
+      const hj = collectGweLists(hjG);
+      let p = "먼저 한글이름과 한문이름의 주역 기운을 견줍니다. ";
+
+      if (hg.good.length) {
+        p +=
+          "한글이름에는 " +
+          joinGweNames(hg.good) +
+          "으로 " +
+          hg.good.length +
+          "개나 좋은 기운이 있고";
+      } else {
+        p += "한글이름에는 뚜렷한 좋은 주역 기운이 없고";
+      }
+      if (hg.bad.length) {
+        p +=
+          ", " +
+          joinGweNames(hg.bad) +
+          " 같은 흉한 기운이 " +
+          hg.bad.length +
+          "개 있습니다. ";
+      } else {
+        p += " 흉한 주역은 없습니다. ";
+      }
+
+      if (hj.good.length) {
+        p +=
+          "한문이름에는 " +
+          joinGweNames(hj.good) +
+          "으로 " +
+          hj.good.length +
+          "개의 좋은 기운이 있고";
+      } else {
+        p += "한문이름에는 뚜렷한 좋은 주역 기운이 없고";
+      }
+      if (hj.bad.length) {
+        p +=
+          ", 흉한 기운인 " +
+          joinGweNames(hj.bad) +
+          "가 " +
+          hj.bad.length +
+          "개입니다. ";
+      } else {
+        p += " 흉한 주역은 없습니다. ";
+      }
+
+      const hangulBetter =
+        hg.good.length > hj.good.length ||
+        (hg.good.length === hj.good.length && hg.bad.length < hj.bad.length);
+      const hanjaBetter =
+        hj.good.length > hg.good.length ||
+        (hj.good.length === hg.good.length && hj.bad.length < hg.bad.length);
+
+      if (hangulBetter) {
+        p +=
+          "따라서 한글이름이 한문이름보다 더 좋은 이름입니다. 이런 경우 한글이름이 좋으니 한문이름만 바꾸어도 되겠다고 판단할 수 있습니다.";
+      } else if (hanjaBetter) {
+        p +=
+          "따라서 한문이름이 한글이름보다 더 좋은 기운이 많습니다. 이런 경우 한문 쪽을 살리고 한글 쪽을 고치는 판단을 할 수 있습니다.";
+      } else {
+        p +=
+          "한글과 한문의 좋고 나쁨이 엇비슷하니, 어느 한쪽만 보고 단정하기보다 시기별로 함께 살펴야 합니다.";
+      }
+      return p;
+    }
+
+    function buildNameVsBirthCompare() {
+      if (!hasB) return "";
+      const nameGood = [];
+      const nameBad = [];
+      (nmG || []).forEach(function (g) {
+        if (!g) return;
+        if (gweGood(g)) nameGood.push(g);
+        if (gweBad(g)) nameBad.push(g);
+      });
+      if (hasHanja) {
+        (hjG || []).forEach(function (g) {
+          if (!g) return;
+          if (gweGood(g)) nameGood.push(g);
+          if (gweBad(g)) nameBad.push(g);
+        });
+      }
+      const birthGood = [];
+      const birthBad = [];
+      (bdG || []).forEach(function (g) {
+        if (!g) return;
+        if (gweGood(g)) birthGood.push(g);
+        if (gweBad(g)) birthBad.push(g);
+      });
+
+      let p =
+        "다음으로 이름 전체 기운과 탄생일을 비교합니다. 이름 쪽 주역의 좋은 기운은 " +
+        nameGood.length +
+        "개";
+      if (nameGood.length) p += "(" + joinGweNames(nameGood) + ")";
+      p += ", 흉한 기운은 " + nameBad.length + "개";
+      if (nameBad.length) p += "(" + joinGweNames(nameBad) + ")";
+      p +=
+        "이고, 탄생일 주역의 좋은 기운은 " +
+        birthGood.length +
+        "개";
+      if (birthGood.length) p += "(" + joinGweNames(birthGood) + ")";
+      p += ", 흉한 기운은 " + birthBad.length + "개";
+      if (birthBad.length) p += "(" + joinGweNames(birthBad) + ")";
+      p += "입니다. ";
+
+      if (nameGood.length > birthGood.length && nameBad.length <= birthBad.length) {
+        p +=
+          "이름이 탄생일보다 좋은 기운이 많아, 이름이 사주를 도우며 살리는 쪽으로 읽힙니다.";
+      } else if (birthGood.length > nameGood.length && birthBad.length <= nameBad.length) {
+        p +=
+          "탄생일이 이름보다 좋은 기운이 많아, 사주의 힘을 이름이 따라가지 못하는 대목이 없는지 살펴야 합니다.";
+      } else if (nameBad.length > birthBad.length) {
+        p +=
+          "이름에 흉한 주역이 더 많아, 사주가 무난해도 이름이 시기를 눌러 막기 쉽습니다.";
+      } else if (birthBad.length > nameBad.length) {
+        p +=
+          "탄생일에 흉한 주역이 더 많아, 이름이 사주의 부담을 얼마나 받쳐 주는지가 관건입니다.";
+      } else {
+        p +=
+          "이름과 탄생일의 좋고 나쁨이 팽팽하니, 시기마다 이름이 사주를 치는지·돕는지 함께 보아야 합니다.";
+      }
+      return p;
+    }
+
+    const hhCompare = buildHangulHanjaCompare();
+    if (hhCompare) ageParts.push(hhCompare);
+    const nbCompare = buildNameVsBirthCompare();
+    if (nbCompare) ageParts.push(nbCompare);
+
     const ohangBlock = buildOhangBlock(ctx);
     if (ohangBlock) ageParts.push(ohangBlock);
     if (specialWarn.length) {
