@@ -221,9 +221,11 @@
   /** 같은 자리 수리·괘 조합 참고
    *  - 흉수리 + 완화 길괘(파랑) → 완화·재물 대박
    *  - 흉수리 + 검정 보통 괘(예: 14 이산파멸 + 풍수환) → 괘 본뜻이 파멸에 방해받아 피해
+   *    · 같은 시기 사주에 흉수리·흉괘 있으면 피해 가중
    *  - 경고장 흉수리 + 경고장 흉괘(빨강) → 수리 기운 가중·위태 (14는 요절)
+   *  bdNs/bdNg = 같은 나이대 탄생일(사주) 수리·괘
    */
-  function suriMitigateByHexNote(ns, ng) {
+  function suriMitigateByHexNote(ns, ng, bdNs, bdNg) {
     if (!ns || !ns.data) return "";
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     const plain = ng && ng.name ? gweNameOf(ng) : "";
@@ -232,11 +234,18 @@
     // 흉수리(14) + 검정 보통 괘 해설: 이산파멸 아래 풍수환 (보흘 지정)
     // ※ 경고장 빨간 흉괘(가중·요절)와 다른 해설 방법
     if (num === 14 && hexNameStarts(ng, "풍수환") && !isMitigateSuriHex(ng)) {
-      return (
+      let t =
         " 그 아래에 " +
         hexPart +
-        " 같은 보통 괘가 오면 급격한 환경의 변화로 새 판을 짜고, 사업의 변화·이사·이전 등이 파멸의 기운의 방해를 받아 피해를 보게 됩니다. 이 피해가 가장 큰 시기는 초년에는 15세, 장년에는 40세(±3세)이니 그전의 변화는 크게 받지 않습니다."
-      );
+        " 같은 보통 괘가 오면 급격한 환경의 변화로 새 판을 짜고, 사업의 변화·이사·이전 등이 파멸의 기운의 방해를 받아 피해를 보게 됩니다. 이 피해가 가장 큰 시기는 초년에는 15세, 장년에는 40세(±3세)이니 그전의 변화는 크게 받지 않습니다.";
+      const sajuPeriodBad =
+        !!(bdNs && bdNs.data && suriBad(bdNs.data)) ||
+        !!(bdNg && gweBad(bdNg));
+      if (sajuPeriodBad) {
+        t +=
+          " 그런데 그 시기에 사주에 흉수리나 흉괘가 있으면 그 피해가 더 커지게 됩니다.";
+      }
+      return t;
     }
 
     // 경고장 흉수리 + 경고장 흉괘 → 가중·위태 (완화 길괘·보통괘 특례가 아닐 때)
@@ -964,14 +973,14 @@
     // b. 한글 말년 주역 (+ 같은 자리 흉수리 완화 참고)
     if (nmG[0] && nmG[0].name) {
       let p = printHexSentence("한글이름", "말년", nmG[0]);
-      p += suriMitigateByHexNote(nmS[0], nmG[0]);
+      p += suriMitigateByHexNote(nmS[0], nmG[0], hasB ? bdS[0] : null, hasB ? bdG[0] : null);
       ageParts.push(p);
     }
 
     // c. 한자 말년 주역
     if (hasHanja && hjG[0] && hjG[0].name) {
       let p = printHexSentence("한자이름", "말년", hjG[0]);
-      p += suriMitigateByHexNote(hjS[0], hjG[0]);
+      p += suriMitigateByHexNote(hjS[0], hjG[0], hasB ? bdS[0] : null, hasB ? bdG[0] : null);
       ageParts.push(p);
     }
 
@@ -984,7 +993,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(nmS[1]);
-      p += suriMitigateByHexNote(nmS[1], nmG[1]);
+      p += suriMitigateByHexNote(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
 
@@ -1007,7 +1016,7 @@
         josaIGA(plainH) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(hjS[1]);
-      p += suriMitigateByHexNote(hjS[1], hjG[1]);
+      p += suriMitigateByHexNote(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
 
@@ -1075,7 +1084,7 @@
         );
         const hx = hexOriginalText(nmG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2 = suriMitigateByHexNote(nmS[2], nmG[2]);
+        const mit2 = suriMitigateByHexNote(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
         if (mit2) bits.push(mit2.trim());
       }
       if (hasHanja && hjS[2] && hjS[2].data) {
@@ -1099,7 +1108,7 @@
         );
         const hx = hexOriginalText(hjG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2h = suriMitigateByHexNote(hjS[2], hjG[2]);
+        const mit2h = suriMitigateByHexNote(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
         if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
@@ -1138,7 +1147,12 @@
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
           );
-          const mit = suriMitigateByHexNote(ns, ng);
+          const mit = suriMitigateByHexNote(
+            ns,
+            ng,
+            hasB ? bdS[3] : null,
+            hasB ? bdG[3] : null
+          );
           if (mit) bits.push(mit.trim());
           return true;
         }
@@ -1172,7 +1186,7 @@
           );
           const hx = hexOriginalText(nmG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3 = suriMitigateByHexNote(nmS[3], nmG[3]);
+          const mit3 = suriMitigateByHexNote(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
           if (mit3) bits.push(mit3.trim());
         }
       }
@@ -1198,7 +1212,7 @@
           );
           const hx = hexOriginalText(hjG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3h = suriMitigateByHexNote(hjS[3], hjG[3]);
+          const mit3h = suriMitigateByHexNote(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
           if (mit3h) bits.push(mit3h.trim());
         }
       }
