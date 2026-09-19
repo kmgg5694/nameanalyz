@@ -140,6 +140,25 @@
     "뇌천대장",
   ];
 
+  /** 경고장에 적힌 흉괘 (14 이산파멸 아래 요절 판정에도 동일 목록) */
+  const WARN_JANG_HEX = [
+    "천산둔",
+    "천수송",
+    "천지비",
+    "택화혁",
+    "택뢰수",
+    "택수곤",
+    "풍수환",
+    "뇌산소과",
+    "수화기제",
+    "수산건",
+    "수뢰둔",
+    "풍천소축",
+    "산풍고",
+    "산지박",
+    "지화명이",
+  ];
+
   function isMitigateSuriHex(g) {
     if (!g || !g.name) return false;
     const n = gweNameOf(g);
@@ -150,10 +169,20 @@
     return false;
   }
 
+  function isWarnJangHex(g) {
+    if (!g || !g.name) return false;
+    const n = gweNameOf(g);
+    for (let i = 0; i < WARN_JANG_HEX.length; i++) {
+      const h = WARN_JANG_HEX[i];
+      if (n === h || n.indexOf(h) === 0) return true;
+    }
+    return false;
+  }
+
   /** 같은 자리 흉수리 + 완화 길괘 → 참고 한 줄
    *  예: 14 이산파멸 아래에 화수미제·수풍정 등
    *  → 흉 기운 완화 + 괘 본뜻(재물)로 재물 대박
-   *  예: 14 이산파멸 아래에 흉괘 → 거의 요절 가능성
+   *  예: 14 이산파멸 아래에 경고장 흉괘 → 거의 요절 가능성
    */
   function suriMitigateByHexNote(ns, ng) {
     if (!ns || !ns.data) return "";
@@ -161,12 +190,12 @@
     const plain = ng && ng.name ? gweNameOf(ng) : "";
     const hexPart = ng && ng.name ? gweNameHtml(ng) + josaIGA(plain) : "";
 
-    // 14 이산파멸 + 흉괘 → 요절 (완화 길괘가 아닐 때)
-    if (num === 14 && ng && gweBad(ng) && !isMitigateSuriHex(ng)) {
+    // 14 이산파멸 + 경고장 흉괘 → 요절 (완화 길괘가 아닐 때)
+    if (num === 14 && isWarnJangHex(ng) && !isMitigateSuriHex(ng)) {
       return (
-        " 그 아래에 " +
+        " 그 아래에 경고장의 " +
         hexPart +
-        " 같은 흉괘가 오면 거의 요절 가능성이 많다 보면 됩니다."
+        " 오면 거의 요절 가능성이 많다 보면 됩니다."
       );
     }
 
@@ -1317,9 +1346,8 @@
         "12 박약박복, 14 이산파멸, 20 백사실패, 22 중도좌절, " +
         "26 영웅풍파, 28 파란풍파, 34 재앙연속 등이 있거나, " +
         "이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
-        "천산둔, 천수송, 천지비, 택화혁, 택뢰수, 택수곤, 풍수환, " +
-        "뇌산소과, 수화기제, 수산건, 수뢰둔, 풍천소축, 산풍고, " +
-        "산지박, 지화명이 등의 괘가 도사리고 있다면 오로지 " +
+        WARN_JANG_HEX.join(", ") +
+        " 등의 괘가 도사리고 있다면 오로지 " +
         "신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
         "</div>" +
         '<div style="margin-top:12px;line-height:1.7;font-size:0.95rem;color:#1c1917;padding:4px 2px">' +
