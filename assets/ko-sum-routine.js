@@ -151,25 +151,30 @@
   }
 
   /** 같은 자리 흉수리 + 완화 길괘 → 참고 한 줄
-   *  예: 14 이산파멸 아래에 화수미제·수풍정 등 → 이혼·이별·질병·사망·암 등이 없어지고 더 좋아짐
+   *  예: 14 이산파멸 아래에 화수미제·수풍정 등
+   *  → 흉 기운 완화 + 괘 본뜻(재물)로 재물 대박
    */
   function suriMitigateByHexNote(ns, ng) {
     if (!ns || !ns.data || !suriBad(ns.data)) return "";
     if (!isMitigateSuriHex(ng)) return "";
     const plain = gweNameOf(ng);
     const hexPart = gweNameHtml(ng) + josaIGA(plain);
+    const wealthTail =
+      " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     if (num === 14) {
       return (
         " 다만 그 아래에 " +
         hexPart +
-        " 있어 이혼·이별·질병·사망·암 등의 기운이 없어지고 오히려 더 좋아지는 경우가 있습니다."
+        " 있어 이혼·이별·질병·사망·암 등의 기운이 없어지고 오히려 더 좋아지며," +
+        wealthTail
       );
     }
     return (
       " 다만 그 아래에 " +
       hexPart +
-      " 있어 웬만한 흉수리를 제거하고 더 좋아지는 경우가 많습니다."
+      " 있어 웬만한 흉수리를 제거하고 더 좋아지며," +
+      wealthTail
     );
   }
 
