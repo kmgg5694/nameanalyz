@@ -1,11 +1,14 @@
-/* 64괘·수리 기운 해당 판정 — 이름 한글/한문 나이대 매칭 (원본 d6/Ee 비침범) */
+/* 64괘·수리 기운 해당 판정 — 이름 한글/한문 나이대 매칭 (원본 d6/Ee 비침범)
+ * 괘 매칭 + 81수리 기운 스펙(suri81-fortune-spec) 해당 번호도 함께 적용
+ */
 (function () {
-  /** 기운 해당 판정 스펙 (보흘 지정) — 표기 예시는 참고용, 항목별 문구는 해당 판정에 맞춤 */
+  /** 기운 해당 판정 (보흘 지정 괘 + 81수리 스펙 연결) */
   const CATS = [
     {
       id: 1,
       title: "재물운",
       hex: ["화천대유", "화수미제", "수풍정", "산천대축", "이위화"],
+      suri: [16, 24, 29, 47, 7, 13, 3, 33, 41, 58, 61, 65, 67, 1, 5, 6, 8, 18],
     },
     {
       id: 2,
@@ -23,10 +26,37 @@
     { id: 5, title: "천하태평", hex: ["천뢰무망", "지산겸"] },
     { id: 6, title: "결혼운", special: "ohang", ohangSide: "up" },
     { id: 7, title: "자녀운", special: "ohang", ohangSide: "down" },
-    { id: 8, title: "관재구설·소송", hex: ["천수송"] },
-    { id: 9, title: "신용불량·파산", hex: ["천산둔", "천지비"] },
+    {
+      id: 8,
+      title: "공부운",
+      suri: [13, 11, 35, 38, 23, 30, 44],
+    },
+    {
+      id: 9,
+      title: "출세운",
+      suri: [3, 5, 13, 18, 23, 1, 7, 17, 24, 29, 37, 39, 71],
+      suriAdverse: [60],
+    },
     {
       id: 10,
+      title: "자수성가운",
+      suri: [31, 25, 7, 24, 67, 71],
+    },
+    {
+      id: 11,
+      title: "관재구설·소송",
+      hex: ["천수송"],
+      suri: [36, 20, 19, 27, 78],
+      note: "수리 쪽은 시비·다툼 기운(소송 단정 금지)",
+    },
+    {
+      id: 12,
+      title: "신용불량·파산·부도",
+      hex: ["천산둔", "천지비"],
+      suri: [20, 4, 14, 34, 62, 64, 66, 54, 59],
+    },
+    {
+      id: 13,
       title: "백혈병·소아암·혈액암·난치병",
       hex: ["천지비"],
       hexWithCompanion: {
@@ -34,27 +64,69 @@
         companions: ["천지비", "지화명이"],
       },
     },
-    { id: 11, title: "약물중독·불의의 사고", hex: ["화택규"] },
-    { id: 12, title: "맹장염·복막염", hex: ["택천쾌"] },
+    { id: 14, title: "약물중독·불의의 사고", hex: ["화택규"] },
+    { id: 15, title: "맹장염·복막염", hex: ["택천쾌"] },
     {
-      id: 13,
+      id: 16,
       title: "이혼·자살",
       hex: ["풍천소축"],
       suri: [2],
       suriNames: { 2: "분리파괴" },
     },
-    { id: 14, title: "금전·주거 고민", hex: ["수뢰둔", "수산건"] },
-    { id: 15, title: "수난·도난·병난", hex: ["감위수"] },
-    { id: 16, title: "심복의 배반", hex: ["산지박"] },
-    { id: 17, title: "산넘어 산", hex: ["간위산"] },
+    { id: 17, title: "금전·주거 고민", hex: ["수뢰둔", "수산건"] },
+    { id: 18, title: "수난·도난·병난", hex: ["감위수"] },
+    { id: 19, title: "심복의 배반", hex: ["산지박"] },
+    { id: 20, title: "산넘어 산", hex: ["간위산"] },
     {
-      id: 18,
+      id: 21,
       title: "돈·재물·건강 상실 / 우울·건강상실",
       hex: ["산풍고", "지화명이"],
     },
-    { id: 19, title: "싸움·시비·다툼", hex: ["지수사"] },
-    { id: 20, title: "부동산운", suri: [35], suriNames: { 35: "온유화순" } },
+    {
+      id: 22,
+      title: "싸움·시비·다툼",
+      hex: ["지수사"],
+      suri: [36, 20, 19, 27, 78],
+    },
+    {
+      id: 23,
+      title: "부동산운",
+      suri: [35, 65],
+      suriNames: { 35: "온유화순", 65: "달성격" },
+    },
+    {
+      id: 24,
+      title: "사망사고운",
+      suri: [14, 19, 20, 26, 27, 28, 46, 70, 74, 79, 4, 9, 10, 22, 34, 64, 69],
+    },
+    {
+      id: 25,
+      title: "정상추락운",
+      suri: [43, 49, 50, 51, 9],
+      note: "보흘 지정 43·49·50·51 (9는 참고)",
+    },
+    {
+      id: 26,
+      title: "장애운",
+      suri: [56, 42, 44],
+      note: "보흘 지정 56 (42·44 참고)",
+    },
   ];
+
+  /** num → 해당 기운 제목들 (해설용) */
+  const SURI_FORTUNE_TAGS = {};
+  CATS.forEach(function (cat) {
+    const nums = []
+      .concat(cat.suri || [])
+      .concat(cat.suriAdverse || []);
+    nums.forEach(function (n) {
+      const k = String(n);
+      if (!SURI_FORTUNE_TAGS[k]) SURI_FORTUNE_TAGS[k] = [];
+      if (SURI_FORTUNE_TAGS[k].indexOf(cat.title) < 0) {
+        SURI_FORTUNE_TAGS[k].push(cat.title);
+      }
+    });
+  });
 
   function stripName(n) {
     return String(n || "")
@@ -76,10 +148,6 @@
     return 0;
   }
 
-  /**
-   * @param {object} ctx
-   * ages, nmHgG, nmHjG, nmHgSuri, nmHjSuri, gender, hasHanja, ohang
-   */
   function buildLines(ctx) {
     const ages = ctx.ages || ["말년", "초년", "장년", "중년"];
     const gender = ctx.gender || "male";
@@ -98,11 +166,13 @@
       const hits = [];
       const hitSet = {};
 
-      function addHit(who, age) {
-        const key = who + "|" + age;
+      function addHit(who, age, extra) {
+        const key = who + "|" + age + "|" + (extra || "");
         if (hitSet[key]) return;
         hitSet[key] = true;
-        hits.push(who + " " + age + "에 있음");
+        hits.push(
+          who + " " + age + "에 있음" + (extra ? "(" + extra + ")" : "")
+        );
       }
 
       if (cat.special === "ohang") {
@@ -138,6 +208,7 @@
 
       const hexList = cat.hex || [];
       const femaleOnly = cat.femaleOnlyHex || [];
+      const suriList = [].concat(cat.suri || []).concat(cat.suriAdverse || []);
 
       ages.forEach(function (ag, ii) {
         const hg = gweName(ctx.nmHgG && ctx.nmHgG[ii]);
@@ -145,8 +216,8 @@
 
         hexList.forEach(function (hx) {
           if (femaleOnly.indexOf(hx) >= 0 && gender !== "female") return;
-          if (hg === hx) addHit("한글이름", ag);
-          if (hasHanja && hj === hx) addHit("한문이름", ag);
+          if (hg === hx) addHit("한글이름", ag, "괘");
+          if (hasHanja && hj === hx) addHit("한문이름", ag, "괘");
         });
 
         if (cat.hexWithCompanion) {
@@ -156,17 +227,18 @@
             return allNameHex[c];
           });
           if (hasComp) {
-            if (hg === t) addHit("한글이름", ag);
-            if (hasHanja && hj === t) addHit("한문이름", ag);
+            if (hg === t) addHit("한글이름", ag, "괘");
+            if (hasHanja && hj === t) addHit("한문이름", ag, "괘");
           }
         }
 
-        if (cat.suri && cat.suri.length) {
+        if (suriList.length) {
           const hn = suriAt(ctx.nmHgSuri, ii);
           const jn = suriAt(ctx.nmHjSuri, ii);
-          cat.suri.forEach(function (sn) {
-            if (hn === sn) addHit("한글이름", ag);
-            if (hasHanja && jn === sn) addHit("한문이름", ag);
+          suriList.forEach(function (sn) {
+            const label = sn + "수";
+            if (hn === sn) addHit("한글이름", ag, label);
+            if (hasHanja && jn === sn) addHit("한문이름", ag, label);
           });
         }
       });
@@ -183,9 +255,12 @@
   }
 
   window.__HEX_FORTUNE_SPEC__ = CATS;
+  window.__SURI_FORTUNE_TAGS__ = SURI_FORTUNE_TAGS;
+  window.suriFortuneTags = function (num) {
+    return SURI_FORTUNE_TAGS[String(num)] || [];
+  };
   window.buildHexFortuneLines = buildLines;
 
-  /** React jsx runtime `m` + rows → orange box */
   window.renderHexFortuneBox = function (m, rows) {
     const list = Array.isArray(rows) ? rows : [];
     const kids = [

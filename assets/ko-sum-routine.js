@@ -45,7 +45,7 @@
       .replace(/「흉」/g, paintRed("「흉」"));
   }
 
-  /** 결론 등 평문용 — 흉수·흉괘·길괘 표시도 색 */
+  /** 결론 등 평문용 — 흉수·흉괘·길괘 표시도 색 (수리는 원본과 같이 흉만 빨강) */
   function colorMarks(s) {
     return colorGilHyung(s)
       .replace(/청색길괘/g, paintBlue("청색길괘"))
@@ -59,8 +59,13 @@
   }
 
   function suriGood(d) {
-    // UI 청색 길수는 없음. 핵심요약에서는 type/best·길수면 길 쪽으로 표기
     return !!d && (d.type === "best" || d.type === "good");
+  }
+
+  /** 원본 UI와 동일: 흉수·주의·불량만 빨강, 길수·평수는 검정 */
+  function suriColor(d) {
+    if (suriBad(d)) return C_RED;
+    return "#1c1917";
   }
 
   function gweNameOf(g) {
@@ -82,6 +87,9 @@
 
   function coreSuri(num) {
     const x = CS().suri[String(num)];
+    if (!x) return "";
+    // prefer full original desc when present
+    if (x.desc) return String(x.tone || "") + " — " + x.desc;
     return (x && x.core) || "";
   }
 
@@ -103,13 +111,29 @@
     return "";
   }
 
+  function suriToneWord(d) {
+    if (!d) return "평수";
+    if (d.type === "caution") return "주의";
+    if (suriBad(d)) return "흉수";
+    if (suriGood(d)) return "길수";
+    return "평수";
+  }
+
   function suriLabel(d, num) {
     if (!d) return "";
     const nm = strip(d.name);
     const head = num + "수 「" + nm + "」";
-    if (suriBad(d)) return paintRed(head) + "(" + paintRed("흉수") + ")";
-    if (suriGood(d)) return esc(head) + "(길수)";
-    return esc(head) + "(평수)";
+    const tone = suriToneWord(d);
+    const col = suriColor(d);
+    return (
+      '<span style="color:' +
+      col +
+      ';font-weight:700">' +
+      esc(head) +
+      "</span>(" +
+      (suriBad(d) ? paintRed(tone) : esc(tone)) +
+      ")"
+    );
   }
 
   function gweLabel(g) {
@@ -120,7 +144,56 @@
     return esc(nm) + "(중성)";
   }
 
-  /** 수리·주역 — 항상 양쪽 설명 (해당 없음 금지). 한글/한문 각각 수리·주역 줄로 나눔 */
+  /** 수리가 같은 자리 주역괘에 미치는 영향 */
+  function suriInfluenceOnGwe(ns, ng) {
+    const nd = ns && ns.data;
+    if (!nd && !ng) return "";
+    if (suriBad(nd) && gweGood(ng)) {
+      return (
+        "→ 수리 " +
+        paintRed("흉") +
+        "이 주역 " +
+        paintBlue("길괘") +
+        "의 힘을 깎아, 좋은 괘만 보고 단정하면 안 됩니다."
+      );
+    }
+    if (suriBad(nd) && gweBad(ng)) {
+      return (
+        "→ 수리 " +
+        paintRed("흉") +
+        "과 주역 " +
+        paintRed("흉괘") +
+        "가 겹쳐 그 시기 시련이 더 커지기 쉽습니다."
+      );
+    }
+    if (suriGood(nd) && gweBad(ng)) {
+      return (
+        "→ 수리 길이 주역 " +
+        paintRed("흉괘") +
+        "를 일부 받쳐 주나, 흉괘의 조심은 그대로 필요합니다."
+      );
+    }
+    if (suriGood(nd) && gweGood(ng)) {
+      return (
+        "→ 수리 길과 주역 " +
+        paintBlue("길괘") +
+        "가 맞물려 그 시기 기운이 더 열리기 쉽습니다."
+      );
+    }
+    if (suriBad(nd)) {
+      return (
+        "→ 수리 " +
+        paintRed("흉") +
+        "이 주역 기운에 부담을 주어, 평이한 괘도 무겁게 작용하기 쉽습니다."
+      );
+    }
+    if (suriGood(nd)) {
+      return "→ 수리 길이 주역 기운을 받쳐 주어 그 시기 흐름이 한결 나아지기 쉽습니다.";
+    }
+    return "→ 수리와 주역이 함께 그 시기 인생 흐름을 만듭니다. 한쪽만 보고 단정하지 마십시오.";
+  }
+
+  /** 수리·주역 — 항상 양쪽 설명 + 수리→주역 영향 */
   function formatSuriPart(ns) {
     if (!ns || ns.suri == null || !ns.data) return "수리 자료 없음";
     const c = pickCore("suri", ns, null);
@@ -143,13 +216,30 @@
     return "평";
   }
 
-  /** who=한글|한문 → 수리 한 줄 + 주역 한 줄 */
+  /** who=한글|한문|탄생일 → 수리 / 주역 / 영향 (+ 수리 기운 해당) */
   function explainWhoLines(who, ns, ng) {
     const tone = toneWord(ns, ng);
-    return [
+    const lines = [
       "▶ " + who + " 수리(" + tone + "): " + formatSuriPart(ns),
       "▶ " + who + " 주역(" + tone + "): " + formatGwePart(ng),
     ];
+    const infl = suriInfluenceOnGwe(ns, ng);
+    if (infl) lines.push("▶ " + who + " 수리→주역 영향: " + infl);
+    if (ns && ns.suri != null && typeof window.suriFortuneTags === "function") {
+      const tags = window.suriFortuneTags(ns.suri) || [];
+      if (tags.length) {
+        lines.push(
+          "▶ " +
+            who +
+            " 수리 기운 해당: " +
+            tags.join(" · ") +
+            "(" +
+            ns.suri +
+            "수)"
+        );
+      }
+    }
+    return lines;
   }
 
   window.paintGH = function paintGH(s) {
