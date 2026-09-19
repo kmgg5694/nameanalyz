@@ -85,21 +85,22 @@
     return !!(g && g.isBest);
   }
 
-  /** 첨부 격명·길흉 (예: 갱신격 · 대길) */
+  /** 첨부 격명·길흉 — 표시: 갱신격. 대길 (한자 괄호 생략) */
   function suriGeokLuckHead(num) {
     const x = CS().suri[String(num)];
     if (!x) return { plain: "", html: "" };
-    const g = String(x.geok || "").trim();
+    const gFull = String(x.geok || "").trim();
+    const g = gFull.replace(/\([^)]*\)/g, "").trim(); // 갱신격
     const l = String(x.luck || "").trim();
     if (!g && !l) return { plain: "", html: "" };
-    const plain = g && l ? g + " · " + l : g || l;
+    const plain = g && l ? g + ". " + l : g || l;
     let luckHtml = l ? esc(l) : "";
     if (l) {
       if (l === "길흉상반" || l === "변동") luckHtml = esc(l);
       else if (l.indexOf("흉") >= 0) luckHtml = paintRed(esc(l));
       else luckHtml = esc(l);
     }
-    const html = g && l ? esc(g) + " · " + luckHtml : g ? esc(g) : luckHtml;
+    const html = g && l ? esc(g) + ". " + luckHtml : g ? esc(g) : luckHtml;
     return { plain: plain, html: html };
   }
 
@@ -154,17 +155,15 @@
   function suriLabel(d, num) {
     if (!d) return "";
     const nm = strip(d.name);
-    const head = num + "수 「" + nm + "」";
-    const tone = suriToneWord(d);
+    // 11수(중인신망) — 길수·길 중복 표기 없음 (길흉은 격.대길만)
+    const head = num + "수(" + nm + ")";
     const col = suriColor(d);
     return (
       '<span style="color:' +
       col +
       ';font-weight:700">' +
       esc(head) +
-      "</span>(" +
-      (suriBad(d) ? paintRed(tone) : esc(tone)) +
-      ")"
+      "</span>"
     );
   }
 
@@ -225,14 +224,13 @@
     return "→ 수리와 주역이 함께 그 시기 인생 흐름을 만듭니다. 한쪽만 보고 단정하지 마십시오.";
   }
 
-  /** 수리·주역 — 항상 양쪽 설명 + 수리→주역 영향 */
+  /** 수리 — 11수(중인신망) - 갱신격. 대길 — 본문 */
   function formatSuriPart(ns) {
     if (!ns || ns.suri == null || !ns.data) return "수리 자료 없음";
-    // 맨 앞: 격 · 길흉 → 그다음 본문
     const gl = suriGeokLuckHead(ns.suri);
     const c = pickCore("suri", ns, null);
     let out = suriLabel(ns.data, ns.suri);
-    if (gl.html) out += " — " + gl.html;
+    if (gl.html) out += " - " + gl.html;
     if (c) out += " — " + c;
     return out;
   }
@@ -257,7 +255,8 @@
   function explainWhoLines(who, ns, ng) {
     const tone = toneWord(ns, ng);
     const lines = [
-      "▶ " + who + " 수리(" + tone + "): " + formatSuriPart(ns),
+      // 예: ▶ 한글수리 11수(중인신망) - 갱신격. 대길 — …
+      "▶ " + who + "수리 " + formatSuriPart(ns),
       "▶ " + who + " 주역(" + tone + "): " + formatGwePart(ng),
     ];
     const infl = suriInfluenceOnGwe(ns, ng);
