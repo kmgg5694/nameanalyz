@@ -212,8 +212,15 @@
     return String(num);
   }
 
+  function hexNameStarts(g, name) {
+    if (!g || !g.name || !name) return false;
+    const n = gweNameOf(g);
+    return n === name || n.indexOf(name) === 0;
+  }
+
   /** 같은 자리 수리·괘 조합 참고
    *  - 흉수리 + 완화 길괘 → 완화·재물 대박
+   *  - 14 이산파멸 + 풍수환 → 환경·사업·이사 피해 (초년15·장년40±3)
    *  - 경고장 흉수리 + 경고장 흉괘 → 수리 기운 가중·위태 (14는 요절)
    */
   function suriMitigateByHexNote(ns, ng) {
@@ -221,6 +228,15 @@
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     const plain = ng && ng.name ? gweNameOf(ng) : "";
     const hexPart = ng && ng.name ? gweNameHtml(ng) + josaIGA(plain) : "";
+
+    // 14 이산파멸 + 풍수환 → 환경·사업·이사 피해 (보흘 지정)
+    if (num === 14 && hexNameStarts(ng, "풍수환") && !isMitigateSuriHex(ng)) {
+      return (
+        " 그 아래에 " +
+        hexPart +
+        " 오면 급격한 환경의 변화로 새 판을 짜고, 사업의 변화·이사·이전 등이 파멸의 기운의 방해를 받아 피해를 보게 됩니다. 이 피해가 가장 큰 시기는 초년에는 15세, 장년에는 40세(±3세)이니 그전의 변화는 크게 받지 않습니다. 또한 이산파멸이 말하는 것들이 가중되어 아주 위태로우며 거의 요절 가능성이 많다 보면 됩니다."
+      );
+    }
 
     // 경고장 흉수리 + 경고장 흉괘 → 가중·위태 (완화 길괘가 아닐 때)
     if (isWarnJangSuri(ns) && isWarnJangHex(ng) && !isMitigateSuriHex(ng)) {
