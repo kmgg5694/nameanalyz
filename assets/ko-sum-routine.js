@@ -11,6 +11,7 @@
 
   const C_RED = "#FF0000";
   const C_BLUE = "#0000FF";
+  const C_BLACK = "#1c1917";
 
   function esc(s) {
     return String(s || "")
@@ -38,6 +39,41 @@
     return paint(s, C_BLUE);
   }
 
+  /** kind: 'bad'|'goodHex'|'goodSuri'|'neutral' — 수리명·괘명만 색 */
+  function paintName(text, kind) {
+    let color = C_BLACK;
+    if (kind === "bad") color = C_RED;
+    else if (kind === "goodHex") color = C_BLUE;
+    return (
+      '<span style="color:' +
+      color +
+      ';font-weight:700">' +
+      esc(text) +
+      "</span>"
+    );
+  }
+
+  /** 수리명: 번호+이름만 (격·길흉·길수 라벨 없음) */
+  function suriNameHtml(ns) {
+    if (!ns || ns.suri == null || !ns.data) return "";
+    const nm = strip(ns.data.name);
+    const head = nm ? ns.suri + nm : String(ns.suri);
+    let kind = "neutral";
+    if (suriBad(ns.data)) kind = "bad";
+    else if (suriGood(ns.data)) kind = "goodSuri";
+    return paintName(head, kind);
+  }
+
+  /** 주역괘명만 (길괘/흉괘 괄호 없음) */
+  function gweNameHtml(g) {
+    if (!g || !g.name) return "";
+    const nm = "「" + strip(g.name) + "」";
+    let kind = "neutral";
+    if (gweBad(g)) kind = "bad";
+    else if (gweGood(g)) kind = "goodHex";
+    return paintName(nm, kind);
+  }
+
   /** 「길」「흉」 표시어에 색 */
   function colorGilHyung(s) {
     return String(s || "")
@@ -45,7 +81,7 @@
       .replace(/「흉」/g, paintRed("「흉」"));
   }
 
-  /** 결론 등 평문용 — 흉수·흉괘·길괘 표시도 색 (수리는 원본과 같이 흉만 빨강) */
+  /** 결론 등 평문용 — 남은 표시어도 색 */
   function colorMarks(s) {
     return colorGilHyung(s)
       .replace(/청색길괘/g, paintBlue("청색길괘"))
@@ -60,12 +96,6 @@
 
   function suriGood(d) {
     return !!d && (d.type === "best" || d.type === "good");
-  }
-
-  /** 원본 UI와 동일: 흉수·주의·불량만 빨강, 길수·평수는 검정 */
-  function suriColor(d) {
-    if (suriBad(d)) return C_RED;
-    return "#1c1917";
   }
 
   function gweNameOf(g) {
@@ -83,96 +113,6 @@
 
   function gweGood(g) {
     return !!(g && g.isBest);
-  }
-
-  /** 첨부 격명·길흉 — 표시: 갱신격. 대길 (한자 괄호 생략) */
-  function suriGeokLuckHead(num) {
-    const x = CS().suri[String(num)];
-    if (!x) return { plain: "", html: "", geok: "", luck: "" };
-    const gFull = String(x.geok || "").trim();
-    const g = gFull.replace(/\([^)]*\)/g, "").trim();
-    const l = String(x.luck || "").trim();
-    if (!g && !l) return { plain: "", html: "", geok: "", luck: "" };
-    const plain = g && l ? g + ". " + l : g || l;
-    let luckHtml = l ? esc(l) : "";
-    if (l) {
-      if (l === "길흉상반" || l === "변동") luckHtml = esc(l);
-      else if (l.indexOf("흉") >= 0) luckHtml = paintRed(esc(l));
-      else luckHtml = esc(l);
-    }
-    const html = g && l ? esc(g) + ". " + luckHtml : g ? esc(g) : luckHtml;
-    return { plain: plain, html: html, geok: g, luck: l };
-  }
-
-  function suriLabel(d, num) {
-    if (!d) return "";
-    const nm = strip(d.name);
-    const head = num + "수(" + nm + ")";
-    const col = suriColor(d);
-    return (
-      '<span style="color:' +
-      col +
-      ';font-weight:700">' +
-      esc(head) +
-      "</span>"
-    );
-  }
-
-  function gweLabel(g) {
-    if (!g) return "";
-    const nm = "「" + strip(g.name) + "」";
-    if (gweBad(g)) return paintRed(nm) + "(" + paintRed("흉괘") + ")";
-    if (gweGood(g)) return paintBlue(nm) + "(" + paintBlue("길괘") + ")";
-    return esc(nm) + "(중성)";
-  }
-
-  /** 수리가 같은 자리 주역괘에 미치는 영향 — 서술용 (화살표·목록 없이) */
-  function suriInfluenceProse(ns, ng) {
-    const nd = ns && ns.data;
-    if (!nd && !ng) return "";
-    if (suriBad(nd) && gweGood(ng)) {
-      return (
-        "수리 " +
-        paintRed("흉") +
-        "이 주역 " +
-        paintBlue("길괘") +
-        "의 힘을 깎아, 좋은 괘만 보고 단정하면 안 됩니다."
-      );
-    }
-    if (suriBad(nd) && gweBad(ng)) {
-      return (
-        "수리 " +
-        paintRed("흉") +
-        "과 주역 " +
-        paintRed("흉괘") +
-        "가 겹쳐 그 시기 시련이 더 커지기 쉽습니다."
-      );
-    }
-    if (suriGood(nd) && gweBad(ng)) {
-      return (
-        "수리 길이 주역 " +
-        paintRed("흉괘") +
-        "를 일부 받쳐 주나, 흉괘의 조심은 그대로 필요합니다."
-      );
-    }
-    if (suriGood(nd) && gweGood(ng)) {
-      return (
-        "수리 길과 주역 " +
-        paintBlue("길괘") +
-        "가 맞물려 그 시기 기운이 더 열리기 쉽습니다."
-      );
-    }
-    if (suriBad(nd)) {
-      return (
-        "수리 " +
-        paintRed("흉") +
-        "이 주역 기운에 부담을 주어, 평이한 괘도 무겁게 작용하기 쉽습니다."
-      );
-    }
-    if (suriGood(nd)) {
-      return "수리 길이 주역 기운을 받쳐 주어 그 시기 흐름이 한결 나아지기 쉽습니다.";
-    }
-    return "수리와 주역이 함께 그 시기 인생 흐름을 만듭니다. 한쪽만 보고 단정하지 마십시오.";
   }
 
   /** shortDesc+desc 병합 — 포함 관계 우선, 둘 다 완결이면 ". ", 미완이면 공백 이음 */
@@ -217,50 +157,57 @@
     return "";
   }
 
-  function ageSpeakLabel(ageKey) {
-    return ageKey === "말년" ? "총운(말년)" : ageKey;
-  }
-
   function ageHeader(ageKey) {
     return ageKey === "말년" ? "【총운(말년)】" : "【" + ageKey + "】";
   }
 
+  function ageLayerSpeak(ageKey) {
+    return ageKey === "말년" ? "총운" : ageKey;
+  }
+
+  function firstSentence(text) {
+    const t = String(text || "").trim();
+    if (!t) return "";
+    const m = t.match(/^[\s\S]+?[.。!?！？](?=\s|$)/);
+    return m ? m[0].trim() : t;
+  }
+
   /**
-   * who=한글|한문|탄생일 → 라벨(격·길흉) + 수리 원문 전문 + 주역 원문 전문
+   * who=한글|한문|탄생일 → 흐르는 한 문단 (목록·격·길흉 라벨 없음)
    */
-  function explainWhoProse(who, ns, ng, ageKey) {
-    const label = ageSpeakLabel(ageKey);
+  function explainAgeLayer(who, ns, ng, ageKey) {
+    const label = ageLayerSpeak(ageKey);
+    const short = who === "탄생일";
+    const whoHead = who === "탄생일" ? "탄생일" : who + " 이름";
+
     if (!ns || ns.suri == null || !ns.data) {
-      let out = who + " " + label + "은 수리 자료가 없습니다.";
+      let out = whoHead + " " + label + "에는 수리 자료가 없습니다.";
       if (ng) {
-        out += " 같은 자리 주역은 " + gweLabel(ng) + "입니다.";
+        out +=
+          " 주역으로는 " +
+          gweNameHtml(ng) +
+          "이 자리합니다.";
         const hx0 = hexOriginalText(ng);
-        if (hx0) out += " " + esc(hx0);
+        if (hx0) out += " " + esc(short ? firstSentence(hx0) : hx0);
       }
       return out;
     }
-    const gl = suriGeokLuckHead(ns.suri);
+
     let out =
-      who +
+      whoHead +
       " " +
       label +
-      "은 " +
-      suriLabel(ns.data, ns.suri);
-    if (gl.html) {
-      out += " — " + gl.html + "입니다.";
-    } else {
-      out += "입니다.";
-    }
+      "에는 " +
+      suriNameHtml(ns) +
+      "의 기운이 들어 있습니다.";
     const suriBody = suriOriginalText(ns);
-    if (suriBody) out += " " + esc(suriBody);
+    if (suriBody) {
+      out += " " + esc(short ? firstSentence(suriBody) : suriBody);
+    }
     if (ng) {
-      out += " 같은 자리 주역은 " + gweLabel(ng) + "입니다.";
+      out += " 주역으로는 " + gweNameHtml(ng) + "이 자리합니다.";
       const hx = hexOriginalText(ng);
-      if (hx) out += " " + esc(hx);
-      const infl = suriInfluenceProse(ns, ng);
-      if (infl) out += " " + infl;
-    } else {
-      out += " 같은 자리 주역 자료는 없습니다.";
+      if (hx) out += " " + esc(short ? firstSentence(hx) : hx);
     }
     return out;
   }
@@ -271,13 +218,72 @@
     return "비";
   }
 
-  /** 【오행】 한 블록 — 겉·속·인덕·극 많으면 복 절반 */
+  function relPaint(r) {
+    if (r === "sangsaeng") return paintBlue("상생");
+    if (r === "sanggeuk") return paintRed("상극");
+    return "비화";
+  }
+
+  function pairHas(up, dn, kind) {
+    return up === kind || dn === kind;
+  }
+
+  /** 【오행】 — 상생/상극 정의 → 이 이름 → 겉속 → 인덕(짧게) */
   function buildOhangBlock(ctx) {
-    const ot = String(ctx.ohangText || "").trim();
-    const o = ctx.ohang || null;
     const bits = [];
-    if (ot) bits.push(esc(ot));
+    bits.push(
+      paintBlue("상생") +
+        "(O)은 도움·협력·화합·긍정적·소통원활의 기운입니다. " +
+        paintRed("상극") +
+        "(X)은 배척·부정적·소통불·억압·반목의 기운이며, 많으면 스트레스·질병으로 이어지기 쉽습니다."
+    );
+
+    const o = ctx.ohang || null;
     if (o) {
+      const up = o.up;
+      const dn = o.dn;
+      if (up || dn) {
+        bits.push(
+          "이 이름의 한글 오행은 위가 " +
+            relPaint(up) +
+            "·아래가 " +
+            relPaint(dn) +
+            "입니다."
+        );
+      }
+      const upHj = o.upHj;
+      const dnHj = o.dnHj;
+      const hasHj = !!(o.q && (upHj || dnHj));
+      if (hasHj) {
+        bits.push(
+          "한문 오행은 위가 " +
+            relPaint(upHj) +
+            "·아래가 " +
+            relPaint(dnHj) +
+            "입니다."
+        );
+        const hangulGeuk = pairHas(up, dn, "sanggeuk");
+        const hangulSaeng = pairHas(up, dn, "sangsaeng");
+        const hanjaGeuk = pairHas(upHj, dnHj, "sanggeuk");
+        const hanjaSaeng = pairHas(upHj, dnHj, "sangsaeng");
+        if (hangulSaeng && hanjaGeuk && !hangulGeuk) {
+          bits.push(
+            "겉(한글)은 생이 보이는데 속(한문)은 극이 있어, 겉으로는 좋아 보여도 속으로는 흡족하지 않은 상태입니다."
+          );
+        } else if (hangulGeuk && hanjaSaeng && !hanjaGeuk) {
+          bits.push(
+            "겉(한글)은 극이 보이는데 속(한문)은 생이 있어, 겉보기엔 별로여도 속으로는 믿음이 가는 흐름입니다."
+          );
+        } else if (
+          relWord(up) === relWord(upHj) &&
+          relWord(dn) === relWord(dnHj)
+        ) {
+          bits.push(
+            "겉·속이 같은 결이라 그 자리 상생·상극이 더 또렷하게 작용합니다."
+          );
+        }
+      }
+
       const M = Number(o.M) || 0;
       const z = Number(o.z) || 0;
       if (M >= 3) {
@@ -300,39 +306,30 @@
             "개로 많으니, 설령 큰 재물·출세운이 있어도 그 복은 절반 이하로 떨어지기 쉽습니다."
         );
       }
-      const up = o.up;
-      const dn = o.dn;
-      const upHj = o.upHj;
-      const dnHj = o.dnHj;
-      const hasHj = !!(o.q && (upHj || dnHj));
-      if (hasHj && (up || dn)) {
-        const hangulGeuk =
-          up === "sanggeuk" || dn === "sanggeuk";
-        const hangulSaeng =
-          up === "sangsaeng" || dn === "sangsaeng";
-        const hanjaGeuk =
-          upHj === "sanggeuk" || dnHj === "sanggeuk";
-        const hanjaSaeng =
-          upHj === "sangsaeng" || dnHj === "sangsaeng";
-        if (hangulSaeng && hanjaGeuk && !hangulGeuk) {
-          bits.push(
-            "겉(한글)은 생이 보이는데 속(한문)은 극이 있어, 겉으로는 좋아 보여도 속으로는 흡족하지 않은 상태입니다."
-          );
-        } else if (hangulGeuk && hanjaSaeng && !hanjaGeuk) {
-          bits.push(
-            "겉(한글)은 극이 보이는데 속(한문)은 생이 있어, 겉보기엔 별로여도 속으로는 믿음이 가는 흐름입니다."
-          );
-        } else if (
-          relWord(up) === relWord(upHj) &&
-          relWord(dn) === relWord(dnHj)
-        ) {
-          bits.push(
-            "겉·속이 같은 결이라 그 자리 상생·상극이 더 또렷하게 작용합니다."
-          );
-        }
-      }
     }
-    if (!bits.length) return "";
+
+    const K = ctx.K || (o && o.K) || null;
+    if (K && K[0] && K[1] && K[2]) {
+      bits.push(
+        "한글 오행 세 글자는 " +
+          esc(K[0]) +
+          "·" +
+          esc(K[1]) +
+          "·" +
+          esc(K[2]) +
+          "이며, 오행은 인간관계·성격·인복·스트레스를 가늠하는 척도입니다."
+      );
+    }
+
+    const ot = String(ctx.ohangText || "").trim();
+    if (ot) {
+      const soft = ot
+        .replace(/수리\s*길/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+      if (soft && soft.length < 220) bits.push(esc(soft));
+    }
+
     return "【오행】 " + bits.join(" ");
   }
 
@@ -398,7 +395,7 @@
         specialWarn.push(
           "【주의】 " +
             who +
-            " 장년·말년에 주역 「화택규」가 연속됩니다. 심장마비로 사망하기 쉬운 기운이니, 다른 자리의 길괘만 보고 좋다고 단정하면 안 됩니다."
+            " 장년·말년에 주역 「화택규」가 연속됩니다. 심장마비로 사망하기 쉬운 기운이니, 다른 자리만 보고 좋다고 단정하면 안 됩니다."
         );
       }
     }
@@ -431,11 +428,11 @@
 
       const paras = [];
       paras.push(ageHeader(ag));
-      paras.push(explainWhoProse("한글", ns, ng, ag));
-      if (hasHanja) paras.push(explainWhoProse("한문", hs, hg, ag));
+      paras.push(explainAgeLayer("한글", ns, ng, ag));
+      if (hasHanja) paras.push(explainAgeLayer("한문", hs, hg, ag));
 
       if (hasB) {
-        paras.push(explainWhoProse("탄생일", bs, bg, ag));
+        paras.push(explainAgeLayer("탄생일", bs, bg, ag));
 
         function pushGweVsSaju(who, nameG, badG, goodG) {
           if (!nameG || !bg) return;
@@ -445,12 +442,10 @@
               paras.push(
                 who +
                   " 주역은 이름·사주 모두 " +
-                  paintRed("흉괘") +
-                  "(" +
-                  paintRed("「" + strip(nameG.name) + "」") +
+                  gweNameHtml(nameG) +
                   "·" +
-                  paintRed("「" + strip(bg.name) + "」") +
-                  ")가 겹쳐 " +
+                  gweNameHtml(bg) +
+                  "가 겹쳐 " +
                   ag +
                   "에 큰 시련·상처가 배가됩니다."
               );
@@ -460,9 +455,9 @@
                   " 주역은 " +
                   ag +
                   "에 이름 " +
-                  gweLabel(nameG) +
+                  gweNameHtml(nameG) +
                   "가 사주 " +
-                  gweLabel(bg) +
+                  gweNameHtml(bg) +
                   "를 치어(눌러) 그 시기 운이 막히기 쉽습니다."
               );
             }
@@ -473,10 +468,10 @@
               paras.push(
                 who +
                   " 주역은 이름 " +
-                  gweLabel(nameG) +
+                  gweNameHtml(nameG) +
                   "가 사주 " +
-                  gweLabel(bg) +
-                  "의 흉을 받쳐 주어 " +
+                  gweNameHtml(bg) +
+                  "를 받쳐 주어 " +
                   ag +
                   "에 발전·재물운이 열리기 쉽습니다."
               );
@@ -484,12 +479,10 @@
               paras.push(
                 who +
                   " 주역은 이름·사주 " +
-                  paintBlue("길괘") +
-                  "(" +
-                  paintBlue("「" + strip(nameG.name) + "」") +
+                  gweNameHtml(nameG) +
                   "·" +
-                  paintBlue("「" + strip(bg.name) + "」") +
-                  ")가 맞물려 " +
+                  gweNameHtml(bg) +
+                  "가 맞물려 " +
                   ag +
                   "에 순조롭습니다."
               );
@@ -498,8 +491,8 @@
                 who +
                   " 주역은 " +
                   ag +
-                  "에 이름 길괘 " +
-                  gweLabel(nameG) +
+                  "에 이름 " +
+                  gweNameHtml(nameG) +
                   " 기운이 돕습니다."
               );
             }
@@ -513,8 +506,8 @@
             "한글 주역은 " +
               ag +
               "에 이름 " +
-              gweLabel(ng) +
-              " 흉괘가 사주를 치는 형국이라 조심해야 합니다."
+              gweNameHtml(ng) +
+              "가 사주를 치는 형국이라 조심해야 합니다."
           );
         }
         if (hasHanja && hg && hBadG && hasB && !bg) {
@@ -523,8 +516,8 @@
             "한문 주역은 " +
               ag +
               "에 이름 " +
-              gweLabel(hg) +
-              " 흉괘가 사주를 치는 형국이라 조심해야 합니다."
+              gweNameHtml(hg) +
+              "가 사주를 치는 형국이라 조심해야 합니다."
           );
         }
       }
@@ -535,27 +528,27 @@
       if (ag === "말년") {
         if (malBad && malSajuBad) {
           paras.push(
-            "▶ 말년 가중: 이름·사주 말년이 모두 흉이라 인생 전반에 흠집이 깊어지기 쉽습니다."
+            "▶ 말년: 이름·사주 말년이 모두 무거워 인생 전반에 흠집이 깊어지기 쉽습니다."
           );
         } else if (malGood && malSajuBad) {
           paras.push(
-            "▶ 말년 삭감: 이름 말년 「길」이 사주 말년 「흉」을 삭감해 주어, 일단 좋은 이름 기운입니다."
+            "▶ 말년: 이름 말년의 밝은 기운이 사주 말년의 부담을 덜어 주어, 일단 이름 쪽은 힘이 됩니다."
           );
         } else if (malBad && malSajuGood) {
           paras.push(
-            "▶ 말년 주의: 사주 말년은 길해도 이름 말년 「흉」이 전체를 눌러 초·장·중에도 부담이 갑니다."
+            "▶ 말년: 사주 말년은 열려도 이름 말년의 부담이 전체를 눌러 초·장·중에도 힘이 갑니다."
           );
         } else if (malGood && malSajuGood) {
           paras.push(
-            "▶ 말년 강화: 이름·사주 말년이 모두 길이니 인생 지표가 밝고 초·장·중 길도 더 세집니다."
+            "▶ 말년: 이름·사주 말년이 함께 열려 인생 지표가 밝고 초·장·중도 더 세집니다."
           );
         } else if (malGood) {
           paras.push(
-            "▶ 말년 「길」: 삶의 지표·지침이 밝아 초·장·중에도 좋은 기운을 더해 줍니다."
+            "▶ 말년: 삶의 지표·지침이 밝아 초·장·중에도 좋은 기운을 더해 줍니다."
           );
         } else if (malBad) {
           paras.push(
-            "▶ 말년 「흉」: 인생 전반에 흠집이 생기기 쉽고, 초·장·중 흉을 만나면 그 흉이 더 보태집니다."
+            "▶ 말년: 인생 전반에 흠집이 생기기 쉽고, 초·장·중 부담과 만나면 더 보태집니다."
           );
         }
       } else if (ag === "초년" || ag === "장년" || ag === "중년") {
@@ -563,46 +556,52 @@
         const sajuPeriodGood = !!bGoodG;
         if (malBad && periodBad) {
           const msg =
-            "▶ 말년 흉 가중: 말년(총운) 「흉」에 " +
+            "말년(총운)의 부담에 " +
             ag +
-            " 「흉」이 더해져, 그 시기 시련이 한층 커지고 쓸어가듯 몰아칠 수 있습니다.";
-          paras.push(msg);
-          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+            " 부담이 더해져, 그 시기 시련이 한층 커지고 쓸어가듯 몰아칠 수 있습니다.";
+          paras.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "】 " + msg);
         } else if (malGood && periodGood) {
           const msg =
-            "▶ 말년 길 강화: 말년(총운) 「길」에 " +
+            "말년(총운)의 밝은 기운에 " +
             ag +
-            " 「길」이 더해져, 그 시기 좋은 기운이 더 세집니다.";
-          paras.push(msg);
-          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+            "의 열림이 더해져, 그 시기 흐름이 더 세집니다.";
+          paras.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "】 " + msg);
         } else if (malGood && periodBad) {
           const msg =
-            "▶ 말년 길 완충: 말년 「길」이 " +
+            "말년의 밝은 기운이 " +
             ag +
-            " 「흉」을 덜어 주어, 그 시기 상처가 한결 가벼워질 수 있습니다.";
-          paras.push(msg);
-          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+            "의 부담을 덜어 주어, 그 시기 상처가 한결 가벼워질 수 있습니다.";
+          paras.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "】 " + msg);
         } else if (malBad && periodGood) {
           const msg =
-            "▶ 말년 흉 속 길: 말년은 「흉」이어도 " +
+            "말년은 무거워도 " +
             ag +
-            " 「길」은 그 나이대(±3년)만 버티는 힘이 됩니다.";
-          paras.push(msg);
-          amplifyParts.push("【" + ag + "】 " + msg.replace(/^▶ /, ""));
+            "의 열림은 그 나이대(±3년)만 버티는 힘이 됩니다.";
+          paras.push("▶ " + msg);
+          amplifyParts.push("【" + ag + "】 " + msg);
         }
         if (hasB && malGood && sajuPeriodBad) {
           const msg =
-            "이름 말년 「길」이 사주 " + ag + " 「흉」에도 영향·삭감력을 행사합니다.";
+            "이름 말년의 밝은 기운이 사주 " +
+            ag +
+            "의 부담에도 영향·삭감력을 행사합니다.";
           paras.push("▶ " + msg);
           amplifyParts.push("【" + ag + "·사주】 " + msg);
         } else if (hasB && malBad && sajuPeriodBad) {
           const msg =
-            "이름 말년 「흉」이 사주 " + ag + " 「흉」과 겹치면 그 시기 부담이 더 커집니다.";
+            "이름 말년의 부담이 사주 " +
+            ag +
+            "의 부담과 겹치면 그 시기 힘이 더 커집니다.";
           paras.push("▶ " + msg);
           amplifyParts.push("【" + ag + "·사주】 " + msg);
         } else if (hasB && malGood && sajuPeriodGood) {
           const msg =
-            "이름 말년 「길」이 사주 " + ag + " 「길」을 도와 그 시기 좋은 운이 더 열립니다.";
+            "이름 말년의 밝은 기운이 사주 " +
+            ag +
+            "의 열림을 도와 그 시기 운이 더 열립니다.";
           paras.push("▶ " + msg);
           amplifyParts.push("【" + ag + "·사주】 " + msg);
         }
@@ -654,16 +653,16 @@
     }
 
     function softBalance(bad, good) {
-      if (bad > good && bad - good >= 2) return "흉한 기운이 더 두드러집니다";
-      if (good > bad && good - bad >= 2) return "길한 기운이 더 두드러집니다";
-      if (bad > good) return "흉이 조금 더 무겁습니다";
-      if (good > bad) return "길이 조금 더 열립니다";
-      if (bad === 0 && good === 0) return "뚜렷한 흉·길이 크게 드러나지 않습니다";
-      return "흉·길이 비슷한 무게로 섞여 있습니다";
+      if (bad > good && bad - good >= 2) return "무거운 기운이 더 두드러집니다";
+      if (good > bad && good - bad >= 2) return "열린 기운이 더 두드러집니다";
+      if (bad > good) return "부담이 조금 더 무겁습니다";
+      if (good > bad) return "열림이 조금 더 있습니다";
+      if (bad === 0 && good === 0) return "뚜렷한 기복이 크게 드러나지 않습니다";
+      return "열림과 부담이 비슷한 무게로 섞여 있습니다";
     }
 
     compareParts.push(
-      "【흉·길 비교】 이름(한글" +
+      "【기운 비교】 이름(한글" +
         (hasHanja ? "+한문" : "") +
         ")은 " +
         softBalance(nBad, nGood) +
@@ -679,15 +678,15 @@
 
     compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
     compareParts.push(
-      "【나이대 원칙】 말년(총운)만 인생 전체에 영향주며 말년의 흉·길이 초년·장년·중년에도 영향력을 행사합니다. 초년·장년·중년은 자기 나이대에만 영향력을 행사합니다. 나이대 경계 오차는 플러스·마이너스 약 3년 내외입니다."
+      "【나이대 원칙】 말년(총운)만 인생 전체에 영향주며 말년의 기운이 초년·장년·중년에도 영향력을 행사합니다. 초년·장년·중년은 자기 나이대에만 영향력을 행사합니다. 나이대 경계 오차는 플러스·마이너스 약 3년 내외입니다."
     );
     if (amplifyParts.length) {
       compareParts.push("【말년 가중·강화】 " + amplifyParts.join(" "));
     } else if (malGood || malBad) {
       compareParts.push(
         malGood
-          ? "【말년 가중·강화】 이름 말년은 「길」입니다. 초·장·중 길과 만나면 더 세지고, 사주 흉이 있어도 말년 길이 삭감·완충합니다."
-          : "【말년 가중·강화】 이름 말년은 「흉」입니다. 초·장·중 흉과 만나면 그 흉이 더 보태지니 해당 시기를 각별히 조심하십시오."
+          ? "【말년 가중·강화】 이름 말년은 밝은 편입니다. 초·장·중의 열림과 만나면 더 세지고, 사주 부담이 있어도 말년이 삭감·완충합니다."
+          : "【말년 가중·강화】 이름 말년은 무거운 편입니다. 초·장·중 부담과 만나면 더 보태지니 해당 시기를 각별히 조심하십시오."
       );
     }
 
@@ -699,7 +698,7 @@
         const key = strip(h.ng.name);
         if (!seen[key]) {
           seen[key] = true;
-          out.push("「" + key + "」");
+          out.push(gweNameHtml(h.ng));
         }
       });
       return out;
@@ -707,10 +706,19 @@
     function byAgeHelp(arr) {
       return arr.map(function (h) {
         if (h.bg) {
-          return h.ag + "에 「" + strip(h.ng.name) + "」→사주「" + strip(h.bg.name) + "」";
+          return (
+            h.ag +
+            "에 " +
+            gweNameHtml(h.ng) +
+            "→사주" +
+            gweNameHtml(h.bg)
+          );
         }
-        return h.ag + "에 「" + strip(h.ng.name) + "」→사주";
+        return h.ag + "에 " + gweNameHtml(h.ng) + "→사주";
       });
+    }
+    function nameGweTag(who, g, ag) {
+      return who + gweNameHtml(g) + "(" + ag + ")";
     }
 
     if (!hasB) {
@@ -718,60 +726,66 @@
       const nameGoodGwes = [];
       ages.forEach(function (ag, ii) {
         const g = nmG[ii];
-        if (gweBad(g)) nameBadGwes.push("한글「" + strip(g.name) + "」(" + ag + ")");
-        if (gweGood(g)) nameGoodGwes.push("한글「" + strip(g.name) + "」(" + ag + ")");
+        if (gweBad(g)) nameBadGwes.push(nameGweTag("한글", g, ag));
+        if (gweGood(g)) nameGoodGwes.push(nameGweTag("한글", g, ag));
         if (hasHanja) {
           const h = hjG[ii];
-          if (gweBad(h)) nameBadGwes.push("한문「" + strip(h.name) + "」(" + ag + ")");
-          if (gweGood(h)) nameGoodGwes.push("한문「" + strip(h.name) + "」(" + ag + ")");
+          if (gweBad(h)) nameBadGwes.push(nameGweTag("한문", h, ag));
+          if (gweGood(h)) nameGoodGwes.push(nameGweTag("한문", h, ag));
         }
       });
       if (specialWarn.length) {
         verdict =
           "【결론】 " +
           specialWarn.join(" ") +
-          " 한글 길괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
+          " 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
       } else if (nameBadGwes.length > 0) {
         verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 이름 흉괘 " +
+          "【결론】 생년월일 없이 이름만 봤습니다. 이름 " +
           nameBadGwes.join("·") +
           "가 해당 시기에 사주를 칠 수 있으니 조심하십시오.";
       } else if (nameGoodGwes.length > 0) {
         verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 흉괘가 없고 청색길괘 " +
+          "【결론】 생년월일 없이 이름만 봤습니다. 부담 괘가 없고 " +
           nameGoodGwes.join("·") +
           "가 사주를 시기별로 도와준다. 그래서 좋은이름을 가졌네요.";
       } else {
         verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 이름에 뚜렷한 흉괘·길괘는 없습니다.";
+          "【결론】 생년월일 없이 이름만 봤습니다. 이름에 뚜렷한 부담·열림 괘는 없습니다.";
       }
     } else if (specialWarn.length) {
       verdict =
         "【결론】 " +
         specialWarn.join(" ") +
         (hitList.length
-          ? " 또한 이름 흉괘 " +
+          ? " 또한 이름 " +
             listGweNames(hitList).join("·") +
             "가 사주를 시기별로 칩니다."
           : "") +
-        " 한글 길괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
+        " 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
     } else if (hitList.length > 0) {
       const nameList = listGweNames(hitList);
       const byAge = hitList.map(function (h) {
         if (h.bg) {
-          return h.ag + "에 「" + strip(h.ng.name) + "」→사주「" + strip(h.bg.name) + "」";
+          return (
+            h.ag +
+            "에 " +
+            gweNameHtml(h.ng) +
+            "→사주" +
+            gweNameHtml(h.bg)
+          );
         }
-        return h.ag + "에 「" + strip(h.ng.name) + "」→사주";
+        return h.ag + "에 " + gweNameHtml(h.ng) + "→사주";
       });
       verdict =
-        "【결론】 이름 흉괘 " +
+        "【결론】 이름 " +
         nameList.join("·") +
         "가 사주를 시기별로 친다. (" +
         byAge.join(", ") +
         ")";
       if (helpList.length > 0) {
         verdict +=
-          " 한편 청색길괘 " +
+          " 한편 " +
           listGweNames(helpList).join("·") +
           "가 사주를 시기별로 도와준다. (" +
           byAgeHelp(helpList).join(", ") +
@@ -779,14 +793,14 @@
       }
     } else if (helpList.length > 0) {
       verdict =
-        "【결론】 흉괘가 없고 청색길괘 " +
+        "【결론】 이름 부담 괘가 사주를 치는 형국은 없고 " +
         listGweNames(helpList).join("·") +
         "가 사주를 시기별로 도와준다. (" +
         byAgeHelp(helpList).join(", ") +
         ") 그래서 좋은이름을 가졌네요.";
     } else {
       verdict =
-        "【결론】 이름 흉괘가 사주를 시기별로 치는 형국은 없다. 위 【총운(말년)】·【초년】~【중년】의 흉·길 대조를 참고하십시오.";
+        "【결론】 이름 괘가 사주를 시기별로 치는 형국은 없다. 위 【총운(말년)】·【초년】~【중년】의 기운 대조를 참고하십시오.";
     }
 
     compareParts.push(verdict);
