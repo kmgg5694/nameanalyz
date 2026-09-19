@@ -417,17 +417,29 @@
   function printHexSentence(whoLabel, ageSpeak, ng) {
     if (!ng || !ng.name) return "";
     const plain = gweNameOf(ng);
+    const speak = String(ageSpeak || "");
+    const isMal = speak === "말년" || speak.indexOf("말년") === 0;
     let lead = "";
-    if (whoLabel && ageSpeak === "말년" && whoLabel.indexOf("한자") >= 0) {
+    if (whoLabel && isMal && whoLabel.indexOf("한자") >= 0) {
       lead =
         whoLabel +
         "의 총 주역괘, 즉 말년의 주역괘 역시 " +
         gweNameHtml(ng) +
         josaEuro(plain) +
         " ";
-    } else if (whoLabel && ageSpeak === "말년") {
+    } else if (whoLabel && isMal && whoLabel.indexOf("탄생") >= 0) {
       lead =
-        "다행히 " +
+        whoLabel +
+        " " +
+        speak +
+        "의 주역괘는 " +
+        gweNameHtml(ng) +
+        josaIGA(plain) +
+        " 들어 있습니다.";
+    } else if (whoLabel && isMal) {
+      const luckLead = gweGood(ng) ? "다행히 " : gweBad(ng) ? "" : "";
+      lead =
+        luckLead +
         whoLabel +
         " 말년의 주역괘는 " +
         gweNameHtml(ng) +
@@ -436,7 +448,7 @@
     } else {
       lead =
         (whoLabel ? whoLabel + " " : "") +
-        ageSpeak +
+        speak +
         "의 주역괘는 " +
         gweNameHtml(ng) +
         josaIGA(plain) +
@@ -444,7 +456,7 @@
     }
     const body = hexOriginalText(ng);
     if (body) {
-      if (whoLabel && ageSpeak === "말년" && whoLabel.indexOf("한자") >= 0) {
+      if (whoLabel && isMal && whoLabel.indexOf("한자") >= 0) {
         lead += esc(body);
         lead +=
           " 운세를 보이겠으나 그 이전까지가 너무 힘든 인생이 펼쳐져 힘을 빼놓게 되므로 좋은 기운이 많이 희생될 것으로 보입니다.";
@@ -1231,6 +1243,59 @@
       }
 
       ageParts.push(p + bits.join(" "));
+    }
+
+    // j. 탄생일(사주) 서술형 — 시기별 나이대 표기 (한글·한문과 같은 인쇄 문체)
+    if (hasB) {
+      ageParts.push(
+        "이제 탄생일(사주)을 시기별 나이대로 살펴봅니다. " +
+          paintBlue("좋은 기운") +
+          "과 " +
+          paintRed("흉한 기운") +
+          "이 시기마다 뚜렷이 갈리니, 말년(56세 이후·총운)만 인생 전체에 미치고 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
+      );
+
+      const birthSlots = [
+        { i: 0, speak: "말년(56세 이후·총운)" },
+        { i: 1, speak: "초년(23세 이전, 1~23세)" },
+        { i: 2, speak: "장년(30세부터 40세까지)" },
+        { i: 3, speak: "중년(40세 이후부터 55세까지)" },
+      ];
+
+      birthSlots.forEach(function (slot) {
+        const bs = bdS[slot.i];
+        const bg = bdG[slot.i];
+        if ((!bs || !bs.data) && (!bg || !bg.name)) return;
+        const bits = [];
+        if (bs && bs.data) {
+          bits.push(printSuriSentence("탄생일", slot.speak, bs));
+        }
+        if (bg && bg.name) {
+          bits.push(printHexSentence("탄생일", slot.speak, bg));
+        }
+        const sBad = !!(bs && suriBad(bs.data));
+        const sGood = !!(bs && suriGood(bs.data));
+        const gBad = !!(bg && gweBad(bg));
+        const gGood = !!(bg && gweGood(bg));
+        if ((sBad || gBad) && !(sGood || gGood)) {
+          bits.push(
+            paintRed(
+              "이 시기 사주는 흉한 기운이 뚜렷하여, 해당 나이대(±3년)를 각별히 살펴야 합니다."
+            )
+          );
+        } else if ((sGood || gGood) && !(sBad || gBad)) {
+          bits.push(
+            paintBlue(
+              "이 시기 사주는 밝은 기운이 뚜렷하여, 해당 나이대에 힘이 실립니다."
+            )
+          );
+        } else if ((sBad || gBad) && (sGood || gGood)) {
+          bits.push(
+            "이 시기 사주는 밝은 기운과 무거운 기운이 함께 있어, 이름과의 만남을 함께 보아야 합니다."
+          );
+        }
+        if (bits.length) ageParts.push(bits.join(" "));
+      });
     }
 
     // i. 말년 가중 — 「길」「흉」 목록 없이 부드럽게
