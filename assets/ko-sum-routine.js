@@ -88,9 +88,23 @@
   function coreSuri(num) {
     const x = CS().suri[String(num)];
     if (!x) return "";
-    // prefer full original desc when present
+    // prefer merged body (shortDesc+desc), then core, then desc alone
+    if (x.body) return String(x.tone || "") + " — " + x.body;
+    if (x.core) return x.core;
+    if (x.desc && x.shortDesc) {
+      const s = String(x.shortDesc).trim();
+      const d = String(x.desc).trim();
+      let body = d;
+      if (s && d && s !== d && d.indexOf(s) < 0 && s.indexOf(d) < 0) {
+        body = s.replace(/[.\s]+$/, "") + ". " + d;
+      } else if (s && (!d || s.length > d.length)) {
+        body = s;
+      }
+      return String(x.tone || "") + " — " + body;
+    }
     if (x.desc) return String(x.tone || "") + " — " + x.desc;
-    return (x && x.core) || "";
+    if (x.shortDesc) return String(x.tone || "") + " — " + x.shortDesc;
+    return "";
   }
 
   function coreHex(g) {
