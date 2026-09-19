@@ -789,8 +789,26 @@
       "이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다. (말년만 전체에 미치며 초·장·중년에도 영향을 받고, 나머지 나이대는 해당 시기±3년 안입니다.)"
     );
 
+    /** 서술형 이름풀이(ageText) 바로 아래 — 제목 「경고장」 + 노란 칸 */
+    function warningJangHtml() {
+      return (
+        '<div style="margin-top:16px">' +
+        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">경고장</div>' +
+        '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
+        "만약 여러분 이름을 분석해서 9 대재무용, 10 만사허망 " +
+        "12 박약박복, 14 이산파멸, 20 백사실패, 22 중도좌절, " +
+        "26 영웅풍파, 28 파란풍파, 34 재앙연속 등이 있거나, " +
+        "이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
+        "천산둔, 천수송, 천지비, 택화혁, 택뢰수, 택수곤, 풍수환, " +
+        "뇌산소과, 수화기제, 수산건, 수뢰둔, 풍천소축, 산풍고, " +
+        "산지박, 지화명이 등의 괘가 도사리고 있다면 오로지 " +
+        "신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
+        "</div></div>"
+      );
+    }
+
     return {
-      ageText: ageParts.join("<br><br>"),
+      ageText: ageParts.join("<br><br>") + warningJangHtml(),
       conclusion: compareParts
         .map(function (p) {
           return p.indexOf("<span") >= 0 ? p : colorMarks(p);
