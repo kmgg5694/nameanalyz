@@ -129,6 +129,40 @@
     return !!(g && g.isBest);
   }
 
+  /** 보흘 지정: 웬만한 흉수리를 덜어 내고 더 좋아지는 경우가 많은 괘 */
+  const HEX_MITIGATE_SURI = [
+    "이위화",
+    "화풍정",
+    "화천대유",
+    "화수미제",
+    "산천대축",
+    "수풍정",
+    "뇌천대장",
+  ];
+
+  function isMitigateSuriHex(g) {
+    if (!g || !g.name) return false;
+    const n = gweNameOf(g);
+    for (let i = 0; i < HEX_MITIGATE_SURI.length; i++) {
+      const h = HEX_MITIGATE_SURI[i];
+      if (n === h || n.indexOf(h) === 0) return true;
+    }
+    return false;
+  }
+
+  /** 같은 자리 흉수리 + 완화 길괘 → 참고 한 줄 */
+  function suriMitigateByHexNote(ns, ng) {
+    if (!ns || !ns.data || !suriBad(ns.data)) return "";
+    if (!isMitigateSuriHex(ng)) return "";
+    const plain = gweNameOf(ng);
+    return (
+      " 다만 같은 자리에 " +
+      gweNameHtml(ng) +
+      josaIGA(plain) +
+      " 있어 웬만한 흉수리를 제거하고 더 좋아지는 경우가 많습니다."
+    );
+  }
+
   /** 받침 유무 → 이/가 */
   function josaIGA(word) {
     const ch = String(word || "")
@@ -285,6 +319,8 @@
     if (ng && ng.name) {
       parts.push(printHexSentence(whoLabel, ageSpeak, ng));
     }
+    const mit = suriMitigateByHexNote(ns, ng);
+    if (mit) parts.push(mit.trim());
     return parts.filter(Boolean).join(" ");
   }
 
@@ -648,6 +684,20 @@
         p +=
           "한글과 한문의 좋고 나쁨이 엇비슷하니, 어느 한쪽만 보고 단정하기보다 시기별로 함께 살펴야 합니다.";
       }
+
+      const mitAll = [];
+      hg.good.forEach(function (g) {
+        if (isMitigateSuriHex(g)) mitAll.push(g);
+      });
+      hj.good.forEach(function (g) {
+        if (isMitigateSuriHex(g)) mitAll.push(g);
+      });
+      if (mitAll.length) {
+        p +=
+          " 참고로 " +
+          joinGweNames(mitAll) +
+          "은 웬만한 흉수리를 덜어 내고 더 좋아지는 경우가 많은 괘이니, 같은 자리 흉수리가 있어도 이 괘가 받쳐 주면 흐름이 한결 나아질 수 있습니다.";
+      }
       return p;
     }
 
@@ -758,14 +808,18 @@
       );
     }
 
-    // b. 한글 말년 주역
+    // b. 한글 말년 주역 (+ 같은 자리 흉수리 완화 참고)
     if (nmG[0] && nmG[0].name) {
-      ageParts.push(printHexSentence("한글이름", "말년", nmG[0]));
+      let p = printHexSentence("한글이름", "말년", nmG[0]);
+      p += suriMitigateByHexNote(nmS[0], nmG[0]);
+      ageParts.push(p);
     }
 
     // c. 한자 말년 주역
     if (hasHanja && hjG[0] && hjG[0].name) {
-      ageParts.push(printHexSentence("한자이름", "말년", hjG[0]));
+      let p = printHexSentence("한자이름", "말년", hjG[0]);
+      p += suriMitigateByHexNote(hjS[0], hjG[0]);
+      ageParts.push(p);
     }
 
     // d. 초년 수리 (한글)
@@ -778,6 +832,7 @@
         " 들어 있습니다.";
       const body = suriOriginalText(nmS[1]);
       if (body) p += " " + esc(body);
+      p += suriMitigateByHexNote(nmS[1], nmG[1]);
       ageParts.push(p);
     }
 
@@ -801,6 +856,7 @@
         " 들어 있습니다.";
       const body = suriOriginalText(hjS[1]);
       if (body) p += " " + esc(body);
+      p += suriMitigateByHexNote(hjS[1], hjG[1]);
       ageParts.push(p);
     }
 
@@ -868,6 +924,8 @@
         );
         const hx = hexOriginalText(nmG[2]);
         if (hx) bits.push(esc(hx));
+        const mit2 = suriMitigateByHexNote(nmS[2], nmG[2]);
+        if (mit2) bits.push(mit2.trim());
       }
       if (hasHanja && hjS[2] && hjS[2].data) {
         const plain = plainSuriName(hjS[2]);
@@ -890,6 +948,8 @@
         );
         const hx = hexOriginalText(hjG[2]);
         if (hx) bits.push(esc(hx));
+        const mit2h = suriMitigateByHexNote(hjS[2], hjG[2]);
+        if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
     }
@@ -927,6 +987,8 @@
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
           );
+          const mit = suriMitigateByHexNote(ns, ng);
+          if (mit) bits.push(mit.trim());
           return true;
         }
         return false;
@@ -959,6 +1021,8 @@
           );
           const hx = hexOriginalText(nmG[3]);
           if (hx) bits.push(esc(hx));
+          const mit3 = suriMitigateByHexNote(nmS[3], nmG[3]);
+          if (mit3) bits.push(mit3.trim());
         }
       }
       if (hasHanja && !hjOverlap) {
@@ -983,6 +1047,8 @@
           );
           const hx = hexOriginalText(hjG[3]);
           if (hx) bits.push(esc(hx));
+          const mit3h = suriMitigateByHexNote(hjS[3], hjG[3]);
+          if (mit3h) bits.push(mit3h.trim());
         }
       }
 
