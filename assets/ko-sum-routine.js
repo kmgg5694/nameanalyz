@@ -85,6 +85,24 @@
     return !!(g && g.isBest);
   }
 
+  /** 첨부 격명·길흉 (예: 갱신격 · 대길) */
+  function suriGeokLuckHead(num) {
+    const x = CS().suri[String(num)];
+    if (!x) return { plain: "", html: "" };
+    const g = String(x.geok || "").trim();
+    const l = String(x.luck || "").trim();
+    if (!g && !l) return { plain: "", html: "" };
+    const plain = g && l ? g + " · " + l : g || l;
+    let luckHtml = l ? esc(l) : "";
+    if (l) {
+      if (l === "길흉상반" || l === "변동") luckHtml = esc(l);
+      else if (l.indexOf("흉") >= 0) luckHtml = paintRed(esc(l));
+      else luckHtml = esc(l);
+    }
+    const html = g && l ? esc(g) + " · " + luckHtml : g ? esc(g) : luckHtml;
+    return { plain: plain, html: html };
+  }
+
   function coreSuri(num) {
     const x = CS().suri[String(num)];
     if (!x) return "";
@@ -210,8 +228,13 @@
   /** 수리·주역 — 항상 양쪽 설명 + 수리→주역 영향 */
   function formatSuriPart(ns) {
     if (!ns || ns.suri == null || !ns.data) return "수리 자료 없음";
+    // 맨 앞: 격 · 길흉 → 그다음 본문
+    const gl = suriGeokLuckHead(ns.suri);
     const c = pickCore("suri", ns, null);
-    return suriLabel(ns.data, ns.suri) + (c ? " — " + c : "");
+    let out = suriLabel(ns.data, ns.suri);
+    if (gl.html) out += " — " + gl.html;
+    if (c) out += " — " + c;
+    return out;
   }
 
   function formatGwePart(ng) {
