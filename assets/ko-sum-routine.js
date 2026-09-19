@@ -140,7 +140,20 @@
     "뇌천대장",
   ];
 
-  /** 경고장에 적힌 흉괘 (14 이산파멸 아래 요절 판정에도 동일 목록) */
+  /** 경고장에 적힌 흉수리 */
+  const WARN_JANG_SURI = [
+    { n: 9, name: "대재무용" },
+    { n: 10, name: "만사허망" },
+    { n: 12, name: "박약박복" },
+    { n: 14, name: "이산파멸" },
+    { n: 20, name: "백사실패" },
+    { n: 22, name: "중도좌절" },
+    { n: 26, name: "영웅풍파" },
+    { n: 28, name: "파란풍파" },
+    { n: 34, name: "재앙연속" },
+  ];
+
+  /** 경고장에 적힌 흉괘 */
   const WARN_JANG_HEX = [
     "천산둔",
     "천수송",
@@ -179,10 +192,29 @@
     return false;
   }
 
-  /** 같은 자리 흉수리 + 완화 길괘 → 참고 한 줄
-   *  예: 14 이산파멸 아래에 화수미제·수풍정 등
-   *  → 흉 기운 완화 + 괘 본뜻(재물)로 재물 대박
-   *  예: 14 이산파멸 아래에 경고장 흉괘 → 거의 요절 가능성
+  function isWarnJangSuri(ns) {
+    if (!ns || ns.suri == null) return false;
+    const num = Number(ns.suri);
+    for (let i = 0; i < WARN_JANG_SURI.length; i++) {
+      if (WARN_JANG_SURI[i].n === num) return true;
+    }
+    return false;
+  }
+
+  function warnJangSuriLabel(ns) {
+    if (!ns || ns.suri == null) return "";
+    const num = Number(ns.suri);
+    for (let i = 0; i < WARN_JANG_SURI.length; i++) {
+      if (WARN_JANG_SURI[i].n === num) {
+        return num + " " + WARN_JANG_SURI[i].name;
+      }
+    }
+    return String(num);
+  }
+
+  /** 같은 자리 수리·괘 조합 참고
+   *  - 흉수리 + 완화 길괘 → 완화·재물 대박
+   *  - 경고장 흉수리 + 경고장 흉괘 → 수리 기운 가중·위태 (14는 요절)
    */
   function suriMitigateByHexNote(ns, ng) {
     if (!ns || !ns.data) return "";
@@ -190,13 +222,19 @@
     const plain = ng && ng.name ? gweNameOf(ng) : "";
     const hexPart = ng && ng.name ? gweNameHtml(ng) + josaIGA(plain) : "";
 
-    // 14 이산파멸 + 경고장 흉괘 → 요절 (완화 길괘가 아닐 때)
-    if (num === 14 && isWarnJangHex(ng) && !isMitigateSuriHex(ng)) {
-      return (
+    // 경고장 흉수리 + 경고장 흉괘 → 가중·위태 (완화 길괘가 아닐 때)
+    if (isWarnJangSuri(ns) && isWarnJangHex(ng) && !isMitigateSuriHex(ng)) {
+      const sLabel = warnJangSuriLabel(ns);
+      let t =
         " 그 아래에 경고장의 " +
         hexPart +
-        " 오면 거의 요절 가능성이 많다 보면 됩니다."
-      );
+        " 오면 " +
+        sLabel +
+        "이 말하는 것들이 가중되어 아주 위태로운 상황이 만들어집니다.";
+      if (num === 14) {
+        t += " 거의 요절 가능성이 많다 보면 됩니다.";
+      }
+      return t;
     }
 
     if (!suriBad(ns.data)) return "";
@@ -1342,9 +1380,11 @@
         '<div style="margin-top:16px">' +
         '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">경고장</div>' +
         '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
-        "만약 여러분 이름을 분석해서 9 대재무용, 10 만사허망 " +
-        "12 박약박복, 14 이산파멸, 20 백사실패, 22 중도좌절, " +
-        "26 영웅풍파, 28 파란풍파, 34 재앙연속 등이 있거나, " +
+        "만약 여러분 이름을 분석해서 " +
+        WARN_JANG_SURI.map(function (s) {
+          return s.n + " " + s.name;
+        }).join(", ") +
+        " 등이 있거나, " +
         "이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
         WARN_JANG_HEX.join(", ") +
         " 등의 괘가 도사리고 있다면 오로지 " +
