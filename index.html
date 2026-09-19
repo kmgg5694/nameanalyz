@@ -15,13 +15,13 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       Promise.all([
         fetch('./data/core-summaries/suri-core-by-num.json?v=20260919flow1').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260919flow1').then(r => r.json())
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260919orig1').then(r => r.json())
       ]).then(([s, h]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260919warn2"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260919orig1"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260919flow1"></script>
     <script type="module" crossorigin src="./assets/index-kw5.js?v=20260919flow1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">

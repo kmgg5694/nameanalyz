@@ -46,7 +46,7 @@
     }
     function render() {
       const pack = cur === 'suri' ? suri : hex;
-      const items = pack.items || [];
+      const items = Array.isArray(pack) ? pack : (pack.items || []);
       list.innerHTML = items.map(it => {
         const key = cur === 'suri' ? `#${it.num}` : `#${it.id}`;
         const toneClass = 'tone-' + (it.tone || '');

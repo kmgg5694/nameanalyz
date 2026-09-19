@@ -175,45 +175,44 @@
     return "수리와 주역이 함께 그 시기 인생 흐름을 만듭니다. 한쪽만 보고 단정하지 마십시오.";
   }
 
-  /** 격·길흉 한 줄 포인트 — 본문·태그 덤프 금지. 길흉 팁 또는 기운 태그 최대 2개 */
-  function pointedSuriLine(ns) {
-    if (!ns || ns.suri == null) return "";
-    const gl = suriGeokLuckHead(ns.suri);
-    const luck = gl.luck || "";
-    if (luck) {
-      if (luck.indexOf("대길") >= 0) {
-        return "대길의 격이라 그 시기 지표가 밝게 열리기 쉽습니다.";
-      }
-      if (luck === "길") {
-        return "길한 격이라 그 시기 흐름이 비교적 순조롭습니다.";
-      }
-      if (luck.indexOf("대흉") >= 0) {
-        return (
-          paintRed("대흉") + "의 격이라 그 시기를 각별히 조심해야 합니다."
-        );
-      }
-      if (luck.indexOf("흉") >= 0) {
-        return (
-          paintRed("흉") + "한 격이라 그 나이대(±3년)를 무겁게 받기 쉽습니다."
-        );
-      }
-      if (luck === "길흉상반") {
-        return "길흉이 상반되니 분수와 배합을 살피며 가려 받는 기운입니다.";
-      }
-      if (luck === "변동") {
-        return "변동의 격이라 그 시기 흐름이 쉽게 흔들리기 쉽습니다.";
-      }
+  /** shortDesc+desc 병합 — 포함 관계 우선, 둘 다 완결이면 ". ", 미완이면 공백 이음 */
+  function mergeSuriText(shortDesc, desc) {
+    const s = String(shortDesc || "").trim();
+    const d = String(desc || "").trim();
+    if (!s) return d;
+    if (!d) return s;
+    if (s === d) return s;
+    if (d.indexOf(s) >= 0) return d;
+    if (s.indexOf(d) >= 0) return s;
+    const sDone = /[.。!?！？]\s*$/.test(s);
+    const dDone = /[.。!?！？]\s*$/.test(d);
+    if (sDone && dDone) {
+      return s.replace(/[.\s]+$/, "") + ". " + d;
     }
-    if (typeof window.suriFortuneTags === "function") {
-      const tags = (window.suriFortuneTags(ns.suri) || []).slice(0, 2);
-      if (tags.length === 1) {
-        return "특히 " + esc(tags[0]) + " 쪽이 눈에 띕니다.";
-      }
-      if (tags.length >= 2) {
-        return (
-          "특히 " + esc(tags[0]) + "·" + esc(tags[1]) + " 쪽이 눈에 띕니다."
-        );
-      }
+    return (s + " " + d).replace(/\s+/g, " ").trim();
+  }
+
+  /** 라이브 d6 → CS body/short+desc 순으로 원문 전문 */
+  function suriOriginalText(ns) {
+    const d = ns && ns.data;
+    if (d) {
+      const m = mergeSuriText(d.shortDesc, d.desc);
+      if (m) return m;
+    }
+    const x = ns && CS().suri[String(ns.suri)];
+    if (x && x.body) return String(x.body);
+    if (x) return mergeSuriText(x.shortDesc, x.desc);
+    return "";
+  }
+
+  /** 라이브 Ee.desc → CS hex.core(톤 접두 제거) */
+  function hexOriginalText(ng) {
+    if (ng && ng.desc) return String(ng.desc).trim();
+    const x = ng && CS().hex[String(ng.id)];
+    if (x && x.core) {
+      return String(x.core)
+        .replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "")
+        .trim();
     }
     return "";
   }
@@ -227,13 +226,17 @@
   }
 
   /**
-   * who=한글|한문|탄생일 → 한 문단 서술 (▶ 목록·본문 덤프 없음)
+   * who=한글|한문|탄생일 → 라벨(격·길흉) + 수리 원문 전문 + 주역 원문 전문
    */
   function explainWhoProse(who, ns, ng, ageKey) {
     const label = ageSpeakLabel(ageKey);
     if (!ns || ns.suri == null || !ns.data) {
       let out = who + " " + label + "은 수리 자료가 없습니다.";
-      if (ng) out += " 같은 자리 주역은 " + gweLabel(ng) + "입니다.";
+      if (ng) {
+        out += " 같은 자리 주역은 " + gweLabel(ng) + "입니다.";
+        const hx0 = hexOriginalText(ng);
+        if (hx0) out += " " + esc(hx0);
+      }
       return out;
     }
     const gl = suriGeokLuckHead(ns.suri);
@@ -248,10 +251,12 @@
     } else {
       out += "입니다.";
     }
-    const tip = pointedSuriLine(ns);
-    if (tip) out += " " + tip;
+    const suriBody = suriOriginalText(ns);
+    if (suriBody) out += " " + esc(suriBody);
     if (ng) {
       out += " 같은 자리 주역은 " + gweLabel(ng) + "입니다.";
+      const hx = hexOriginalText(ng);
+      if (hx) out += " " + esc(hx);
       const infl = suriInfluenceProse(ns, ng);
       if (infl) out += " " + infl;
     } else {
