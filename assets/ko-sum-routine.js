@@ -242,10 +242,16 @@
     const wealthTail =
       " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
     if (num === 14) {
+      const keys = suriDetailKeywordsList(ns);
+      const gone = keys
+        ? keys.join("·") + " 등의 기운이 없어지고"
+        : "이별이혼·사고감옥·자살단명·사건·사고·감옥·당뇨·암·질병·수술 등의 기운이 없어지고";
       return (
         " 다만 그 아래에 " +
         hexPart +
-        " 있어 이혼·이별·질병·사망·암 등의 기운이 없어지고 오히려 더 좋아지며," +
+        " 있어 " +
+        gone +
+        " 오히려 더 좋아지며," +
         wealthTail
       );
     }
@@ -311,6 +317,42 @@
     return "";
   }
 
+  /** 보흘 지정: 수리별 구체 기운 키워드 (목록에 있는 것만) */
+  const SURI_DETAIL_KEYWORDS = {
+    14: [
+      "이별이혼",
+      "사고감옥",
+      "자살단명",
+      "사건",
+      "사고",
+      "감옥",
+      "당뇨",
+      "암",
+      "질병",
+      "수술",
+    ],
+  };
+
+  function suriDetailKeywordsList(ns) {
+    if (!ns || ns.suri == null) return null;
+    return SURI_DETAIL_KEYWORDS[Number(ns.suri)] || null;
+  }
+
+  function suriDetailKeywordsNote(ns) {
+    const keys = suriDetailKeywordsList(ns);
+    if (!keys || !keys.length) return "";
+    return " 이 수리는 " + keys.join("·") + " 등의 기운을 말합니다.";
+  }
+
+  /** 원문 + 스펙 키워드 참고 */
+  function suriBodyWithDetail(ns) {
+    let t = "";
+    const body = suriOriginalText(ns);
+    if (body) t += " " + esc(body);
+    t += suriDetailKeywordsNote(ns);
+    return t;
+  }
+
   /** 라이브 Ee.desc → CS hex.core(톤 접두 제거) */
   function hexOriginalText(ng) {
     if (ng && ng.desc) return String(ng.desc).trim();
@@ -338,8 +380,7 @@
       phrase +
       josaIGA(plain) +
       " 들어 있습니다.";
-    const body = suriOriginalText(ns);
-    if (body) lead += " " + esc(body);
+    lead += suriBodyWithDetail(ns);
     return lead;
   }
 
@@ -924,8 +965,7 @@
         suriPhrase(nmS[1]) +
         josaIGA(plain) +
         " 들어 있습니다.";
-      const body = suriOriginalText(nmS[1]);
-      if (body) p += " " + esc(body);
+      p += suriBodyWithDetail(nmS[1]);
       p += suriMitigateByHexNote(nmS[1], nmG[1]);
       ageParts.push(p);
     }
@@ -948,8 +988,7 @@
         suriPhrase(hjS[1]) +
         josaIGA(plainH) +
         " 들어 있습니다.";
-      const body = suriOriginalText(hjS[1]);
-      if (body) p += " " + esc(body);
+      p += suriBodyWithDetail(hjS[1]);
       p += suriMitigateByHexNote(hjS[1], hjG[1]);
       ageParts.push(p);
     }
@@ -1005,8 +1044,8 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const body = suriOriginalText(nmS[2]);
-        if (body) bits.push(esc(body));
+        const _sb2 = suriBodyWithDetail(nmS[2]);
+        if (_sb2) bits.push(_sb2.trim());
       }
       if (nmG[2] && nmG[2].name) {
         const plain = gweNameOf(nmG[2]);
@@ -1029,8 +1068,8 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const body = suriOriginalText(hjS[2]);
-        if (body) bits.push(esc(body));
+        const _sb2h = suriBodyWithDetail(hjS[2]);
+        if (_sb2h) bits.push(_sb2h.trim());
       }
       if (hasHanja && hjG[2] && hjG[2].name) {
         const plain = gweNameOf(hjG[2]);
@@ -1074,8 +1113,8 @@
               josaIGA(plainG) +
               " 겹쳤으니 매우 힘든 시기가 될 것으로 보입니다."
           );
-          const body = suriOriginalText(ns);
-          if (body) bits.push(esc(body));
+          const _sbO = suriBodyWithDetail(ns);
+          if (_sbO) bits.push(_sbO.trim());
           const hx = hexOriginalText(ng);
           if (hx) bits.push(esc(hx));
           bits.push(
@@ -1102,8 +1141,8 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const body = suriOriginalText(nmS[3]);
-          if (body) bits.push(esc(body));
+          const _sb3 = suriBodyWithDetail(nmS[3]);
+          if (_sb3) bits.push(_sb3.trim());
         }
         if (nmG[3] && nmG[3].name) {
           const plain = gweNameOf(nmG[3]);
@@ -1128,8 +1167,8 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const body = suriOriginalText(hjS[3]);
-          if (body) bits.push(esc(body));
+          const _sb3h = suriBodyWithDetail(hjS[3]);
+          if (_sb3h) bits.push(_sb3h.trim());
         }
         if (hjG[3] && hjG[3].name) {
           const plain = gweNameOf(hjG[3]);
