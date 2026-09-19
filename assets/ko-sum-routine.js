@@ -153,15 +153,27 @@
   /** 같은 자리 흉수리 + 완화 길괘 → 참고 한 줄
    *  예: 14 이산파멸 아래에 화수미제·수풍정 등
    *  → 흉 기운 완화 + 괘 본뜻(재물)로 재물 대박
+   *  예: 14 이산파멸 아래에 흉괘 → 거의 요절 가능성
    */
   function suriMitigateByHexNote(ns, ng) {
-    if (!ns || !ns.data || !suriBad(ns.data)) return "";
+    if (!ns || !ns.data) return "";
+    const num = ns.suri != null ? Number(ns.suri) : NaN;
+    const plain = ng && ng.name ? gweNameOf(ng) : "";
+    const hexPart = ng && ng.name ? gweNameHtml(ng) + josaIGA(plain) : "";
+
+    // 14 이산파멸 + 흉괘 → 요절 (완화 길괘가 아닐 때)
+    if (num === 14 && ng && gweBad(ng) && !isMitigateSuriHex(ng)) {
+      return (
+        " 그 아래에 " +
+        hexPart +
+        " 같은 흉괘가 오면 거의 요절 가능성이 많다 보면 됩니다."
+      );
+    }
+
+    if (!suriBad(ns.data)) return "";
     if (!isMitigateSuriHex(ng)) return "";
-    const plain = gweNameOf(ng);
-    const hexPart = gweNameHtml(ng) + josaIGA(plain);
     const wealthTail =
       " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
-    const num = ns.suri != null ? Number(ns.suri) : NaN;
     if (num === 14) {
       return (
         " 다만 그 아래에 " +
