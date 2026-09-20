@@ -203,6 +203,12 @@
     "이름 총운에 26 영웅풍파, 28 파란풍파가 있으면 대부분 단명한다. 여자의 경우 이별·사별로 과부가 많다.";
   const FOOTNOTE_CHONGUN_CANCER =
     "이름 기운 때문에 암이 오는가? 이름 총운에 이산파멸, 백사실패, 중도좌절이 오면 대부분 암이 많다.";
+  /** 각주 — 20·22가 14보다 무섭다는 특례 (보흘 지정) */
+  const FOOTNOTE_SURI20_22 =
+    "14 이산파멸보다 더 무서운수리 - 20 백사실패, 22 중도좌절 : 대부분 암이 많다. 총운에 이 운세의 특징은 머리가 좋고 배포가 크며 강한 추진력으로 한때 크게 성공하거나 거물이 되거나 큰 부자가 되기도 하지만 그걸 끝까지 지키지 못하고 중도에 실패, 파산, 사고, 병고, 암, 수술, 감옥, 단명등을 겪게 된다. 하지만 그 아래 주역괘가 수풍정, 수택절이 오면 20 백사실패는 대부대귀로 해석한다. 20수리에 수택절, 수풍정, 지택림, 뇌택귀매 중에 하나가 만들어지면 부자로 살면서 장수, 부귀한다. 단, 사주가 보통 이상이어야 한다.";
+
+  /** 20 백사실패 → 부자·장수·부귀로 읽는 괘 (보흘 지정) */
+  const HEX_SURI20_WEALTH = ["수택절", "수풍정", "지택림", "뇌택귀매"];
 
   function isChongunDanmyeongSuri(ns) {
     if (!ns || ns.suri == null) return false;
@@ -216,27 +222,102 @@
     return n === 14 || n === 20 || n === 22;
   }
 
+  function isSuri20Or22(ns) {
+    if (!ns || ns.suri == null) return false;
+    const n = Number(ns.suri);
+    return n === 20 || n === 22;
+  }
+
+  function isSuri20WealthHex(g) {
+    if (!g || !g.name) return false;
+    for (let i = 0; i < HEX_SURI20_WEALTH.length; i++) {
+      if (hexNameStarts(g, HEX_SURI20_WEALTH[i])) return true;
+    }
+    return false;
+  }
+
+  /** 사주 보통 이상: 길 기운 개수 ≥ 흉 기운 개수. 사주 없으면 null */
+  function isSajuOrdinaryOrBetter(bdS, bdG, hasB) {
+    if (!hasB) return null;
+    let good = 0;
+    let bad = 0;
+    const ss = bdS || [];
+    const gg = bdG || [];
+    for (let i = 0; i < 4; i++) {
+      if (ss[i] && ss[i].data) {
+        if (suriGood(ss[i].data)) good++;
+        else if (suriBad(ss[i].data)) bad++;
+      }
+      if (gg[i]) {
+        if (gweGood(gg[i])) good++;
+        else if (gweBad(gg[i])) bad++;
+      }
+    }
+    return good >= bad;
+  }
+
+  /** 20 + 수택절·수풍정·지택림·뇌택귀매 → 대부대귀·부자장수 (사주 보통 이상) */
+  function suri20WealthHexNote(ns, ng, sajuOrdinary) {
+    if (!ns || ns.suri == null || Number(ns.suri) !== 20) return "";
+    if (!isSuri20WealthHex(ng)) return "";
+    if (sajuOrdinary === false) return "";
+    const plain = gweNameOf(ng);
+    const hexPart = gweNameHtml(ng) + josaIGA(plain);
+    let t =
+      " 그 아래에 " +
+      hexPart +
+      " 있어 ";
+    if (hexNameStarts(ng, "수풍정") || hexNameStarts(ng, "수택절")) {
+      t += "20 백사실패를 대부대귀로 해석하며, ";
+    }
+    t += "부자로 살면서 장수·부귀하는 기운으로 읽습니다.";
+    if (sajuOrdinary == null) {
+      t += " 단, 사주가 보통 이상이어야 합니다.";
+    }
+    return t;
+  }
+
   /** 총운(말년) 수리 각주 적용 문구 */
-  function chongunFootnoteNote(ns) {
+  function chongunFootnoteNote(ns, ng, sajuOrdinary) {
     if (!ns || !ns.data) return "";
     if (isChongunDanmyeongSuri(ns)) return " " + FOOTNOTE_CHONGUN_DANMYEONG;
+    if (Number(ns.suri) === 20 && isSuri20WealthHex(ng) && sajuOrdinary !== false) {
+      return suri20WealthHexNote(ns, ng, sajuOrdinary);
+    }
+    if (isSuri20Or22(ns)) return " " + FOOTNOTE_SURI20_22;
     if (isChongunCancerSuri(ns)) return " " + FOOTNOTE_CHONGUN_CANCER;
     return "";
   }
 
   /** 한글·한문 총운에 해당 수리가 있으면 적용 문장 목록 */
-  function collectChongunFootnoteNotes(nmS, hjS, hasHanja) {
+  function collectChongunFootnoteNotes(nmS, nmG, hjS, hjG, hasHanja, sajuOrdinary) {
     const notes = [];
     let dan = false;
     let can = false;
-    function scan(ns) {
+    let s2022 = false;
+    let wealth20 = false;
+    function scan(ns, ng) {
       if (isChongunDanmyeongSuri(ns)) dan = true;
-      if (isChongunCancerSuri(ns)) can = true;
+      const n = ns && ns.suri != null ? Number(ns.suri) : NaN;
+      if (n === 20 && isSuri20WealthHex(ng) && sajuOrdinary !== false) {
+        wealth20 = true;
+      } else if (isSuri20Or22(ns)) {
+        s2022 = true;
+      } else if (isChongunCancerSuri(ns)) {
+        can = true;
+      }
     }
-    scan(nmS && nmS[0]);
-    if (hasHanja) scan(hjS && hjS[0]);
+    scan(nmS && nmS[0], nmG && nmG[0]);
+    if (hasHanja) scan(hjS && hjS[0], hjG && hjG[0]);
     if (dan) notes.push(FOOTNOTE_CHONGUN_DANMYEONG);
+    if (s2022) notes.push(FOOTNOTE_SURI20_22);
     if (can) notes.push(FOOTNOTE_CHONGUN_CANCER);
+    if (wealth20) {
+      notes.push(
+        "20 백사실패 아래에 수택절·수풍정·지택림·뇌택귀매 중 하나가 있어 대부대귀·부자장수·부귀로 해석합니다." +
+          (sajuOrdinary == null ? " 단, 사주가 보통 이상이어야 합니다." : "")
+      );
+    }
     return notes;
   }
 
@@ -270,15 +351,30 @@
   }
 
   /** 각주 목록이 이 시기·이름에 있으면 해설에 적용 */
-  function footnoteApplyNote(ns, ng) {
+  function footnoteApplyNote(ns, ng, sajuOrdinary) {
     const bits = [];
+    // 20 + 부자장수 괘면 절망 각주 대신 완화 특례가 우선
+    if (
+      ns &&
+      Number(ns.suri) === 20 &&
+      isSuri20WealthHex(ng) &&
+      sajuOrdinary !== false
+    ) {
+      return "";
+    }
     if (ns && ns.data && isFootnoteWarnSuri(ns)) {
       const plain = plainSuriName(ns);
+      let extra = "";
+      if (isSuri20Or22(ns)) {
+        extra =
+          " 14 이산파멸보다 더 무서운 수리로, 대부분 암이 많으며 중도 실패·파산·사고·병고·수술·감옥·단명 등을 겪기 쉽습니다.";
+      }
       bits.push(
         " 각주에서 경계하는 " +
           suriPhrase(ns) +
           josaIGA(plain) +
-          " 이 시기에 들어 있어 절망적 상황에 처하기 쉽습니다."
+          " 이 시기에 들어 있어 절망적 상황에 처하기 쉽습니다." +
+          extra
       );
     }
     if (ng && isFootnoteWarnHex(ng)) {
@@ -293,10 +389,10 @@
     return bits.join("");
   }
 
-  function slotComboNotes(ns, ng, bdNs, bdNg) {
+  function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary) {
     return (
-      suriMitigateByHexNote(ns, ng, bdNs, bdNg) +
-      footnoteApplyNote(ns, ng) +
+      suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary) +
+      footnoteApplyNote(ns, ng, sajuOrdinary) +
       hexSpecialNote(ng)
     );
   }
@@ -406,11 +502,15 @@
    *  - 경고장 흉수리 + 경고장 흉괘(빨강) → 수리 기운 가중·위태 (14는 요절)
    *  bdNs/bdNg = 같은 나이대 탄생일(사주) 수리·괘
    */
-  function suriMitigateByHexNote(ns, ng, bdNs, bdNg) {
+  function suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary) {
     if (!ns || !ns.data) return "";
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     const plain = ng && ng.name ? gweNameOf(ng) : "";
     const hexPart = ng && ng.name ? gweNameHtml(ng) + josaIGA(plain) : "";
+
+    // 20 백사실패 + 수택절·수풍정·지택림·뇌택귀매 → 대부대귀·부자장수 (보흘 지정)
+    const wealth20 = suri20WealthHexNote(ns, ng, sajuOrdinary);
+    if (wealth20) return wealth20;
 
     // 흉수리(14) + 검정 보통 괘 해설: 이산파멸 아래 풍수환 (보흘 지정)
     // ※ 경고장 빨간 흉괘(가중·요절)와 다른 해설 방법
@@ -703,7 +803,7 @@
     if (ng && ng.name) {
       parts.push(printHexSentence(whoLabel, ageSpeak, ng));
     }
-    const mit = slotComboNotes(ns, ng);
+    const mit = slotComboNotes(ns, ng, null, null, null);
     if (mit) parts.push(mit.trim());
     return parts.filter(Boolean).join(" ");
   }
@@ -864,6 +964,7 @@
     const malSajuBad =
       hasB && (!!(malBg && gweBad(malBg)) || !!(malBs && suriBad(malBs.data)));
     const malSajuGood = hasB && !!(malBg && gweGood(malBg));
+    const sajuOrdinary = isSajuOrdinaryOrBetter(bdS, bdG, hasB);
 
     function checkHwagtaekPair(gArr, who) {
       if (jangIdx < 0 || malIdx < 0 || !gArr) return;
@@ -1206,9 +1307,10 @@
         nmS[0],
         nmG[0],
         hasB ? bdS[0] : null,
-        hasB ? bdG[0] : null
+        hasB ? bdG[0] : null,
+        sajuOrdinary
       );
-      p += chongunFootnoteNote(nmS[0]);
+      p += chongunFootnoteNote(nmS[0], nmG[0], sajuOrdinary);
       ageParts.push(p);
     }
 
@@ -1229,9 +1331,10 @@
         hjS[0],
         hjG[0],
         hasB ? bdS[0] : null,
-        hasB ? bdG[0] : null
+        hasB ? bdG[0] : null,
+        sajuOrdinary
       );
-      p += chongunFootnoteNote(hjS[0]);
+      p += chongunFootnoteNote(hjS[0], hjG[0], sajuOrdinary);
       ageParts.push(p);
     }
 
@@ -1256,7 +1359,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(nmS[1], "초년");
-      p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
+      p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
       ageParts.push(p);
     }
 
@@ -1279,7 +1382,7 @@
         josaIGA(plainH) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(hjS[1], "초년");
-      p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
+      p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
       ageParts.push(p);
     }
 
@@ -1347,7 +1450,7 @@
         );
         const hx = hexOriginalText(nmG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
+        const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2) bits.push(mit2.trim());
       }
       if (hasHanja && hjS[2] && hjS[2].data) {
@@ -1371,7 +1474,7 @@
         );
         const hx = hexOriginalText(hjG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
+        const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
@@ -1414,7 +1517,8 @@
             ns,
             ng,
             hasB ? bdS[3] : null,
-            hasB ? bdG[3] : null
+            hasB ? bdG[3] : null,
+            sajuOrdinary
           );
           if (mit) bits.push(mit.trim());
           return true;
@@ -1449,7 +1553,7 @@
           );
           const hx = hexOriginalText(nmG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
+          const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3) bits.push(mit3.trim());
         }
       }
@@ -1475,7 +1579,7 @@
           );
           const hx = hexOriginalText(hjG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
+          const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3h) bits.push(mit3h.trim());
         }
       }
@@ -1769,7 +1873,7 @@
       hasHanja,
       ages
     );
-    const chongunNotes = collectChongunFootnoteNotes(nmS, hjS, hasHanja);
+    const chongunNotes = collectChongunFootnoteNotes(nmS, nmG, hjS, hjG, hasHanja, sajuOrdinary);
 
     /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 해당 이름 적용 + 기도문·운명 안내 */
     function warningJangHtml(hits, chongunApplied) {
@@ -1798,6 +1902,11 @@
         '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
         '<span style="color:#FF0000">' +
         FOOTNOTE_CHONGUN_CANCER +
+        "</span>" +
+        "</div>" +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_SURI20_22 +
         "</span>" +
         "</div>";
       let chongunApply = "";
