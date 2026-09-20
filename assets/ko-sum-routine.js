@@ -1049,6 +1049,18 @@
       ageParts.push(p);
     }
 
+    // 총운(말년) → 초년~장년 전개 안내
+    if (
+      (nmS[0] && nmS[0].data) ||
+      (nmG[0] && nmG[0].name) ||
+      (hasHanja &&
+        ((hjS[0] && hjS[0].data) || (hjG[0] && hjG[0].name)))
+    ) {
+      ageParts.push(
+        "총운에서 이렇게 살으라고 했는데 과연 그리 살아 가게 될 건지 아래에 초년운 부터 장년까지의 삶의 전개과정을 나이대 별로 분석을 시작합니다."
+      );
+    }
+
     // d. 초년 수리 (한글)
     if (nmS[1] && nmS[1].data) {
       const plain = plainSuriName(nmS[1]);
