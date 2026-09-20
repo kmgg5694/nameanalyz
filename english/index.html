@@ -6,14 +6,41 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1, interactive-widget=resizes-content" />
-    <title>English Name Reading</title>    
+    <title>English Name Reading</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <script>
+      /* One-time purge of stuck service workers / caches that left a blank screen */
+      (function () {
+        try {
+          if (sessionStorage.getItem("na_sw_purged_20260920")) return;
+          if (!("serviceWorker" in navigator)) return;
+          sessionStorage.setItem("na_sw_purged_20260920", "1");
+          var jobs = [];
+          jobs.push(
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            })
+          );
+          if (window.caches) {
+            jobs.push(
+              caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              })
+            );
+          }
+          Promise.all(jobs).then(function () {
+            location.replace(location.pathname + "?v=20260920fix2");
+          });
+        } catch (e) {}
+      })();
+    </script>
     <!-- THIS IS THE START OF A COMMENT BLOCK, BLOCK TO BE DELETED: Google Fonts here, example:
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920fix1"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920fix1"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920fix2"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920fix2"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
