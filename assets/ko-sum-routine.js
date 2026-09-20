@@ -643,11 +643,23 @@
 
   /** 보흘 지정: 수리별 특례 해설 (원본 d6 비침범) */
   const SURI_SPECIAL_NOTES = {
+    10: {
+      base:
+        " 재주가 많고 머리가 좋다. 계획을 잘 세워 잘 풀려 나가는 듯 하다가 허망하게 무너져 버리는 운명이다. 대부분 학교운·시험운·직장운이 따라주지 않는다.",
+      choSajuGood:
+        " 다만 초년 사주가 좋아 학교·시험·직장 운의 허망을 돌파해 나가기도 합니다.",
+      choSajuUnknown:
+        " 초년 사주가 좋으면 돌파해 나가기도 합니다.",
+    },
     12: {
       base:
         " 일이 잘 되어 나가는 듯 하다가 마지막에 실패를 맛본다. 공부든, 사업이든, 데이트신청이나 청혼이든 모두 끝이 안 좋다.",
       초년:
         " 12가 초년에 들면 대학을 가기 어렵다. 가려면 하향 지원해서 지방대 가야 하고, 재수·삼수를 해도 목표 대학은 가기가 힘들다.",
+    },
+    14: {
+      base:
+        " 이산파멸의 장점으로, 위기 앞에서도 독종 소리를 들을 만큼 열심히·치열하게 산다.",
     },
   };
 
@@ -671,22 +683,43 @@
     return " 이 수리는 " + keys.join("·") + " 등의 기운을 말합니다.";
   }
 
-  function suriSpecialNote(ns, ageKey) {
+  /** 초년 사주 길 여부: true/false/null(사주 없음·보통) */
+  function isChoSajuGood(bdS, bdG, hasB) {
+    if (!hasB) return null;
+    const bs = bdS && bdS[1];
+    const bg = bdG && bdG[1];
+    const good =
+      !!(bs && bs.data && suriGood(bs.data)) || !!(bg && gweGood(bg));
+    const bad =
+      !!(bs && bs.data && suriBad(bs.data)) || !!(bg && gweBad(bg));
+    if (good && !bad) return true;
+    if (bad && !good) return false;
+    if (good) return true;
+    return null;
+  }
+
+  function suriSpecialNote(ns, ageKey, opts) {
     if (!ns || ns.suri == null) return "";
-    const spec = SURI_SPECIAL_NOTES[Number(ns.suri)];
+    const num = Number(ns.suri);
+    const spec = SURI_SPECIAL_NOTES[num];
     if (!spec) return "";
     let t = spec.base || "";
     if (ageKey && spec[ageKey]) t += spec[ageKey];
+    if (num === 10) {
+      const cho = opts && opts.choSajuGood;
+      if (cho === true && spec.choSajuGood) t += spec.choSajuGood;
+      else if (cho !== false && spec.choSajuUnknown) t += spec.choSajuUnknown;
+    }
     return t;
   }
 
   /** 원문 + 스펙 키워드·특례 참고 */
-  function suriBodyWithDetail(ns, ageKey) {
+  function suriBodyWithDetail(ns, ageKey, opts) {
     let t = "";
     const body = suriOriginalText(ns);
     if (body) t += " " + esc(body);
     t += suriDetailKeywordsNote(ns);
-    t += suriSpecialNote(ns, ageKey || "");
+    t += suriSpecialNote(ns, ageKey || "", opts || null);
     return t;
   }
 
@@ -705,7 +738,7 @@
   /**
    * 인쇄 문장: "{who}에는 {ageSpeak}의 운세를 나타내는 수리에는 {num}, {name}가 들어 있습니다. {원문}"
    */
-  function printSuriSentence(whoLabel, ageSpeak, ns) {
+  function printSuriSentence(whoLabel, ageSpeak, ns, opts) {
     if (!ns || ns.suri == null || !ns.data) return "";
     const plain = plainSuriName(ns);
     const phrase = suriPhrase(ns);
@@ -717,7 +750,7 @@
       phrase +
       josaIGA(plain) +
       " 들어 있습니다.";
-    lead += suriBodyWithDetail(ns, ageKeyFromSpeak(ageSpeak));
+    lead += suriBodyWithDetail(ns, ageKeyFromSpeak(ageSpeak), opts || null);
     return lead;
   }
 
@@ -965,6 +998,8 @@
       hasB && (!!(malBg && gweBad(malBg)) || !!(malBs && suriBad(malBs.data)));
     const malSajuGood = hasB && !!(malBg && gweGood(malBg));
     const sajuOrdinary = isSajuOrdinaryOrBetter(bdS, bdG, hasB);
+    const choSajuGood = isChoSajuGood(bdS, bdG, hasB);
+    const suriOpts = { choSajuGood: choSajuGood };
 
     function checkHwagtaekPair(gArr, who) {
       if (jangIdx < 0 || malIdx < 0 || !gArr) return;
@@ -1297,7 +1332,7 @@
     if ((nmS[0] && nmS[0].data) || (nmG[0] && nmG[0].name)) {
       let p = "";
       if (nmS[0] && nmS[0].data) {
-        p += printSuriSentence("한글이름", "말년", nmS[0]);
+        p += printSuriSentence("한글이름", "말년", nmS[0], suriOpts);
       }
       if (nmG[0] && nmG[0].name) {
         if (p) p += " ";
@@ -1321,7 +1356,7 @@
     ) {
       let p = "";
       if (hjS[0] && hjS[0].data) {
-        p += printSuriSentence("한자이름", "말년", hjS[0]);
+        p += printSuriSentence("한자이름", "말년", hjS[0], suriOpts);
       }
       if (hjG[0] && hjG[0].name) {
         if (p) p += " ";
@@ -1358,7 +1393,7 @@
         suriPhrase(nmS[1]) +
         josaIGA(plain) +
         " 들어 있습니다.";
-      p += suriBodyWithDetail(nmS[1], "초년");
+      p += suriBodyWithDetail(nmS[1], "초년", suriOpts);
       p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
       ageParts.push(p);
     }
@@ -1381,7 +1416,7 @@
         suriPhrase(hjS[1]) +
         josaIGA(plainH) +
         " 들어 있습니다.";
-      p += suriBodyWithDetail(hjS[1], "초년");
+      p += suriBodyWithDetail(hjS[1], "초년", suriOpts);
       p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
       ageParts.push(p);
     }
@@ -1437,7 +1472,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const _sb2 = suriBodyWithDetail(nmS[2], "장년");
+        const _sb2 = suriBodyWithDetail(nmS[2], "장년", suriOpts);
         if (_sb2) bits.push(_sb2.trim());
       }
       if (nmG[2] && nmG[2].name) {
@@ -1461,7 +1496,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const _sb2h = suriBodyWithDetail(hjS[2], "장년");
+        const _sb2h = suriBodyWithDetail(hjS[2], "장년", suriOpts);
         if (_sb2h) bits.push(_sb2h.trim());
       }
       if (hasHanja && hjG[2] && hjG[2].name) {
@@ -1506,7 +1541,7 @@
               josaIGA(plainG) +
               " 겹쳤으니 매우 힘든 시기가 될 것으로 보입니다."
           );
-          const _sbO = suriBodyWithDetail(ns, "중년");
+          const _sbO = suriBodyWithDetail(ns, "중년", suriOpts);
           if (_sbO) bits.push(_sbO.trim());
           const hx = hexOriginalText(ng);
           if (hx) bits.push(esc(hx));
@@ -1540,7 +1575,7 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const _sb3 = suriBodyWithDetail(nmS[3], "중년");
+          const _sb3 = suriBodyWithDetail(nmS[3], "중년", suriOpts);
           if (_sb3) bits.push(_sb3.trim());
         }
         if (nmG[3] && nmG[3].name) {
@@ -1566,7 +1601,7 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const _sb3h = suriBodyWithDetail(hjS[3], "중년");
+          const _sb3h = suriBodyWithDetail(hjS[3], "중년", suriOpts);
           if (_sb3h) bits.push(_sb3h.trim());
         }
         if (hjG[3] && hjG[3].name) {
