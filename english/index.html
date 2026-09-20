@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920en2"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en2"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920en3"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en3"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -259,7 +259,11 @@ Error generating stack: `+l.message+`
           cap.setAttribute("aria-hidden", "true");
           wrap.appendChild(cap);
         }
-        cap.innerHTML = '<span class="intro-caption-text">Try a name reading. You\'ll have fun.</span>';
+        var capLang = (v.getAttribute("data-lang") === "ko") ? "ko" : "en";
+        var capText = capLang === "ko"
+          ? "이름운세를 보세요. 재미있을 거에요."
+          : "Try a name reading. You'll have fun.";
+        cap.innerHTML = '<span class="intro-caption-text">' + capText + '</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
           muteBtn.setAttribute("data-muted", v.muted ? "1" : "0");
@@ -352,6 +356,12 @@ Error generating stack: `+l.message+`
         } else {
           try { v.currentTime = 0; } catch (e) {}
           start();
+        }
+        var capEl = wrap.querySelector(".intro-caption-text");
+        if (capEl) {
+          capEl.textContent = lang === "ko"
+            ? "이름운세를 보세요. 재미있을 거에요."
+            : "Try a name reading. You'll have fun.";
         }
         return true;
       };
