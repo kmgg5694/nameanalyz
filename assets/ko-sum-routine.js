@@ -1008,17 +1008,44 @@
       );
     }
 
-    // b. 한글 말년 주역 (+ 같은 자리 흉수리 완화 참고)
-    if (nmG[0] && nmG[0].name) {
-      let p = printHexSentence("한글이름", "말년", nmG[0]);
-      p += suriMitigateByHexNote(nmS[0], nmG[0], hasB ? bdS[0] : null, hasB ? bdG[0] : null);
+    // b. 한글 말년 수리 + 주역 (수리 설명 필수)
+    if ((nmS[0] && nmS[0].data) || (nmG[0] && nmG[0].name)) {
+      let p = "";
+      if (nmS[0] && nmS[0].data) {
+        p += printSuriSentence("한글이름", "말년", nmS[0]);
+      }
+      if (nmG[0] && nmG[0].name) {
+        if (p) p += " ";
+        p += printHexSentence("한글이름", "말년", nmG[0]);
+      }
+      p += suriMitigateByHexNote(
+        nmS[0],
+        nmG[0],
+        hasB ? bdS[0] : null,
+        hasB ? bdG[0] : null
+      );
       ageParts.push(p);
     }
 
-    // c. 한자 말년 주역
-    if (hasHanja && hjG[0] && hjG[0].name) {
-      let p = printHexSentence("한자이름", "말년", hjG[0]);
-      p += suriMitigateByHexNote(hjS[0], hjG[0], hasB ? bdS[0] : null, hasB ? bdG[0] : null);
+    // c. 한자 말년 수리 + 주역 (수리 설명 필수)
+    if (
+      hasHanja &&
+      ((hjS[0] && hjS[0].data) || (hjG[0] && hjG[0].name))
+    ) {
+      let p = "";
+      if (hjS[0] && hjS[0].data) {
+        p += printSuriSentence("한자이름", "말년", hjS[0]);
+      }
+      if (hjG[0] && hjG[0].name) {
+        if (p) p += " ";
+        p += printHexSentence("한자이름", "말년", hjG[0]);
+      }
+      p += suriMitigateByHexNote(
+        hjS[0],
+        hjG[0],
+        hasB ? bdS[0] : null,
+        hasB ? bdG[0] : null
+      );
       ageParts.push(p);
     }
 
