@@ -495,6 +495,25 @@
     ],
   };
 
+  /** 보흘 지정: 수리별 특례 해설 (원본 d6 비침범) */
+  const SURI_SPECIAL_NOTES = {
+    12: {
+      base:
+        " 일이 잘 되어 나가는 듯 하다가 마지막에 실패를 맛본다. 공부든, 사업이든, 데이트신청이나 청혼이든 모두 끝이 안 좋다.",
+      초년:
+        " 12가 초년에 들면 대학을 가기 어렵다. 가려면 하향 지원해서 지방대 가야 하고, 재수·삼수를 해도 목표 대학은 가기가 힘들다.",
+    },
+  };
+
+  function ageKeyFromSpeak(ageSpeak) {
+    const s = String(ageSpeak || "");
+    if (s.indexOf("말년") === 0 || s === "말년") return "말년";
+    if (s.indexOf("초년") === 0 || s.indexOf("23세") >= 0) return "초년";
+    if (s.indexOf("장년") === 0 || s.indexOf("30세") >= 0) return "장년";
+    if (s.indexOf("중년") === 0 || s.indexOf("40세") >= 0) return "중년";
+    return "";
+  }
+
   function suriDetailKeywordsList(ns) {
     if (!ns || ns.suri == null) return null;
     return SURI_DETAIL_KEYWORDS[Number(ns.suri)] || null;
@@ -506,12 +525,22 @@
     return " 이 수리는 " + keys.join("·") + " 등의 기운을 말합니다.";
   }
 
-  /** 원문 + 스펙 키워드 참고 */
-  function suriBodyWithDetail(ns) {
+  function suriSpecialNote(ns, ageKey) {
+    if (!ns || ns.suri == null) return "";
+    const spec = SURI_SPECIAL_NOTES[Number(ns.suri)];
+    if (!spec) return "";
+    let t = spec.base || "";
+    if (ageKey && spec[ageKey]) t += spec[ageKey];
+    return t;
+  }
+
+  /** 원문 + 스펙 키워드·특례 참고 */
+  function suriBodyWithDetail(ns, ageKey) {
     let t = "";
     const body = suriOriginalText(ns);
     if (body) t += " " + esc(body);
     t += suriDetailKeywordsNote(ns);
+    t += suriSpecialNote(ns, ageKey || "");
     return t;
   }
 
@@ -542,7 +571,7 @@
       phrase +
       josaIGA(plain) +
       " 들어 있습니다.";
-    lead += suriBodyWithDetail(ns);
+    lead += suriBodyWithDetail(ns, ageKeyFromSpeak(ageSpeak));
     return lead;
   }
 
@@ -1178,7 +1207,7 @@
         suriPhrase(nmS[1]) +
         josaIGA(plain) +
         " 들어 있습니다.";
-      p += suriBodyWithDetail(nmS[1]);
+      p += suriBodyWithDetail(nmS[1], "초년");
       p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
@@ -1201,7 +1230,7 @@
         suriPhrase(hjS[1]) +
         josaIGA(plainH) +
         " 들어 있습니다.";
-      p += suriBodyWithDetail(hjS[1]);
+      p += suriBodyWithDetail(hjS[1], "초년");
       p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
@@ -1257,7 +1286,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const _sb2 = suriBodyWithDetail(nmS[2]);
+        const _sb2 = suriBodyWithDetail(nmS[2], "장년");
         if (_sb2) bits.push(_sb2.trim());
       }
       if (nmG[2] && nmG[2].name) {
@@ -1281,7 +1310,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const _sb2h = suriBodyWithDetail(hjS[2]);
+        const _sb2h = suriBodyWithDetail(hjS[2], "장년");
         if (_sb2h) bits.push(_sb2h.trim());
       }
       if (hasHanja && hjG[2] && hjG[2].name) {
@@ -1326,7 +1355,7 @@
               josaIGA(plainG) +
               " 겹쳤으니 매우 힘든 시기가 될 것으로 보입니다."
           );
-          const _sbO = suriBodyWithDetail(ns);
+          const _sbO = suriBodyWithDetail(ns, "중년");
           if (_sbO) bits.push(_sbO.trim());
           const hx = hexOriginalText(ng);
           if (hx) bits.push(esc(hx));
@@ -1359,7 +1388,7 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const _sb3 = suriBodyWithDetail(nmS[3]);
+          const _sb3 = suriBodyWithDetail(nmS[3], "중년");
           if (_sb3) bits.push(_sb3.trim());
         }
         if (nmG[3] && nmG[3].name) {
@@ -1385,7 +1414,7 @@
               josaIGA(plain) +
               " 들어 있습니다."
           );
-          const _sb3h = suriBodyWithDetail(hjS[3]);
+          const _sb3h = suriBodyWithDetail(hjS[3], "중년");
           if (_sb3h) bits.push(_sb3h.trim());
         }
         if (hjG[3] && hjG[3].name) {
