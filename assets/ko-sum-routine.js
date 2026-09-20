@@ -198,6 +198,48 @@
   const FOOTNOTE_WARN_FOOTER =
     "이름 속에 위와 같은 수리 혹은 주역괘가 있다면 개명 외엔 대안이 없다~!!!";
 
+  /** 각주 — 이름 총운(말년) 특례 (보흘 지정) */
+  const FOOTNOTE_CHONGUN_DANMYEONG =
+    "이름 총운에 26 영웅풍파, 28 파란풍파가 있으면 대부분 단명한다. 여자의 경우 이별·사별로 과부가 많다.";
+  const FOOTNOTE_CHONGUN_CANCER =
+    "이름 기운 때문에 암이 오는가? 이름 총운에 이산파멸, 백사실패, 중도좌절이 오면 대부분 암이 많다.";
+
+  function isChongunDanmyeongSuri(ns) {
+    if (!ns || ns.suri == null) return false;
+    const n = Number(ns.suri);
+    return n === 26 || n === 28;
+  }
+
+  function isChongunCancerSuri(ns) {
+    if (!ns || ns.suri == null) return false;
+    const n = Number(ns.suri);
+    return n === 14 || n === 20 || n === 22;
+  }
+
+  /** 총운(말년) 수리 각주 적용 문구 */
+  function chongunFootnoteNote(ns) {
+    if (!ns || !ns.data) return "";
+    if (isChongunDanmyeongSuri(ns)) return " " + FOOTNOTE_CHONGUN_DANMYEONG;
+    if (isChongunCancerSuri(ns)) return " " + FOOTNOTE_CHONGUN_CANCER;
+    return "";
+  }
+
+  /** 한글·한문 총운에 해당 수리가 있으면 적용 문장 목록 */
+  function collectChongunFootnoteNotes(nmS, hjS, hasHanja) {
+    const notes = [];
+    let dan = false;
+    let can = false;
+    function scan(ns) {
+      if (isChongunDanmyeongSuri(ns)) dan = true;
+      if (isChongunCancerSuri(ns)) can = true;
+    }
+    scan(nmS && nmS[0]);
+    if (hasHanja) scan(hjS && hjS[0]);
+    if (dan) notes.push(FOOTNOTE_CHONGUN_DANMYEONG);
+    if (can) notes.push(FOOTNOTE_CHONGUN_CANCER);
+    return notes;
+  }
+
   function isMitigateSuriHex(g) {
     if (!g || !g.name) return false;
     const n = gweNameOf(g);
@@ -1166,6 +1208,7 @@
         hasB ? bdS[0] : null,
         hasB ? bdG[0] : null
       );
+      p += chongunFootnoteNote(nmS[0]);
       ageParts.push(p);
     }
 
@@ -1188,6 +1231,7 @@
         hasB ? bdS[0] : null,
         hasB ? bdG[0] : null
       );
+      p += chongunFootnoteNote(hjS[0]);
       ageParts.push(p);
     }
 
@@ -1725,9 +1769,10 @@
       hasHanja,
       ages
     );
+    const chongunNotes = collectChongunFootnoteNotes(nmS, hjS, hasHanja);
 
     /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 해당 이름 적용 + 기도문·운명 안내 */
-    function warningJangHtml(hits) {
+    function warningJangHtml(hits, chongunApplied) {
       const suriRed = FOOTNOTE_WARN_SURI.map(function (s) {
         return s.n + " " + s.name;
       }).join(", ");
@@ -1744,6 +1789,25 @@
           ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
           "</div>";
       }
+      const chongunBox =
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_CHONGUN_DANMYEONG +
+        "</span>" +
+        "</div>" +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_CHONGUN_CANCER +
+        "</span>" +
+        "</div>";
+      let chongunApply = "";
+      if (chongunApplied && chongunApplied.length) {
+        chongunApply =
+          '<div style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000;padding:2px 2px">' +
+          "【총운 각주 적용】 " +
+          chongunApplied.join(" ") +
+          "</div>";
+      }
       return (
         '<div style="margin-top:16px">' +
         '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">각주</div>' +
@@ -1756,7 +1820,9 @@
         hexRed +
         "</span> 괘가 있다면 절망적 상황에 처한다." +
         "</div>" +
+        chongunBox +
         applyBlock +
+        chongunApply +
         '<div style="margin-top:10px;line-height:1.6;font-size:0.95rem;font-weight:800;color:#FF1493;padding:2px 2px">' +
         FOOTNOTE_WARN_FOOTER +
         "</div>" +
@@ -1777,11 +1843,17 @@
     }
 
     const footnoteSummary = footnoteHitsSummary(footnoteHits);
+    let chongunSummary = "";
+    if (chongunNotes.length) {
+      chongunSummary =
+        paintRed("【총운 각주 적용】") + " " + chongunNotes.join(" ");
+    }
     return {
       ageText:
         ageParts.join("<br><br>") +
         (footnoteSummary ? "<br><br>" + footnoteSummary : "") +
-        warningJangHtml(footnoteHits),
+        (chongunSummary ? "<br><br>" + chongunSummary : "") +
+        warningJangHtml(footnoteHits, chongunNotes),
       conclusion: compareParts
         .map(function (p) {
           return p.indexOf("<span") >= 0 ? p : colorMarks(p);
