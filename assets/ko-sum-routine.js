@@ -392,8 +392,7 @@
   function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary) {
     return (
       suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary) +
-      footnoteApplyNote(ns, ng, sajuOrdinary) +
-      hexSpecialNote(ng)
+      footnoteApplyNote(ns, ng, sajuOrdinary)
     );
   }
 
@@ -844,6 +843,8 @@
         lead += " " + esc(body);
       }
     }
+    // 태위택·화뢰서합·산화비 특례는 주역 설명 뒤에만 (백사실패 각주에 붙이지 않음)
+    lead += hexSpecialNote(ng);
     return lead;
   }
 
