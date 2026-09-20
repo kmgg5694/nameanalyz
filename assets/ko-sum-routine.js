@@ -512,6 +512,10 @@
     const wealth20 = suri20WealthHexNote(ns, ng, sajuOrdinary);
     if (wealth20) return wealth20;
 
+    // 9 대재무용 + 화천대유·산천대축·뇌천대장 → 아주 좋다 (보흘 지정)
+    const good9 = suri9GoodHexNote(ns, ng);
+    if (good9) return good9;
+
     // 흉수리(14) + 검정 보통 괘 해설: 이산파멸 아래 풍수환 (보흘 지정)
     // ※ 경고장 빨간 흉괘(가중·요절)와 다른 해설 방법
     if (num === 14 && hexNameStarts(ng, "풍수환") && !isMitigateSuriHex(ng)) {
@@ -643,6 +647,12 @@
 
   /** 보흘 지정: 수리별 특례 해설 (원본 d6 비침범) */
   const SURI_SPECIAL_NOTES = {
+    9: {
+      base:
+        " 단점으로, 너무 시대를 앞서 가다가 환경이 받쳐주지 않아 실패를 거듭한다.",
+      초년:
+        " 초년에 들면 대부분 예·체능에 강하지만 실의에 빠지는 경우가 많다.",
+    },
     10: {
       base:
         " 재주가 많고 머리가 좋다. 계획을 잘 세워 잘 풀려 나가는 듯 하다가 허망하게 무너져 버리는 운명이다. 대부분 학교운·시험운·직장운이 따라주지 않는다.",
@@ -666,6 +676,29 @@
         " 마음씨가 너무 착해서 어려운 이웃을 보면 도와 줘야 하고, 친구의 부탁이나 청을 거절하기 힘들어 그 책임을 고스란히 떠 안고 해결하느라고 힘들게 살기도 합니다. 워낙 귀가 얇아서 휘둘리고 보증을 잘 선다는 특징이 있다.",
     },
   };
+
+  /** 9 대재무용 아래에 오면 아주 좋은 괘 (보흘 지정) */
+  const HEX_SURI9_GOOD = ["화천대유", "산천대축", "뇌천대장"];
+
+  function isSuri9GoodHex(g) {
+    if (!g || !g.name) return false;
+    for (let i = 0; i < HEX_SURI9_GOOD.length; i++) {
+      if (hexNameStarts(g, HEX_SURI9_GOOD[i])) return true;
+    }
+    return false;
+  }
+
+  function suri9GoodHexNote(ns, ng) {
+    if (!ns || ns.suri == null || Number(ns.suri) !== 9) return "";
+    if (!isSuri9GoodHex(ng)) return "";
+    const plain = gweNameOf(ng);
+    return (
+      " 그 아래에 " +
+      gweNameHtml(ng) +
+      josaIGA(plain) +
+      " 들어 아주 좋습니다."
+    );
+  }
 
   function ageKeyFromSpeak(ageSpeak) {
     const s = String(ageSpeak || "");
