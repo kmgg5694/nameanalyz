@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 
   <head>
@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920en6"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en6"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920en7"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en7"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -39,7 +39,7 @@
       }
       .intro-sec{padding:14px 12px;margin-bottom:1rem;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;text-align:center;}
       .intro-ttl{font-size:14px;font-weight:700;color:#6d28d9;letter-spacing:1px;margin-bottom:10px;}
-      .intro-langs{display:none!important;}
+      .intro-langs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
       .intro-btn{padding:8px 14px;min-height:40px;font-size:13px;font-weight:700;border:1px solid #ddd6fe;border-radius:8px;background:#fff;color:#5b21b6;cursor:pointer;font-family:inherit;}
       .intro-btn.on{background:#7c3aed;color:#fff;border-color:#6d28d9;}
       .intro-player{position:relative;margin-top:12px;border-radius:8px;overflow:hidden;background:#000;}
@@ -261,8 +261,8 @@ Error generating stack: `+l.message+`
         }
         var capLang = (v.getAttribute("data-lang") === "ko") ? "ko" : "en";
         var capText = capLang === "ko"
-          ? "세계 최고의 주역 이름풀이를 만나 보세요."
-          : "Meet the worlds finest I Ching name reading.";
+          ? "이름운세를 보세요. 재미있을 거에요."
+          : "Try a name reading. You'll have fun.";
         cap.innerHTML = '<span class="intro-caption-text">' + capText + '</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
@@ -362,8 +362,8 @@ Error generating stack: `+l.message+`
         var capEl = wrap.querySelector(".intro-caption-text");
         if (capEl) {
           capEl.textContent = lang === "ko"
-            ? "세계 최고의 주역 이름풀이를 만나 보세요."
-            : "Meet the worlds finest I Ching name reading.";
+            ? "이름운세를 보세요. 재미있을 거에요."
+            : "Try a name reading. You'll have fun.";
         }
         return true;
       };
@@ -425,12 +425,7 @@ Error generating stack: `+l.message+`
           if (chosen) {
             return window.playIntro(chosen);
           }
-          var boot = "en";
-          try {
-            var L = new URLSearchParams(window.location.search).get("lang");
-            if (L === "ko") boot = "ko";
-          } catch (e) {}
-          return window.playIntro(boot);
+          return window.playIntro("en");
         }
         // Keep observing: React UI-lang re-render can recreate <video>.
         var obs = new MutationObserver(function () {
