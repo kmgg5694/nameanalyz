@@ -140,7 +140,7 @@
     "뇌천대장",
   ];
 
-  /** 경고장에 적힌 흉수리 */
+  /** 경고장에 적힌 흉수리 (해설 가중·요절 판정용 — 9·34 등 포함) */
   const WARN_JANG_SURI = [
     { n: 9, name: "대재무용" },
     { n: 10, name: "만사허망" },
@@ -153,7 +153,7 @@
     { n: 34, name: "재앙연속" },
   ];
 
-  /** 경고장에 적힌 흉괘 */
+  /** 경고장에 적힌 흉괘 (해설 가중·요절 판정용) */
   const WARN_JANG_HEX = [
     "천산둔",
     "천수송",
@@ -171,6 +171,32 @@
     "산지박",
     "지화명이",
   ];
+
+  /** 각주 자료(보흘 인쇄물) — 화면 노란 칸 표기용 */
+  const FOOTNOTE_WARN_SURI = [
+    { n: 10, name: "만사허망" },
+    { n: 12, name: "박약박복" },
+    { n: 14, name: "이산파멸" },
+    { n: 20, name: "백사실패" },
+    { n: 22, name: "중도좌절" },
+    { n: 26, name: "영웅풍파" },
+    { n: 28, name: "파란풍파" },
+  ];
+  const FOOTNOTE_WARN_HEX = [
+    "천지비",
+    "천수송",
+    "택수곤",
+    "뇌산소과",
+    "수화기제",
+    "수산건",
+    "수뢰둔",
+    "풍천소축",
+    "풍수환",
+    "산지박",
+    "산풍고",
+  ];
+  const FOOTNOTE_WARN_FOOTER =
+    "이름 속에 위와 같은 수리 혹은 주역괘가 있다면 개명 외엔 대안이 없다~!!!";
 
   function isMitigateSuriHex(g) {
     if (!g || !g.name) return false;
@@ -1510,21 +1536,26 @@
       "이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다. (말년만 전체에 미치며 초·장·중년에도 영향을 받고, 나머지 나이대는 해당 시기±3년 안입니다.)"
     );
 
-    /** 서술형 이름풀이(ageText) 바로 아래 — 제목 「경고장」 + 노란 칸 + 기도문 안내 */
+    /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 기도문·운명 안내 */
     function warningJangHtml() {
+      const suriRed = FOOTNOTE_WARN_SURI.map(function (s) {
+        return s.n + " " + s.name;
+      }).join(", ");
+      const hexRed = FOOTNOTE_WARN_HEX.join(", ");
       return (
         '<div style="margin-top:16px">' +
-        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">경고장</div>' +
-        '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
-        "만약 여러분 이름을 분석해서 " +
-        WARN_JANG_SURI.map(function (s) {
-          return s.n + " " + s.name;
-        }).join(", ") +
-        " 등이 있거나, " +
-        "이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
-        WARN_JANG_HEX.join(", ") +
-        " 등의 괘가 도사리고 있다면 오로지 " +
-        "신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
+        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">각주</div>' +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem">' +
+        '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
+        '<span style="color:#FF0000">' +
+        suriRed +
+        "</span> 등이 있거나, 혹은 이름에 주역을 대입해서 " +
+        '<span style="color:#FF0000">' +
+        hexRed +
+        "</span> 괘가 있다면 절망적 상황에 처한다." +
+        "</div>" +
+        '<div style="margin-top:10px;line-height:1.6;font-size:0.95rem;font-weight:800;color:#FF1493;padding:2px 2px">' +
+        FOOTNOTE_WARN_FOOTER +
         "</div>" +
         '<div style="margin-top:12px;line-height:1.7;font-size:0.95rem;color:#1c1917;padding:4px 2px">' +
         "이름은 3글자의 기도문 입니다. 그 이름이 매번 불려 질 때마다 나는 이렇게 살겠다고 매일 매일 기도 하는데 그 간절한 기도를 가상히 여겨 들어 주게 됩니다. 부르고, 쓰고, 듣고 하면 좋은 이름은 더 좋아 지는 것이고, 나쁜 이름은 자기가 그렇게 살겠다고 간절히 기도 하는데 안들어 주겠습니까? 내 이름은 그렇지 않을거야 하고 은근 슬쩍 넘어 가지 말고 여기 무료 이름풀이를 보고 확인해서 개명을 심사 숙고 하시기 바랍니다." +
