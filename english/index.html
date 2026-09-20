@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920en4"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en4"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920en5"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en5"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -261,8 +261,8 @@ Error generating stack: `+l.message+`
         }
         var capLang = (v.getAttribute("data-lang") === "ko") ? "ko" : "en";
         var capText = capLang === "ko"
-          ? "이름운세를 보세요. 재미있을 거에요."
-          : "Try a name reading. You'll have fun.";
+          ? "세계 최고의 주역 이름풀이를 만나 보세요."
+          : "Meet the world's finest I Ching name reading.";
         cap.innerHTML = '<span class="intro-caption-text">' + capText + '</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
@@ -362,8 +362,8 @@ Error generating stack: `+l.message+`
         var capEl = wrap.querySelector(".intro-caption-text");
         if (capEl) {
           capEl.textContent = lang === "ko"
-            ? "이름운세를 보세요. 재미있을 거에요."
-            : "Try a name reading. You'll have fun.";
+            ? "세계 최고의 주역 이름풀이를 만나 보세요."
+            : "Meet the world's finest I Ching name reading.";
         }
         return true;
       };
@@ -425,7 +425,12 @@ Error generating stack: `+l.message+`
           if (chosen) {
             return window.playIntro(chosen);
           }
-          return window.playIntro("en");
+          var boot = "en";
+          try {
+            var L = new URLSearchParams(window.location.search).get("lang");
+            if (L === "ko") boot = "ko";
+          } catch (e) {}
+          return window.playIntro(boot);
         }
         // Keep observing: React UI-lang re-render can recreate <video>.
         var obs = new MutationObserver(function () {
