@@ -1155,7 +1155,7 @@
     });
 
     // —— 인쇄 서술 (연속 문단, 【총운】【초년】 헤더 없음) ——
-    // 1) 한글 vs 한문 좋은 기운 개수 비교 → 2) 이름 전체 vs 탄생일 → 3) 오행·시기 해설
+    // 1) 이름풀이 완성(한글vs한문·오행·말년~중년) → 2) 탄생일·시기별 비교
 
     function collectGweLists(gArr) {
       const good = [];
@@ -1283,7 +1283,7 @@
       });
 
       let p =
-        "다음으로 이름 전체 기운과 탄생일을 비교합니다. 이름 쪽 주역의 좋은 기운은 " +
+        "이름풀이를 마쳤으니, 이제 탄생일과 시기별로 견주어 이야기합니다. 이름 쪽 주역의 좋은 기운은 " +
         nameGood.length +
         "개";
       if (nameGood.length) p += "(" + joinGweNames(nameGood) + ")";
@@ -1319,8 +1319,6 @@
 
     const hhCompare = buildHangulHanjaCompare();
     if (hhCompare) ageParts.push(hhCompare);
-    const nbCompare = buildNameVsBirthCompare();
-    if (nbCompare) ageParts.push(nbCompare);
 
     const ohangBlock = buildOhangBlock(ctx);
     if (ohangBlock) ageParts.push(ohangBlock);
@@ -1672,10 +1670,13 @@
       ageParts.push(p + bits.join(" "));
     }
 
-    // j. 탄생일(사주) 서술형 — 시기별 나이대 표기 (한글·한문과 같은 인쇄 문체)
+    // j. 탄생일·시기별 비교 — 이름풀이 완료 후 (인쇄 문체)
     if (hasB) {
+      const nbCompare = buildNameVsBirthCompare();
+      if (nbCompare) ageParts.push(nbCompare);
+
       ageParts.push(
-        "이제 탄생일(사주)을 시기별 나이대로 살펴봅니다. " +
+        "이어서 탄생일(사주)을 시기별 나이대로 살펴보며, 같은 시기 이름 기운과 맞춰 봅니다. " +
           paintBlue("좋은 기운") +
           "과 " +
           paintRed("흉한 기운") +
@@ -1683,10 +1684,10 @@
       );
 
       const birthSlots = [
-        { i: 0, speak: "말년(56세 이후·총운)" },
-        { i: 1, speak: "초년(23세 이전, 1~23세)" },
-        { i: 2, speak: "장년(30세부터 40세까지)" },
-        { i: 3, speak: "중년(40세 이후부터 55세까지)" },
+        { i: 0, speak: "말년(56세 이후·총운)", ageKey: "말년" },
+        { i: 1, speak: "초년(23세 이전, 1~23세)", ageKey: "초년" },
+        { i: 2, speak: "장년(30세부터 40세까지)", ageKey: "장년" },
+        { i: 3, speak: "중년(40세 이후부터 55세까지)", ageKey: "중년" },
       ];
 
       birthSlots.forEach(function (slot) {
@@ -1721,8 +1722,50 @@
             "이 시기 사주는 밝은 기운과 무거운 기운이 함께 있어, 이름과의 만남을 함께 보아야 합니다."
           );
         }
+
+        // 같은 시기 이름(한글·한문)과 사주를 이야기하듯 견줌
+        const nBadP =
+          !!(nmS[slot.i] && suriBad(nmS[slot.i].data)) ||
+          !!(nmG[slot.i] && gweBad(nmG[slot.i])) ||
+          !!(hasHanja && hjS[slot.i] && suriBad(hjS[slot.i].data)) ||
+          !!(hasHanja && hjG[slot.i] && gweBad(hjG[slot.i]));
+        const nGoodP =
+          !!(nmS[slot.i] && suriGood(nmS[slot.i].data)) ||
+          !!(nmG[slot.i] && gweGood(nmG[slot.i])) ||
+          !!(hasHanja && hjS[slot.i] && suriGood(hjS[slot.i].data)) ||
+          !!(hasHanja && hjG[slot.i] && gweGood(hjG[slot.i]));
+        const bBadP = sBad || gBad;
+        const bGoodP = sGood || gGood;
+        if (nBadP && bGoodP) {
+          bits.push(
+            " 같은 " +
+              slot.ageKey +
+              "에 이름은 무거운데 탄생일은 열려 있어, 이름이 사주의 힘을 누르거나 훼손하지 않는지 살펴야 합니다."
+          );
+        } else if (nGoodP && bBadP) {
+          bits.push(
+            " 같은 " +
+              slot.ageKey +
+              "에 탄생일은 무거운데 이름이 밝아, 이름이 사주의 부담을 덜어 주는 쪽으로 읽힙니다."
+          );
+        } else if (nBadP && bBadP) {
+          bits.push(
+            " 같은 " +
+              slot.ageKey +
+              "에 이름과 탄생일이 모두 무거워, 이 나이대(±3년) 시련이 겹치기 쉽습니다."
+          );
+        } else if (nGoodP && bGoodP) {
+          bits.push(
+            " 같은 " +
+              slot.ageKey +
+              "에 이름과 탄생일이 함께 열려, 이 시기 흐름이 한결 힘차게 읽힙니다."
+          );
+        }
+
         if (bits.length) ageParts.push(bits.join(" "));
       });
+    } else {
+      // 탄생일 없으면 이름 대비 안내만 생략
     }
 
     // i. 말년 가중 — 「길」「흉」 목록 없이 부드럽게
