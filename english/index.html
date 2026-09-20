@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 
   <head>
@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920en8"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en8"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920fix1"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920fix1"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -39,7 +39,9 @@
       }
       .intro-sec{padding:14px 12px;margin-bottom:1rem;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;text-align:center;}
       .intro-ttl{font-size:14px;font-weight:700;color:#6d28d9;letter-spacing:1px;margin-bottom:10px;}
-      .intro-langs,.intro-btn{display:none!important;}
+      .intro-langs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+      .intro-btn{padding:8px 14px;min-height:40px;font-size:13px;font-weight:700;border:1px solid #ddd6fe;border-radius:8px;background:#fff;color:#5b21b6;cursor:pointer;font-family:inherit;}
+      .intro-btn.on{background:#7c3aed;color:#fff;border-color:#6d28d9;}
       .intro-player{position:relative;margin-top:12px;border-radius:8px;overflow:hidden;background:#000;}
       .intro-player video{
         width:100%;height:auto;max-height:360px;aspect-ratio:16/9;
@@ -257,11 +259,7 @@ Error generating stack: `+l.message+`
           cap.setAttribute("aria-hidden", "true");
           wrap.appendChild(cap);
         }
-        var capLang = (v.getAttribute("data-lang") === "ko") ? "ko" : "en";
-        var capText = capLang === "ko"
-          ? "세계 최고의 주역 이름풀이를 만나 보세요."
-          : "Meet the worlds finest I Ching name reading.";
-        cap.innerHTML = '<span class="intro-caption-text">' + capText + '</span>';
+        cap.innerHTML = '<span class="intro-caption-text">Try a name reading. You\'ll have fun.</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
           muteBtn.setAttribute("data-muted", v.muted ? "1" : "0");
@@ -312,9 +310,7 @@ Error generating stack: `+l.message+`
         sync();
       }
       window.__introWantSound = window.__introWantSound || false;
-      window.__introChosenLang = window.__introChosenLang || null;
       window.playIntro = function (lang) {
-        window.__introChosenLang = lang;
         var files = {
           ko: "이름풀이_한국어단독.mp4",
           en: "영어이름풀이_영어단독.mp4"
@@ -356,12 +352,6 @@ Error generating stack: `+l.message+`
         } else {
           try { v.currentTime = 0; } catch (e) {}
           start();
-        }
-        var capEl = wrap.querySelector(".intro-caption-text");
-        if (capEl) {
-          capEl.textContent = lang === "ko"
-            ? "세계 최고의 주역 이름풀이를 만나 보세요."
-            : "Meet the worlds finest I Ching name reading.";
         }
         return true;
       };
@@ -412,26 +402,15 @@ Error generating stack: `+l.message+`
           var v = document.getElementById("introVideo");
           if (!v || !wrap) return false;
           bindIntroUnmute(wrap, v);
-          var chosen = window.__introChosenLang;
-          var hasSrc = !!(v.getAttribute("src") || v.currentSrc);
-          var cur = v.getAttribute("data-lang");
-          // Already playing the chosen (or any) clip — do not restart/switch.
-          if (hasSrc && cur && (!chosen || cur === chosen)) {
-            return true;
-          }
-          // React remount wiped src — restore the SAME language only.
-          if (chosen) {
-            return window.playIntro(chosen);
-          }
+          if (v.getAttribute("data-lang") && v.getAttribute("src")) return true;
           return window.playIntro("en");
         }
-        // Keep observing: React UI-lang re-render can recreate <video>.
+        if (tryStart()) return;
         var obs = new MutationObserver(function () {
-          tryStart();
+          if (tryStart()) obs.disconnect();
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
-        tryStart();
-        setTimeout(function () { obs.disconnect(); }, 60000);
+        setTimeout(function () { obs.disconnect(); }, 15000);
       })();
     </script>
     <script src="../pwa-install.js"></script>
