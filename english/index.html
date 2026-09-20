@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920en3"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en3"></script>
+    <script src="../assets/en-sum-routine.js?v=20260920en4"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920en4"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -314,7 +314,9 @@ Error generating stack: `+l.message+`
         sync();
       }
       window.__introWantSound = window.__introWantSound || false;
+      window.__introChosenLang = window.__introChosenLang || null;
       window.playIntro = function (lang) {
+        window.__introChosenLang = lang;
         var files = {
           ko: "이름풀이_한국어단독.mp4",
           en: "영어이름풀이_영어단독.mp4"
@@ -412,15 +414,26 @@ Error generating stack: `+l.message+`
           var v = document.getElementById("introVideo");
           if (!v || !wrap) return false;
           bindIntroUnmute(wrap, v);
-          if (v.getAttribute("data-lang") && v.getAttribute("src")) return true;
+          var chosen = window.__introChosenLang;
+          var hasSrc = !!(v.getAttribute("src") || v.currentSrc);
+          var cur = v.getAttribute("data-lang");
+          // Already playing the chosen (or any) clip — do not restart/switch.
+          if (hasSrc && cur && (!chosen || cur === chosen)) {
+            return true;
+          }
+          // React remount wiped src — restore the SAME language only.
+          if (chosen) {
+            return window.playIntro(chosen);
+          }
           return window.playIntro("en");
         }
-        if (tryStart()) return;
+        // Keep observing: React UI-lang re-render can recreate <video>.
         var obs = new MutationObserver(function () {
-          if (tryStart()) obs.disconnect();
+          tryStart();
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(function () { obs.disconnect(); }, 15000);
+        tryStart();
+        setTimeout(function () { obs.disconnect(); }, 60000);
       })();
     </script>
     <script src="../pwa-install.js"></script>
