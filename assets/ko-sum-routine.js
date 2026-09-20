@@ -253,8 +253,27 @@
 
   function slotComboNotes(ns, ng, bdNs, bdNg) {
     return (
-      suriMitigateByHexNote(ns, ng, bdNs, bdNg) + footnoteApplyNote(ns, ng)
+      suriMitigateByHexNote(ns, ng, bdNs, bdNg) +
+      footnoteApplyNote(ns, ng) +
+      hexSpecialNote(ng)
     );
+  }
+
+  /** 보흘 지정: 특정 괘 해설 보강 (원본 Ee 비침범) */
+  const HEX_SPECIAL_NOTES = {
+    산화비:
+      " 관운·승진운·재물운·건강운에 좋고, 화려한 업종 즉 패션·디자인·연예·방송·모델·예술·유흥업 관련 업종에 해당됩니다.",
+  };
+
+  function hexSpecialNote(ng) {
+    if (!ng || !ng.name) return "";
+    const n = gweNameOf(ng);
+    const keys = Object.keys(HEX_SPECIAL_NOTES);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      if (n === k || n.indexOf(k) === 0) return HEX_SPECIAL_NOTES[k];
+    }
+    return "";
   }
 
   function collectFootnoteHits(nmS, nmG, hjS, hjG, hasHanja, ages) {
