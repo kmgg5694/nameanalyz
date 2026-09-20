@@ -208,6 +208,96 @@
     return false;
   }
 
+  function isFootnoteWarnSuri(ns) {
+    if (!ns || ns.suri == null) return false;
+    const num = Number(ns.suri);
+    for (let i = 0; i < FOOTNOTE_WARN_SURI.length; i++) {
+      if (FOOTNOTE_WARN_SURI[i].n === num) return true;
+    }
+    return false;
+  }
+
+  function isFootnoteWarnHex(g) {
+    if (!g || !g.name) return false;
+    const n = gweNameOf(g);
+    for (let i = 0; i < FOOTNOTE_WARN_HEX.length; i++) {
+      const h = FOOTNOTE_WARN_HEX[i];
+      if (n === h || n.indexOf(h) === 0) return true;
+    }
+    return false;
+  }
+
+  /** 각주 목록이 이 시기·이름에 있으면 해설에 적용 */
+  function footnoteApplyNote(ns, ng) {
+    const bits = [];
+    if (ns && ns.data && isFootnoteWarnSuri(ns)) {
+      const plain = plainSuriName(ns);
+      bits.push(
+        " 각주에서 경계하는 " +
+          suriPhrase(ns) +
+          josaIGA(plain) +
+          " 이 시기에 들어 있어 절망적 상황에 처하기 쉽습니다."
+      );
+    }
+    if (ng && isFootnoteWarnHex(ng)) {
+      const plain = gweNameOf(ng);
+      bits.push(
+        " 각주에서 경계하는 " +
+          gweNameHtml(ng) +
+          josaIGA(plain) +
+          " 이 시기에 자리하여 절망적 상황에 처하기 쉽습니다."
+      );
+    }
+    return bits.join("");
+  }
+
+  function slotComboNotes(ns, ng, bdNs, bdNg) {
+    return (
+      suriMitigateByHexNote(ns, ng, bdNs, bdNg) + footnoteApplyNote(ns, ng)
+    );
+  }
+
+  function collectFootnoteHits(nmS, nmG, hjS, hjG, hasHanja, ages) {
+    const hits = [];
+    const ageNames = ages || ["말년", "초년", "장년", "중년"];
+    function pushHit(who, age, kind, labelHtml) {
+      hits.push({ who: who, age: age, kind: kind, labelHtml: labelHtml });
+    }
+    for (let i = 0; i < ageNames.length; i++) {
+      const ag = ageNames[i];
+      if (nmS[i] && isFootnoteWarnSuri(nmS[i])) {
+        pushHit("한글이름", ag, "수리", suriPhrase(nmS[i]));
+      }
+      if (nmG[i] && isFootnoteWarnHex(nmG[i])) {
+        pushHit("한글이름", ag, "주역", gweNameHtml(nmG[i]));
+      }
+      if (hasHanja) {
+        if (hjS[i] && isFootnoteWarnSuri(hjS[i])) {
+          pushHit("한자이름", ag, "수리", suriPhrase(hjS[i]));
+        }
+        if (hjG[i] && isFootnoteWarnHex(hjG[i])) {
+          pushHit("한자이름", ag, "주역", gweNameHtml(hjG[i]));
+        }
+      }
+    }
+    return hits;
+  }
+
+  function footnoteHitsSummary(hits) {
+    if (!hits || !hits.length) return "";
+    const lines = hits.map(function (h) {
+      return h.who + " " + h.age + " " + h.labelHtml;
+    });
+    return (
+      paintRed("【각주 적용】") +
+      " 이 이름에 각주 경계 항목이 들어 있습니다. (" +
+      lines.join(", ") +
+      ") 절망적 상황에 처하기 쉬우니 " +
+      paintRed("개명 외엔 대안이 없다") +
+      "고 보면 됩니다."
+    );
+  }
+
   function isWarnJangHex(g) {
     if (!g || !g.name) return false;
     const n = gweNameOf(g);
@@ -519,7 +609,7 @@
     if (ng && ng.name) {
       parts.push(printHexSentence(whoLabel, ageSpeak, ng));
     }
-    const mit = suriMitigateByHexNote(ns, ng);
+    const mit = slotComboNotes(ns, ng);
     if (mit) parts.push(mit.trim());
     return parts.filter(Boolean).join(" ");
   }
@@ -1018,7 +1108,7 @@
         if (p) p += " ";
         p += printHexSentence("한글이름", "말년", nmG[0]);
       }
-      p += suriMitigateByHexNote(
+      p += slotComboNotes(
         nmS[0],
         nmG[0],
         hasB ? bdS[0] : null,
@@ -1040,7 +1130,7 @@
         if (p) p += " ";
         p += printHexSentence("한자이름", "말년", hjG[0]);
       }
-      p += suriMitigateByHexNote(
+      p += slotComboNotes(
         hjS[0],
         hjG[0],
         hasB ? bdS[0] : null,
@@ -1070,7 +1160,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(nmS[1]);
-      p += suriMitigateByHexNote(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
+      p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
 
@@ -1093,7 +1183,7 @@
         josaIGA(plainH) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(hjS[1]);
-      p += suriMitigateByHexNote(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
+      p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null);
       ageParts.push(p);
     }
 
@@ -1161,7 +1251,7 @@
         );
         const hx = hexOriginalText(nmG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2 = suriMitigateByHexNote(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
+        const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
         if (mit2) bits.push(mit2.trim());
       }
       if (hasHanja && hjS[2] && hjS[2].data) {
@@ -1185,7 +1275,7 @@
         );
         const hx = hexOriginalText(hjG[2]);
         if (hx) bits.push(esc(hx));
-        const mit2h = suriMitigateByHexNote(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
+        const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null);
         if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
@@ -1224,7 +1314,7 @@
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
           );
-          const mit = suriMitigateByHexNote(
+          const mit = slotComboNotes(
             ns,
             ng,
             hasB ? bdS[3] : null,
@@ -1263,7 +1353,7 @@
           );
           const hx = hexOriginalText(nmG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3 = suriMitigateByHexNote(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
+          const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
           if (mit3) bits.push(mit3.trim());
         }
       }
@@ -1289,7 +1379,7 @@
           );
           const hx = hexOriginalText(hjG[3]);
           if (hx) bits.push(esc(hx));
-          const mit3h = suriMitigateByHexNote(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
+          const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null);
           if (mit3h) bits.push(mit3h.trim());
         }
       }
@@ -1575,12 +1665,33 @@
       "이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다. (말년만 전체에 미치며 초·장·중년에도 영향을 받고, 나머지 나이대는 해당 시기±3년 안입니다.)"
     );
 
-    /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 기도문·운명 안내 */
-    function warningJangHtml() {
+    const footnoteHits = collectFootnoteHits(
+      nmS,
+      nmG,
+      hjS,
+      hjG,
+      hasHanja,
+      ages
+    );
+
+    /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 해당 이름 적용 + 기도문·운명 안내 */
+    function warningJangHtml(hits) {
       const suriRed = FOOTNOTE_WARN_SURI.map(function (s) {
         return s.n + " " + s.name;
       }).join(", ");
       const hexRed = FOOTNOTE_WARN_HEX.join(", ");
+      let applyBlock = "";
+      if (hits && hits.length) {
+        const lines = hits.map(function (h) {
+          return h.who + " " + h.age + " " + h.labelHtml;
+        });
+        applyBlock =
+          '<div style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000;padding:2px 2px">' +
+          "이 이름에 해당: " +
+          lines.join(", ") +
+          ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
+          "</div>";
+      }
       return (
         '<div style="margin-top:16px">' +
         '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">각주</div>' +
@@ -1593,6 +1704,7 @@
         hexRed +
         "</span> 괘가 있다면 절망적 상황에 처한다." +
         "</div>" +
+        applyBlock +
         '<div style="margin-top:10px;line-height:1.6;font-size:0.95rem;font-weight:800;color:#FF1493;padding:2px 2px">' +
         FOOTNOTE_WARN_FOOTER +
         "</div>" +
@@ -1612,8 +1724,12 @@
       );
     }
 
+    const footnoteSummary = footnoteHitsSummary(footnoteHits);
     return {
-      ageText: ageParts.join("<br><br>") + warningJangHtml(),
+      ageText:
+        ageParts.join("<br><br>") +
+        (footnoteSummary ? "<br><br>" + footnoteSummary : "") +
+        warningJangHtml(footnoteHits),
       conclusion: compareParts
         .map(function (p) {
           return p.indexOf("<span") >= 0 ? p : colorMarks(p);
