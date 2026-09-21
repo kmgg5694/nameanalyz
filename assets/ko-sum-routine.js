@@ -1018,89 +1018,119 @@
     return "비화";
   }
 
-  /** 오행 — 인쇄물 문장 거의 그대로 */
+  /** 오행 — 성격(겉·속) + 위·아래 개폐 + 인덕 마무리 */
   function buildOhangBlock(ctx) {
+    const o = ctx.ohang || null;
+    if (!o) return "";
+    const nameOpt = String(ctx.name || ctx.displayName || "").trim();
+    const who = nameOpt ? esc(nameOpt) + "님" : "이 분";
+
+    const OH_KO = { 木: "목", 火: "화", 土: "토", 金: "금", 水: "수" };
+    const EXT = {
+      木: "성장과 시작을 이끄는 추진력이 겉으로 드러납니다",
+      火: "열정과 표현력, 활동성과 사교성이 겉으로 드러납니다",
+      土: "안정과 중재, 신뢰와 포용이 겉으로 드러납니다",
+      金: "결단력과 원칙, 절제와 완성이 겉으로 드러납니다",
+      水: "유연성과 지혜, 적응력과 소통이 겉으로 드러납니다",
+    };
+    const INN = {
+      木: "성장·시작·확장의 힘이 움직입니다",
+      火: "열정·표현·활동의 힘이 움직입니다",
+      土: "안정·신뢰·포용의 힘이 움직입니다",
+      金: "결단·원칙·절제의 힘이 움직입니다",
+      水: "지혜·유연·소통의 힘이 움직입니다",
+    };
+
+    function normEl(v) {
+      const t = String(v || "").trim();
+      if (!t) return "";
+      if (OH_KO[t]) return t;
+      const map = { 목: "木", 화: "火", 토: "土", 금: "金", 수: "水" };
+      return map[t] || t;
+    }
+    function sideOpen(kind) {
+      if (kind === "sangsaeng") return "열려";
+      if (kind === "sanggeuk") return "막혀";
+      return "bihwa";
+    }
+    function sideSentence(label, kind) {
+      const k = sideOpen(kind);
+      if (k === "열려") return label + "은 열려 있습니다.";
+      if (k === "막혀") return label + "은 막혀 있습니다.";
+      return label + "은 관심이 있는듯 없는듯합니다.";
+    }
+
+    const K = o.K || ctx.K || [];
+    const hjO = o.hjO || [];
+    const midHg = normEl(K[1] || K[0] || "");
+    const midHj = o.q ? normEl(hjO[1] || hjO[0] || "") : "";
+
     const bits = [];
+    if (midHg) {
+      let p =
+        who +
+        "의 겉성격은 " +
+        (OH_KO[midHg] || midHg) +
+        "(" +
+        midHg +
+        ")이라 " +
+        (EXT[midHg] || "그 기운이 겉으로 드러납니다");
+      if (midHj) {
+        p +=
+          ". 속마음은 한자 " +
+          (OH_KO[midHj] || midHj) +
+          "(" +
+          midHj +
+          ")으로 " +
+          (INN[midHj] || "그 기운이 안에서 움직입니다");
+      }
+      p += ".";
+      bits.push(p);
+    }
+
+    const up = o.up;
+    const dn = o.dn;
+    const upHj = o.upHj;
+    const dnHj = o.dnHj;
+    if (up || dn) {
+      bits.push(sideSentence("배우자·선배·윗사람 쪽", up));
+      bits.push(sideSentence("동료·후배·자녀 쪽", dn));
+    }
+    if (o.q && (upHj || dnHj)) {
+      const u2 = sideOpen(upHj);
+      const d2 = sideOpen(dnHj);
+      let extra = "한자(속)으로 보면 ";
+      if (u2 === "bihwa" && d2 === "bihwa") {
+        extra += "위·아래 모두 관심이 있는듯 없는듯합니다.";
+      } else {
+        const parts = [];
+        if (u2 === "열려") parts.push("윗쪽은 열린 편");
+        else if (u2 === "막혀") parts.push("윗쪽은 막힌 편");
+        else parts.push("윗쪽은 관심이 있는듯 없는듯");
+        if (d2 === "열려") parts.push("아래는 열린 편");
+        else if (d2 === "막혀") parts.push("아래는 막힌 편");
+        else parts.push("아래는 관심이 있는듯 없는듯");
+        extra += parts.join(", ") + "입니다.";
+      }
+      bits.push(extra);
+    }
+
+    const saeng = Number(o.M) || 0;
+    const geuk = Number(o.z) || 0;
+    let indeok = "";
+    if (saeng >= 3) indeok = "인덕이 많습니다.";
+    else if (saeng >= 2) indeok = "인덕이 어느 정도 있습니다.";
+    else indeok = "인덕이 부족합니다.";
     bits.push(
       paintBlue("상생") +
-        "(○)은 서로 돕고 소통이 원활한 상태입니다."
-    );
-    bits.push(
-      paintRed("상극") +
-        "(X)은 배척·방해가 잦은 상태이며, 과다하면 스트레스·질병이 따르기 쉽습니다."
-    );
-
-    const o = ctx.ohang || null;
-    const nameOpt = String(ctx.name || ctx.displayName || "").trim();
-    if (o) {
-      const up = o.up;
-      const dn = o.dn;
-      const upHj = o.upHj;
-      const dnHj = o.dnHj;
-      const hasHj = !!(o.q && (upHj || dnHj));
-      const hgRel = relOverall(up, dn);
-      const hjRel = hasHj ? relOverall(upHj, dnHj) : null;
-
-      if (up || dn || hasHj) {
-        let person =
-          (nameOpt ? esc(nameOpt) + "님은 " : "") +
-          "이름 속의 오행이 한글이름은 " +
-          relPrintNoun(hgRel);
-        if (hgRel === "sangsaeng") person += "을 이루고";
-        else if (hgRel === "sanggeuk") person += "을 이루고";
-        else person += " 구조를 이루고";
-
-        if (hasHj && hjRel) {
-          person +=
-            " 한자이름은 " +
-            relPrintNoun(hjRel) +
-            (hjRel === "sanggeuk" || hjRel === "sangsaeng"
-              ? "의 구조를 나타내고 있어"
-              : " 구조를 나타내고 있어");
-          if (hgRel === "sangsaeng" && hjRel === "sanggeuk") {
-            person +=
-              " 겉으로 보기에는 원만해 보이겠으나 내면적으로는 스트레스가 따르는 것을 미루어 짐작할 수 있습니다.";
-          } else if (hgRel === "sanggeuk" && hjRel === "sangsaeng") {
-            person +=
-              " 겉으로 보기에는 다소 버거워 보이겠으나 내면적으로는 믿음이 가는 것을 미루어 짐작할 수 있습니다.";
-          } else if (hgRel === hjRel) {
-            person +=
-              " 겉과 속이 같은 결로 그 상생·상극이 더 또렷하게 작용합니다.";
-          } else {
-            person += " 겉과 속의 결이 달라 체감이 엇갈리기 쉽습니다.";
-          }
-        } else {
-          person += " 있습니다.";
-        }
-        bits.push(person);
-      }
-    }
-
-    const K = ctx.K || (o && o.K) || null;
-    if (K && K[0] && K[1] && K[2]) {
-      bits.push(
-        "그리고 한글이름의 오행이 " +
-          esc(K[0]) +
-          " " +
-          esc(K[1]) +
-          " " +
-          esc(K[2]) +
-          " 형태로 되어 있습니다."
-      );
-      // 보흘 지정: 한글 오행 금금금 — 재물 유출 경향
-      const isMetal = (v) => {
-        const t = String(v || "").trim();
-        return t === "금" || t === "金";
-      };
-      if (isMetal(K[0]) && isMetal(K[1]) && isMetal(K[2])) {
-        bits.push(
-          "이름 오행이 금금금이면 재물을 가두기가 힘이 듭니다. 체면상 우쭐해 보이려 큰 돈을 마구 지출하거나 유행을 좇는 경향이 있어서 재물이 마구 빠져 나가기 때문입니다."
-        );
-      }
-    }
-
-    bits.push(
-      "오행은 인간관계·성격·인복의 척도가 됩니다."
+        "이 " +
+        saeng +
+        "개, " +
+        paintRed("상극") +
+        "이 " +
+        geuk +
+        "개로 " +
+        indeok
     );
 
     return bits.join(" ");
