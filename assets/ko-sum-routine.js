@@ -1437,8 +1437,7 @@
     const hhCompare = buildHangulHanjaCompare();
     if (hhCompare) ageParts.push(hhCompare);
 
-    const ohangBlock = buildOhangBlock(ctx);
-    if (ohangBlock) ageParts.push(ohangBlock);
+    // 오행 해설은 UI에서 이름풀이 직전에 완료 — 서술 본문에 중복 삽입하지 않음
     if (specialWarn.length) {
       ageParts.push(colorMarks(specialWarn.join(" ")));
     }
