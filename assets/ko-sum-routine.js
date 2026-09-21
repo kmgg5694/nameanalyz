@@ -411,8 +411,20 @@
 
   function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) {
     return (
+      hwagtaekBadSuriNote(ns, ng) +
       suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) +
       footnoteApplyNote(ns, ng, sajuOrdinary)
+    );
+  }
+
+  /** 보흘 지정: 화택규 + 같은 시기 흉수리 → 추락·낙상·교통사고 */
+  function hwagtaekBadSuriNote(ns, ng) {
+    if (!isHwagtaekGyu(ng) || !ns || !ns.data || !suriBad(ns.data)) return "";
+    const sName = plainSuriName(ns) || "흉수리";
+    return (
+      " 같은 시기에 「화택규」와 「" +
+      sName +
+      "」가 겹치면 추락·낙상사고·교통사고로 뼈를 크게 다치는 사고가 나기 쉽습니다."
     );
   }
 
@@ -426,6 +438,8 @@
       " 언변이 좋고, 미식가가 많다. 같은 기운으로 태위택이 있다.",
     진위뢰:
       " 소리만 요란하고 정작 손에 든 것이 없는 외화내빈의 상태입니다.",
+    화택규:
+      " 천추원한 백골혼으로, 추락·낙상사고·교통사고로 뼈를 크게 다치는 기운입니다.",
   };
 
   function hexSpecialNote(ng) {
@@ -1293,13 +1307,32 @@
     }
     const hwagtCount =
       countHwagtaekIn(nmG) + (hasHanja ? countHwagtaekIn(hjG) : 0);
-    // 보흘 지정: 화택규 2개 이상이면 「좋은 이름」 금지
+    // 보흘 지정: 화택규 2개 이상이면 「좋은 이름」 금지 + 본뜻·흉수리 경고
     if (hwagtCount >= 2) {
-      specialWarn.push(
-        "【주의】 이 이름에 「화택규」가 " +
-          hwagtCount +
-          "개나 들어 있습니다. 심장마비·불의의 사고 기운이 겹치니 좋은 이름이라고 부르기 어렵습니다."
-      );
+      let hwagtBadHit = 0;
+      function countHwagtWithBadSuri(gArr, sArr) {
+        let n = 0;
+        if (!gArr || !sArr) return 0;
+        for (let i = 0; i < gArr.length; i++) {
+          if (isHwagtaekGyu(gArr[i]) && sArr[i] && sArr[i].data && suriBad(sArr[i].data))
+            n++;
+        }
+        return n;
+      }
+      hwagtBadHit =
+        countHwagtWithBadSuri(nmG, nmS) +
+        (hasHanja ? countHwagtWithBadSuri(hjG, hjS) : 0);
+      let warn =
+        "【주의】 「화택규」는 천추원한 백골혼으로 추락·낙상사고·교통사고로 뼈를 크게 다치는 기운입니다. 이 이름에 「화택규」가 " +
+        hwagtCount +
+        "개나 있으니 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다.";
+      if (hwagtBadHit > 0) {
+        warn +=
+          " 이미 「화택규」와 흉수리가 같은 시기에 " +
+          hwagtBadHit +
+          "곳 겹쳐 있으니 각별히 경계하십시오.";
+      }
+      specialWarn.push(warn);
     }
 
 
@@ -1555,9 +1588,9 @@
 
       if (hwagtCount >= 2) {
         p +=
-          "「화택규」가 " +
+          "「화택규」는 천추원한 백골혼·추락·낙상·교통사고로 뼈를 다치는 기운인데 " +
           hwagtCount +
-          "개나 있어 좋은 이름이라고 부르기 어렵습니다. 다른 자리의 길한 기운만 보고 단정하면 안 됩니다. ";
+          "개나 있어 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다. ";
       } else if (unionGood.length === 4) {
         p +=
           "초년·장년·중년·말년에 길괘·길수리가 두루 나오니 좋은 이름입니다. ";
@@ -2272,9 +2305,9 @@
           "가 해당 시기에 사주를 칠 수 있으니 조심하십시오.";
       } else if (hwagtCount >= 2) {
         verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 「화택규」가 " +
+          "【결론】 생년월일 없이 이름만 봤습니다. 「화택규」는 천추원한 백골혼으로 추락·낙상·교통사고 기운인데 " +
           hwagtCount +
-          "개나 있어 좋은 이름이라고 부르기 어렵습니다.";
+          "개나 있어 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다.";
       } else if (nameGoodGwes.length > 0) {
         verdict =
           "【결론】 생년월일 없이 이름만 봤습니다. 부담 괘가 없고 " +
