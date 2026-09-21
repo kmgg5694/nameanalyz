@@ -585,35 +585,22 @@
     if (!isMitigateSuriHex(ng)) return "";
     const wealthTail =
       " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
-    // 10 만사허망 + 완화 길괘 → 기운 삭감 (보흘 지정 · 바로 설명)
-    if (num === 10) {
-      return (
-        " 다만 같은 시기에 " +
-        hexPart +
-        " 있어 「만사허망」의 기운이 삭감됩니다." +
-        wealthTail
-      );
-    }
+    const sName = plainSuriName(ns) || "흉수리";
+    // 흉수리 + 완화 길괘 → 눌러 꼼짝 못하게·삭감 (보흘 지정)
+    const suppress =
+      " 다만 같은 시기에 " +
+      hexPart +
+      " 있어 「" +
+      sName +
+      "」의 기운이 삭감됩니다. 그 괘들이 흉수리를 눌러서 꼼짝 못하게 하기 때문입니다.";
     if (num === 14) {
       const keys = suriDetailKeywordsList(ns);
       const gone = keys
         ? keys.join("·") + " 등의 기운이 없어지고"
         : "이별이혼·사고감옥·자살단명·사건·사고·감옥·당뇨·암·질병·수술 등의 기운이 없어지고";
-      return (
-        " 다만 그 아래에 " +
-        hexPart +
-        " 있어 " +
-        gone +
-        " 오히려 더 좋아지며," +
-        wealthTail
-      );
+      return suppress + " " + gone + " 오히려 더 좋아지며," + wealthTail;
     }
-    return (
-      " 다만 그 아래에 " +
-      hexPart +
-      " 있어 웬만한 흉수리를 제거하고 더 좋아지며," +
-      wealthTail
-    );
+    return suppress + wealthTail;
   }
 
   /** 받침 유무 → 이/가 */
