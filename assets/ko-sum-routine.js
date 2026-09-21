@@ -1354,7 +1354,7 @@
       if (hasHanja) (hjG || []).forEach(addMit);
       if (mitAll.length) {
         p +=
-          "단 수리의 흉수를 커버할 수 있는 길괘로는 " +
+          "수리의 흉수를 커버할 수 있는 괘의 종류는 이위화, 화수미제, 화천대유, 산천대축, 수풍정, 뇌천대장 등이 있습니다. 이 이름에는 " +
           joinGweNames(mitAll) +
           " " +
           mitAll.length +
