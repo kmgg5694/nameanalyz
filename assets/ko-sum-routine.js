@@ -679,6 +679,8 @@
     16: {
       base:
         " 마음씨가 너무 착해서 어려운 이웃을 보면 도와 줘야 하고, 친구의 부탁이나 청을 거절하기 힘들어 그 책임을 고스란히 떠 안고 해결하느라고 힘들게 살기도 합니다. 워낙 귀가 얇아서 휘둘리고 보증을 잘 선다는 특징이 있다.",
+      말년:
+        " 덕망유복이 말년에 있으면 마음씨가 너무 착해 다른이의 부탁을 거절하지 못하니 보증 잘 서고 귀가 얇아 친구따라 강남 갔다가 그 피해를 전부 끌어 앉고 고생을 하게 되는 수이니 조심 하시기 바랍니다.",
     },
   };
 
@@ -745,8 +747,14 @@
     const num = Number(ns.suri);
     const spec = SURI_SPECIAL_NOTES[num];
     if (!spec) return "";
-    let t = spec.base || "";
-    if (ageKey && spec[ageKey]) t += spec[ageKey];
+    let t = "";
+    if (ageKey && spec[ageKey]) {
+      // 16 말년은 완결 문장(보흘 지정) — base와 겹치지 않게 특례만
+      if (num === 16 && ageKey === "말년") t = spec[ageKey];
+      else t = (spec.base || "") + spec[ageKey];
+    } else if (spec.base) {
+      t = spec.base;
+    }
     if (num === 10) {
       const cho = opts && opts.choSajuGood;
       if (cho === true && spec.choSajuGood) t += spec.choSajuGood;
@@ -755,13 +763,14 @@
     return t;
   }
 
-  /** 원문 + 스펙 키워드·특례 참고 */
+  /** 원문 + 스펙 키워드·특례. 특례(왜 조심해야 하는지)를 원본 앞에 둔다. */
   function suriBodyWithDetail(ns, ageKey, opts) {
     let t = "";
+    const special = suriSpecialNote(ns, ageKey || "", opts || null);
+    if (special) t += special;
+    t += suriDetailKeywordsNote(ns);
     const body = suriOriginalText(ns);
     if (body) t += " " + esc(body);
-    t += suriDetailKeywordsNote(ns);
-    t += suriSpecialNote(ns, ageKey || "", opts || null);
     return t;
   }
 
