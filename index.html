@@ -13,15 +13,20 @@
     <script src="./assets/korean-lunar-calendar.js"></script>
         <script>
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
+      window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260919flow1').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260919orig1').then(r => r.json())
-      ]).then(([s, h]) => {
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260921narr1').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260921narr1').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260921narr1').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260921narr1').then(r => r.json())
+      ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
+        window.__NARRATE__.suri = sn;
+        window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260921s35b"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260921narr1"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260921port1"></script>
     <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921narr2"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">

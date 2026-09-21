@@ -1,6 +1,7 @@
 /* 요약보기 — 나이대 서술형 해설 + 이름·사주 주역괘 결론 (원본 d6/Ee 비침범) */
 (function () {
   const CS = () => window.__CORE_SUMMARIES__ || { suri: {}, hex: {} };
+  const NAR = () => window.__NARRATE__ || { suri: {}, hex: {} };
 
   function strip(s) {
     return String(s || "")
@@ -634,26 +635,40 @@
     return cut.slice(0, lim).replace(/\s+\S*$/, "") + "…";
   }
 
-  /** 특례 없을 때: 핵심요약 → 없으면 shortDesc 짧게 */
+  /** 소비자용 구술: narrate 전문(자르지 않음). 없으면 전문가 core를 짧게 */
   function suriCoreBrief(ns) {
     if (!ns || ns.suri == null) return "";
+    const n = NAR().suri[String(ns.suri)];
+    if (n && n.narrate) return String(n.narrate).trim();
     const x = CS().suri[String(ns.suri)];
-    if (x && x.core) return briefCoreText(x.core, 70);
+    if (x && x.core) return briefCoreText(x.core, 140);
     const d = ns.data;
     if (d) {
       const s = String(d.shortDesc || "").trim();
-      if (s) return briefCoreText(s, 70);
+      if (s) return briefCoreText(s, 140);
     }
-    if (x && x.shortDesc) return briefCoreText(x.shortDesc, 70);
+    if (x && x.shortDesc) return briefCoreText(x.shortDesc, 140);
     return "";
   }
 
   function hexCoreBrief(ng) {
     if (!ng) return "";
+    const byId = ng.id != null ? NAR().hex[String(ng.id)] : null;
+    if (byId && byId.narrate) return String(byId.narrate).trim();
+    // name fallback
+    const hexMap = NAR().hex || {};
+    const keys = Object.keys(hexMap);
+    const want = gweNameOf(ng);
+    for (let i = 0; i < keys.length; i++) {
+      const row = hexMap[keys[i]];
+      if (row && row.name && want && (want === row.name || want.indexOf(row.name) === 0) && row.narrate) {
+        return String(row.narrate).trim();
+      }
+    }
     const x = ng.id != null ? CS().hex[String(ng.id)] : null;
-    if (x && x.core) return briefCoreText(x.core, 70);
-    if (ng.desc) return briefCoreText(ng.desc, 70);
-    if (ng.shortDesc) return briefCoreText(ng.shortDesc, 70);
+    if (x && x.core) return briefCoreText(x.core, 140);
+    if (ng.desc) return briefCoreText(ng.desc, 140);
+    if (ng.shortDesc) return briefCoreText(ng.shortDesc, 140);
     return "";
   }
 
