@@ -1128,7 +1128,7 @@
     const upHj = o.upHj;
     const dnHj = o.dnHj;
     if (up || dn) {
-      bits.push(sideSentence("배우자·선배·윗사람 쪽", up));
+      bits.push(sideSentence("배우자·선배·양부모 쪽", up));
       bits.push(sideSentence("동료·후배·자녀 쪽", dn));
     }
     if (o.q && (upHj || dnHj)) {
