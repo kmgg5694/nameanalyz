@@ -1335,6 +1335,30 @@
       specialWarn.push(warn);
     }
 
+    /** 보흘 지정: 말년 이산파멸+화택규 — 사주 완화 한 개로는 둘을 못 막음 */
+    function checkMalDualIsanHwagt(sArr, gArr, who) {
+      if (!sArr || !gArr || malIdx < 0) return;
+      const ns = sArr[malIdx];
+      const ng = gArr[malIdx];
+      if (!ns || Number(ns.suri) !== 14 || !isHwagtaekGyu(ng)) return;
+      let t =
+        "【주의】 " +
+        who +
+        " 말년에 「이산파멸」과 「화택규」가 함께 있어 질병·수술·사고·이별 기운이 겹칩니다.";
+      if (hasB) {
+        const sajuMit = isMitigateSuriHex(bdG[malIdx]);
+        if (sajuMit) {
+          t +=
+            " 사주 말년에 완화 길괘가 하나 있어도 이 둘을 다 막지 못하니, 둘 중 하나에게 얻어터지기 쉽습니다.";
+        } else {
+          t +=
+            " 사주 말년에 이를 막아 줄 완화 길괘가 없으면 그 피해가 더 직격으로 옵니다.";
+        }
+      }
+      specialWarn.push(t);
+    }
+    checkMalDualIsanHwagt(nmS, nmG, "한글이름");
+    if (hasHanja) checkMalDualIsanHwagt(hjS, hjG, "한자이름");
 
     /** 보흘 지정: 화택규 →(직전)→ 화수미제 재물 증폭 — 초년·장년만 「몇 배」, 중년은 낮춤 */
     function checkHwasumiWealthBoost(gArr, who) {
@@ -1616,6 +1640,22 @@
           if (bdG[i] && bdG[i].name && gweBad(bdG[i])) birthBadCnt++;
         });
         if (
+          hwagtCount >= 2 ||
+          unionBad.length >= 3
+        ) {
+          // 화택규 중복·흉 시기 많으면 이름>사주 칭찬 금지
+          if (
+            birthGoodCnt > nameGoodCnt ||
+            nameBadCnt > birthBadCnt
+          ) {
+            p =
+              "타고난 사주가 이름보다 훨씬 낫습니다. 이름의 무거운 기운이 사주의 힘을 깎아 먹기 쉽습니다. " +
+              p;
+          } else {
+            p =
+              "이름과 사주를 견줘도 이 이름을 사주보다 좋다고 할 수 없습니다. " + p;
+          }
+        } else if (
           nameGoodCnt > birthGoodCnt &&
           nameBadCnt <= birthBadCnt
         ) {
@@ -1643,24 +1683,54 @@
         }
       }
 
-      const mitSeen = {};
-      const mitAll = [];
-      function addMit(g) {
+      const mitByAge = { 초년: [], 장년: [], 중년: [], 말년: [] };
+      function addMitAt(ageKey, g) {
         if (!g || !g.name || !isMitigateSuriHex(g)) return;
         const n = gweNameOf(g);
-        if (mitSeen[n]) return;
-        mitSeen[n] = true;
-        mitAll.push(g);
+        const list = mitByAge[ageKey];
+        if (!list) return;
+        for (let i = 0; i < list.length; i++) {
+          if (gweNameOf(list[i]) === n) return;
+        }
+        list.push(g);
       }
-      (nmG || []).forEach(addMit);
-      if (hasHanja) (hjG || []).forEach(addMit);
+      ["초년", "장년", "중년", "말년"].forEach(function (ak) {
+        addMitAt(ak, gweAtAge(nmG, ages, ak));
+        if (hasHanja) addMitAt(ak, gweAtAge(hjG, ages, ak));
+      });
+      const mitAll = [];
+      const mitSeen = {};
+      ["초년", "장년", "중년", "말년"].forEach(function (ak) {
+        (mitByAge[ak] || []).forEach(function (g) {
+          const n = gweNameOf(g);
+          if (mitSeen[n]) return;
+          mitSeen[n] = true;
+          mitAll.push(g);
+        });
+      });
       if (mitAll.length) {
         p +=
-          "수리의 흉수를 커버할 수 있는 괘의 종류는 이위화, 화수미제, 화천대유, 산천대축, 수풍정, 뇌천대장 등이 있습니다. 이 이름에는 " +
+          "수리의 흉을 덜어 주는 괘로 이위화·화수미제·화천대유·산천대축·수풍정·뇌천대장 등이 있습니다. 이 이름에는 " +
           joinGweNames(mitAll) +
-          " " +
-          mitAll.length +
-          "개가 있어 균형 잡힌 이름입니다.";
+          "이 있습니다. ";
+        const onlyJung =
+          mitByAge["중년"].length > 0 &&
+          mitByAge["초년"].length === 0 &&
+          mitByAge["장년"].length === 0 &&
+          mitByAge["말년"].length === 0;
+        const jungHeavy =
+          mitByAge["중년"].length > 0 &&
+          mitByAge["초년"].length +
+            mitByAge["장년"].length +
+            mitByAge["말년"].length ===
+            0;
+        if (onlyJung || jungHeavy) {
+          p +=
+            "다만 그 길괘가 중년에만 있어 짧은 시기(약 5년)만 커버할 뿐, 초년·장년·말년의 무거운 기운까지 막아 주지는 못합니다. 중년 길괘만 보고 좋은 이름·균형 잡힌 이름이라고 하면 안 됩니다. ";
+        } else {
+          p +=
+            "이 길괘들은 자기 나이대에만 영향을 주니, 다른 시기의 흉까지 한꺼번에 덮어 준다고 보면 안 됩니다. ";
+        }
       }
       return p;
     }
@@ -2357,9 +2427,9 @@
       }
     } else if (hwagtCount >= 2) {
       verdict =
-        "【결론】 「화택규」가 " +
+        "【결론】 「화택규」는 천추원한 백골혼으로 추락·낙상·교통사고 기운인데 " +
         hwagtCount +
-        "개나 있어 좋은 이름이라고 부르기 어렵습니다. 다른 자리의 열린 괘만 보고 단정하면 안 됩니다.";
+        "개나 있어 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다.";
     } else if (helpList.length > 0) {
       verdict =
         "【결론】 이름 부담 괘가 사주를 치는 형국은 없고 " +
