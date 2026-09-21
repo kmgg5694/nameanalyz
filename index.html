@@ -21,9 +21,9 @@
         window.__CORE_SUMMARIES__.hex = h;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260921ohang1"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260921narr2"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260921port1"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921ohang1"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921narr2"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -56,6 +56,13 @@
     <link rel="manifest" href="./manifest.json" />
 
 <style id="print-a4-fix">
+/* 결과의 표(종합표·요약보기·오행표)는 화면·인쇄 모두 숨김. 서술이 본문 */
+#result-full-capture [data-loc="client/src/pages/Home.tsx:818"],
+#result-full-capture [data-loc="client/src/pages/Home.tsx:1112"],
+#result-full-capture [data-loc="client/src/pages/Home.tsx:978"],
+#result-full-capture table {
+  display: none !important;
+}
 @media print {
   /* 세로 A4 — 읽기 좋은 폭·글씨 (가로 과대 배치 해제) */
   @page { size: A4 portrait; margin: 12mm 14mm; }
@@ -77,9 +84,7 @@
   button, .intro-player, audio, video {
     display: none !important;
   }
-  /* 종합표·결론 숨김. 오행(978·1201)은 이름풀이 앞에서 인쇄 */
-  #result-full-capture table,
-  #result-full-capture [data-loc="client/src/pages/Home.tsx:1193"],
+  /* 종합표·요약보기·오행표는 위 공통 규칙으로 숨김. 결론(1193)은 각주·경고장이 끝에 있으므로 인쇄 */
   #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
     display: none !important;
   }

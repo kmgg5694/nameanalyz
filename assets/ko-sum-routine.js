@@ -1278,34 +1278,8 @@
       });
 
       let p = "";
-      if (hasHanja) {
-        p += "한글이름이 좋은 시기는 ";
-        if (hgGoodAges.length) p += hgGoodAges.join(", ") + "이고, ";
-        else p += "뚜렷하지 않고, ";
-        p += "한문이름이 좋은 시기는 ";
-        if (hjGoodAges.length) p += hjGoodAges.join(", ") + "입니다. ";
-        else p += "뚜렷하지 않습니다. ";
-        p += "한글·한문을 합쳐 이름 전체의 기운으로 보면 ";
-      } else {
-        p += "이름 전체의 기운으로 보면 ";
-      }
-
-      if (unionBad.length) {
-        p +=
-          unionBad
-            .map(function (u) {
-              return u.key + "(" + u.marks.join(", ") + ")";
-            })
-            .join(", ") + "에는 흉한 기운이 있고, ";
-      }
-      if (unionGood.length) {
-        p +=
-          unionGood
-            .map(function (u) {
-              return u.key + "(" + u.marks.join(", ") + ")";
-            })
-            .join(", ") + "에는 길한 기운(길수리·길괘)이 있습니다. ";
-      } else if (!unionBad.length) {
+      p += "이름 전체의 기운으로 보면 ";
+      if (!unionBad.length && !unionGood.length) {
         p += "시기별로 뚜렷한 길·흉이 한쪽으로 기울지 않습니다. ";
       }
 
@@ -1337,19 +1311,27 @@
           nameGoodCnt > birthGoodCnt &&
           nameBadCnt <= birthBadCnt
         ) {
-          p += "전반적으로 사주에 비해 좋은 이름입니다. ";
+          p =
+            "이 이름은 사주보다 좋습니다. " + p;
         } else if (
           birthGoodCnt > nameGoodCnt &&
           birthBadCnt <= nameBadCnt
         ) {
-          p +=
-            "전반적으로 사주가 이름보다 밝아, 이름이 사주를 얼마나 받쳐 주는지 함께 보아야 합니다. ";
+          p =
+            "사주가 이름보다 좋습니다. 이름이 사주를 받쳐 주지 못하는 자리가 있습니다. " +
+            p;
         } else if (nameBadCnt > birthBadCnt) {
-          p +=
-            "이름 쪽에 흉한 기운이 더 많아, 사주가 무난해도 이름이 시기를 누르기 쉽습니다. ";
+          p =
+            "사주가 이름보다 좋습니다. 이름 쪽에 흉한 기운이 더 많아 사주가 무난해도 이름이 시기를 누르기 쉽습니다. " +
+            p;
         } else if (birthBadCnt > nameBadCnt) {
-          p +=
-            "사주에 흉한 기운이 더 많아, 이름이 사주의 부담을 얼마나 덜어 주는지가 관건입니다. ";
+          p =
+            "이 이름은 사주보다 좋습니다. 사주에 흉한 기운이 더 많아, 이름이 그 부담을 덜어 줍니다. " +
+            p;
+        } else {
+          p =
+            "이름과 사주가 비슷합니다. 어느 한쪽이 뚜렷이 낫다고 자르기 어렵습니다. " +
+            p;
         }
       }
 
@@ -1399,45 +1381,26 @@
         if (gweBad(g)) birthBad.push(g);
       });
 
-      let p =
-        "이름풀이를 마쳤으니, 이제 탄생일과 시기별로 견주어 이야기합니다. 이름 쪽 주역의 좋은 기운은 " +
-        nameGood.length +
-        "개";
-      if (nameGood.length) p += "(" + joinGweNames(nameGood) + ")";
-      p += ", 흉한 기운은 " + nameBad.length + "개";
-      if (nameBad.length) p += "(" + joinGweNames(nameBad) + ")";
-      p +=
-        "이고, 탄생일 주역의 좋은 기운은 " +
-        birthGood.length +
-        "개";
-      if (birthGood.length) p += "(" + joinGweNames(birthGood) + ")";
-      p += ", 흉한 기운은 " + birthBad.length + "개";
-      if (birthBad.length) p += "(" + joinGweNames(birthBad) + ")";
-      p += "입니다. ";
-
+      let p = "이름풀이를 마쳤으니, 탄생일과 견주면 ";
       if (nameGood.length > birthGood.length && nameBad.length <= birthBad.length) {
-        p +=
-          "이름이 탄생일보다 좋은 기운이 많아, 이름이 사주를 도우며 살리는 쪽으로 읽힙니다.";
+        p += "이 이름은 사주보다 좋습니다. 이름이 사주를 도우며 살리는 쪽으로 읽힙니다.";
       } else if (birthGood.length > nameGood.length && birthBad.length <= nameBad.length) {
-        p +=
-          "탄생일이 이름보다 좋은 기운이 많아, 사주의 힘을 이름이 따라가지 못하는 대목이 없는지 살펴야 합니다.";
+        p += "사주가 이름보다 좋습니다. 사주의 힘을 이름이 따라가지 못하는 대목이 있습니다.";
       } else if (nameBad.length > birthBad.length) {
-        p +=
-          "이름에 흉한 주역이 더 많아, 사주가 무난해도 이름이 시기를 눌러 막기 쉽습니다.";
+        p += "사주가 이름보다 좋습니다. 이름에 흉한 주역이 더 많아, 사주가 무난해도 이름이 시기를 눌러 막기 쉽습니다.";
       } else if (birthBad.length > nameBad.length) {
-        p +=
-          "탄생일에 흉한 주역이 더 많아, 이름이 사주의 부담을 얼마나 받쳐 주는지가 관건입니다.";
+        p += "이 이름은 사주보다 좋습니다. 탄생일에 흉한 주역이 더 많아, 이름이 사주의 부담을 받쳐 줍니다.";
       } else {
-        p +=
-          "이름과 탄생일의 좋고 나쁨이 팽팽하니, 시기마다 이름이 사주를 치는지·돕는지 함께 보아야 합니다.";
+        p += "이름과 사주가 비슷합니다. 시기마다 이름이 사주를 치는지·돕는지 함께 보아야 합니다.";
       }
       return p;
     }
 
+    const ohangNarr = buildOhangBlock(ctx);
+    if (ohangNarr) ageParts.push(ohangNarr);
+
     const hhCompare = buildHangulHanjaCompare();
     if (hhCompare) ageParts.push(hhCompare);
-
-    // 오행 해설은 UI에서 이름풀이 직전에 완료 — 서술 본문에 중복 삽입하지 않음
     if (specialWarn.length) {
       ageParts.push(colorMarks(specialWarn.join(" ")));
     }
@@ -1955,7 +1918,7 @@
         "."
     );
     compareParts.push(
-      "오행·말년·초년·장년·중년을 한 흐름으로 해설합니다. 자세한 수리·괘 뜻은 요약보기 밑줄을 누르십시오."
+      "오행·말년·초년·장년·중년을 한 흐름으로 해설합니다."
     );
     if (specialWarn.length) {
       compareParts.push(specialWarn.join(" "));
@@ -2191,15 +2154,16 @@
       return warnBox + footBox;
     }
 
+    const conclusionHtml = compareParts
+      .map(function (p) {
+        return p.indexOf("<span") >= 0 ? p : colorMarks(p);
+      })
+      .join("<br>");
+
     return {
-      ageText:
-        ageParts.join("<br><br>") +
-        warningJangHtml(footnoteHits, chongunNotes),
-      conclusion: compareParts
-        .map(function (p) {
-          return p.indexOf("<span") >= 0 ? p : colorMarks(p);
-        })
-        .join("<br>"),
+      ageText: ageParts.join("<br><br>"),
+      conclusion:
+        conclusionHtml + warningJangHtml(footnoteHits, chongunNotes),
     };
   };
 })();
