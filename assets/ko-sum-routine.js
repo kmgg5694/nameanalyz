@@ -118,13 +118,13 @@
   }
 
   function isHwagtaekGyu(g) {
-    const n = gweNameOf(g);
-    return n === "화택규" || n.indexOf("화택규") === 0;
+    const n = gweNameOf(g).replace(/\s+/g, "");
+    return n.indexOf("화택규") >= 0;
   }
 
   function isHwasumije(g) {
-    const n = gweNameOf(g);
-    return n === "화수미제" || n.indexOf("화수미제") === 0;
+    const n = gweNameOf(g).replace(/\s+/g, "");
+    return n.indexOf("화수미제") >= 0;
   }
 
   /** ages 배열 [말년,초년,장년,중년] 기준 — 시간순 직전 인덱스 */
@@ -133,6 +133,12 @@
     if (ageIdx === 3) return 2; // 중년 ← 장년
     if (ageIdx === 0) return 3; // 말년 ← 중년
     return -1; // 초년: 직전 없음
+  }
+
+  function gweAtAge(gArr, ages, ageName) {
+    if (!gArr || !ages) return null;
+    const i = ages.indexOf(ageName);
+    return i >= 0 ? gArr[i] : null;
   }
 
   function gweBad(g) {
@@ -436,7 +442,12 @@
   /** 보흘 지정: 화택규 직후 화수미제 → 재물 몇 배 증폭 */
   function hexSeqWealthBoostNote(ng, prevNg) {
     if (!isHwasumije(ng) || !isHwagtaekGyu(prevNg)) return "";
-    return " 직전에 「화택규」가 있어 「화수미제」의 재물을 몇 배나 키워 줍니다.";
+    return (
+      " " +
+      paintBlue(
+        "직전에 「화택규」가 있어 「화수미제」의 재물을 몇 배나 키워 줍니다."
+      )
+    );
   }
 
   function collectFootnoteHits(nmS, nmG, hjS, hjG, hasHanja, ages) {
@@ -1243,6 +1254,35 @@
     checkHwagtaekPair(nmG, "한글");
     if (hasHanja) checkHwagtaekPair(hjG, "한문");
     if (hasB) checkHwagtaekPair(bdG, "탄생일");
+
+    /** 보흘 지정: 화택규 →(직전)→ 화수미제 재물 증폭 — 눈에 띄게 별도 표기 */
+    function checkHwasumiWealthBoost(gArr, who) {
+      if (!gArr) return;
+      const pairs = [
+        ["초년", "장년"],
+        ["장년", "중년"],
+        ["중년", "말년"],
+      ];
+      for (let i = 0; i < pairs.length; i++) {
+        const prev = gweAtAge(gArr, ages, pairs[i][0]);
+        const curr = gweAtAge(gArr, ages, pairs[i][1]);
+        if (isHwagtaekGyu(prev) && isHwasumije(curr)) {
+          specialWarn.push(
+            paintBlue("【재물 증폭】") +
+              " " +
+              who +
+              " " +
+              pairs[i][0] +
+              "에 「화택규」가 있고 바로 이어지는 " +
+              pairs[i][1] +
+              "에 「화수미제」가 있어, 「화수미제」의 재물을 몇 배나 키워 줍니다."
+          );
+        }
+      }
+    }
+    checkHwasumiWealthBoost(nmG, "한글이름");
+    if (hasHanja) checkHwasumiWealthBoost(hjG, "한자이름");
+    if (hasB) checkHwasumiWealthBoost(bdG, "탄생일");
 
     function countBadSuriSlice(arr, from, to) {
       let n = 0;
