@@ -635,11 +635,20 @@
     return cut.slice(0, lim).replace(/\s+\S*$/, "") + "…";
   }
 
-  /** 소비자용 구술: narrate 전문(자르지 않음). 없으면 전문가 core를 짧게 */
-  function suriCoreBrief(ns) {
+  /** 소비자용 구술: narrate + 해당 나이대만. 초년/총운(말년)이 다르면 해당 칸만 붙인다. */
+  function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
     const n = NAR().suri[String(ns.suri)];
-    if (n && n.narrate) return String(n.narrate).trim();
+    if (n) {
+      let t = String(n.narrate || "").trim();
+      // 총운 = 말년
+      const ak = ageKey === "총운" ? "말년" : ageKey;
+      if (ak && n[ak]) {
+        const extra = String(n[ak]).trim();
+        if (extra) t = t ? t + " " + extra : extra;
+      }
+      if (t) return t;
+    }
     const x = CS().suri[String(ns.suri)];
     if (x && x.core) return briefCoreText(x.core, 140);
     const d = ns.data;
@@ -713,7 +722,7 @@
       base:
         " 단점으로, 너무 시대를 앞서 가다가 환경이 받쳐주지 않아 실패를 거듭한다. 공부운이 뜻대로 풀리지 않는 경우가 많다.",
       초년:
-        " 초년에 들면 대부분 예·체능에 강하지만 실의에 빠지는 경우가 많다.",
+        " 초년에 들면 예·체능에는 강하지만 실의에 빠지기 쉽습니다.",
     },
     10: {
       base:
@@ -738,6 +747,12 @@
         " 마음씨가 너무 착해서 어려운 이웃을 보면 도와 줘야 하고, 친구의 부탁이나 청을 거절하기 힘들어 그 책임을 고스란히 떠 안고 해결하느라고 힘들게 살기도 합니다. 워낙 귀가 얇아서 휘둘리고 보증을 잘 선다는 특징이 있다.",
       말년:
         " 덕망유복이 말년에 있으면 마음씨가 너무 착해 다른이의 부탁을 거절하지 못하니 보증 잘 서고 귀가 얇아 친구따라 강남 갔다가 그 피해를 전부 끌어 앉고 고생을 하게 되는 수이니 조심 하시기 바랍니다.",
+    },
+    20: {
+      base:
+        " 사물의 종말을 고하는 불운의 수라 쉬고 멈추어야 할 때입니다. 학업이 중단되거나 사업이 끊기기 쉽습니다.",
+      말년:
+        " 총운에 20이 들면 그릇이 큰 거물이 나오기도 하지만 좋은 주역괘가 없으면 대개 50세 전후로 부도·감옥·큰 욕을 보는 경우가 많습니다.",
     },
     35: {
       base:
@@ -836,7 +851,7 @@
       if (ns && Number(ns.suri) === 14) t += suriDetailKeywordsNote(ns);
       return t;
     }
-    const brief = suriCoreBrief(ns);
+    const brief = suriCoreBrief(ns, ageKey || "");
     if (brief) return " " + esc(brief);
     return "";
   }
