@@ -409,9 +409,9 @@
     return bits.join("");
   }
 
-  function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary) {
+  function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) {
     return (
-      suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary) +
+      suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) +
       footnoteApplyNote(ns, ng, sajuOrdinary)
     );
   }
@@ -439,13 +439,45 @@
     return "";
   }
 
-  /** 보흘 지정: 화택규 직후 화수미제 → 재물 몇 배 증폭 */
-  function hexSeqWealthBoostNote(ng, prevNg) {
+  /** 초년·장년만 재물 「몇 배·대박」 표현. 중년은 짧은 시기라 낮춤 (보흘 지정) */
+  function isStrongWealthAge(ageKey) {
+    const a = String(ageKey || "");
+    return a === "초년" || a === "장년";
+  }
+
+  function wealthTailByAge(ageKey) {
+    if (isStrongWealthAge(ageKey)) {
+      return " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
+    }
+    if (String(ageKey || "") === "중년") {
+      return " 그 괘의 본뜻이 재물이라 재물 기운에도 보탬이 됩니다. 다만 중년은 짧은 시기라 몇 배 대박까지는 말하기 조심스럽습니다.";
+    }
+    return " 그 괘의 본뜻이 재물이라 재물 기운에도 보탬이 됩니다.";
+  }
+
+  /** 보흘 지정: 화택규 직후 화수미제 → 재물 증폭 (초년·장년만 「몇 배」) */
+  function hexSeqWealthBoostNote(ng, prevNg, ageKey) {
     if (!isHwasumije(ng) || !isHwagtaekGyu(prevNg)) return "";
+    if (isStrongWealthAge(ageKey)) {
+      return (
+        " " +
+        paintBlue(
+          "직전에 「화택규」가 있어 「화수미제」의 재물을 몇 배나 키워 줍니다."
+        )
+      );
+    }
+    if (String(ageKey || "") === "중년") {
+      return (
+        " " +
+        paintBlue(
+          "직전에 「화택규」가 있어 「화수미제」의 재물 기운을 돋워 줍니다. 다만 중년은 짧은 시기라 몇 배 대박까지는 말하기 조심스럽습니다."
+        )
+      );
+    }
     return (
       " " +
       paintBlue(
-        "직전에 「화택규」가 있어 「화수미제」의 재물을 몇 배나 키워 줍니다."
+        "직전에 「화택규」가 있어 「화수미제」의 재물 기운을 돋워 줍니다."
       )
     );
   }
@@ -534,7 +566,7 @@
    *  - 경고장 흉수리 + 경고장 흉괘(빨강) → 수리 기운 가중·위태 (14는 요절)
    *  bdNs/bdNg = 같은 나이대 탄생일(사주) 수리·괘
    */
-  function suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary) {
+  function suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) {
     if (!ns || !ns.data) return "";
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     const plain = ng && ng.name ? gweNameOf(ng) : "";
@@ -583,8 +615,7 @@
 
     if (!suriBad(ns.data)) return "";
     if (!isMitigateSuriHex(ng)) return "";
-    const wealthTail =
-      " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
+    const wealthTail = wealthTailByAge(ageKey);
     const sName = plainSuriName(ns) || "흉수리";
     // 흉수리 + 완화 길괘 → 장점은 좋아지고 흉은 지워짐 (보흘 지정)
     const lift =
@@ -903,7 +934,7 @@
   }
 
   /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게. prevNg=시간순 직전 괘 */
-  function hexBodyForNarrate(ng, prevNg) {
+  function hexBodyForNarrate(ng, prevNg, ageKey) {
     const special = hexSpecialNote(ng);
     let body = "";
     if (special) body = special;
@@ -911,7 +942,7 @@
       const brief = hexCoreBrief(ng);
       if (brief) body = " " + esc(brief);
     }
-    const boost = hexSeqWealthBoostNote(ng, prevNg);
+    const boost = hexSeqWealthBoostNote(ng, prevNg, ageKey);
     if (boost) body = (body || "") + boost;
     return body;
   }
@@ -942,6 +973,7 @@
     if (!ng || !ng.name) return "";
     const plain = gweNameOf(ng);
     const speak = String(ageSpeak || "");
+    const ageKey = ageKeyFromSpeak(speak);
     const isMal = speak === "말년" || speak.indexOf("말년") === 0;
     let lead = "";
     if (whoLabel && isMal && whoLabel.indexOf("한자") >= 0) {
@@ -978,7 +1010,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
     }
-    const body = hexBodyForNarrate(ng, prevNg);
+    const body = hexBodyForNarrate(ng, prevNg, ageKey);
     if (body) {
       const isSpecialOnly = !!hexSpecialNote(ng);
       if (
@@ -1023,7 +1055,7 @@
     if (ng && ng.name) {
       parts.push(printHexSentence(whoLabel, ageSpeak, ng));
     }
-    const mit = slotComboNotes(ns, ng, null, null, null);
+    const mit = slotComboNotes(ns, ng, null, null, null, ageKey);
     if (mit) parts.push(mit.trim());
     return parts.filter(Boolean).join(" ");
   }
@@ -1251,7 +1283,27 @@
     if (hasHanja) checkHwagtaekPair(hjG, "한문");
     if (hasB) checkHwagtaekPair(bdG, "탄생일");
 
-    /** 보흘 지정: 화택규 →(직전)→ 화수미제 재물 증폭 — 눈에 띄게 별도 표기 */
+    function countHwagtaekIn(gArr) {
+      let n = 0;
+      if (!gArr) return 0;
+      for (let i = 0; i < gArr.length; i++) {
+        if (isHwagtaekGyu(gArr[i])) n++;
+      }
+      return n;
+    }
+    const hwagtCount =
+      countHwagtaekIn(nmG) + (hasHanja ? countHwagtaekIn(hjG) : 0);
+    // 보흘 지정: 화택규 2개 이상이면 「좋은 이름」 금지
+    if (hwagtCount >= 2) {
+      specialWarn.push(
+        "【주의】 이 이름에 「화택규」가 " +
+          hwagtCount +
+          "개나 들어 있습니다. 심장마비·불의의 사고 기운이 겹치니 좋은 이름이라고 부르기 어렵습니다."
+      );
+    }
+
+
+    /** 보흘 지정: 화택규 →(직전)→ 화수미제 재물 증폭 — 초년·장년만 「몇 배」, 중년은 낮춤 */
     function checkHwasumiWealthBoost(gArr, who) {
       if (!gArr) return;
       const pairs = [
@@ -1260,18 +1312,31 @@
         ["중년", "말년"],
       ];
       for (let i = 0; i < pairs.length; i++) {
-        const prev = gweAtAge(gArr, ages, pairs[i][0]);
-        const curr = gweAtAge(gArr, ages, pairs[i][1]);
+        const prevAge = pairs[i][0];
+        const currAge = pairs[i][1];
+        const prev = gweAtAge(gArr, ages, prevAge);
+        const curr = gweAtAge(gArr, ages, currAge);
         if (isHwagtaekGyu(prev) && isHwasumije(curr)) {
+          let tip = "";
+          if (isStrongWealthAge(currAge)) {
+            tip =
+              "「화수미제」의 재물을 몇 배나 키워 줍니다.";
+          } else if (currAge === "중년") {
+            tip =
+              "「화수미제」의 재물 기운을 돋워 줍니다. 다만 중년은 짧은 시기라 몇 배 대박까지는 말하기 조심스럽습니다.";
+          } else {
+            tip = "「화수미제」의 재물 기운을 돋워 줍니다.";
+          }
           specialWarn.push(
-            paintBlue("【재물 증폭】") +
+            paintBlue(currAge === "중년" ? "【재물 보탬】" : "【재물 증폭】") +
               " " +
               who +
               " " +
-              pairs[i][0] +
+              prevAge +
               "에 「화택규」가 있고 바로 이어지는 " +
-              pairs[i][1] +
-              "에 「화수미제」가 있어, 「화수미제」의 재물을 몇 배나 키워 줍니다."
+              currAge +
+              "에 「화수미제」가 있어, " +
+              tip
           );
         }
       }
@@ -1488,7 +1553,12 @@
         p += "시기별로 뚜렷한 길·흉이 한쪽으로 기울지 않습니다. ";
       }
 
-      if (unionGood.length === 4) {
+      if (hwagtCount >= 2) {
+        p +=
+          "「화택규」가 " +
+          hwagtCount +
+          "개나 있어 좋은 이름이라고 부르기 어렵습니다. 다른 자리의 길한 기운만 보고 단정하면 안 됩니다. ";
+      } else if (unionGood.length === 4) {
         p +=
           "초년·장년·중년·말년에 길괘·길수리가 두루 나오니 좋은 이름입니다. ";
       } else if (unionGood.length >= 3 && unionBad.length <= 1) {
@@ -1662,7 +1732,8 @@
         nmG[0],
         hasB ? bdS[0] : null,
         hasB ? bdG[0] : null,
-        sajuOrdinary
+        sajuOrdinary,
+        "말년"
       );
       p += chongunFootnoteNote(nmS[0], nmG[0], sajuOrdinary);
       ageParts.push(p);
@@ -1686,7 +1757,8 @@
         hjG[0],
         hasB ? bdS[0] : null,
         hasB ? bdG[0] : null,
-        sajuOrdinary
+        sajuOrdinary,
+        "말년"
       );
       p += chongunFootnoteNote(hjS[0], hjG[0], sajuOrdinary);
       ageParts.push(p);
@@ -1713,7 +1785,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(nmS[1], "초년", suriOpts);
-      p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
+      p += slotComboNotes(nmS[1], nmG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary, "초년");
       ageParts.push(p);
     }
 
@@ -1736,7 +1808,7 @@
         josaIGA(plainH) +
         " 들어 있습니다.";
       p += suriBodyWithDetail(hjS[1], "초년", suriOpts);
-      p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary);
+      p += slotComboNotes(hjS[1], hjG[1], hasB ? bdS[1] : null, hasB ? bdG[1] : null, sajuOrdinary, "초년");
       ageParts.push(p);
     }
 
@@ -1752,7 +1824,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexBodyForNarrate(nmG[1], null);
+        const hx = hexBodyForNarrate(nmG[1], null, "초년");
         if (hx) bits.push(hx.trim());
       }
       if (hasHanja && hjG[1] && hjG[1].name) {
@@ -1763,7 +1835,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexBodyForNarrate(hjG[1], null);
+        const hx = hexBodyForNarrate(hjG[1], null, "초년");
         if (hx) bits.push(hx.trim());
         if (gweBad(hjG[1])) {
           bits.push(
@@ -1802,9 +1874,9 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexBodyForNarrate(nmG[2], nmG[1]);
+        const hx = hexBodyForNarrate(nmG[2], nmG[1], "장년");
         if (hx) bits.push(hx.trim());
-        const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
+        const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary, "장년");
         if (mit2) bits.push(mit2.trim());
       }
       if (hasHanja && hjS[2] && hjS[2].data) {
@@ -1826,9 +1898,9 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexBodyForNarrate(hjG[2], hjG[1]);
+        const hx = hexBodyForNarrate(hjG[2], hjG[1], "장년");
         if (hx) bits.push(hx.trim());
-        const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
+        const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary, "장년");
         if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
@@ -1862,7 +1934,7 @@
           );
           const _sbO = suriBodyWithDetail(ns, "중년", suriOpts);
           if (_sbO) bits.push(_sbO.trim());
-          const hx = hexBodyForNarrate(ng, prevNg);
+          const hx = hexBodyForNarrate(ng, prevNg, "중년");
           if (hx) bits.push(hx.trim());
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
@@ -1872,7 +1944,8 @@
             ng,
             hasB ? bdS[3] : null,
             hasB ? bdG[3] : null,
-            sajuOrdinary
+            sajuOrdinary,
+            "중년"
           );
           if (mit) bits.push(mit.trim());
           return true;
@@ -1905,9 +1978,9 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexBodyForNarrate(nmG[3], nmG[2]);
+          const hx = hexBodyForNarrate(nmG[3], nmG[2], "중년");
           if (hx) bits.push(hx.trim());
-          const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
+          const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary, "중년");
           if (mit3) bits.push(mit3.trim());
         }
       }
@@ -1931,9 +2004,9 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexBodyForNarrate(hjG[3], hjG[2]);
+          const hx = hexBodyForNarrate(hjG[3], hjG[2], "중년");
           if (hx) bits.push(hx.trim());
-          const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
+          const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary, "중년");
           if (mit3h) bits.push(mit3h.trim());
         }
       }
@@ -2197,6 +2270,11 @@
           "【결론】 생년월일 없이 이름만 봤습니다. 이름 " +
           nameBadGwes.join("·") +
           "가 해당 시기에 사주를 칠 수 있으니 조심하십시오.";
+      } else if (hwagtCount >= 2) {
+        verdict =
+          "【결론】 생년월일 없이 이름만 봤습니다. 「화택규」가 " +
+          hwagtCount +
+          "개나 있어 좋은 이름이라고 부르기 어렵습니다.";
       } else if (nameGoodGwes.length > 0) {
         verdict =
           "【결론】 생년월일 없이 이름만 봤습니다. 부담 괘가 없고 " +
@@ -2244,6 +2322,11 @@
           byAgeHelp(helpList).join(", ") +
           ")";
       }
+    } else if (hwagtCount >= 2) {
+      verdict =
+        "【결론】 「화택규」가 " +
+        hwagtCount +
+        "개나 있어 좋은 이름이라고 부르기 어렵습니다. 다른 자리의 열린 괘만 보고 단정하면 안 됩니다.";
     } else if (helpList.length > 0) {
       verdict =
         "【결론】 이름 부담 괘가 사주를 치는 형국은 없고 " +
