@@ -585,6 +585,15 @@
     if (!isMitigateSuriHex(ng)) return "";
     const wealthTail =
       " 그 괘의 본뜻이 재물이라 재물이 대박 나는 경우가 많습니다.";
+    // 10 만사허망 + 완화 길괘 → 기운 삭감 (보흘 지정 · 바로 설명)
+    if (num === 10) {
+      return (
+        " 다만 같은 시기에 " +
+        hexPart +
+        " 있어 「만사허망」의 기운이 삭감됩니다." +
+        wealthTail
+      );
+    }
     if (num === 14) {
       const keys = suriDetailKeywordsList(ns);
       const gone = keys
