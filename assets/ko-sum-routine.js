@@ -404,6 +404,8 @@
       " 언변이 좋고, 미식가가 많다. 같은 기운으로 화뢰서합이 있다.",
     화뢰서합:
       " 언변이 좋고, 미식가가 많다. 같은 기운으로 태위택이 있다.",
+    진위뢰:
+      " 소리만 요란하고 정작 손에 든 것이 없는 외화내빈의 상태입니다.",
   };
 
   function hexSpecialNote(ng) {
@@ -615,6 +617,46 @@
     return (s + " " + d).replace(/\s+/g, " ").trim();
   }
 
+  /** 핵심요약 core/short를 구술용으로 짧게 (한두 마디) */
+  function briefCoreText(raw, maxLen) {
+    let t = String(raw || "").trim();
+    if (!t) return "";
+    t = t
+      .replace(/^(길수|흉수|중성|길괘|흉괘)\s*[—–\-]\s*/, "")
+      .trim();
+    const lim = maxLen || 70;
+    if (t.length <= lim) return t;
+    const cut = t.slice(0, lim + 30);
+    const m = cut.match(/^[\s\S]{20,90}?[.。!?！？]/);
+    if (m) return m[0].trim();
+    const m2 = cut.match(/^[\s\S]{20,90}?[，,;；]/);
+    if (m2) return m2[0].replace(/[，,;；]\s*$/, "").trim() + ".";
+    return cut.slice(0, lim).replace(/\s+\S*$/, "") + "…";
+  }
+
+  /** 특례 없을 때: 핵심요약 → 없으면 shortDesc 짧게 */
+  function suriCoreBrief(ns) {
+    if (!ns || ns.suri == null) return "";
+    const x = CS().suri[String(ns.suri)];
+    if (x && x.core) return briefCoreText(x.core, 70);
+    const d = ns.data;
+    if (d) {
+      const s = String(d.shortDesc || "").trim();
+      if (s) return briefCoreText(s, 70);
+    }
+    if (x && x.shortDesc) return briefCoreText(x.shortDesc, 70);
+    return "";
+  }
+
+  function hexCoreBrief(ng) {
+    if (!ng) return "";
+    const x = ng.id != null ? CS().hex[String(ng.id)] : null;
+    if (x && x.core) return briefCoreText(x.core, 70);
+    if (ng.desc) return briefCoreText(ng.desc, 70);
+    if (ng.shortDesc) return briefCoreText(ng.shortDesc, 70);
+    return "";
+  }
+
   /** 라이브 d6 — 장수 축소: shortDesc 우선(desc 중복 병합 안 함) */
   function suriOriginalText(ns) {
     const d = ns && ns.data;
@@ -763,18 +805,24 @@
     return t;
   }
 
-  /** 원문 + 스펙 키워드·특례. 특례(왜 조심해야 하는지)를 원본 앞에 둔다. */
+  /**
+   * 구술 본문: 특례가 있으면 특례만(원본 생략). 없으면 핵심만 짧게.
+   * 14 키워드는 특례와 함께 필수.
+   */
   function suriBodyWithDetail(ns, ageKey, opts) {
-    let t = "";
     const special = suriSpecialNote(ns, ageKey || "", opts || null);
-    if (special) t += special;
-    t += suriDetailKeywordsNote(ns);
-    const body = suriOriginalText(ns);
-    if (body) t += " " + esc(body);
-    return t;
+    if (special) {
+      let t = special;
+      // 14 이산파멸 구체 키워드는 특례 해설의 일부
+      if (ns && Number(ns.suri) === 14) t += suriDetailKeywordsNote(ns);
+      return t;
+    }
+    const brief = suriCoreBrief(ns);
+    if (brief) return " " + esc(brief);
+    return "";
   }
 
-  /** 라이브 Ee.desc → CS hex.core — 장수 축소: 앞 2문장 정도만 */
+  /** 라이브 Ee.desc → CS hex.core — 장수 축소: 앞 2문장 정도만 (팝업·참고용) */
   function hexOriginalText(ng) {
     let t = "";
     if (ng && ng.desc) t = String(ng.desc).trim();
@@ -792,6 +840,15 @@
     const m = cut.match(/^[\s\S]{50,200}?[.。!?！？]/);
     if (m) return m[0].trim();
     return cut.replace(/\s+\S*$/, "") + "…";
+  }
+
+  /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게 */
+  function hexBodyForNarrate(ng) {
+    const special = hexSpecialNote(ng);
+    if (special) return special;
+    const brief = hexCoreBrief(ng);
+    if (brief) return " " + esc(brief);
+    return "";
   }
 
   /**
@@ -856,18 +913,22 @@
         josaIGA(plain) +
         " 들어 있습니다.";
     }
-    const body = hexOriginalText(ng);
+    const body = hexBodyForNarrate(ng);
     if (body) {
-      if (whoLabel && isMal && whoLabel.indexOf("한자") >= 0) {
-        lead += esc(body);
+      const isSpecialOnly = !!hexSpecialNote(ng);
+      if (
+        whoLabel &&
+        isMal &&
+        whoLabel.indexOf("한자") >= 0 &&
+        !isSpecialOnly
+      ) {
+        lead += body.charAt(0) === " " ? body : " " + body;
         lead +=
           " 운세를 보이겠으나 그 이전까지가 너무 힘든 인생이 펼쳐져 힘을 빼놓게 되므로 좋은 기운이 많이 희생될 것으로 보입니다.";
       } else {
-        lead += " " + esc(body);
+        lead += body.charAt(0) === " " ? body : " " + body;
       }
     }
-    // 태위택·화뢰서합·산화비 특례는 주역 설명 뒤에만 (백사실패 각주에 붙이지 않음)
-    lead += hexSpecialNote(ng);
     return lead;
   }
 
@@ -1556,8 +1617,8 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexOriginalText(nmG[1]);
-        if (hx) bits.push(esc(hx));
+        const hx = hexBodyForNarrate(nmG[1]);
+        if (hx) bits.push(hx.trim());
       }
       if (hasHanja && hjG[1] && hjG[1].name) {
         const plain = gweNameOf(hjG[1]);
@@ -1567,8 +1628,8 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexOriginalText(hjG[1]);
-        if (hx) bits.push(esc(hx));
+        const hx = hexBodyForNarrate(hjG[1]);
+        if (hx) bits.push(hx.trim());
         if (gweBad(hjG[1])) {
           bits.push(
             paintRed("빨리 한자이름만이라도 바꾸기를 권유합니다.")
@@ -1606,8 +1667,8 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexOriginalText(nmG[2]);
-        if (hx) bits.push(esc(hx));
+        const hx = hexBodyForNarrate(nmG[2]);
+        if (hx) bits.push(hx.trim());
         const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2) bits.push(mit2.trim());
       }
@@ -1630,8 +1691,8 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexOriginalText(hjG[2]);
-        if (hx) bits.push(esc(hx));
+        const hx = hexBodyForNarrate(hjG[2]);
+        if (hx) bits.push(hx.trim());
         const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2h) bits.push(mit2h.trim());
       }
@@ -1666,8 +1727,8 @@
           );
           const _sbO = suriBodyWithDetail(ns, "중년", suriOpts);
           if (_sbO) bits.push(_sbO.trim());
-          const hx = hexOriginalText(ng);
-          if (hx) bits.push(esc(hx));
+          const hx = hexBodyForNarrate(ng);
+          if (hx) bits.push(hx.trim());
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
           );
@@ -1709,8 +1770,8 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexOriginalText(nmG[3]);
-          if (hx) bits.push(esc(hx));
+          const hx = hexBodyForNarrate(nmG[3]);
+          if (hx) bits.push(hx.trim());
           const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3) bits.push(mit3.trim());
         }
@@ -1735,8 +1796,8 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexOriginalText(hjG[3]);
-          if (hx) bits.push(esc(hx));
+          const hx = hexBodyForNarrate(hjG[3]);
+          if (hx) bits.push(hx.trim());
           const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3h) bits.push(mit3h.trim());
         }
