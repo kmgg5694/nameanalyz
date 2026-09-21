@@ -1050,8 +1050,14 @@
     const who = nameOpt ? esc(nameOpt) + "님" : "이 분";
 
     const OH_KO = { 木: "목", 火: "화", 土: "토", 金: "금", 水: "수" };
-    /** 오행 지칭 시 조사 포함 (보흘 지정) */
-    const OH_GA = { 木: "목이", 火: "화가", 土: "토가", 金: "금이", 水: "수가" };
+    /** 오행 지칭 시 조사 로/으로 (보흘 지정) */
+    const OH_RO = {
+      木: "목으로",
+      火: "화로",
+      土: "토로",
+      金: "금으로",
+      水: "수로",
+    };
     const EXT = {
       木: "성장과 시작을 이끄는 추진력이 겉으로 드러납니다",
       火: "열정과 표현력, 활동성과 사교성이 겉으로 드러납니다",
@@ -1074,8 +1080,8 @@
       const map = { 목: "木", 화: "火", 토: "土", 금: "金", 수: "水" };
       return map[t] || t;
     }
-    function ohGa(el) {
-      return OH_GA[el] || OH_KO[el] || el;
+    function ohRo(el) {
+      return OH_RO[el] || OH_KO[el] || el;
     }
     function sideOpen(kind) {
       if (kind === "sangsaeng") return "열려";
@@ -1099,18 +1105,18 @@
       let p =
         who +
         "의 겉성격은 " +
-        ohGa(midHg) +
+        ohRo(midHg) +
         "(" +
         midHg +
-        ")라 " +
+        ") " +
         (EXT[midHg] || "그 기운이 겉으로 드러납니다");
       if (midHj) {
         p +=
           ". 속마음은 한자 " +
-          ohGa(midHj) +
+          ohRo(midHj) +
           "(" +
           midHj +
-          ")로 " +
+          ") " +
           (INN[midHj] || "그 기운이 안에서 움직입니다");
       }
       p += ".";
