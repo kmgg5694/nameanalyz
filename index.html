@@ -15,10 +15,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260921age1').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260921age1').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260921age1').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260921age1').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260921nar1').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260921nar1').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260921nar1').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260921nar1').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -26,9 +26,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260921age1"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260921nar1"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260921port1"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921narr2"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921nar1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
