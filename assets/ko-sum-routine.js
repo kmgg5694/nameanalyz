@@ -2104,12 +2104,31 @@
     );
     const chongunNotes = collectChongunFootnoteNotes(nmS, nmG, hjS, hjG, hasHanja, sajuOrdinary);
 
-    /** 서술형 이름풀이 아래 — 「각주」노란 칸(인쇄물) + 해당 이름 적용 + 기도문·운명 안내 */
+    /** 서술형 이름풀이 아래 — 「경고장」+「각주」 노란 칸 2개 */
     function warningJangHtml(hits, chongunApplied) {
-      const suriRed = FOOTNOTE_WARN_SURI.map(function (s) {
+      const warnSuriRed = WARN_JANG_SURI.map(function (s) {
         return s.n + " " + s.name;
       }).join(", ");
-      const hexRed = FOOTNOTE_WARN_HEX.join(", ");
+      const warnHexRed = WARN_JANG_HEX.join(", ");
+      const footSuriRed = FOOTNOTE_WARN_SURI.map(function (s) {
+        return s.n + " " + s.name;
+      }).join(", ");
+      const footHexRed = FOOTNOTE_WARN_HEX.join(", ");
+
+      const warnBox =
+        '<div style="margin-top:16px">' +
+        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">경고장</div>' +
+        '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
+        "만약 여러분 이름을 분석해서 " +
+        '<span style="color:#FF0000">' +
+        warnSuriRed +
+        "</span> 등이 있거나, 이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
+        '<span style="color:#FF0000">' +
+        warnHexRed +
+        "</span> 등의 괘가 도사리고 있다면 오로지 신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
+        "</div>" +
+        "</div>";
+
       let applyBlock = "";
       if (hits && hits.length) {
         const lines = hits.map(function (h) {
@@ -2122,61 +2141,55 @@
           ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
           "</div>";
       }
-      const chongunBox = (function () {
-        // 해당 총운이 있을 때만 노란 칸 추가(항상 3칸 중복 방지)
-        if (!chongunApplied || !chongunApplied.length) return "";
-        const joined = chongunApplied.join(" ");
-        const boxes = [];
-        if (/단명|과부|영웅풍파|파란풍파/.test(joined)) {
-          boxes.push(FOOTNOTE_CHONGUN_DANMYEONG);
-        }
-        if (/암|이산파멸|백사실패|중도좌절/.test(joined)) {
-          boxes.push(FOOTNOTE_CHONGUN_CANCER);
-        }
-        if (/20|22|백사실패|중도좌절/.test(joined) || /부자장수|대부대귀/.test(joined)) {
-          boxes.push(FOOTNOTE_SURI20_22);
-        }
-        if (!boxes.length) return "";
-        return boxes
-          .map(function (txt) {
-            return (
-              '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.45;padding:6px 8px;font-size:0.9rem;margin-top:6px">' +
-              '<span style="color:#FF0000">' +
-              txt +
-              "</span>" +
-              "</div>"
-            );
-          })
-          .join("");
-      })();
+
+      // 총운 특례 노란 칸 — 각주에 항상 표기 (스펙)
+      const chongunBox =
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_CHONGUN_DANMYEONG +
+        "</span>" +
+        "</div>" +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_CHONGUN_CANCER +
+        "</span>" +
+        "</div>" +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+        '<span style="color:#FF0000">' +
+        FOOTNOTE_SURI20_22 +
+        "</span>" +
+        "</div>";
+
       let chongunApply = "";
       if (chongunApplied && chongunApplied.length) {
         chongunApply =
-          '<div style="margin-top:6px;line-height:1.45;font-size:0.9rem;font-weight:700;color:#FF0000;padding:2px">' +
+          '<div style="margin-top:8px;line-height:1.55;font-size:0.9rem;font-weight:700;color:#FF0000;padding:2px">' +
           "【총운 각주 적용】 " +
           chongunApplied.join(" ") +
           "</div>";
       }
-      return (
-        '<div style="margin-top:10px">' +
-        '<div style="font-weight:800;font-size:1rem;color:#111;margin:0 0 6px;letter-spacing:0.02em">각주</div>' +
-        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.45;padding:8px;font-size:0.9rem">' +
+
+      const footBox =
+        '<div style="margin-top:14px">' +
+        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">각주</div>' +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem">' +
         '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
         '<span style="color:#FF0000">' +
-        suriRed +
+        footSuriRed +
         "</span> 등이 있거나, 혹은 이름에 주역을 대입해서 " +
         '<span style="color:#FF0000">' +
-        hexRed +
+        footHexRed +
         "</span> 괘가 있다면 절망적 상황에 처한다." +
         "</div>" +
         chongunBox +
         applyBlock +
         chongunApply +
-        '<div style="margin-top:6px;line-height:1.45;font-size:0.9rem;font-weight:800;color:#FF1493;padding:2px">' +
+        '<div style="margin-top:8px;line-height:1.5;font-size:0.9rem;font-weight:800;color:#FF1493;padding:2px">' +
         FOOTNOTE_WARN_FOOTER +
         "</div>" +
-        "</div>"
-      );
+        "</div>";
+
+      return warnBox + footBox;
     }
 
     return {
