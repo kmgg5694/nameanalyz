@@ -57,14 +57,17 @@
 
 <style id="print-a4-fix">
 @media print {
-  @page { size: A4 portrait; margin: 12mm 10mm; }
+  /* 여백 최소·폭 최대 → 인쇄 장수 축소 */
+  @page { size: A4 portrait; margin: 5mm 4mm; }
   html, body {
     width: 100% !important;
     max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #fff !important;
     color: #1a1008 !important;
-    font-size: 10.5pt !important;
-    line-height: 1.35 !important;
+    font-size: 9pt !important;
+    line-height: 1.28 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -75,7 +78,6 @@
   button, .intro-player, audio, video {
     display: none !important;
   }
-  /* 인쇄 버튼 행도 숨김(이미 no-print) — 결과만 */
   #root, #result-full-capture, #result-full-capture * {
     visibility: visible !important;
   }
@@ -88,27 +90,58 @@
     bottom: auto !important;
     transform: none !important;
   }
-  #result-full-capture {
+  #root, #result-full-capture, main {
     display: block !important;
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  .max-w-2xl, .mx-auto { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
-  .ink-card, .suri-card, section, article, table {
+  .max-w-2xl, .max-w-xl, .max-w-lg, .max-w-md, .max-w-3xl, .max-w-4xl,
+  .max-w-5xl, .max-w-6xl, .max-w-7xl, .mx-auto {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .ink-card, .suri-card {
     break-inside: avoid;
     page-break-inside: avoid;
     box-shadow: none !important;
     background: #fff !important;
+    margin: 3px 0 !important;
+    padding: 3px 2px !important;
   }
-  table { width: 100% !important; border-collapse: collapse !important; font-size: 9.5pt !important; }
-  table th, table td { padding: 3px 4px !important; border: 1px solid #c8a96e !important; }
+  /* 긴 서술 구간은 페이지를 넘어가게 해서 빈 장 방지 */
+  section, article {
+    break-inside: auto;
+    page-break-inside: auto;
+    box-shadow: none !important;
+    background: #fff !important;
+    margin: 3px 0 !important;
+    padding: 1px 0 !important;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8.5pt !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  table th, table td { padding: 2px 3px !important; border: 1px solid #c8a96e !important; }
   img, svg { max-width: 100% !important; height: auto !important; }
   a { color: inherit !important; text-decoration: none !important; }
-  .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+  .space-y-6 > :not([hidden]) ~ :not([hidden]),
+  .space-y-4 > :not([hidden]) ~ :not([hidden]),
+  .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 6px !important;
+  }
   /* 입력/괘탭 숨기고 결과만 */
   [data-tab="input"], [data-tab="gwe"], [data-tab="hanja"] { display: none !important; }
+  .text-sm, .leading-relaxed, .whitespace-pre-wrap {
+    font-size: 9pt !important;
+    line-height: 1.28 !important;
+  }
 }
 </style>
 </head>
