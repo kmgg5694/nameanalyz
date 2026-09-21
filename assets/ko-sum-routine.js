@@ -433,9 +433,11 @@
     산화비:
       " 관운·승진운·재물운·건강운에 좋고, 화려한 업종 즉 패션·디자인·연예·방송·모델·예술·유흥업 관련 업종에 해당됩니다.",
     태위택:
-      " 언변이 좋고, 미식가가 많다. 같은 기운으로 화뢰서합이 있다.",
+      " 언변이 좋고, 미식가가 많다. 말을 잘 하는 기운이라 영업·보험·상담 일에 잘 맞는다. 같은 기운으로 화뢰서합이 있다.",
     화뢰서합:
-      " 언변이 좋고, 미식가가 많다. 같은 기운으로 태위택이 있다.",
+      " 언변이 좋고, 미식가가 많다. 말을 잘 하는 기운이라 영업·보험·상담 일에 잘 맞는다. 같은 기운으로 태위택이 있다.",
+    화산려:
+      " 역마살로 여기저기 돌아다니며 발품을 팔아 벌어 먹는 기운이다. 사업·무역·외근·보험 등 발품 직업에 맞는다.",
     진위뢰:
       " 소리만 요란하고 정작 손에 든 것이 없는 외화내빈의 상태입니다.",
     화택규:
@@ -1359,6 +1361,65 @@
     }
     checkMalDualIsanHwagt(nmS, nmG, "한글이름");
     if (hasHanja) checkMalDualIsanHwagt(hjS, hjG, "한자이름");
+
+    /**
+     * 보흘 지정 사례: 사주 화산려≥2(역마)·화뢰서합(언변) → 보험·발품 직업 적합.
+     * 이름 중년 뇌천대장·화수미제로 한때 두각(보험왕) → 사주 말년 이위화(밝고 명랑·재물)가
+     * 이름 말년 이산파멸·화택규에 지워짐. 사주 ≫ 이름, 좋은 이름 아님.
+     */
+    function checkSajuYeokmaWipedByName() {
+      if (!hasB || !bdG || malIdx < 0) return;
+      let yeokma = 0;
+      let hasSeohap = false;
+      for (let i = 0; i < bdG.length; i++) {
+        if (hexNameStarts(bdG[i], "화산려")) yeokma++;
+        if (hexNameStarts(bdG[i], "화뢰서합")) hasSeohap = true;
+      }
+      if (yeokma < 2) return;
+
+      function malIsanHwagt(sArr, gArr) {
+        if (!sArr || !gArr) return false;
+        const ns = sArr[malIdx];
+        const ng = gArr[malIdx];
+        return !!(ns && Number(ns.suri) === 14 && isHwagtaekGyu(ng));
+      }
+      const nameMalDual =
+        malIsanHwagt(nmS, nmG) ||
+        (hasHanja && malIsanHwagt(hjS, hjG));
+      const sajuMalIwi = hexNameStarts(bdG[malIdx], "이위화");
+
+      function hasMidBoostHex(g) {
+        return !!(
+          g &&
+          (isHwasumije(g) || hexNameStarts(g, "뇌천대장"))
+        );
+      }
+      const midBoost =
+        hasMidBoostHex(gweAtAge(nmG, ages, "중년")) ||
+        (hasHanja && hasMidBoostHex(gweAtAge(hjG, ages, "중년")));
+
+      let t =
+        "【사주·직업】 사주에 「화산려」가 " +
+        yeokma +
+        "개로 역마살이 강해, 여기저기 돌아다니며 발품을 팔아 벌어 먹는 기운입니다. 보험·외근·영업처럼 발로 뛰는 직업이 잘 맞습니다.";
+      if (hasSeohap) {
+        t +=
+          " 「화뢰서합」은 말을 잘 하는 기운이라 보험·상담 일에 아주 적합합니다.";
+      }
+      if (midBoost) {
+        t +=
+          " 이름 중년의 「뇌천대장」·「화수미제」 같은 길괘가 그 기운에 힘을 보태 한때 두각(보험왕 등)을 나타내기도 합니다. 다만 중년은 짧은 시기(약 5년)뿐입니다.";
+      }
+      if (sajuMalIwi && nameMalDual) {
+        t +=
+          " 사주 총운(말년) 「이위화」는 밝고 명랑한 분위기·재물 기운이었으나, 이름 말년 「이산파멸」·「화택규」에 그 재물이 지워지는 모습입니다. 타고난 사주가 훨씬 낫고, 이 이름을 좋다고 할 수 없습니다.";
+      } else if (nameMalDual) {
+        t +=
+          " 이름 말년 「이산파멸」·「화택규」가 사주의 힘을 깎아 먹습니다. 타고난 사주가 훨씬 낫습니다.";
+      }
+      specialWarn.push(t);
+    }
+    checkSajuYeokmaWipedByName();
 
     /** 보흘 지정: 화택규 →(직전)→ 화수미제 재물 증폭 — 초년·장년만 「몇 배」, 중년은 낮춤 */
     function checkHwasumiWealthBoost(gArr, who) {
