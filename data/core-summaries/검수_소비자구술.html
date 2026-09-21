@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>소비자 구술 검수·수정 (수리81 · 괘64)</title>
+<style>
+  .bar { position:sticky; top:0; z-index:9; background:#1a5f3f; color:#fff; padding:12px 16px; }
+  .bar button { margin:4px 6px 4px 0; padding:8px 14px; font-weight:700; cursor:pointer; border:0; border-radius:6px; }
+  .bar a { color:#c8ffe0; margin-right:12px; }
+  .hint { font-size:13px; opacity:.95; margin-top:6px; }
+  textarea.narrate { resize:vertical; min-height:72px; }
+</style>
+</head>
+<body bgcolor="#F7F1E6" text="#2B2118" style="font-family:'Malgun Gothic','Noto Sans KR',sans-serif;margin:0">
+<div class="bar">
+  <b>소비자 구술 검수·수정</b> — 파란=길 · 빨간=흉 · 회색=중성<br>
+  <button type="button" onclick="downloadSuri()" style="background:#fff;color:#1a5f3f">수리 JSON 저장</button>
+  <button type="button" onclick="downloadHex()" style="background:#fff;color:#1a5f3f">괘 JSON 저장</button>
+  <button type="button" onclick="downloadBoth()" style="background:#ffe08a;color:#333">둘 다 저장</button>
+  <div class="hint">칸을 직접 고친 뒤 「JSON 저장」을 누르면 파일이 내려갑니다. 내려받은 파일을 <code>data/core-summaries/</code> 에 같은 이름으로 덮어쓰세요.<br>
+  수리 → <code>suri-narrate-by-num.json</code> · 괘 → <code>hex-narrate-by-id.json</code></div>
+  <div style="margin-top:8px">
+    <a href="#suri">81수리</a>
+    <a href="#hex">64괘</a>
+  </div>
+</div>
+<div style="max-width:820px;margin:0 auto;padding:16px 16px 64px">
+<h2 id="suri"><font color="#1a5f3f">81수리 — 소비자 구술</font></h2>
+<table class="card" data-kind="suri" data-key="1" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#1 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>출발권위(出發權威)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">대장운·온건착실·부귀·명예·장수, 자기과신 기운입니다. 밝은 해가 중천에 떠오르듯 권세와 부귀영화가 따르는 대길운수로, 이 수리가 들어있는 사람은 어느 자리에 가든 자연스럽게 중심이 됩니다. 수양을 쌓고 덕을 베풀면 좋은 일이 끊이지 않으며, 사방에서 귀인이 나타나 도와주는 구조입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="2" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#2 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>분리파괴(分離破壞)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">육친무덕·실천력부족·고독·다사다난·가정파탄 - 분리·동요·불안·병고의운, 원기부족 기운입니다. 재주와 재능을 발휘하여 한때 부귀영화를 누리는 듯하지만, 원기가 부족하여 마치 모래 위에 세운 성처럼 어느 순간 와르르 무너지고 만다. 이름을 부를 때마다 &quot;흩어지고 깨지라&quot;는 주문을 외우는 것과 같으니, 가정이 파탄나고 처자식과 사별하거나 생이별하는 경우가 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="3" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#3 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>지도적 인물(指導的 人物)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">명예부귀겸전·초년출세·지 인 용 겸비, 대업을이루고 명성 기운입니다. 재치와 지혜가 뛰어나고 도량이 넓으며 명랑·활달하여 과단성 있게 일을 처리합니다. 30세 이전에 이미 자기 분야에서 기반을 잡고 이름을 날리는 경우가 많으며, 어느 방면으로 나가든 자연스럽게 지도자의 위치에 서게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="4" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#4 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>제사불성(諸事不成)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">박약박복·고독·불행·병약·좌절파괴·색난·패가망신·병고, 단명 기운입니다. 모든 일이 이루어지지 않는 흉수 중의 흉수다. 처음에는 만사가 순조롭게 잘 되어나가다가 &quot;이젠 됐다&quot; 싶을 바로 그 순간, 난데없이 재난이 닥쳐 실패의 고배를 마시게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="5" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#5 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>부귀봉록(富貴俸祿)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">복록·건강장수·만인지대장·지모출중·부귀영달, 입신양명 기운입니다. 성격과 자질이 온후하여 건실하며 사교술이 좋고 신망이 두터워 순조롭게 만사를 이룰수 있습니다. 건강하여 병에대한 저항력도 강합니다. 복록, 건강장수, 만인지대장, 지모출중, 부귀영달, 입신양명.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="6" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#6 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>계승발전(繼承發展)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">근면성실·신념, 부귀영화 기운입니다. 천성이 온후하고 견실하여 지혜와 덕을 쌓고 조상의 음덕을 입어 부귀영화를 누릴 수입니다. 그리고 확고 부동한 신념과 굳센 인내력으로 대체로 평생을 안락하게 보낸다. 근면성실, 신념, 부귀영화,여자이면 살림에 주도권을 잡고 원만한 가정생활.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="7" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#7 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>맹호출림(孟虎出林)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">대성·심신건강·초지관철·활동풍부, 장부기질 기운입니다. 맹호가 숲에 나타난 형상. 호랑이가 포효를 하는 것처럼 크게 성공합니다. 대성, 심신건강, 초지관철, 활동풍부, 장부기질. 심신이 강건,의지가 굳어 독립심이 강하고 초지관철, 풍부한 활동력 고무.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="8" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#8 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>수복겸전(壽福兼全)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">부귀와 장수를 겸해 누리는 길수. 부귀와 장수를 함께 누리는 대길운의 수다. 겉으로는 부드러워 보이지만 속으로는 단단한 외유내강의 기질을 지닌다. 자기자신에게 강한 외유내강, 냉정하고 확실한성격. 냉정하고 확실한 성격으로 일을 흐트러짐 없이 처리하니, 수복(壽福)을 겸하여 누릴 바탕이 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="9" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#9 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>대재무용(大材無用)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">너무 시대를 앞서 가다가 환경이 받쳐주지 않아 실패를 거듭하기 쉽습니다. 초년에 들면 예·체능에는 강하지만 실의에 빠지기 쉽고, 공부운이 뜻대로 풀리지 않는 경우가 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="10" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#10 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>만사허망(萬事虛望)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">재주가 많고 머리가 좋아 계획이 잘 풀리는 듯하다가 허망하게 무너지기 쉽습니다. 학교운·시험운·직장운이 따라주지 않아 학업이 중단되거나 결과가 허망해지는 경우가 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="11" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#11 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>중인신망(衆人信望)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">두뇌명석·가문부흥·근면·온순·착실, 부귀와 명예와 권위 기운입니다. 많은 사람들이 나를 좋아하며 따른다. 두뇌명석, 가문부흥, 근면, 온순, 착실, 부귀와 명예와 권위. 대인관계가 좋고 인정도 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="12" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#12 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>박약박복(薄弱薄福)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">일이 잘 되어 나가는 듯하다가 마지막에 실패를 맛보기 쉽습니다. 공부·사업·청혼처럼 끝을 맺는 일에서 아쉬움이 남기 쉽고, 초년에 들면 대학 진학이 어렵고 하향·지방대 지원이나 재수·삼수를 해도 목표 대학은 가기가 힘듭니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="13" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#13 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>총명지모(總明智謨)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지모출중·두뇌개발·선견지명·문예·입신양명·대세를 간파, 학위 획득 기운입니다. 권세와 재력을 함께 가질수 있는 천하를 호령하는 대길운. 슬기롭고 지혜로운데다 능숙하고 명석한 판단력으로 어떤 고난도 임기웅변으로 잘 개척해 나간다. 지모출중, 두뇌개발, 선견지명, 문예, 입신양명, 대세를 간파, 학위 획득.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="14" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#14 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>이산파멸(離散破滅)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">위기 앞에서도 독종 소리를 들을 만큼 열심히·치열하게 사는 힘이 있습니다. 다만 공부·일도 잘 나가다가 끝이 안 좋아지기 쉽고, 이별·이혼, 사고·감옥, 질병·수술 같은 이산파멸의 기운도 함께 봅니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="15" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#15 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>군계일학(群鷄一鶴)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">증인이양시·부귀영화·통솔복운·자립성공, 나쁜운이 비켜가는운 기운입니다. 통솔력이 있어 사람들을 지도합니다. 15, 15수가 겹쳐들면 모난돌이 정맞는다. 증인이양시, 부귀영화, 통솔복운, 자립성공, 나쁜운이 비켜가는운. 남들 보다 잘생겼고 미모 재주가 출중.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="16" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#16 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>덕망유복(德望裕福)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">마음씨가 너무 착해 남의 부탁을 거절하기 어렵고, 귀가 얇아 휘둘리며 보증을 잘 서는 특징이 있어 그 책임을 떠안기 쉽습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="17" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#17 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>명망사해(名望四海)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">적극성·강인한의지·권력추구, 자립성공 기운입니다. 이름을 세계에 떨친다. 그러나 자존심이 강하고 고집이 세다. 적극성, 강인한의지, 권력추구, 자립성공. 자기 고집을 꺽고 남의 말을 경청할 줄 알아야 다툼이 적고 자기 발전합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="18" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#18 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>부귀영달(富貴營達)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지모·신념·의지·대업·예술성(의술·기술, 예술 기운입니다. 뛰어난 지모와 굳은 신념으로 능히 대업을 이루는 장부의 기상입니다. 지모, 신념, 의지, 대업, 예술성(의술,기술,예술,공무원등 다방면으로 재능이 풍부,존경을 받는지위에 오른다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="19" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#19 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>고독비참(孤獨悲參)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">일시성공·두뇌명석·고독·질병·단명·파란만는이생, 병으로고생 기운입니다. 믿는 도끼에 발등 찍히고, 은혜를 입었던 자가 원수로 돌변하는 수입니다. 두뇌는 명석하여 한때 성공을 거두지만, 그 성공이 오래가지 못하고 반드시 배신과 고독이 찾아옵니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="20" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#20 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>백사실패(百事失敗)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">사물의 종말을 고하는 불운의 수라 쉬고 멈추어야 할 때입니다. 학업이 중단되거나 사업이 끊기기 쉽고, 총운에 20이 들면 그릇이 큰 거물이 나오기도 하지만 좋은 주역괘가 없으면 대개 50세 전후로 부도·감옥·큰 욕을 보는 경우가 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="21" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#21 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>두령지모(頭領智模)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지·인·용 겸비·성실·만인추앙, 부귀공명의 대길운 기운입니다. 남자는 뛰어난 지모와 덕량으로 설실하여 만인으로부터 추앙을 받아 신망을 얻고 인내와 노력으로 부귀 공명할 대길운의 수입니다. 그러나 여자인 경우는 남편의 운수를 눌러 부부가 이별 또는 사별하거나 단명입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="22" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#22 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>중도좌절(中途挫折)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지혜가 탁월하고 외모도 수려하여 한때 크게 치고 나가지만, 반드시 중도에서 좌절하는 야당운입니다. 사업도 공부도 결혼도 중도하차하기 쉽고, 때를 놓쳐 실패하는 경우가 많으며 암의 기운도 함께 봅니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="23" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#23 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>일흥중천(日興中天)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지·인·용 겸비·리더쉽, 포용력 기운입니다. 남자는 명철한 두뇌와 넓은 도량에 과단성있는 판단력으로 큰뜻을 이루고 성공할 대길운입니다. 즉 말단 사원이라도 사장, 회장까지 출세 할 길수입니다. 지,인,용 겸비, 리더쉽, 포용력, 초년성공의 대길운으로 말단 사원 이라도 사장, 회장 까지 출세할 길수.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="24" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#24 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>부귀영화(富貴榮華)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">부귀겸전, 성실노력 기운입니다. 재물풍부 적수공권이라 처음에는 아무것도 가진것이 없는 맨손이지만 꾸준히 노력하여 재산을 모은다. 성공해서 이름을 널리 떨칠 대길 운입니다. 부귀겸전, 성실노력, 권력추구 - 맨손 적수공권으로 여복의 행운도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="25" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#25 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>지모순조(智謨順調)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">자수성가·대업성공·지모출중·정계, 법조계 기운입니다. 뛰어난 지모에 재치있고 솔직하고 개성이 뚜렷해 자수성가하고 대업을 이룹니다. 자수성가, 대업성공, 지모출중,개성이 뚜렷하고 자수성가형 - 금융계,정계, 법조계, 사업가로 부귀영화를 이룹니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="26" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#26 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>영웅풍파(英雄風波)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">영웅호걸·투사·지사처럼 파란만장한 운수입니다. 공부와 일상이 안정적으로 이어지기보다 시련이 많고, 뛰어난 지모와 용맹으로 이름을 떨쳐도 자기과신으로 희생만 치르고 따돌림을 당하기 쉽습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="27" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#27 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>대인격 (大人格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">예술·스포츠·미남미녀, 자존심강함 기운입니다. 용모가 준수하여 미남미녀다. 영리하고 강인한 정신으로 노력하면 중년까지 순조롭게 발전하여 특히 예술계나 스포츠에 두각을 나타낸다. 예술, 스포츠, 미남미녀, 두뇌출중 하나 중도좌절 - 고집 및 자존심강함.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="28" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#28 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>파란풍파(波瀾風波)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">풍운아 격이라 인생의 파란곡절이 심하고, 공부·일도 한때의 성공으로 끝나기 쉽습니다. 자신에게 영화가 있으면 가정에 재앙이 있고, 가정이 평안하면 자신에게 괴로움이 따르는 불길한 수입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="29" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#29 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>권력재물(權力在物)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">재주 비상·지혜 풍부, 처세술능 기운입니다. 재주가 뛰어나고 지혜가 풍부합니다. 재치가 있으니 처세술에 능하여 특히 재산과 권력을 한번에 거머쥘수 있는 대길 운입니다. 재주 비상,지혜 풍부,처세술능, 재산과 권력을 한번에 거머쥘 대길운.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="30" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#30 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>길흉상반(吉凶相半)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">성패반복·과거탄식·대부호, 대기업가 기운입니다. 꾀가 많고 활달한 활동력과 투지로 큰성공을 거두지만 모든 일이 수포로 끝나는 등 성공과 실패가 거듭되니 허무한 과거만 탄식하는 격입니다. 분에 넘치는 야망과 일확천금의 헛된 꿈을 버리고 착실히 노력하면 성공을 오래 지닐수 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="31" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#31 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>자수성가(自手成家)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">날카로운 통찰력, 명성과 부귀의 대길운. 개화만발 지략이 뛰어나며 의지가 굳고 굽힘이 없어 날카로운 통찰력으로 사물을 명확히 판단합니다. 만난을 돌파하여 명성과 부귀를 누릴 대길 운입니다. 날카로운 통찰력, 명성과 부귀의 대길운 개화만발 지략이 뛰어나며 의지가 굳고 굽힘이 없어 날카로운 통찰력으로 사물을 명확히 판단합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="32" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#32 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>의외득재(意外得財)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">외유내강 기운입니다. 뜻밖의 찬스를 얻어 일약 성공할수 있는 수입니다. 왕성한 활동력과 외유내강한 처세로 윗사람의 원조나 후견에 큰 힘을 입어 순풍에 돛을 단듯 순조롭게 성장합니다. 외유내강, 뜻박의 기회를 잘 포착, 윗사람의 원조나 후견에 순조롭게 성공.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="33" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#33 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>권위충천(權威衝天)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">적극적사고·진취적행동, 과감한 추진력 기운입니다. 타고난 머리가 좋고 호탕한 기풍에 날로 번창하는 대길 운입니다. 재물을 모으고 명성을 천하에 떨칠수 있습니다. 머리가 좋고 호탕한 기풍, 적극적사고, 진취적행동, 과감한 추진력, 날로 번창하는 대길운.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="34" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#34 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>재화연속(災禍連續)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">뛰어난 외교술로 한떼 성공하나 본래 파멸할 불운의 수, 패가망신. 재앙이 연속으로 이어지는 수입니다. 대인관계에 재치가 있고 치밀한 계획성과 뛰어난 외교수완으로 한때 성공하는 수도 있으나, 본래 파멸할 불운의 수라 한번 불운이 시작되면 재난이 잇달아 닥쳐 패가망신합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="35" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#35 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>온유화순(溫柔和順)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">학자, 문학가, 교육가, 현모양처로 영민하고 온순하며 대인관계가 원만하고, 많은 부동산을 소유하고 장수하는 길운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="36" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#36 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>영걸시비(英傑是非)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">의협심·영웅적기질·파란곡절, 변화무쌍한 운 기운입니다. 호탕한 성품에 의협심이 강한 영웅의 운으로 파란곡절이 심합니다. 일세의 풍운아로 그명성을 천하에 떨쳐 만인이 추앙하는 대상이 되나 그 이면에는 변화무쌍한 운이 들어 있어 성공하면 곧 실패할 운이 뒤따라 기쁨과 슬픔이 쌍곡선을 이룹니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="37" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#37 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>권위인덕(權威仁德)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">명성과 권위를 떨칠 부귀공명 - 강인한 의지, 독립심이 강합니다. 지모와 계략이 뛰어나고 과단성이 있는 처세로 신망을 얻어 어려운 일을 물리친다. 천하에 명성과 권위를 떨칠 부귀공명의 운수입니다. , 결단력 과 추진력, 지모 와 계략, 과단성있는 처세.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="38" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#38 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>문예기예(文藝技藝)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">예술·창작·과학, 기술 기운입니다. 자신의 컨디션 조절을 잘 합니다. 기풍이 온화하고 머리가 뛰어나 문학, 예술, 창작, 과학, 기술, 발명등에 큰 업적을 남길수 있습니다. 자신의 컨디션 조절을 잘 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="39" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#39 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>위세강중(威勢强重)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">용기·재주·파죽지세, 부귀장수 의 대길운 기운입니다. 재주와 계략이 뛰어나고 요감무쌍해 능히 만사를 극복하고 뭇사람을 거느릴 장군의 격입니다. 기회를 얻으면 파죽지세로 일약 성공을 거두어 위세와 명성을 천하에 떨치니 세인들의 존경을 한 몸에 받으며 부귀장수를 누릴 대길운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="40" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#40 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>변화공허(變化空虛)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">한때 성공도 허사 - 투기로 성공 하나 성공과 실패가 많습니다. 지모가 뛰어나고 담력이있어 투기사업 등으로 큰 성공을 거둘수 있으나 성공과 실패가 변화무쌍해 한때의 성공도 허사가 되니 비난속에 허무감을 맛보며 고독하게 지낼 운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="41" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#41 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>선견고명(先見高名)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">용모준수·덕망·인품, 선견지명 기운입니다. 인품이 준수하고 재주가 뛰어나며 미모가 단정합니다. 덕망이 있어 세인의 존경을 받아 재운과 명성을 얻을수 있는 길운입니다. 용모준수, 덕망, 인품, 선견지명, 천추유명 - 재운과 명성등 선견지명으로 지도자가 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="42" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#42 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>파란지초(波瀾自超)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">문학·예술, 행정등) 기운입니다. 성공 하려면 온갖, 고통, 괴로움, 재난이 옵니다. 특히 의지가 약하면 귀가 얇아 남의 말에 현혹되기 쉬우며 실천력이 약해 발전에 장애를 받아 좋은 기회를 잃고 고독한 가운데 수난을 격는다. 귀가 얇아 남에 말에 현혹도기 쉽고 실천력 부족으로 발전에 장애 - 예능에 소질(기술, 문학, 예술, 행정등) 성공 하려면 온갖, 고통, 괴로움, 재난이 옵니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="43" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#43 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>패가망신(敗家亡身)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산재운, 겉보기엔 행복하나 실속이 없습니다. 겉보기엔 행복해 보이지만 실속이 없는 수입니다. 일시적으로 성공을 거두어 행복한 듯 보이지만, 의지가 약하고 재물이 사방으로 흩어지니 아무리 벌어도 불의의 재난을 당하여 재산을 모으지 못합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="44" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#44 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>백전백패(百戰百敗)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">헛된 생각과 꿈으로 마수와 장애를 스스로 불러들여 사기나 횡령으로 신세를 망치는 수가 있습니다. 백 번 싸워 백 번 지는 수입니다. 그러나 뛰어난 재능에 더하여 분수를 잘 지키면 큰 탈이 없으니, 차근차근 성공하여 대학자·종교가·대발명가로 인망을 얻어 부귀공명하고 장수할 길운이 되기도 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="45" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#45 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>통달사해(通達四海)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지혜와 계책이 뛰어나며 큰 뜻을 품고 넓은 아량과 덕성을 가져 순풍에 돛을 단듯 순조롭게 대성하니 그 명성. 과 권위를 해외에까지 떨칠 길운입니다. 여자의 경우도 현모양처로 내조의 공을 쌓고 안락한 생활을 할 길운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="46" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#46 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>곤궁신고(困窮辛苦)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">중년이후 불의 재난으로 목숨을 잃고 고독,단명의수. 먼지 속에 묻힌 아름다운 보배, 즉 진중가옥(珍重佳玉)과 같아 영웅재사가 때를 얻지 못해 자연에 묻혀 지내는 격입니다. 지모가 출중하고 예의와 지조를 갖춘 인걸이지만, 고학·노력 끝에 성공한 뒤 반드시 실패가 찾아옵니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="47" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#47 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>일확천금(一擴千金)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">의지가 굳세고 독립심이 강해 관공서나 공익사업, 교육또는 종교계로 나아가 명성을 떨칠 길운입니다. 앞으로 나아가면 뒤로 물러가지 아니하니 오직 이득만 있을뿐 손해를 보지 않는 운수로 큰 재산을 모으고 자손과 편히 복록을 누릴 운수입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="48" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#48 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>배후조종(背後操縱)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">덕망있고 강직, 온화한 성품으로 남을 선도 하는 입장. 덕망이 있고 강직하면서도 웬만한 성품은 만인의 모범이 되어 자신의 사업을 일으키기 보다는 남을 선도하는 입장의 고문이나 상담역할을 하면 복록을 잃지 않는다. 재물을 자손에게 물려주며 사회적으로 신망이 두터워 경사가 항상 집안에 이르고 부부 또한 사이가 좋으니 매사가 안락하고 순탄하게 이루어진다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="49" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#49 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>선가은퇴(仙家隱退)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">비범한 재능 으로 성공 하지만 실패와 성공을 반복 하는 변화무쌍 운수. 비범한 재능으로 자수성가로 성공하여 높은 지위가 됩니다. 한번 성공하면 한번 실패하고 다시 성공하였다가 다시 실패하는 변화무쌍한 운수입니다. 갑자기 뜻밖의 재난이 옵니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="50" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#50 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>공허실의(空虛失意)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">의지가 약하고 자립심이 부족해 비록 다른 사람의 도움으로 성공을 거둔다해도 폭풍우는 바다에 뜬 돛단배와. 같아 항상 위험과 불행이 뒤따르고 병고와 재난을 당합니다. 그 지위나 재산도 오래가지 못하며 초년은 부귀를 누리지만 말년을 실패로 거듭하니 패가망신하는 불행한 생애를 보낸다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="51" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#51 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>파란변동(波瀾變動)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">진취적이며 자립심이 강해 한때 크게 성공을거두나, 모두 한바탕의 꿈으로 돌아갈 흉운도 내포대어 있으므로. 항상 마음을 놓지 말고 수련 해야합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="52" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#52 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>비룡승천(飛龍昇天)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">운세대길 기운입니다. 운세가 대길하여 아무리 어려운 문제에 직면해도 뛰어난 지혜와 불굴의 투지력으로 능히 돌파하여 성공합니다. 계획이나 발상이 뛰어나 투기적인 사업에도 대성공을 거두어 부자로 이름을 떨친다. 운세대길, 계획이나 발상이 뛰어나 투기적 사업도 대성공, 선견지명이 있는 대길운.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="53" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#53 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>외화내빈(外華內貧)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">겉으로 보기에는 부유한 듯하나 실속이 없어 궁핍하며 번민이 많은 운입니다. 후반생이 불행하고, 후반생이 편안하면 전반생이 불행하여 고생을 많이 합니다. 전반생이 안락하면 후반생이 불행하고, 후반생이 편안하면 전반생이 불행하여 고생을 많이 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="54" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#54 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>절망불구(絶望不久)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지혜가 남달리 뛰어나고 용모가 단정하여 대업을 이룹니다. 대개 반생은 길운이나 말년은 패가망신하는 흉수입니다. 고생, 역경, 비운 등이 내포된 수리이므로 대개 반생은 길운이나 말년은 패가망신하는 흉수입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="55" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#55 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>극성극쇠(極盛極衰)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">파란 많은 인생 행로. 꾸준한 노력과 불굴의 투지로 다사다난하고 파란곡절이 많은 인생을 헤쳐나가 마침내 큰 성공을 거두어 명성을 날리고 누린다. 그러나 말년에는 자식의 덕이 없고 병으로 고생하는 수가 있습니다. 명성을 날리고 재복을 누리지만 말년에 자식덕이 없고 병으로 고생 하는수.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="56" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#56 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>변전무상(變轉無常)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">성격이 온순하고 재주가 있고 덕망이 있어 신망을 받아 상당한 지위에 오르나 사업을 시작하면 모든 일이. 뜻대로 안됩니다. 중년이후 점차쇠약하여 고독,불행한 여생.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="57" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#57 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>고진감래(苦盡甘來)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지혜가 뛰어나고 행운으로 성공하여 부귀영화를 누릴 대길운. 어떠한 어려움이 있어도 능히 극복하여 번영을 누리고 해외에까지 명성을 떨친다. 해외까지 부귀영화로 명성을 누릴 대길운.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="58" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#58 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>명성부귀(名星富貴)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지조가 곧고 매사에 결단성이 있으며 재주가 뛰어나 명성을 떨치고 부귀영화를 누릴 길조입니다. 만인이 우러러보며 명예와 재물을 누리는 행운의 수입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="59" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#59 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>의지박약(意志薄弱)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">인내심이 부족하고 용기가 없습니다. 운명으로 일생을 불행하게 보낸다. 인내심이 부족하고 용기가 없습니다. 비록 재능이 있어도 아무 소용이 없습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="60" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#60 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>봉록자실(捧錄自失)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">봉록을 바라나 다 잃어 버린다. 복과 벼슬을 바라지만 가져도 다 잃어버린다. 되지도 않는 일로 결과를 원하니 나무 밑에서 감 떨어지길 바라는 격입니다. 되지도 않는 일로 감 떨어지길 바란다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="61" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#61 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>영화격(榮華格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">견고한 지조와 결단성, 재치가 출중하여 대업을 순성하고 상하의 신망을 얻어 부귀안정. 견고한 지조와 매사에 결단성이 있고 재치가 출중하여 대지대업을 순성하고 상하의 신망을 얻게 되며 능히 목적을 달성하게 되니 부귀안정합니다. 사회적인 신망이 돈독하여 만인의 사표가 되고 주변의 신망을 얻어 사회적인 명성을 얻게 되는 길한 수리입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="62" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#62 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>막막격(寞寞格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">운기가 쇠퇴하여 만사가 불성이요 사회적 권위와 신용도 타락하여 패가망신하고 병약·곤고 등이 따르는 흉운. 하는 일마다 실패를 거듭하고 사회적으로는 신망을 얻기 어려우니 심신이 고달프다. 산 너머 산이라 힘겹게 성공을 이루면 예기치 못한 재앙으로 사면초가에 막막함이 가중되니 일생이 답답하고 파란만장한 비운의 생을 살게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="63" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#63 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>길상격(吉祥格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">경영하는 모든 일이 순조로이 발전하여 목적을 달성하고 명예와 행복을 누리는 행운의 길상수. 고난이 닥치더라도 인내와 끈기로 이겨내며 노력에 비해 그 결실이 풍요로우니 마음만 먹으면 못 이룰 일이 없습니다. 기품과 재략이 뛰어나고 부귀와 공명을 함께 얻을 수 있는 길한 격이므로 일생동안 행운이 따르게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="64" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#64 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>고행격(苦行格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">꽃봉오리가 찬 서리를 만난 격. 꽃봉오리가 찬 서리를 만난 격으로서 운기가 쇠퇴하여 좋은 계획을 세워도 모두 실패하고 패가망신·재난이 끊일 새 없으니 병난·단명 등 흉운의 수리입니다. 의욕만을 앞세워 일을 진행하니 일의 시작은 있으나 끝마무리가 어렵고 무리한 결단력으로 중대사를 그르치게 되니 한평생 굴곡이 심한 생을 살게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="65" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#65 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>달성격(達成格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">해가 충천한 격으로 제사가 형통하여 금과 옥이 집에 가득하고 사회적으로 상당한 지위에서 만인을 지휘하며 가문이 번창하는 대길상. 성품이 온화하고 마음이 너그럽고 신의와 성실로서 주변 사람들의 신망을 받으니 모든 일들이 뜻하는 대로 잘 풀려가고 재물과 명예가 부족하지 않다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="66" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#66 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>망망격(茫茫格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">어두운 밤에 행인이 등불을 잃은 격. 어두운 밤에 행인이 등불을 잃은 격이니 진퇴양난에 전도가 암담하여 재화가 속출하고 가정불안·패가망신·병약·곤고 등이 따른다. 매사에 계획성이 없으므로 착오가 생기고 끝까지 마무리되는 일이 없으니 하는 일마다 장애가 생겨 제대로 진행되는 일이 없습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="67" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#67 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>성장격(成長格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">모든 난관을 돌파하여 경영하는 일이 순조롭게 발전. 모든 난관을 돌파하여 세사에 통효하니 경영하는 일이 순조롭게 발전합니다. 천부의 행운으로 가도흥왕·부귀행복을 누리는 길상의 행운 수입니다. 지와 덕을 겸비하니 하는 일마다 순조로운 발전을 이루고 만사가 형통합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="68" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#68 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>발명격(發明格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">명리적 두뇌로 사물에 대한 궁리가 세밀하여 창의적인 발명의 특질로 창작발명에 대성을 기하여 전진발전하며 행복을 누리는 길상. 무에서 유를 창출해내는 능력이 우수하고 실속 있게 일을 처리해 나가므로 주변으로부터 인정을 받는다. 건실하고 근면한 노력으로 하는 일들이 거듭 성공을 이루니 부귀영화가 따르게 되고 가정이 안정되니 천하에 부러울 것이 없는 길한 수리입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="69" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#69 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>궁박격(窮迫格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">시작은 그럴듯하나 점차 운이 쇠퇴하여 모든 일이 불안전하고 파란이 돌출. 가족이 뿔뿔이 흩어져 사는 등 부부가 융화하지 못하고 가족이 화합하지 못해 고독하게 되고 병약·고난·자살·단명 등 악운중의 악운을 유도하는 수입니다. 마음이 항상 불안하고 근심이 끊이지 않으니 의지가 박약하고 우유부단하여 제대로 일을 처리할 능력을 상실하는 흉격입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="70" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#70 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>공허격(空虛格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">암울한 성품에 매사에 자신감이 결여되어 있고 주변에 늘 걱정거리가 생긴다. 부부운마저 악인연을 만나 서로 원수처럼 생각하는 등 형액·불구·횡사·단명의 비참한 운세를 유도하는 수입니다. 계획하는 일마다 제대로 진행되는 일이 없으며 사방을 둘러보아도 적막할 뿐 한숨이 그칠 날이 없습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="71" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#71 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>견실격(堅實格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">착실한 성품에 용모가 준수하고 사교적. 착실한 성품에 용모가 준수하고 사교적입니다. 장래성이 밝으며 사회적으로 덕망과 능력을 인정받아 출세를 합니다. 초년 역경을 극복하고 자수성가하는 선고후감의 수. 착실한 성품에 용모가 준수하고 사교적입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="72" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#72 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>상반격(相半格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">외행내흉격으로 길흉이 상반이요 선부후곤. 외행내흉격으로서 길흉이 상반이요 선부후곤이라. 전반은 행복하나 흉운으로 빠져드는 운의 수입니다. 전반은 행복하나 중반 이후 돌발적인 사고와 재난으로 부와 명예가 실추되는 흉한 수. 그러나 극단적인 인생의 반전은 없이 무난하고 소탈한 삶을 살게 되는 경우도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="73" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#73 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>평범격(平凡格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">실천력과 인내력이 부족하나 자연의 복지를 향수하고 생애가 무난하고 평길 안과하는 운. 실천력과 인내력이 부족하여 대업은 이루나 자연의 복지를 향수하고 있는 고로 생애가 무난하고 평길 안과하는 운의 수입니다. 비록 지혜와 용기와 결단력이 부족하다 하여도 평범함을 추구하고 작은 행복 속에서 만족한 삶을 영위하므로 무난하고 평탄한 삶을 살게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="74" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#74 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>우매격(愚昧格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">다방면으로 재주는 풍부하나 부침과 동요가 많아 재능이 사멸되고 일에 실패가 많습니다. 뜻하지 않는 불의의 재액과 사고로 웅지를 펴 볼 수도 없는 운이 야기되며 한평생을 무위도식하게 되는 등 변란·변고·횡액·조난·불구 등을 유도합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="75" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#75 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>안길격(安吉格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">타고난 심성이 온유유덕하고 지적이며 냉철한 사고력이 겸비되어 매사에 능수능란하여 스스로 대성하고 만인의 신망을 얻는 길운. 적극적인 모습보다는 소극적이지만 실속을 차릴 줄 알며 신중한 자세를 잃지 않는다. 사회적으로 안정된 기반을 만들 수 있으며 다정다감한 부부애로 백년해로 할 수 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="76" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#76 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>후길격(後吉格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">조상으로부터 물려받는 유산이 없고 육친이 무덕. 초년에는 곤궁하고 좌절을 피할 수 없지만 인내로서 극복하여 말년으로 갈수록 추진하는 업무도 발전하고 금전운도 상승하여 대내외적 안정 속에 복록을 누리게 됩니다. 가세도 흥왕하고 부부 해로하는 선흉후길의 수입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="77" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#77 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>활성격(活盛格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">초년에는 고생을 모면하기 어려우나 점차로 발전하는 상으로 변합니다. 사색적이고 치밀한 계산력과 판단력이 출중한 성품입니다. 꾸준히 노력하는 자세를 인정받고 경영하는 일마다 귀인의 도움이 그치지 않으므로 위기를 지혜롭게 극복하여 큰 성공을 이룹니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="78" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#78 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>무력격(無力格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">타고난 재능으로 초년에는 어느 정도 성공을 이루나 중반으로 갈수록 운이 쇠퇴하여 곤란한 일을 당하게 되는 수. 재치가 있고 성품이 섬세하여 주변에 따르는 사람이 많지만 도움을 줄만한 귀인은 없습니다. 실천력이 부족하여 목적 달성이 용이하지 않고 점차 운세가 쇠퇴하여 금전적 고충을 겪고 인간적 갈등을 일으킨다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="79" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#79 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>불신격(不伸格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">행운이 따르지 않으므로 뜻을 이루지 못하고 중도에 좌절하거나 질병으로 단명하게 되는 흉격. 정신이 혼미하고 의지가 박약하여 자립이 힘들며 병고가 있어 활동을 제대로 못하는 형상입니다. 아무리 노력을 하여도 그 결과는 불만족스럽거나 이익보다는 손실이 크니 매사가 퇴보하고 경제적 고충을 겪게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="80" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#80 · 흉수</b></font><br>
+<font color="#CC0000" size="3"><b>종말격(終末格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">애써 이룬 일들이 좋은 결실을 맺기 어렵습니다. 일생동안 고난이 끊이지 않으니 생각이 좁고 고집이 강해 타인과 융화하기 어렵고 운세마저 밝은 태양에 먹구름이 끼는 형상이니 뜻하는 일이 제대로 이루어지지 않는다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="suri" data-key="81" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#81 · 길수</b></font><br>
+<font color="#0040FF" size="3"><b>환원격(還元格)</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">하늘이 열리는 최길상, 최극의 수리로서 천지개벽 후에 원소가 1로 환원 하는 일도 광명의 수리. 대자연의 영동력이 가장 큰 만물 창시격의 수. 대성운 - 吉 하늘이 열리는 최길상, 최극의 수리로서 천지개벽 후에 원소가 1로 환원 하는 일도 광명의 수리.</textarea>
+</td></tr></table>
+<h2 id="hex"><font color="#1a5f3f">64괘 — 소비자 구술</font></h2>
+<table class="card" data-kind="hex" data-key="1" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#1 · 중성</b></font><br>
+<font color="#666666" size="3"><b>건위천</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">세상에서 가장 존귀한 최고 지존의 괘로써 귀인이 이 괘를 얻으면 크게 성공할 수 있지만 범인은 괘의 위력에 압도당해 흉운을 면하기 어렵습니다. 초년에 들면 학교 다닐때 1등을 하거나 보스기질이 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="2" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#2 · 중성</b></font><br>
+<font color="#666666" size="3"><b>천택리</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">선,후배의 도움을 받아 출세의 기회를 얻을 수 있습니다. 그러나 남보다 앞장서려 욕심을 부리면 재난을 당합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="3" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#3 · 중성</b></font><br>
+<font color="#666666" size="3"><b>천화동인</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">영웅의 풍모로 큰 리더쉽을 가진 지도자의 기운입니다. 강직하고 총명하며 윗 사람의 총애를 받고 아랫사람이 따르니 협동을 필요로 하는 사업에 대길합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="4" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#4 · 중성</b></font><br>
+<font color="#666666" size="3"><b>천뢰무망</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">천뢰는 하늘에서 내리는 벼락이니 모든 일을 무리하게 벌리지 말고 분수를 지키고 순리를 따르는 길이 현명합니다. 또 고집을 버리고 순진하게 행동을 해 나가면 혜택을 받는다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="5" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#5 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>천풍구</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">많은 사람을 먹여 살리는 기운입니다. 여왕벌의 운명이고 여자의 경우 사회생활에 성공합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="6" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#6 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>천수송</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">가뭄 끝에 물, 송은 소송의 뜻으로 구설, 관재수가 있을 괘입니다. 그러므로 매사를 깊이 생각하고 타협심을 길러 화친에 힘쓰도록 해야 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="7" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#7 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>천산둔</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">정신적, 물질적, 육체적으로 너무 힘들어 깊은 산속으로 달아나 숨어 버리고 싶을 만큼 험난하고 스트레스가 많습니다. 쇠운을 향하고 있는 때.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="8" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#8 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>천지비</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">천기는 내려오지 않고 지기는 오르지 않는 막힘이 있는 부정적인 괘입니다. 막혀서 통하지 않으니 갑갑합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="9" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#9 · 중성</b></font><br>
+<font color="#666666" size="3"><b>택천쾌</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">윗자리에 있는 소인을 퇴치해 버린다는 뜻이 있습니다. 방해물을 밀어내고 전진하는 상태이며 자칫 아집으로 고립 되기도 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="10" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#10 · 중성</b></font><br>
+<font color="#666666" size="3"><b>태위택</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">언변이 좋고, 미식가가 많습니다. 같은 기운으로 화뢰서합이 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="11" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#11 · 중성</b></font><br>
+<font color="#666666" size="3"><b>택화혁</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">혁은 개혁을 의미합니다. 의욕과 열정이 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="12" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#12 · 중성</b></font><br>
+<font color="#666666" size="3"><b>택뢰수</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">2인자의 운이며 남을 돕는 기운입니다. 내조를 잘 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="13" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#13 · 중성</b></font><br>
+<font color="#666666" size="3"><b>택풍대과</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">이른 나이에 큰 자리에 오르는 기운입니다. 너무 강해서 힘이 넘치는 상황입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="14" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#14 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>택수곤</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">흐르지 않는 물이라(고인물 )막힘이 있어 곤궁함을 뜻합니다. 곤은 곤란이라는 글자 대로 초목에 물이 마른 것과 같아 기운이 쇠하고 무엇을 해도 잘 되지 않는 때 입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="15" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#15 · 중성</b></font><br>
+<font color="#666666" size="3"><b>택산함</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산위에 못이 있음을 상징한 괘이니 사람들을 포용하고 함께 나가면 기쁜 일이 많을 것입니다. 모두 함께의 뜻으로 마치 오케스트라의 수많은 단원들을 조율하여 아름다운 화음을 만들어 내는 것처럼 팀워크를 이루어 하는 일에 능하고 통솔력과 리더쉽의 능력을 보여 주니 팀워크, 동업, 지도자, 경영자의 자질도 갖춘 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="16" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#16 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>택지췌</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">모든 물질이 모여든다. 한번 사업을 벌이면 만사가 잘 되어 간다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="17" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#17 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>화천대유</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">태양이 높이 떠 만물을 비추는 상입니다. 큰 부자라는 의미입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="18" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#18 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>화택규</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">눈흘길 &quot;규&quot; 자로 서로 상반되는 기운이라 적의를 품어 쟁론을 벌이기 쉽습니다. &quot;천추원한백골혼&quot; 이라는 의미도 있어 불의의 사고를 당하기도 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="19" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#19 · 중성</b></font><br>
+<font color="#666666" size="3"><b>이위화</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">태양이 두개가 하늘 가운데 떠 있으니 화려함의 극치를 이룹니다. 밝고 화려하며 건강이 넘치고 모든 것이 알맞게 균형을 이루는 편안한 시기.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="20" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#20 · 중성</b></font><br>
+<font color="#666666" size="3"><b>화뢰서합</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">언변이 좋고, 미식가가 많습니다. 같은 기운으로 태위택이 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="21" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#21 · 중성</b></font><br>
+<font color="#666666" size="3"><b>화풍정</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">제사장의 운명이라 하늘의 도움으로 출세합니다. 총명하고 슬기롭다는 의미도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="22" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#22 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>화수미제</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">대 경영주의 운입니다. 이제부터 희망을 가지고 소원을 성취합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="23" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#23 · 중성</b></font><br>
+<font color="#666666" size="3"><b>화산려</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산은 그 자리에 있는 정거장과 같으나 불은 자리가 옮겨지며 바뀌게 되므로 여행자와 같다. 그러므로 여행길은 불안정하고 고생과 걱정이 항상 따르겠으나 사업이나 무역업 종사자에게는 오히려 좋은 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="24" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#24 · 중성</b></font><br>
+<font color="#666666" size="3"><b>화지진</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">아침에 뜨는 태양으로 진취, 향상을 뜻하며 해를 향해 승천하는 것 같은 왕성한 운세입니다. 따라서 사업은 날로 번창하고 윗사람으로부터 도움을 받고 동료간에도 부러움을 사고 인기를 끌 것이나 자칫 겉보기는 화려하나 속은 텅빌 수 도 있으니 내실에 힘써야 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="25" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#25 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>뇌천대장</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">크게 장엄합니다. 하늘에 뇌가 있음을 상징하므로 강건하고 장엄한 기세가 지나친 뜻이라 하겠다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="26" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#26 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>뇌택귀매</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">왕의 일을 하게 된다는 뜻이니 왕공의 일입니다. 운동선수의 경우 금매달을 따는 사람이 많이 있기도 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="27" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#27 · 중성</b></font><br>
+<font color="#666666" size="3"><b>뇌화풍</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">성대하고 풍부함을 이룹니다. 겉보기는 화려하나 내면적으로는 곤란을 겪는 수 도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="28" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#28 · 중성</b></font><br>
+<font color="#666666" size="3"><b>진위뢰</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">소리만 요란하고 정작 손에 든 것이 없는 외화내빈의 상태입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="29" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#29 · 중성</b></font><br>
+<font color="#666666" size="3"><b>뇌풍항</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">마치 톱니바퀴가 맞물려 돌아가는 형상으로 어떤 일이 벌어지면 그 상황에서 벗어나기 힘든 상태가 된다는 뜻. 항상 항구적인 의미이나 천둥과 바람이 일어나니 내연의 남녀관계로 고민 하기도 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="30" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#30 · 중성</b></font><br>
+<font color="#666666" size="3"><b>뇌수해</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">얼음물을 녹인다는 의미로 순조롭게 진행 된다는 뜻, 봄철에 비가 내리니 새싹들이 다시 소생하고 말랐던 초목들도 다시 살아난다는 뜻으로 모든 일이 풀리므로 놓치지 말고 적극적으로 나아가면 행운을 획득할 수 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="31" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#31 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>뇌산소과</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">작은 일은 성공하나 큰 일을 실패하기 쉽습니다. 그래서 소과라 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="32" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#32 · 중성</b></font><br>
+<font color="#666666" size="3"><b>뇌지예</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">빈틈없는 계획과 결단력으로 위세를 떨치고 크게 성공합니다. 미리 준비한다는 의미가 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="33" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#33 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>풍천소축</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">뜻을 이루려 해도 막힘이 있어 앞으로 나아가기가 어렵습니다. 절치절욕지상으로 잘 나가다가 갑자기 장애물이 나타나 앞길을 막아 버려 너무 억울하고 원통한 일이 생기므로 어금니를 깨물고 피눈물을 흘리게 된다는 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="34" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#34 · 중성</b></font><br>
+<font color="#666666" size="3"><b>풍택중부</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">어미새가 알을 품고있는 상태로 안락한 상태이지만 날수 는 없습니다. 펜으로 먹고 사는 사람이 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="35" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#35 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>풍화가인</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">집을 지키는 사람이라는 뜻으로 주변에 사람을 많이 끌어당기는 운입니다. 한집안 식구가 합심하여 가세를 일으키는 것과 같다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="36" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#36 · 중성</b></font><br>
+<font color="#666666" size="3"><b>풍뢰익</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">사람들에게 이익이 되게 하는 경향이 강합니다. 적극적으로 나가면 반드시 남의 도움을 받게 되고 크게 번창합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="37" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#37 · 중성</b></font><br>
+<font color="#666666" size="3"><b>손위풍</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">하나를 던지면 세개를 건지는 상입니다. 번영, 번창, 발전을 계속해 나가는 운이나 의심 이 많고 고집이 강하니 겉과 속이 달라 진퇴양난에 빠지는 수도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="38" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#38 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>풍수환</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">모든 것을 다 흩어버리고 새 판을 짜는 기운으로 면모를 일신하는 운이 있고 풍파를 격고서 차차 곤란한 일이 풀려 마침내 목적을 이룸을 나타낸다. 지나친 자존감으로 고독에 빠지는 경우도 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="39" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#39 · 중성</b></font><br>
+<font color="#666666" size="3"><b>풍산점</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">점점 성장한다는 의미가 있습니다. 그러나 큰 성공은 하지 못합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="40" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#40 · 중성</b></font><br>
+<font color="#666666" size="3"><b>풍지관</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">덕망운이 천리에 뻗쳐 윗사람이 그 이름을 듣고 높은 자리를 주어 초빙한다는 의미로 처음은 좋으나 평지에 풍파가 일어 만사가 허망하게 끝나는 수도 있습니다. 누군가 나를 유심히 지켜 본 사람이 높은 자리와 좋은 대우를 제시하며 스카우트를 한다는 것이니, 관운, 승진운, 시험, 결혼등을 나타내는 반면 사주가 나쁜 사람에게는 그 결말이 허망하게 끝날 수 있다는 암시가 숨어있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="41" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#41 · 중성</b></font><br>
+<font color="#666666" size="3"><b>수천수</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">참고 기다리면 주변의 도움과 친지등의 후견, 원조로 성공의 길로 간다는 운세. 무모하게 일을 벌리지 말고 실력을 쌓으면서 기다리면 귀인들이 도와 마침내 남들 보다 잘난 인물로 성장하는 운세입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="42" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#42 · 중성</b></font><br>
+<font color="#666666" size="3"><b>수택절</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">물과 못은 절입니다. 절도를 지키라는 의미에서 절괘입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="43" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#43 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>수화기제</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">이미 이루었다는 의미에서 기제입니다. 괘의 배치가 완벽합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="44" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#44 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>수뢰둔</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">둔은 험난하고 어렵다는 뜻으로 모든 일이 시기가 와야 이루어질 수 있으므로 일을 조급하게 서두르면 반드시 실패하고 만다. 자칫 수난을 당하거나 긴 여행에 재난을 당할 염려가 있으며 금전이나 주거문제로 인해 고민을 하게 되겠다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="45" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#45 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>수풍정</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">퍼도 퍼도 마르지 않는 샘물입니다. 좋은 우물은 물을 퍼낼수록 새로운 물이 솟아오르니 큰 부자의 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="46" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#46 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>감위수</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">물 위에 또 물이 겹쳐 있는 형국으로, 고난이 그칠 날이 없음을 나타낸다. 대해편주지상(大海片舟之象)으로 성난 바다 한가운데 조각배에 몸을 의지하고 있으니 언제 뒤집어질지 앞날을 예측할 수 없습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="47" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#47 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>수산건</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산위에 물이 있는 형상으로 진퇴가 막막하니 앞으로 나아갈 길이 막혀 곤경에 빠지는 경우가 있습니다. 건은 절름발이를 뜻하므로 현실과 꿈의 균형이 맞지 않아 똑바로 전진하지 못해 고전을 한다는 뜻입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="48" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#48 · 중성</b></font><br>
+<font color="#666666" size="3"><b>수지비</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">타인의 도움을 얻게 되니 순조롭게 뜻을 이룰 수 있습니다. 대문장가의 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="49" width="100%" cellpadding="10" cellspacing="0" bgcolor="#BFD7FF" style="border:3px solid #0040FF;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#0040FF" size="2"><b>【길】</b></font>
+<font color="#0040FF" size="2"><b>#49 · 길괘</b></font><br>
+<font color="#0040FF" size="3"><b>산천대축</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">크고 높이 쌓는다고 해서 대축입니다. 큰 부를 축적할 운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="50" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#50 · 중성</b></font><br>
+<font color="#666666" size="3"><b>산택손</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">고진감래로 처음엔 안 좋고 나중엔 좋아지는 것입니다. 처음엔 비포장 도로를 달리다가 나중에 아스팔트를 만나는 형국입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="51" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#51 · 중성</b></font><br>
+<font color="#666666" size="3"><b>산화비</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">관운·승진운·재물운·건강운에 좋고, 화려한 업종 즉 패션·디자인·연예·방송·모델·예술·유흥업 관련 업종에 해당됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="52" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#52 · 중성</b></font><br>
+<font color="#666666" size="3"><b>산뢰이</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산을 찌렁 찌렁 울릴 정도의 큰 우뢰 소리에 모두 놀라 우뢰가 떨어진 곳을 가보니 아무것도 남아 있는 것이 없었다. 즉 누가봐도 아주 대단히 잘 나가는 것 같은데 손에 쥔 것은 별로 없을 것 이라는 의미.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="53" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#53 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>산풍고</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">재물, 건강, 사람을 잃는 등 세가지 큰 고통을 겪는다. 매우 불길한 기운을 내포하고 있으니 여러가지 고통이 수레바퀴처럼 계속 이어질 우려가 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="54" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#54 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>산수몽</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">어리석음을 나타내는 것으로 현실보다 이상을 추구하는 기운이라 종종 자기자신도 놀라울 정도로 엉뚱한 결정을 하여 실패를 맛보고, 하루밤에도 빌딩을 몇채나 지었다 허물었다 할 것이고 후회막급의 결정을 자주 벌이게 되니 재물과는 거리가 멀다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="55" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#55 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>간위산</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">산 넘어 산 이라는 뜻으로 계속해도 헛되다. 외고집에 자만심이 강하여 남과 자주 불화를 빚으므로 출세에 지장이 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="56" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#56 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>산지박</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">벼랑 끝에 대롱대롱 매달려 있는 아주 위태로운 상태를 의미합니다. 비바람에 살점이 떨어져 나가는 아픔과 함께 부도 일보 직전의 어려움을 겪는다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="57" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#57 · 중성</b></font><br>
+<font color="#666666" size="3"><b>지천태</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">만사 형통하여 천하가 태평합니다. 귀인에게는 아주 큰 길운이지만 범인 에게는 자칫 무사안일로 헛 일을 벌려 고생을 사서 하거나 색난에 빠져 재난을 당할 수 있습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="58" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#58 · 중성</b></font><br>
+<font color="#666666" size="3"><b>지택림</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">많은 사람위에 군림 하는 것으로 많은 사람이 나를 따르고 나를 우러러 본다. 인기연예인, 정치가, 선생님, 교수, 교사, 강사등에 많습니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="59" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#59 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>지화명이</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">태양이 땅속에 있는 형상으로 어두움이 몰려오는 형상이므로 우울증 등이 오기도 합니다. 땅과 불은 명이(明夷)입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="60" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#60 · 중성</b></font><br>
+<font color="#666666" size="3"><b>지뢰복</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">지뢰복은 모든 것을 다 던져버리고 새롭게 시작한다, 회복한다, 복구한다는 기운입니다. 모든 것을 던져 버리고 새로이 시작합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="61" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#61 · 중성</b></font><br>
+<font color="#666666" size="3"><b>지풍승</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">일약대옥승의 기운. 한번 몸을 일으켜 정상에 오르는 기운입니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="62" width="100%" cellpadding="10" cellspacing="0" bgcolor="#E0E0E0" style="border:3px solid #666666;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#666666" size="2"><b>【중】</b></font>
+<font color="#666666" size="2"><b>#62 · 중성</b></font><br>
+<font color="#666666" size="3"><b>지수사</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">군사, 전쟁을 뜻한다(이순신 장군의 이름에 있다), 산사태를 일으키고 홍수가 되어 삽시간에 인명과 재산에 막대한 피해를 준다. 그래서 군대의 힘을 동원하여 막아 내야 합니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="63" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#63 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>지산겸</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">겸손하라는 의미에서 겸입니다. 따라서 처음에는 뜻대로 되지 않고 괴로움과 어려움이 많으나 나중에는 좋은 소식을 듣게 됩니다.</textarea>
+</td></tr></table>
+<table class="card" data-kind="hex" data-key="64" width="100%" cellpadding="10" cellspacing="0" bgcolor="#FFBFBF" style="border:3px solid #CC0000;margin:0 0 12px;border-radius:8px"><tr><td>
+<font color="#CC0000" size="2"><b>【흉】</b></font>
+<font color="#CC0000" size="2"><b>#64 · 흉괘</b></font><br>
+<font color="#CC0000" size="3"><b>곤위지</b></font><br>
+<textarea class="narrate" rows="4" style="width:98%;margin-top:8px;font-size:14px;line-height:1.5;padding:8px;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif">인내와 꾸준히 나아가는 데서 비로서 행운을 얻을 수 있습니다. 모든것을 육성 한다는 뜻이니 많은 사람들을 길러 내고 이끌어 내고 출세하는 바탕을 만들어 준다.</textarea>
+</td></tr></table>
+</div>
+<script>
+const SURI_META = {"1": {"num": 1, "name": "출발권위(出發權威)", "tone": "길수"}, "2": {"num": 2, "name": "분리파괴(分離破壞)", "tone": "흉수"}, "3": {"num": 3, "name": "지도적 인물(指導的 人物)", "tone": "길수"}, "4": {"num": 4, "name": "제사불성(諸事不成)", "tone": "흉수"}, "5": {"num": 5, "name": "부귀봉록(富貴俸祿)", "tone": "길수"}, "6": {"num": 6, "name": "계승발전(繼承發展)", "tone": "길수"}, "7": {"num": 7, "name": "맹호출림(孟虎出林)", "tone": "길수"}, "8": {"num": 8, "name": "수복겸전(壽福兼全)", "tone": "길수"}, "9": {"num": 9, "name": "대재무용(大材無用)", "tone": "흉수"}, "10": {"num": 10, "name": "만사허망(萬事虛望)", "tone": "흉수"}, "11": {"num": 11, "name": "중인신망(衆人信望)", "tone": "길수"}, "12": {"num": 12, "name": "박약박복(薄弱薄福)", "tone": "흉수"}, "13": {"num": 13, "name": "총명지모(總明智謨)", "tone": "길수"}, "14": {"num": 14, "name": "이산파멸(離散破滅)", "tone": "흉수"}, "15": {"num": 15, "name": "군계일학(群鷄一鶴)", "tone": "길수"}, "16": {"num": 16, "name": "덕망유복(德望裕福)", "tone": "길수"}, "17": {"num": 17, "name": "명망사해(名望四海)", "tone": "길수"}, "18": {"num": 18, "name": "부귀영달(富貴營達)", "tone": "길수"}, "19": {"num": 19, "name": "고독비참(孤獨悲參)", "tone": "흉수"}, "20": {"num": 20, "name": "백사실패(百事失敗)", "tone": "흉수"}, "21": {"num": 21, "name": "두령지모(頭領智模)", "tone": "길수"}, "22": {"num": 22, "name": "중도좌절(中途挫折)", "tone": "흉수"}, "23": {"num": 23, "name": "일흥중천(日興中天)", "tone": "길수"}, "24": {"num": 24, "name": "부귀영화(富貴榮華)", "tone": "길수"}, "25": {"num": 25, "name": "지모순조(智謨順調)", "tone": "길수"}, "26": {"num": 26, "name": "영웅풍파(英雄風波)", "tone": "흉수"}, "27": {"num": 27, "name": "대인격 (大人格)", "tone": "흉수"}, "28": {"num": 28, "name": "파란풍파(波瀾風波)", "tone": "흉수"}, "29": {"num": 29, "name": "권력재물(權力在物)", "tone": "길수"}, "30": {"num": 30, "name": "길흉상반(吉凶相半)", "tone": "흉수"}, "31": {"num": 31, "name": "자수성가(自手成家)", "tone": "길수"}, "32": {"num": 32, "name": "의외득재(意外得財)", "tone": "길수"}, "33": {"num": 33, "name": "권위충천(權威衝天)", "tone": "길수"}, "34": {"num": 34, "name": "재화연속(災禍連續)", "tone": "흉수"}, "35": {"num": 35, "name": "온유화순(溫柔和順)", "tone": "길수"}, "36": {"num": 36, "name": "영걸시비(英傑是非)", "tone": "흉수"}, "37": {"num": 37, "name": "권위인덕(權威仁德)", "tone": "길수"}, "38": {"num": 38, "name": "문예기예(文藝技藝)", "tone": "길수"}, "39": {"num": 39, "name": "위세강중(威勢强重)", "tone": "길수"}, "40": {"num": 40, "name": "변화공허(變化空虛)", "tone": "흉수"}, "41": {"num": 41, "name": "선견고명(先見高名)", "tone": "길수"}, "42": {"num": 42, "name": "파란지초(波瀾自超)", "tone": "흉수"}, "43": {"num": 43, "name": "패가망신(敗家亡身)", "tone": "흉수"}, "44": {"num": 44, "name": "백전백패(百戰百敗)", "tone": "흉수"}, "45": {"num": 45, "name": "통달사해(通達四海)", "tone": "길수"}, "46": {"num": 46, "name": "곤궁신고(困窮辛苦)", "tone": "흉수"}, "47": {"num": 47, "name": "일확천금(一擴千金)", "tone": "길수"}, "48": {"num": 48, "name": "배후조종(背後操縱)", "tone": "길수"}, "49": {"num": 49, "name": "선가은퇴(仙家隱退)", "tone": "흉수"}, "50": {"num": 50, "name": "공허실의(空虛失意)", "tone": "흉수"}, "51": {"num": 51, "name": "파란변동(波瀾變動)", "tone": "흉수"}, "52": {"num": 52, "name": "비룡승천(飛龍昇天)", "tone": "길수"}, "53": {"num": 53, "name": "외화내빈(外華內貧)", "tone": "흉수"}, "54": {"num": 54, "name": "절망불구(絶望不久)", "tone": "흉수"}, "55": {"num": 55, "name": "극성극쇠(極盛極衰)", "tone": "흉수"}, "56": {"num": 56, "name": "변전무상(變轉無常)", "tone": "흉수"}, "57": {"num": 57, "name": "고진감래(苦盡甘來)", "tone": "길수"}, "58": {"num": 58, "name": "명성부귀(名星富貴)", "tone": "길수"}, "59": {"num": 59, "name": "의지박약(意志薄弱)", "tone": "흉수"}, "60": {"num": 60, "name": "봉록자실(捧錄自失)", "tone": "흉수"}, "61": {"num": 61, "name": "영화격(榮華格)", "tone": "길수"}, "62": {"num": 62, "name": "막막격(寞寞格)", "tone": "흉수"}, "63": {"num": 63, "name": "길상격(吉祥格)", "tone": "길수"}, "64": {"num": 64, "name": "고행격(苦行格)", "tone": "흉수"}, "65": {"num": 65, "name": "달성격(達成格)", "tone": "길수"}, "66": {"num": 66, "name": "망망격(茫茫格)", "tone": "흉수"}, "67": {"num": 67, "name": "성장격(成長格)", "tone": "길수"}, "68": {"num": 68, "name": "발명격(發明格)", "tone": "길수"}, "69": {"num": 69, "name": "궁박격(窮迫格)", "tone": "흉수"}, "70": {"num": 70, "name": "공허격(空虛格)", "tone": "흉수"}, "71": {"num": 71, "name": "견실격(堅實格)", "tone": "길수"}, "72": {"num": 72, "name": "상반격(相半格)", "tone": "흉수"}, "73": {"num": 73, "name": "평범격(平凡格)", "tone": "길수"}, "74": {"num": 74, "name": "우매격(愚昧格)", "tone": "흉수"}, "75": {"num": 75, "name": "안길격(安吉格)", "tone": "길수"}, "76": {"num": 76, "name": "후길격(後吉格)", "tone": "흉수"}, "77": {"num": 77, "name": "활성격(活盛格)", "tone": "길수"}, "78": {"num": 78, "name": "무력격(無力格)", "tone": "흉수"}, "79": {"num": 79, "name": "불신격(不伸格)", "tone": "흉수"}, "80": {"num": 80, "name": "종말격(終末格)", "tone": "흉수"}, "81": {"num": 81, "name": "환원격(還元格)", "tone": "길수"}};
+const HEX_META = {"1": {"id": 1, "name": "건위천", "tone": "중성"}, "2": {"id": 2, "name": "천택리", "tone": "중성"}, "3": {"id": 3, "name": "천화동인", "tone": "중성"}, "4": {"id": 4, "name": "천뢰무망", "tone": "중성"}, "5": {"id": 5, "name": "천풍구", "tone": "길괘"}, "6": {"id": 6, "name": "천수송", "tone": "흉괘"}, "7": {"id": 7, "name": "천산둔", "tone": "흉괘"}, "8": {"id": 8, "name": "천지비", "tone": "흉괘"}, "9": {"id": 9, "name": "택천쾌", "tone": "중성"}, "10": {"id": 10, "name": "태위택", "tone": "중성"}, "11": {"id": 11, "name": "택화혁", "tone": "중성"}, "12": {"id": 12, "name": "택뢰수", "tone": "중성"}, "13": {"id": 13, "name": "택풍대과", "tone": "중성"}, "14": {"id": 14, "name": "택수곤", "tone": "흉괘"}, "15": {"id": 15, "name": "택산함", "tone": "중성"}, "16": {"id": 16, "name": "택지췌", "tone": "길괘"}, "17": {"id": 17, "name": "화천대유", "tone": "길괘"}, "18": {"id": 18, "name": "화택규", "tone": "흉괘"}, "19": {"id": 19, "name": "이위화", "tone": "중성"}, "20": {"id": 20, "name": "화뢰서합", "tone": "중성"}, "21": {"id": 21, "name": "화풍정", "tone": "중성"}, "22": {"id": 22, "name": "화수미제", "tone": "길괘"}, "23": {"id": 23, "name": "화산려", "tone": "중성"}, "24": {"id": 24, "name": "화지진", "tone": "중성"}, "25": {"id": 25, "name": "뇌천대장", "tone": "길괘"}, "26": {"id": 26, "name": "뇌택귀매", "tone": "길괘"}, "27": {"id": 27, "name": "뇌화풍", "tone": "중성"}, "28": {"id": 28, "name": "진위뢰", "tone": "중성"}, "29": {"id": 29, "name": "뇌풍항", "tone": "중성"}, "30": {"id": 30, "name": "뇌수해", "tone": "중성"}, "31": {"id": 31, "name": "뇌산소과", "tone": "흉괘"}, "32": {"id": 32, "name": "뇌지예", "tone": "중성"}, "33": {"id": 33, "name": "풍천소축", "tone": "흉괘"}, "34": {"id": 34, "name": "풍택중부", "tone": "중성"}, "35": {"id": 35, "name": "풍화가인", "tone": "길괘"}, "36": {"id": 36, "name": "풍뢰익", "tone": "중성"}, "37": {"id": 37, "name": "손위풍", "tone": "중성"}, "38": {"id": 38, "name": "풍수환", "tone": "흉괘"}, "39": {"id": 39, "name": "풍산점", "tone": "중성"}, "40": {"id": 40, "name": "풍지관", "tone": "중성"}, "41": {"id": 41, "name": "수천수", "tone": "중성"}, "42": {"id": 42, "name": "수택절", "tone": "중성"}, "43": {"id": 43, "name": "수화기제", "tone": "흉괘"}, "44": {"id": 44, "name": "수뢰둔", "tone": "흉괘"}, "45": {"id": 45, "name": "수풍정", "tone": "길괘"}, "46": {"id": 46, "name": "감위수", "tone": "흉괘"}, "47": {"id": 47, "name": "수산건", "tone": "흉괘"}, "48": {"id": 48, "name": "수지비", "tone": "중성"}, "49": {"id": 49, "name": "산천대축", "tone": "길괘"}, "50": {"id": 50, "name": "산택손", "tone": "중성"}, "51": {"id": 51, "name": "산화비", "tone": "중성"}, "52": {"id": 52, "name": "산뢰이", "tone": "중성"}, "53": {"id": 53, "name": "산풍고", "tone": "흉괘"}, "54": {"id": 54, "name": "산수몽", "tone": "흉괘"}, "55": {"id": 55, "name": "간위산", "tone": "흉괘"}, "56": {"id": 56, "name": "산지박", "tone": "흉괘"}, "57": {"id": 57, "name": "지천태", "tone": "중성"}, "58": {"id": 58, "name": "지택림", "tone": "중성"}, "59": {"id": 59, "name": "지화명이", "tone": "흉괘"}, "60": {"id": 60, "name": "지뢰복", "tone": "중성"}, "61": {"id": 61, "name": "지풍승", "tone": "중성"}, "62": {"id": 62, "name": "지수사", "tone": "중성"}, "63": {"id": 63, "name": "지산겸", "tone": "흉괘"}, "64": {"id": 64, "name": "곤위지", "tone": "흉괘"}};
+
+function collectSuri() {
+  const out = {
+    _note: "소비자용 구술 핵심(접근성). 런타임 특례가 있으면 특례 우선, 없으면 narrate. 전문가용 core와 별도. 원본 d6 비침범."
+  };
+  document.querySelectorAll('.card[data-kind="suri"]').forEach(card => {
+    const key = card.getAttribute('data-key');
+    const meta = SURI_META[key] || {};
+    const narrate = card.querySelector('textarea').value.trim();
+    out[key] = {
+      num: meta.num != null ? meta.num : Number(key),
+      name: meta.name || '',
+      tone: meta.tone || '',
+      narrate
+    };
+  });
+  return out;
+}
+
+function collectHex() {
+  const out = {
+    _note: "소비자용 구술 핵심(접근성). 런타임 특례가 있으면 특례 우선, 없으면 narrate. 전문가용 core와 별도. 원본 Ee 비침범."
+  };
+  document.querySelectorAll('.card[data-kind="hex"]').forEach(card => {
+    const key = card.getAttribute('data-key');
+    const meta = HEX_META[key] || {};
+    const narrate = card.querySelector('textarea').value.trim();
+    out[key] = {
+      id: meta.id != null ? meta.id : Number(key),
+      name: meta.name || '',
+      tone: meta.tone || '',
+      narrate
+    };
+  });
+  return out;
+}
+
+function download(filename, obj) {
+  const blob = new Blob([JSON.stringify(obj, null, 2) + '\n'], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function downloadSuri() { download('suri-narrate-by-num.json', collectSuri()); }
+function downloadHex() { download('hex-narrate-by-id.json', collectHex()); }
+function downloadBoth() { downloadSuri(); setTimeout(downloadHex, 400); }
+</script>
+</body>
+</html>
