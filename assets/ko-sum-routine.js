@@ -971,6 +971,16 @@
           esc(K[2]) +
           " 형태로 되어 있습니다."
       );
+      // 보흘 지정: 한글 오행 금금금 — 재물 유출 경향
+      const isMetal = (v) => {
+        const t = String(v || "").trim();
+        return t === "금" || t === "金";
+      };
+      if (isMetal(K[0]) && isMetal(K[1]) && isMetal(K[2])) {
+        bits.push(
+          "이름 오행이 금금금이면 재물을 가두기가 힘이 듭니다. 체면상 우쭐해 보이려 큰 돈을 마구 지출하거나 유행을 좇는 경향이 있어서 재물이 마구 빠져 나가기 때문입니다."
+        );
+      }
     }
 
     bits.push(
@@ -1156,18 +1166,7 @@
     });
 
     // —— 인쇄 서술 (연속 문단, 【총운】【초년】 헤더 없음) ——
-    // 1) 이름풀이 완성(한글vs한문·오행·말년~중년) → 2) 탄생일·시기별 비교
-
-    function collectGweLists(gArr) {
-      const good = [];
-      const bad = [];
-      (gArr || []).forEach(function (g) {
-        if (!g || !g.name) return;
-        if (gweGood(g)) good.push(g);
-        if (gweBad(g)) bad.push(g);
-      });
-      return { good: good, bad: bad };
-    }
+    // 1) 이름풀이 완성(이름 전체 시기 판단·오행·말년~중년) → 2) 탄생일·시기별 비교
 
     function joinGweNames(list) {
       return (list || [])
@@ -1178,83 +1177,188 @@
     }
 
     function buildHangulHanjaCompare() {
-      if (!hasHanja) return "";
-      const hg = collectGweLists(nmG);
-      const hj = collectGweLists(hjG);
-      let p = "먼저 한글이름과 한문이름의 주역 기운을 견줍니다. ";
+      // 시기 배열: ages = [말년, 초년, 장년, 중년] → 말할 때는 초·장·중·말 순
+      const PERIOD_ORDER = [
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+        { key: "말년", idx: 0 },
+      ];
 
-      if (hg.good.length) {
-        p +=
-          "한글이름에는 " +
-          joinGweNames(hg.good) +
-          "으로 " +
-          hg.good.length +
-          "개나 좋은 기운이 있고";
-      } else {
-        p += "한글이름에는 뚜렷한 좋은 주역 기운이 없고";
+      function sideGoodAt(sArr, gArr, idx) {
+        const s = sArr && sArr[idx];
+        const g = gArr && gArr[idx];
+        return (
+          !!(s && s.data && suriGood(s.data)) || !!(g && g.name && gweGood(g))
+        );
       }
-      if (hg.bad.length) {
-        p +=
-          ", " +
-          joinGweNames(hg.bad) +
-          " 같은 흉한 기운이 " +
-          hg.bad.length +
-          "개 있습니다. ";
-      } else {
-        p += " 흉한 주역은 없습니다. ";
+      function sideBadAt(sArr, gArr, idx) {
+        const s = sArr && sArr[idx];
+        const g = gArr && gArr[idx];
+        return (
+          !!(s && s.data && suriBad(s.data)) || !!(g && g.name && gweBad(g))
+        );
       }
-
-      if (hj.good.length) {
-        p +=
-          "한문이름에는 " +
-          joinGweNames(hj.good) +
-          "으로 " +
-          hj.good.length +
-          "개의 좋은 기운이 있고";
-      } else {
-        p += "한문이름에는 뚜렷한 좋은 주역 기운이 없고";
+      function goodMarksAt(idx) {
+        const marks = [];
+        if (nmS[idx] && nmS[idx].data && suriGood(nmS[idx].data)) {
+          marks.push(suriPhrase(nmS[idx]));
+        }
+        if (nmG[idx] && nmG[idx].name && gweGood(nmG[idx])) {
+          marks.push(gweNameHtml(nmG[idx]));
+        }
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data && suriGood(hjS[idx].data)) {
+            marks.push(suriPhrase(hjS[idx]));
+          }
+          if (hjG[idx] && hjG[idx].name && gweGood(hjG[idx])) {
+            marks.push(gweNameHtml(hjG[idx]));
+          }
+        }
+        return marks;
       }
-      if (hj.bad.length) {
-        p +=
-          ", 흉한 기운인 " +
-          joinGweNames(hj.bad) +
-          "가 " +
-          hj.bad.length +
-          "개입니다. ";
-      } else {
-        p += " 흉한 주역은 없습니다. ";
-      }
-
-      const hangulBetter =
-        hg.good.length > hj.good.length ||
-        (hg.good.length === hj.good.length && hg.bad.length < hj.bad.length);
-      const hanjaBetter =
-        hj.good.length > hg.good.length ||
-        (hj.good.length === hg.good.length && hj.bad.length < hg.bad.length);
-
-      if (hangulBetter) {
-        p +=
-          "따라서 한글이름이 한문이름보다 더 좋은 이름입니다. 단, 한글은 좋은데 한문이 나쁠 때는 한문이름만 바꾸어도 됩니다.";
-      } else if (hanjaBetter) {
-        p +=
-          "따라서 한문이름이 한글이름보다 더 좋은 기운이 많습니다. 이런 경우 한문 쪽을 살리고 한글 쪽을 고치는 판단을 할 수 있습니다.";
-      } else {
-        p +=
-          "한글과 한문의 좋고 나쁨이 엇비슷하니, 어느 한쪽만 보고 단정하기보다 시기별로 함께 살펴야 합니다.";
+      function badMarksAt(idx) {
+        const marks = [];
+        if (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data)) {
+          marks.push(suriPhrase(nmS[idx]));
+        }
+        if (nmG[idx] && nmG[idx].name && gweBad(nmG[idx])) {
+          marks.push(gweNameHtml(nmG[idx]));
+        }
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data && suriBad(hjS[idx].data)) {
+            marks.push(suriPhrase(hjS[idx]));
+          }
+          if (hjG[idx] && hjG[idx].name && gweBad(hjG[idx])) {
+            marks.push(gweNameHtml(hjG[idx]));
+          }
+        }
+        return marks;
       }
 
+      const hgGoodAges = [];
+      const hjGoodAges = [];
+      const unionGood = [];
+      const unionBad = [];
+      let nameGoodCnt = 0;
+      let nameBadCnt = 0;
+
+      PERIOD_ORDER.forEach(function (pe) {
+        const i = pe.idx;
+        const hgOk = sideGoodAt(nmS, nmG, i);
+        const hjOk = hasHanja && sideGoodAt(hjS, hjG, i);
+        const hgBad = sideBadAt(nmS, nmG, i);
+        const hjBad = hasHanja && sideBadAt(hjS, hjG, i);
+        if (hgOk) hgGoodAges.push(pe.key);
+        if (hjOk) hjGoodAges.push(pe.key);
+        const gMarks = goodMarksAt(i);
+        const bMarks = badMarksAt(i);
+        nameGoodCnt += gMarks.length;
+        nameBadCnt += bMarks.length;
+        if (gMarks.length) {
+          unionGood.push({ key: pe.key, marks: gMarks });
+        }
+        if (bMarks.length) {
+          unionBad.push({ key: pe.key, marks: bMarks });
+        }
+        // unused but keep for clarity
+        void (hgBad || hjBad);
+      });
+
+      let p = "";
+      if (hasHanja) {
+        p += "한글이름이 좋은 시기는 ";
+        if (hgGoodAges.length) p += hgGoodAges.join(", ") + "이고, ";
+        else p += "뚜렷하지 않고, ";
+        p += "한문이름이 좋은 시기는 ";
+        if (hjGoodAges.length) p += hjGoodAges.join(", ") + "입니다. ";
+        else p += "뚜렷하지 않습니다. ";
+        p += "한글·한문을 합쳐 이름 전체의 기운으로 보면 ";
+      } else {
+        p += "이름 전체의 기운으로 보면 ";
+      }
+
+      if (unionBad.length) {
+        p +=
+          unionBad
+            .map(function (u) {
+              return u.key + "(" + u.marks.join(", ") + ")";
+            })
+            .join(", ") + "에는 흉한 기운이 있고, ";
+      }
+      if (unionGood.length) {
+        p +=
+          unionGood
+            .map(function (u) {
+              return u.key + "(" + u.marks.join(", ") + ")";
+            })
+            .join(", ") + "에는 길한 기운(길수리·길괘)이 있습니다. ";
+      } else if (!unionBad.length) {
+        p += "시기별로 뚜렷한 길·흉이 한쪽으로 기울지 않습니다. ";
+      }
+
+      if (unionGood.length === 4) {
+        p +=
+          "초년·장년·중년·말년에 길괘·길수리가 두루 나오니 좋은 이름입니다. ";
+      } else if (unionGood.length >= 3 && unionBad.length <= 1) {
+        p +=
+          "밝은 시기가 많아 이름 전체로 보면 좋은 이름으로 읽힙니다. ";
+      } else if (unionGood.length >= 2 && unionGood.length > unionBad.length) {
+        p +=
+          "길한 시기가 흉한 시기보다 많아 이름 전체로는 살릴 만한 흐름입니다. ";
+      } else if (unionBad.length >= 3) {
+        p +=
+          "흉한 시기가 많아 이름 전체를 다시 살펴 고치는 편이 낫습니다. ";
+      }
+
+      if (hasB) {
+        let birthGoodCnt = 0;
+        let birthBadCnt = 0;
+        PERIOD_ORDER.forEach(function (pe) {
+          const i = pe.idx;
+          if (bdS[i] && bdS[i].data && suriGood(bdS[i].data)) birthGoodCnt++;
+          if (bdS[i] && bdS[i].data && suriBad(bdS[i].data)) birthBadCnt++;
+          if (bdG[i] && bdG[i].name && gweGood(bdG[i])) birthGoodCnt++;
+          if (bdG[i] && bdG[i].name && gweBad(bdG[i])) birthBadCnt++;
+        });
+        if (
+          nameGoodCnt > birthGoodCnt &&
+          nameBadCnt <= birthBadCnt
+        ) {
+          p += "전반적으로 사주에 비해 좋은 이름입니다. ";
+        } else if (
+          birthGoodCnt > nameGoodCnt &&
+          birthBadCnt <= nameBadCnt
+        ) {
+          p +=
+            "전반적으로 사주가 이름보다 밝아, 이름이 사주를 얼마나 받쳐 주는지 함께 보아야 합니다. ";
+        } else if (nameBadCnt > birthBadCnt) {
+          p +=
+            "이름 쪽에 흉한 기운이 더 많아, 사주가 무난해도 이름이 시기를 누르기 쉽습니다. ";
+        } else if (birthBadCnt > nameBadCnt) {
+          p +=
+            "사주에 흉한 기운이 더 많아, 이름이 사주의 부담을 얼마나 덜어 주는지가 관건입니다. ";
+        }
+      }
+
+      const mitSeen = {};
       const mitAll = [];
-      hg.good.forEach(function (g) {
-        if (isMitigateSuriHex(g)) mitAll.push(g);
-      });
-      hj.good.forEach(function (g) {
-        if (isMitigateSuriHex(g)) mitAll.push(g);
-      });
+      function addMit(g) {
+        if (!g || !g.name || !isMitigateSuriHex(g)) return;
+        const n = gweNameOf(g);
+        if (mitSeen[n]) return;
+        mitSeen[n] = true;
+        mitAll.push(g);
+      }
+      (nmG || []).forEach(addMit);
+      if (hasHanja) (hjG || []).forEach(addMit);
       if (mitAll.length) {
         p +=
-          " 참고로 " +
+          "단 수리의 흉수를 커버할 수 있는 길괘로는 " +
           joinGweNames(mitAll) +
-          "은 웬만한 흉수리를 덜어 내고 더 좋아지는 경우가 많은 괘이니, 같은 자리 흉수리가 있어도 이 괘가 받쳐 주면 흐름이 한결 나아질 수 있습니다.";
+          " " +
+          mitAll.length +
+          "개가 있어 균형 잡힌 이름입니다.";
       }
       return p;
     }
