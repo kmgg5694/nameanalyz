@@ -288,57 +288,48 @@
           color: "#78350f",
           fontWeight: 700,
           fontSize: "0.95rem",
-          marginBottom: "6px",
+          marginBottom: "8px",
         },
         children: "기운 해당 판정",
       }),
     ];
-    const cells = list.map(function (row, ii) {
-      return m.jsxs(
-        "div",
-        {
-          style: {
-            borderBottom: "1px solid #fed7aa",
-            paddingBottom: "3px",
-            marginBottom: "2px",
-            minWidth: 0,
+    list.forEach(function (row, ii) {
+      kids.push(
+        m.jsxs(
+          "div",
+          {
+            className: "mt-1.5",
+            style: {
+              borderBottom:
+                ii < list.length - 1 ? "1px solid #fed7aa" : "none",
+              paddingBottom: "6px",
+            },
+            children: [
+              m.jsx("p", {
+                style: {
+                  color: "#78350f",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                  margin: 0,
+                  lineHeight: 1.4,
+                },
+                children: row.title,
+              }),
+              m.jsx("p", {
+                style: {
+                  color: row.ok ? "#9a3412" : "#57534e",
+                  fontSize: "0.88rem",
+                  lineHeight: 1.5,
+                  margin: "2px 0 0",
+                },
+                children: row.body,
+              }),
+            ],
           },
-          children: [
-            m.jsx("p", {
-              style: {
-                color: "#78350f",
-                fontWeight: 700,
-                fontSize: "0.8rem",
-                margin: 0,
-                lineHeight: 1.3,
-              },
-              children: row.title,
-            }),
-            m.jsx("p", {
-              style: {
-                color: row.ok ? "#9a3412" : "#57534e",
-                fontSize: "0.78rem",
-                lineHeight: 1.35,
-                margin: "1px 0 0",
-              },
-              children: row.body,
-            }),
-          ],
-        },
-        row.id || ii
+          row.id || ii
+        )
       );
     });
-    kids.push(
-      m.jsx("div", {
-        style: {
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          columnGap: "10px",
-          rowGap: "2px",
-        },
-        children: cells,
-      })
-    );
     return m.jsxs("div", {
       className: "mt-2 p-3 rounded-lg",
       style: { background: "#fff7ed", border: "1px solid #d97706" },

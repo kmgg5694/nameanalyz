@@ -21,8 +21,8 @@
         window.__CORE_SUMMARIES__.hex = h;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260921warn2"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260921twocol1"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260921port1"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260921port1"></script>
     <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921printslim1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
@@ -57,8 +57,8 @@
 
 <style id="print-a4-fix">
 @media print {
-  /* 가로 A4 + 초소여백 → 한 줄에 더 많이, 장수 축소 */
-  @page { size: A4 landscape; margin: 4mm 3mm; }
+  /* 세로 A4 — 읽기 좋은 폭·글씨 (가로 과대 배치 해제) */
+  @page { size: A4 portrait; margin: 12mm 14mm; }
   html, body {
     width: 100% !important;
     max-width: 100% !important;
@@ -66,8 +66,8 @@
     padding: 0 !important;
     background: #fff !important;
     color: #1a1008 !important;
-    font-size: 8.5pt !important;
-    line-height: 1.22 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.45 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -99,23 +99,23 @@
     display: block !important;
     max-width: 100% !important;
     width: 100% !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
   }
   .max-w-2xl, .max-w-xl, .max-w-lg, .max-w-md, .max-w-3xl, .max-w-4xl,
   .max-w-5xl, .max-w-6xl, .max-w-7xl, .mx-auto {
     max-width: 100% !important;
     width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   .ink-card, .suri-card {
     break-inside: auto;
     page-break-inside: auto;
     box-shadow: none !important;
     background: #fff !important;
-    margin: 2px 0 !important;
-    padding: 2px 1px !important;
+    margin: 6px 0 !important;
+    padding: 4px 0 !important;
     border: none !important;
   }
   section, article {
@@ -123,7 +123,7 @@
     page-break-inside: auto;
     box-shadow: none !important;
     background: #fff !important;
-    margin: 2px 0 !important;
+    margin: 6px 0 !important;
     padding: 0 !important;
   }
   img, svg { max-width: 100% !important; height: auto !important; }
@@ -131,17 +131,23 @@
   .space-y-6 > :not([hidden]) ~ :not([hidden]),
   .space-y-4 > :not([hidden]) ~ :not([hidden]),
   .space-y-3 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 3px !important;
+    margin-top: 8px !important;
   }
   [data-tab="input"], [data-tab="gwe"], [data-tab="hanja"] { display: none !important; }
   .text-sm, .leading-relaxed, .whitespace-pre-wrap,
   [data-loc="client/src/pages/Home.tsx:sumAgeCore"] {
-    font-size: 8.5pt !important;
-    line-height: 1.22 !important;
-    padding: 2px 0 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.45 !important;
+    padding: 4px 0 !important;
     margin: 0 !important;
     background: transparent !important;
     border: none !important;
+  }
+  /* 기운 해당: 세로(한 열) — 가로 두 열 해제 */
+  [data-loc="client/src/pages/Home.tsx:sumAgeCore"] ~ div [style*="grid-template-columns"],
+  #result-full-capture div[style*="grid-template-columns: 1fr 1fr"],
+  #result-full-capture div[style*="grid-template-columns:1fr 1fr"] {
+    display: block !important;
   }
 }
 </style>
