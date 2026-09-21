@@ -61,8 +61,7 @@
     <link rel="manifest" href="./manifest.json" />
 
 <style id="print-a4-fix">
-/* 종합표·요약보기·서술·결론은 표시. 오행표·카드·기운판정만 숨김 */
-#result-full-capture [data-loc="client/src/pages/Home.tsx:978"],
+/* 종합표·요약보기·오행표시·서술·결론은 표시. 카드·기운판정만 숨김 */
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1201"],
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1307"] {
   display: none !important;
@@ -88,7 +87,7 @@
   button, .intro-player, audio, video {
     display: none !important;
   }
-  /* 오행표·카드·기운판정은 위 공통 규칙으로 숨김. 종합표·요약보기·결론은 인쇄 */
+  /* 카드·기운판정은 위 공통 규칙으로 숨김. 종합표·요약보기·오행표시·결론은 인쇄 */
   #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
     display: none !important;
   }
