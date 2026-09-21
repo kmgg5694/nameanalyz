@@ -615,16 +615,22 @@
     return (s + " " + d).replace(/\s+/g, " ").trim();
   }
 
-  /** 라이브 d6 → CS body/short+desc 순으로 원문 전문 */
+  /** 라이브 d6 — 장수 축소: shortDesc 우선(desc 중복 병합 안 함) */
   function suriOriginalText(ns) {
     const d = ns && ns.data;
     if (d) {
-      const m = mergeSuriText(d.shortDesc, d.desc);
-      if (m) return m;
+      const s = String(d.shortDesc || "").trim();
+      if (s) return s;
+      const full = String(d.desc || "").trim();
+      if (full) return full;
     }
     const x = ns && CS().suri[String(ns.suri)];
-    if (x && x.body) return String(x.body);
-    if (x) return mergeSuriText(x.shortDesc, x.desc);
+    if (x) {
+      const s = String(x.shortDesc || "").trim();
+      if (s) return s;
+      if (x.body) return String(x.body);
+      return String(x.desc || "").trim();
+    }
     return "";
   }
 
@@ -759,16 +765,24 @@
     return t;
   }
 
-  /** 라이브 Ee.desc → CS hex.core(톤 접두 제거) */
+  /** 라이브 Ee.desc → CS hex.core — 장수 축소: 앞 2문장 정도만 */
   function hexOriginalText(ng) {
-    if (ng && ng.desc) return String(ng.desc).trim();
-    const x = ng && CS().hex[String(ng.id)];
-    if (x && x.core) {
-      return String(x.core)
-        .replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "")
-        .trim();
+    let t = "";
+    if (ng && ng.desc) t = String(ng.desc).trim();
+    else {
+      const x = ng && CS().hex[String(ng.id)];
+      if (x && x.core) {
+        t = String(x.core)
+          .replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "")
+          .trim();
+      }
     }
-    return "";
+    if (!t) return "";
+    if (t.length <= 180) return t;
+    const cut = t.slice(0, 220);
+    const m = cut.match(/^[\s\S]{50,200}?[.。!?！？]/);
+    if (m) return m[0].trim();
+    return cut.replace(/\s+\S*$/, "") + "…";
   }
 
   /**
@@ -905,13 +919,11 @@
     const bits = [];
     bits.push(
       paintBlue("상생") +
-        "(○)의 관계란 서로가 서로에게 도움을 주고, 협조적이며, 화합이 잘 되고, 긍정적이고, 소통이 잘 되는 상태를 말합니다."
+        "(○)은 서로 돕고 소통이 원활한 상태입니다."
     );
     bits.push(
       paintRed("상극") +
-        "(X)의 관계는 상생의 반대적인 개념으로 배타적이며, 부정적이고, 소통이 어렵고, 억제, 저지, 방해, 불협화음이 자주 발생하는 상태를 나타냅니다. 오행에 " +
-        paintRed("상극") +
-        "(X)이 과다하면 스트레스가 많고, 몸에 여러가지 질병이 생기기 쉽습니다."
+        "(X)은 배척·방해가 잦은 상태이며, 과다하면 스트레스·질병이 따르기 쉽습니다."
     );
 
     const o = ctx.ohang || null;
@@ -984,7 +996,7 @@
     }
 
     bits.push(
-      "오행은 주변 사람들과 어떤 인간관계를 유지하며 살아 가는지, 어떤 성격을 형성하는 기운으로 작용을 하는지, 인복은 있는지, 사람 때문에 받는 스트레스는 어느 정도인지를 알아보는 척도가 됩니다."
+      "오행은 인간관계·성격·인복의 척도가 됩니다."
     );
 
     return bits.join(" ");
@@ -1781,18 +1793,18 @@
       if (nbCompare) ageParts.push(nbCompare);
 
       ageParts.push(
-        "이어서 탄생일(사주)을 시기별 나이대로 살펴보며, 같은 시기 이름 기운과 맞춰 봅니다. " +
+        "이어서 탄생일(사주)을 시기별로 견줍니다. " +
           paintBlue("좋은 기운") +
           "과 " +
           paintRed("흉한 기운") +
-          "이 시기마다 뚜렷이 갈리니, 말년(56세 이후·총운)만 인생 전체에 미치고 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
+          "이 시기마다 갈리니, 말년만 전체에 미치고 초·장·중은 해당 나이대(±3년)에만 영향을 줍니다."
       );
 
       const birthSlots = [
         { i: 0, speak: "말년(56세 이후·총운)", ageKey: "말년" },
-        { i: 1, speak: "초년(23세 이전, 1~23세)", ageKey: "초년" },
-        { i: 2, speak: "장년(30세부터 40세까지)", ageKey: "장년" },
-        { i: 3, speak: "중년(40세 이후부터 55세까지)", ageKey: "중년" },
+        { i: 1, speak: "초년(23세 이전)", ageKey: "초년" },
+        { i: 2, speak: "장년(30~40세)", ageKey: "장년" },
+        { i: 3, speak: "중년(40~55세)", ageKey: "중년" },
       ];
 
       birthSlots.forEach(function (slot) {
@@ -1800,11 +1812,14 @@
         const bg = bdG[slot.i];
         if ((!bs || !bs.data) && (!bg || !bg.name)) return;
         const bits = [];
+        // 장수 축소: 탄생일은 수리·괘명만 (전문 중복 생략)
         if (bs && bs.data) {
-          bits.push(printSuriSentence("탄생일", slot.speak, bs));
+          bits.push(
+            "탄생일 " + slot.speak + " 수리는 " + suriPhrase(bs) + "입니다."
+          );
         }
         if (bg && bg.name) {
-          bits.push(printHexSentence("탄생일", slot.speak, bg));
+          bits.push("주역은 " + gweNameHtml(bg) + "입니다.");
         }
         const sBad = !!(bs && suriBad(bs.data));
         const sGood = !!(bs && suriGood(bs.data));
@@ -1812,20 +1827,14 @@
         const gGood = !!(bg && gweGood(bg));
         if ((sBad || gBad) && !(sGood || gGood)) {
           bits.push(
-            paintRed(
-              "이 시기 사주는 흉한 기운이 뚜렷하여, 해당 나이대(±3년)를 각별히 살펴야 합니다."
-            )
+            paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다.")
           );
         } else if ((sGood || gGood) && !(sBad || gBad)) {
           bits.push(
-            paintBlue(
-              "이 시기 사주는 밝은 기운이 뚜렷하여, 해당 나이대에 힘이 실립니다."
-            )
+            paintBlue("이 시기 사주는 밝은 기운이 뚜렷합니다.")
           );
         } else if ((sBad || gBad) && (sGood || gGood)) {
-          bits.push(
-            "이 시기 사주는 밝은 기운과 무거운 기운이 함께 있어, 이름과의 만남을 함께 보아야 합니다."
-          );
+          bits.push("이 시기 사주는 밝은 기운과 무거운 기운이 함께 있습니다.");
         }
 
         // 같은 시기 이름(한글·한문)과 사주를 이야기하듯 견줌
@@ -1845,25 +1854,25 @@
           bits.push(
             " 같은 " +
               slot.ageKey +
-              "에 이름은 무거운데 탄생일은 열려 있어, 이름이 사주의 힘을 누르거나 훼손하지 않는지 살펴야 합니다."
+              "에 이름은 무거운데 탄생일은 열려 있어, 이름이 사주의 힘을 누르는지 살펴야 합니다."
           );
         } else if (nGoodP && bBadP) {
           bits.push(
             " 같은 " +
               slot.ageKey +
-              "에 탄생일은 무거운데 이름이 밝아, 이름이 사주의 부담을 덜어 주는 쪽으로 읽힙니다."
+              "에 탄생일은 무거운데 이름이 밝아, 이름이 사주의 부담을 덜어 줍니다."
           );
         } else if (nBadP && bBadP) {
           bits.push(
             " 같은 " +
               slot.ageKey +
-              "에 이름과 탄생일이 모두 무거워, 이 나이대(±3년) 시련이 겹치기 쉽습니다."
+              "에 이름과 탄생일이 모두 무거워 시련이 겹치기 쉽습니다."
           );
         } else if (nGoodP && bGoodP) {
           bits.push(
             " 같은 " +
               slot.ageKey +
-              "에 이름과 탄생일이 함께 열려, 이 시기 흐름이 한결 힘차게 읽힙니다."
+              "에 이름과 탄생일이 함께 열려 흐름이 힘차게 읽힙니다."
           );
         }
 
@@ -2113,34 +2122,45 @@
           ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
           "</div>";
       }
-      const chongunBox =
-        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
-        '<span style="color:#FF0000">' +
-        FOOTNOTE_CHONGUN_DANMYEONG +
-        "</span>" +
-        "</div>" +
-        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
-        '<span style="color:#FF0000">' +
-        FOOTNOTE_CHONGUN_CANCER +
-        "</span>" +
-        "</div>" +
-        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem;margin-top:10px">' +
-        '<span style="color:#FF0000">' +
-        FOOTNOTE_SURI20_22 +
-        "</span>" +
-        "</div>";
+      const chongunBox = (function () {
+        // 해당 총운이 있을 때만 노란 칸 추가(항상 3칸 중복 방지)
+        if (!chongunApplied || !chongunApplied.length) return "";
+        const joined = chongunApplied.join(" ");
+        const boxes = [];
+        if (/단명|과부|영웅풍파|파란풍파/.test(joined)) {
+          boxes.push(FOOTNOTE_CHONGUN_DANMYEONG);
+        }
+        if (/암|이산파멸|백사실패|중도좌절/.test(joined)) {
+          boxes.push(FOOTNOTE_CHONGUN_CANCER);
+        }
+        if (/20|22|백사실패|중도좌절/.test(joined) || /부자장수|대부대귀/.test(joined)) {
+          boxes.push(FOOTNOTE_SURI20_22);
+        }
+        if (!boxes.length) return "";
+        return boxes
+          .map(function (txt) {
+            return (
+              '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.45;padding:6px 8px;font-size:0.9rem;margin-top:6px">' +
+              '<span style="color:#FF0000">' +
+              txt +
+              "</span>" +
+              "</div>"
+            );
+          })
+          .join("");
+      })();
       let chongunApply = "";
       if (chongunApplied && chongunApplied.length) {
         chongunApply =
-          '<div style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000;padding:2px 2px">' +
+          '<div style="margin-top:6px;line-height:1.45;font-size:0.9rem;font-weight:700;color:#FF0000;padding:2px">' +
           "【총운 각주 적용】 " +
           chongunApplied.join(" ") +
           "</div>";
       }
       return (
-        '<div style="margin-top:16px">' +
-        '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px;letter-spacing:0.02em">각주</div>' +
-        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.65;padding:12px 10px;font-size:0.95rem">' +
+        '<div style="margin-top:10px">' +
+        '<div style="font-weight:800;font-size:1rem;color:#111;margin:0 0 6px;letter-spacing:0.02em">각주</div>' +
+        '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.45;padding:8px;font-size:0.9rem">' +
         '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
         '<span style="color:#FF0000">' +
         suriRed +
@@ -2152,36 +2172,16 @@
         chongunBox +
         applyBlock +
         chongunApply +
-        '<div style="margin-top:10px;line-height:1.6;font-size:0.95rem;font-weight:800;color:#FF1493;padding:2px 2px">' +
+        '<div style="margin-top:6px;line-height:1.45;font-size:0.9rem;font-weight:800;color:#FF1493;padding:2px">' +
         FOOTNOTE_WARN_FOOTER +
         "</div>" +
-        '<div style="margin-top:12px;line-height:1.7;font-size:0.95rem;color:#1c1917;padding:4px 2px">' +
-        "이름은 3글자의 기도문 입니다. 그 이름이 매번 불려 질 때마다 나는 이렇게 살겠다고 매일 매일 기도 하는데 그 간절한 기도를 가상히 여겨 들어 주게 됩니다. 부르고, 쓰고, 듣고 하면 좋은 이름은 더 좋아 지는 것이고, 나쁜 이름은 자기가 그렇게 살겠다고 간절히 기도 하는데 안들어 주겠습니까? 내 이름은 그렇지 않을거야 하고 은근 슬쩍 넘어 가지 말고 여기 무료 이름풀이를 보고 확인해서 개명을 심사 숙고 하시기 바랍니다." +
-        "</div>" +
-        '<div style="margin-top:12px;line-height:1.75;font-size:0.95rem;padding:4px 2px;color:#0000FF">' +
-        "우리의 운명은 " +
-        '<span style="color:#FF0000;font-weight:700">사주, 이름, 가정환경, DNA</span>' +
-        " 속에 고루 나뉘어 분포하고 있습니다. 위 4가지가 다 좋으면 금상첨화가 될 것이고, 그런 사람들만이 상류층이 되어서 살아가게 되는 겁니다. 그러니 사주가 나쁜데 이름마저 나쁜 편이라면 이거야말로 엎친데 덮친 격이 됩니다. " +
-        '<span style="color:#FF0000;font-weight:700">사주가 안 좋으면, 이름이라도 좋아야 하는 법입니다.</span>' +
-        " 이름만이라도 다복하고, 결혼운, 승진운, 사업운, 성공운, 재물운, 건강운 등 모두 크게 키우고 또 많아야 됩니다." +
-        "<br><br>" +
-        "이름이 나쁘다면 아무리 많은 재산을 물려줘도 제대로 지켜내지 못할 수 있고 잠시나마 한 때 성공해서 큰돈을 번다해도 끝까지 지켜낼 수 없습니다. 비록 지켜낸다고 해도 건강이 따라주지 않는다거나 행복한 생활을 하지 못해 삶에 재미를 느끼지 못한다면 그 인생이 무슨 의미가 있겠습니까? " +
-        '<span style="color:#FF0000;font-weight:700">그러므로 사주가 좋든 나쁘든 이름은 무조건 좋고 볼 일입니다.</span>' +
-        "</div></div>"
+        "</div>"
       );
     }
 
-    const footnoteSummary = footnoteHitsSummary(footnoteHits);
-    let chongunSummary = "";
-    if (chongunNotes.length) {
-      chongunSummary =
-        paintRed("【총운 각주 적용】") + " " + chongunNotes.join(" ");
-    }
     return {
       ageText:
         ageParts.join("<br><br>") +
-        (footnoteSummary ? "<br><br>" + footnoteSummary : "") +
-        (chongunSummary ? "<br><br>" + chongunSummary : "") +
         warningJangHtml(footnoteHits, chongunNotes),
       conclusion: compareParts
         .map(function (p) {

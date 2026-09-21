@@ -21,9 +21,9 @@
         window.__CORE_SUMMARIES__.hex = h;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260921mitlist1"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260921printslim1"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260920tae1"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260919flow1"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921printslim1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -57,8 +57,8 @@
 
 <style id="print-a4-fix">
 @media print {
-  /* 여백 최소·폭 최대 → 인쇄 장수 축소 */
-  @page { size: A4 portrait; margin: 5mm 4mm; }
+  /* 가로 A4 + 초소여백 → 한 줄에 더 많이, 장수 축소 */
+  @page { size: A4 landscape; margin: 4mm 3mm; }
   html, body {
     width: 100% !important;
     max-width: 100% !important;
@@ -66,16 +66,23 @@
     padding: 0 !important;
     background: #fff !important;
     color: #1a1008 !important;
-    font-size: 9pt !important;
-    line-height: 1.28 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.22 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  /* 소개·내비·PWA·버튼 숨김 */
   .intro-sec, #introPlayerWrap, #introVideo, .intro-mute,
   .no-print, header, nav, [role="tablist"], .tab-nav,
   #pwaSheet, #pwaBar, #manus-previewer-content-root,
   button, .intro-player, audio, video {
+    display: none !important;
+  }
+  /* 표·옛 오행문·결론(중복) 숨김 — 서술형 ageText만 인쇄 */
+  #result-full-capture table,
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:1172"],
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:1193"],
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:978"],
+  #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
     display: none !important;
   }
   #root, #result-full-capture, #result-full-capture * {
@@ -84,10 +91,8 @@
   body * { box-shadow: none !important; }
   [class*="sticky"], [class*="fixed"], .fixed, .sticky {
     position: static !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
+    top: auto !important; left: auto !important;
+    right: auto !important; bottom: auto !important;
     transform: none !important;
   }
   #root, #result-full-capture, main {
@@ -105,42 +110,38 @@
     margin-right: 0 !important;
   }
   .ink-card, .suri-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
     box-shadow: none !important;
     background: #fff !important;
-    margin: 3px 0 !important;
-    padding: 3px 2px !important;
+    margin: 2px 0 !important;
+    padding: 2px 1px !important;
+    border: none !important;
   }
-  /* 긴 서술 구간은 페이지를 넘어가게 해서 빈 장 방지 */
   section, article {
     break-inside: auto;
     page-break-inside: auto;
     box-shadow: none !important;
     background: #fff !important;
-    margin: 3px 0 !important;
-    padding: 1px 0 !important;
+    margin: 2px 0 !important;
+    padding: 0 !important;
   }
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 8.5pt !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-  table th, table td { padding: 2px 3px !important; border: 1px solid #c8a96e !important; }
   img, svg { max-width: 100% !important; height: auto !important; }
   a { color: inherit !important; text-decoration: none !important; }
   .space-y-6 > :not([hidden]) ~ :not([hidden]),
   .space-y-4 > :not([hidden]) ~ :not([hidden]),
   .space-y-3 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 6px !important;
+    margin-top: 3px !important;
   }
-  /* 입력/괘탭 숨기고 결과만 */
   [data-tab="input"], [data-tab="gwe"], [data-tab="hanja"] { display: none !important; }
-  .text-sm, .leading-relaxed, .whitespace-pre-wrap {
-    font-size: 9pt !important;
-    line-height: 1.28 !important;
+  .text-sm, .leading-relaxed, .whitespace-pre-wrap,
+  [data-loc="client/src/pages/Home.tsx:sumAgeCore"] {
+    font-size: 8.5pt !important;
+    line-height: 1.22 !important;
+    padding: 2px 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
 }
 </style>
