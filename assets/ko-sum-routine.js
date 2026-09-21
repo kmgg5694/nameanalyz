@@ -122,6 +122,19 @@
     return n === "화택규" || n.indexOf("화택규") === 0;
   }
 
+  function isHwasumije(g) {
+    const n = gweNameOf(g);
+    return n === "화수미제" || n.indexOf("화수미제") === 0;
+  }
+
+  /** ages 배열 [말년,초년,장년,중년] 기준 — 시간순 직전 인덱스 */
+  function chronoPrevAgeIdx(ageIdx) {
+    if (ageIdx === 2) return 1; // 장년 ← 초년
+    if (ageIdx === 3) return 2; // 중년 ← 장년
+    if (ageIdx === 0) return 3; // 말년 ← 중년
+    return -1; // 초년: 직전 없음
+  }
+
   function gweBad(g) {
     return !!(g && g.isTaboo);
   }
@@ -418,6 +431,12 @@
       if (n === k || n.indexOf(k) === 0) return HEX_SPECIAL_NOTES[k];
     }
     return "";
+  }
+
+  /** 보흘 지정: 화택규 직후 화수미제 → 재물 몇 배 증폭 */
+  function hexSeqWealthBoostNote(ng, prevNg) {
+    if (!isHwasumije(ng) || !isHwagtaekGyu(prevNg)) return "";
+    return " 직전에 「화택규」가 있어 「화수미제」의 재물을 몇 배나 키워 줍니다.";
   }
 
   function collectFootnoteHits(nmS, nmG, hjS, hjG, hasHanja, ages) {
@@ -876,13 +895,18 @@
     return cut.replace(/\s+\S*$/, "") + "…";
   }
 
-  /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게 */
-  function hexBodyForNarrate(ng) {
+  /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게. prevNg=시간순 직전 괘 */
+  function hexBodyForNarrate(ng, prevNg) {
     const special = hexSpecialNote(ng);
-    if (special) return special;
-    const brief = hexCoreBrief(ng);
-    if (brief) return " " + esc(brief);
-    return "";
+    let body = "";
+    if (special) body = special;
+    else {
+      const brief = hexCoreBrief(ng);
+      if (brief) body = " " + esc(brief);
+    }
+    const boost = hexSeqWealthBoostNote(ng, prevNg);
+    if (boost) body = (body || "") + boost;
+    return body;
   }
 
   /**
@@ -907,7 +931,7 @@
   /**
    * 인쇄 문장: "{who} {ageSpeak}의 주역괘는 {괘명}이 들어 있습니다. {원문}"
    */
-  function printHexSentence(whoLabel, ageSpeak, ng) {
+  function printHexSentence(whoLabel, ageSpeak, ng, prevNg) {
     if (!ng || !ng.name) return "";
     const plain = gweNameOf(ng);
     const speak = String(ageSpeak || "");
@@ -947,7 +971,7 @@
         josaIGA(plain) +
         " 들어 있습니다.";
     }
-    const body = hexBodyForNarrate(ng);
+    const body = hexBodyForNarrate(ng, prevNg);
     if (body) {
       const isSpecialOnly = !!hexSpecialNote(ng);
       if (
@@ -1584,7 +1608,7 @@
       }
       if (nmG[0] && nmG[0].name) {
         if (p) p += " ";
-        p += printHexSentence("한글이름", "말년", nmG[0]);
+        p += printHexSentence("한글이름", "말년", nmG[0], nmG[3]);
       }
       p += slotComboNotes(
         nmS[0],
@@ -1608,7 +1632,7 @@
       }
       if (hjG[0] && hjG[0].name) {
         if (p) p += " ";
-        p += printHexSentence("한자이름", "말년", hjG[0]);
+        p += printHexSentence("한자이름", "말년", hjG[0], hjG[3]);
       }
       p += slotComboNotes(
         hjS[0],
@@ -1681,7 +1705,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexBodyForNarrate(nmG[1]);
+        const hx = hexBodyForNarrate(nmG[1], null);
         if (hx) bits.push(hx.trim());
       }
       if (hasHanja && hjG[1] && hjG[1].name) {
@@ -1692,7 +1716,7 @@
             josaIGA(plain) +
             " 들어 있습니다."
         );
-        const hx = hexBodyForNarrate(hjG[1]);
+        const hx = hexBodyForNarrate(hjG[1], null);
         if (hx) bits.push(hx.trim());
         if (gweBad(hjG[1])) {
           bits.push(
@@ -1731,7 +1755,7 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexBodyForNarrate(nmG[2]);
+        const hx = hexBodyForNarrate(nmG[2], nmG[1]);
         if (hx) bits.push(hx.trim());
         const mit2 = slotComboNotes(nmS[2], nmG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2) bits.push(mit2.trim());
@@ -1755,7 +1779,7 @@
             josaIGA(plain) +
             " 자리합니다."
         );
-        const hx = hexBodyForNarrate(hjG[2]);
+        const hx = hexBodyForNarrate(hjG[2], hjG[1]);
         if (hx) bits.push(hx.trim());
         const mit2h = slotComboNotes(hjS[2], hjG[2], hasB ? bdS[2] : null, hasB ? bdG[2] : null, sajuOrdinary);
         if (mit2h) bits.push(mit2h.trim());
@@ -1773,7 +1797,7 @@
       let p = "40세 이후부터 55세까지는 ";
       const bits = [];
 
-      function pushMidOverlap(whoLabel, ns, ng) {
+      function pushMidOverlap(whoLabel, ns, ng, prevNg) {
         const badS = ns && suriBad(ns.data);
         const badG = ng && gweBad(ng);
         if (badS && badG && ns && ng) {
@@ -1791,7 +1815,7 @@
           );
           const _sbO = suriBodyWithDetail(ns, "중년", suriOpts);
           if (_sbO) bits.push(_sbO.trim());
-          const hx = hexBodyForNarrate(ng);
+          const hx = hexBodyForNarrate(ng, prevNg);
           if (hx) bits.push(hx.trim());
           bits.push(
             "특히 위험한 시기는 50세~55세 사이가 될 것으로 보입니다."
@@ -1810,9 +1834,9 @@
       }
 
       const hjOverlap = hasHanja
-        ? pushMidOverlap("한자이름", hjS[3], hjG[3])
+        ? pushMidOverlap("한자이름", hjS[3], hjG[3], hjG[2])
         : false;
-      const hgOverlap = pushMidOverlap("한글이름", nmS[3], nmG[3]);
+      const hgOverlap = pushMidOverlap("한글이름", nmS[3], nmG[3], nmG[2]);
 
       if (!hgOverlap) {
         if (nmS[3] && nmS[3].data) {
@@ -1834,7 +1858,7 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexBodyForNarrate(nmG[3]);
+          const hx = hexBodyForNarrate(nmG[3], nmG[2]);
           if (hx) bits.push(hx.trim());
           const mit3 = slotComboNotes(nmS[3], nmG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3) bits.push(mit3.trim());
@@ -1860,7 +1884,7 @@
               josaIGA(plain) +
               " 자리합니다."
           );
-          const hx = hexBodyForNarrate(hjG[3]);
+          const hx = hexBodyForNarrate(hjG[3], hjG[2]);
           if (hx) bits.push(hx.trim());
           const mit3h = slotComboNotes(hjS[3], hjG[3], hasB ? bdS[3] : null, hasB ? bdG[3] : null, sajuOrdinary);
           if (mit3h) bits.push(mit3h.trim());

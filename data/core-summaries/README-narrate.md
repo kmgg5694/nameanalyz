@@ -6,7 +6,7 @@
 | `suri-narrate-by-num.json` / `hex-narrate-by-id.json` | **소비자용 구술** — 이름풀이 서술에 사용 |
 | `편집_소비자구술_수리81.md` / `편집_소비자구술_괘64.md` | **보흘님 편집용** — Cursor에서 본문만 수정 |
 | `검수_소비자구술.html` | 브라우저 검수·수정 · JSON 저장 버튼 |
-| `hex-special-notes-spec.json` | 괘 특례 (진위뢰·산화비 등) |
+| `hex-special-notes-spec.json` | 괘 특례 (진위뢰·산화비·화택규→화수미제 등) |
 | `_build_narrate.py` | narrate 재생성 스크립트 |
 | `_build_narrate_edit_md.py` / `_apply_narrate_edit_md.py` | 편집용 MD 생성 / MD→JSON 반영 |
 | `_build_narrate_edit_html.py` | 검수 HTML 재생성 |
