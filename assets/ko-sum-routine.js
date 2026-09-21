@@ -1128,7 +1128,7 @@
     const upHj = o.upHj;
     const dnHj = o.dnHj;
     if (up || dn) {
-      bits.push(sideSentence("배우자·선배·양부모 쪽", up));
+      bits.push(sideSentence("양부모·배우자·선배 쪽", up));
       bits.push(sideSentence("동료·후배·자녀 쪽", dn));
     }
     if (o.q && (upHj || dnHj)) {
@@ -1136,12 +1136,12 @@
       const d2 = sideOpen(dnHj);
       let extra = "한자(속)으로 보면 ";
       if (u2 === "bihwa" && d2 === "bihwa") {
-        extra += "위·아래 모두 관심이 있는듯 없는듯합니다.";
+        extra += "양부모·아래 모두 관심이 있는듯 없는듯합니다.";
       } else {
         const parts = [];
-        if (u2 === "열려") parts.push("윗쪽은 열린 편");
-        else if (u2 === "막혀") parts.push("윗쪽은 막힌 편");
-        else parts.push("윗쪽은 관심이 있는듯 없는듯");
+        if (u2 === "열려") parts.push("양부모 쪽은 열린 편");
+        else if (u2 === "막혀") parts.push("양부모 쪽은 막힌 편");
+        else parts.push("양부모 쪽은 관심이 있는듯 없는듯");
         if (d2 === "열려") parts.push("아래는 열린 편");
         else if (d2 === "막혀") parts.push("아래는 막힌 편");
         else parts.push("아래는 관심이 있는듯 없는듯");
