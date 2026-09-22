@@ -1815,7 +1815,7 @@
         p +=
           "수리의 흉을 덜어 주는 괘로 이위화·화수미제·화천대유·산천대축·수풍정·뇌천대장 등이 있습니다. 이 이름에는 " +
           joinGweNames(mitAll) +
-          "이 있습니다. ";
+          "가 있습니다. ";
         const onlyJung =
           mitByAge["중년"].length > 0 &&
           mitByAge["초년"].length === 0 &&
@@ -2051,25 +2051,7 @@
     const ohangNarr = buildOhangBlock(ctx);
     if (ohangNarr) ageParts.push(ohangNarr);
 
-    const hhCompare = buildHangulHanjaCompare();
-    if (hhCompare) ageParts.push(hhCompare);
-    if (specialWarn.length) {
-      ageParts.push(colorMarks(specialWarn.join(" ")));
-    }
-
-    const hangulBadMid =
-      countBadSuriSlice(nmS, 1, 3) + countBadGweSlice(nmG, 1, 3);
-    const hanjaBadMid = hasHanja
-      ? countBadSuriSlice(hjS, 1, 3) + countBadGweSlice(hjG, 1, 3)
-      : 0;
-    const hangulGoodMid = (function () {
-      let n = 0;
-      for (let i = 1; i <= 3; i++) {
-        if (nmS[i] && suriGood(nmS[i].data)) n++;
-        if (nmG[i] && gweGood(nmG[i])) n++;
-      }
-      return n;
-    })();
+    // 앞머리 긴 총평·【주의】 나열은 넣지 않음 — 시기별 서술·결론만 (인쇄 가독)
 
     /** 한 자리(한글 또는 한자) 길·흉·혼재·평이 */
     function sideToneAt(sArr, gArr, idx) {
@@ -2187,28 +2169,7 @@
       return p;
     }
 
-    // a. 전체적으로 봤을 때…
-    if (hasHanja && hangulBadMid < hanjaBadMid) {
-      ageParts.push(
-        "전체적으로 봤을 때 23세 이후부터는 한글이름이 빛을 발하여 좋은 운세를 보여주겠지만, 이 좋은 운세를 한자이름이 초년부터 55세에 이르기까지 즐기차고 집요하게 앞 길을 막거나 방해를 하는 형국으로 읽힙니다."
-      );
-    } else if (hasHanja && hanjaBadMid < hangulBadMid) {
-      ageParts.push(
-        "전체적으로 봤을 때 한자이름이 초년·장년·중년에서 한글이름보다 덜 무거운 편이나, 시기마다 한글·한자의 결이 엇갈리니 한 흐름으로 살펴야 합니다."
-      );
-    } else if (hasHanja) {
-      ageParts.push(
-        "전체적으로 봤을 때 한글이름과 한자이름이 초년부터 55세에 이르기까지 서로 다른 결로 작용하니, 어느 한쪽만 보고 단정하기 어렵습니다."
-      );
-    } else if (hangulGoodMid > hangulBadMid) {
-      ageParts.push(
-        "전체적으로 봤을 때 23세 이후부터는 한글이름이 빛을 발하여 좋은 운세를 보여 주는 흐름이 읽힙니다."
-      );
-    } else if (hangulBadMid > 0) {
-      ageParts.push(
-        "전체적으로 봤을 때 초년부터 55세에 이르기까지 한글이름에 무거운 기운이 자리하니, 시기별 흐름을 차분히 살펴야 합니다."
-      );
-    }
+    // a. 전체 총평 덩어리(「전체적으로 봤을 때…」)는 넣지 않음 — 시기별 서술로 충분
 
     // b. 한글 말년 수리 + 주역 (수리 설명 필수)
     if ((nmS[0] && nmS[0].data) || (nmG[0] && nmG[0].name)) {
@@ -2713,7 +2674,9 @@
       "오행·말년·초년·장년·중년을 한 흐름으로 해설합니다."
     );
     if (specialWarn.length) {
-      compareParts.push(specialWarn.join(" "));
+      specialWarn.forEach(function (w) {
+        compareParts.push(w);
+      });
     }
 
     compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
@@ -2965,12 +2928,16 @@
       .map(function (p) {
         return p.indexOf("<span") >= 0 ? p : colorMarks(p);
       })
-      .join("<br>");
+      .join("<br><br>");
 
     return {
-      ageText: ageParts.join("<br><br>"),
+      ageText:
+        '<div class="ko-sum-narr">' + ageParts.join("<br><br>") + "</div>",
       conclusion:
-        conclusionHtml + warningJangHtml(footnoteHits, chongunNotes),
+        '<div class="ko-sum-concl">' +
+        conclusionHtml +
+        warningJangHtml(footnoteHits, chongunNotes) +
+        "</div>",
     };
   };
 })();
