@@ -94,8 +94,26 @@
   .intro-sec, #introPlayerWrap, #introVideo, .intro-mute,
   .no-print, header, nav, [role="tablist"], .tab-nav,
   #pwaSheet, #pwaBar, #manus-previewer-content-root,
-  button, .intro-player, audio, video {
+  .intro-player, audio, video {
     display: none !important;
+  }
+  /* ?? ??? ?? ? ???? ???? ?? ??·??? button?? ??? ?? ? */
+  button {
+    display: none !important;
+  }
+  #result-full-capture table button {
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    font: inherit !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    cursor: default !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
     display: none !important;
