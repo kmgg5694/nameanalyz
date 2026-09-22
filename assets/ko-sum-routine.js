@@ -2988,6 +2988,7 @@
       for (let i = 0; i < ages.length; i++) {
         if (hexMatchesAny(nmG[i], names)) return true;
         if (hasHanja && hexMatchesAny(hjG[i], names)) return true;
+        if (hasB && hexMatchesAny(bdG[i], names)) return true;
       }
       return false;
     }
@@ -3137,6 +3138,24 @@
       }
       scan(nmS[ageIdx], nmG[ageIdx]);
       if (hasHanja) scan(hjS[ageIdx], hjG[ageIdx]);
+      if (hasB) {
+        function scanSaju(ns, ng) {
+          if (hexMatchesAny(ng, row.hex)) {
+            add("사주 " + gweNameHtml(ng), tone());
+          }
+          if (
+            row.hexCompanion &&
+            hexMatchesAny(ng, [row.hexCompanion.target]) &&
+            nameHasAnyHex(row.hexCompanion.companions)
+          ) {
+            add("사주 " + gweNameHtml(ng), tone());
+          }
+          if (suriInList(ns, row.suri)) {
+            add("사주 " + suriPhrase(ns), tone());
+          }
+        }
+        scanSaju(bdS[ageIdx], bdG[ageIdx]);
+      }
       return out.join(" ");
     }
 
@@ -3169,7 +3188,7 @@
       });
       html +=
         "</tbody></table>" +
-        '<p class="mx-note">※ 해당 칸은 이름(한글·한문)의 그 시기 수리·주역이 기운 스펙에 맞을 때만 채웁니다. 없으면 비웁니다.</p>' +
+        '<p class="mx-note">※ 해당 칸은 이름(한글·한문)·사주의 그 시기 수리·주역이 기운 스펙에 맞을 때만 채웁니다. 없으면 비웁니다.</p>' +
         "</div>";
       return html;
     }
