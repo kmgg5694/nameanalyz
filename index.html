@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260922i")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260922j")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260922i", "1");
+          sessionStorage.setItem("na_sw_purged_20260922j", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260922i");
+            u.searchParams.set("v", "20260922j");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922i').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922i').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922i').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922i').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922j').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922j').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922j').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922j').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922i"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260922i"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922i"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922j"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260922j"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922j"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -172,6 +172,28 @@
 
 
 /* 이름 바로 아래 탄생일 — 화면·인쇄 모두 강제 표시 */
+
+/* 풀이 결과가 뜨면 소개영상 숨김 → 이름·탄생일이 첫 화면 */
+body:has(#result-full-capture) .intro-sec,
+body:has(#result-full-capture) #introPlayerWrap,
+body:has(#result-full-capture) #introVideo,
+body:has(#result-full-capture) .intro-mute,
+body:has(#result-full-capture) .intro-mute-btn {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.birth-under-name {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  border: 2px solid #d97706 !important;
+  background: #fff7ed !important;
+  font-size: 15px !important;
+}
+
 .birth-under-name,
 #result-full-capture [data-loc="client/src/pages/Home.tsx:773b"] {
   display: block !important;
@@ -586,6 +608,21 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260922i"></script>
+    <script src="./pwa-install.js?v=20260922j"></script>
+
+<script>
+(function(){
+  function go(){
+    var el = document.querySelector('.birth-under-name') || document.querySelector('[data-loc="client/src/pages/Home.tsx:772"]');
+    if (el) try { el.scrollIntoView({block:'start', behavior:'instant'}); } catch(e) { el.scrollIntoView(true); }
+  }
+  var obs = new MutationObserver(function(){
+    if (document.querySelector('#result-full-capture')) { go(); }
+  });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+  document.addEventListener('DOMContentLoaded', go);
+})();
+</script>
+
 </body>
 </html>
