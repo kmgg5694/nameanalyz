@@ -2609,12 +2609,204 @@
         { i: 3, speak: "중년(40~55세)", ageKey: "중년" },
       ];
 
+      /** 재물운 해당 괘 (hex-fortune 재물운) */
+      const WEALTH_HEX = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화"];
+      function isWealthHex(g) {
+        if (!g || !g.name) return false;
+        const n = gweNameOf(g);
+        for (let wi = 0; wi < WEALTH_HEX.length; wi++) {
+          if (n === WEALTH_HEX[wi] || n.indexOf(WEALTH_HEX[wi]) === 0) return true;
+        }
+        return false;
+      }
+
+      /** 해당 나이대 이름(한글·한문) 표기 */
+      function nameSideSpeak(idx, ageKey) {
+        const parts = [];
+        if (nmS[idx] && nmS[idx].data) {
+          parts.push("한글 수리 " + suriPhrase(nmS[idx]));
+        }
+        if (nmG[idx] && nmG[idx].name) {
+          parts.push("한글 주역 " + gweNameHtml(nmG[idx]));
+        }
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data) {
+            parts.push("한문 수리 " + suriPhrase(hjS[idx]));
+          }
+          if (hjG[idx] && hjG[idx].name) {
+            parts.push("한문 주역 " + gweNameHtml(hjG[idx]));
+          }
+        }
+        if (!parts.length) return "이름 " + ageKey + " 자료가 없고";
+        return "이름 " + ageKey + "은 " + parts.join("·") + "이고";
+      }
+
+      /** 탄생일 각 시기 설명 직후 — 이름↔사주 반드시 견줌 (보흘 지정) */
+      function compareNameVsSajuAtAge(ageKey, idx) {
+        const bs = bdS[idx];
+        const bg = bdG[idx];
+        if ((!bs || !bs.data) && (!bg || !bg.name)) return "";
+
+        let p = nameSideSpeak(idx, ageKey) + " ";
+        const sBits = [];
+        if (bs && bs.data) sBits.push("수리 " + suriPhrase(bs));
+        if (bg && bg.name) sBits.push("주역 " + gweNameHtml(bg));
+        p +=
+          "사주 " +
+          ageKey +
+          "은 " +
+          (sBits.length ? sBits.join("·") : "뚜렷한 표기가 없고") +
+          "입니다. ";
+
+        const ht = sideToneAt(nmS, nmG, idx);
+        let nameToneFixed = ht;
+        if (hasHanja) {
+          const jt = sideToneAt(hjS, hjG, idx);
+          if (
+            hasBadSuriBlackHex(nmS[idx], nmG[idx]) ||
+            hasBadSuriBlackHex(hjS[idx], hjG[idx])
+          ) {
+            if (ht === "흉" || jt === "흉") nameToneFixed = "흉";
+            else if (ht === "길흉혼재" || jt === "길흉혼재")
+              nameToneFixed = "길흉혼재";
+            else if (ht === "길" || jt === "길") nameToneFixed = "길";
+            else nameToneFixed = "평이";
+          } else if (ht === "흉" || jt === "흉") {
+            nameToneFixed =
+              ht === "길" || jt === "길" ? "길흉혼재" : "흉";
+          } else if (ht === "길흉혼재" || jt === "길흉혼재") {
+            nameToneFixed = "길흉혼재";
+          } else if (ht === "길" || jt === "길") {
+            nameToneFixed = "길";
+          } else {
+            nameToneFixed = "평이";
+          }
+        } else if (hasBadSuriBlackHex(nmS[idx], nmG[idx])) {
+          nameToneFixed = "흉";
+        }
+
+        const sajuTone = (function () {
+          let good = 0;
+          let bad = 0;
+          if (bs && bs.data && suriGood(bs.data)) good++;
+          if (bs && bs.data && suriBad(bs.data)) bad++;
+          if (bg && gweGood(bg)) good++;
+          if (bg && gweBad(bg)) bad++;
+          if (hasBadSuriBlackHex(bs, bg)) return "흉";
+          if (bad && !good) return "흉";
+          if (good && !bad) return "길";
+          if (good && bad) return "길흉혼재";
+          return "평이";
+        })();
+
+        p +=
+          "이름 " +
+          ageKey +
+          "과 사주 " +
+          ageKey +
+          "을 견주면, 이름은 " +
+          toneLabel(nameToneFixed) +
+          "이고 사주는 " +
+          toneLabel(sajuTone) +
+          "입니다. ";
+
+        if (nameToneFixed === "흉" && (sajuTone === "길" || sajuTone === "평이")) {
+          p +=
+            "같은 " +
+            ageKey +
+            "에 이름이 사주의 힘을 누르기 쉬우니 " +
+            paintRed("이름이 치는 쪽") +
+            "으로 읽습니다.";
+        } else if (
+          (nameToneFixed === "길" || nameToneFixed === "길흉혼재") &&
+          sajuTone === "흉"
+        ) {
+          p +=
+            "같은 " +
+            ageKey +
+            "에 사주는 무거운데 이름이 받쳐 " +
+            paintBlue("이름이 돕는 쪽") +
+            "입니다.";
+        } else if (nameToneFixed === "흉" && sajuTone === "흉") {
+          p +=
+            "같은 " +
+            ageKey +
+            "에 이름과 사주가 함께 무거워 시련이 겹치기 쉽습니다.";
+        } else if (nameToneFixed === "길" && sajuTone === "길") {
+          p +=
+            "같은 " + ageKey + "에 이름과 사주가 함께 열려 흐름이 힘찹니다.";
+        } else if (nameToneFixed === "길흉혼재" && sajuTone === "길") {
+          p +=
+            "사주는 열리는데 이름에 흉이 섞여 이름이 사주를 일부 누르는 결입니다.";
+        } else {
+          p +=
+            "이름과 사주의 결을 같은 " + ageKey + " 기준으로 함께 보십시오.";
+        }
+        return p;
+      }
+
+      /** 이름·사주 재물운 괘를 나이대 건너 한데 묶어 설명 (보흘 지정) */
+      function buildWealthAggregateNote() {
+        const hits = [];
+        function pushWealth(who, ageKey, g) {
+          if (!isWealthHex(g)) return;
+          hits.push({
+            who: who,
+            age: ageKey,
+            g: g,
+            label: who + " " + ageKey + " 「" + gweNameOf(g) + "」",
+          });
+        }
+        const ageOrder = [
+          { key: "초년", idx: 1 },
+          { key: "장년", idx: 2 },
+          { key: "중년", idx: 3 },
+          { key: "말년", idx: 0 },
+        ];
+        ageOrder.forEach(function (pe) {
+          pushWealth("한글이름", pe.key, nmG[pe.idx]);
+          if (hasHanja) pushWealth("한자이름", pe.key, hjG[pe.idx]);
+          pushWealth("사주", pe.key, bdG[pe.idx]);
+        });
+        if (hits.length < 2) {
+          // 하나뿐이어도 이름 중년 화수미제 + 사주 말년 이위화처럼 다른 자리면 위에서 잡힘
+          // 1개면 뭉뚱 해설 생략
+          return "";
+        }
+        const labels = hits.map(function (h) {
+          return h.label;
+        });
+        let p =
+          "재물 기운을 이름·사주에서 한데 보면, " +
+          labels.join("·") +
+          "이 모두 재물운에 해당합니다. 한 자리만 보고 재물을 다 말했다 하지 말고, 이 기운들을 묶어 읽어야 합니다. ";
+
+        const nameMidHwasu =
+          isHwasumije(nmG[3]) || (hasHanja && isHwasumije(hjG[3]));
+        const sajuMalIwi = hexNameStarts(bdG[0], "이위화");
+        if (nameMidHwasu && sajuMalIwi) {
+          p +=
+            "특히 이름 중년 「화수미제」 다음에 사주 말년 「이위화」도 재물운이니, 중년의 짧은 재물 보탬만 말하고 사주 말년 「이위화」의 재운·성공운을 빼놓으면 안 됩니다. ";
+          const nameMalHard =
+            (nmS[0] && nmS[0].data && suriBad(nmS[0].data)) ||
+            (nmG[0] && gweBad(nmG[0])) ||
+            (hasHanja && hjS[0] && hjS[0].data && suriBad(hjS[0].data)) ||
+            (hasHanja && hjG[0] && gweBad(hjG[0])) ||
+            isHwagtaekGyu(nmG[0]) ||
+            (hasHanja && isHwagtaekGyu(hjG[0]));
+          if (nameMalHard) {
+            p +=
+              "다만 이름 말년이 무거우면 사주 말년 「이위화」의 재물이 이름 말년에 지워지기 쉬우니, 중년·말년·사주를 한 줄로 견줘야 합니다.";
+          }
+        }
+        return p;
+      }
+
       birthSlots.forEach(function (slot) {
         const bs = bdS[slot.i];
         const bg = bdG[slot.i];
         if ((!bs || !bs.data) && (!bg || !bg.name)) return;
         const bits = [];
-        // 장수 축소: 탄생일은 수리·괘명만 (전문 중복 생략)
         if (bs && bs.data) {
           bits.push(
             "탄생일 " + slot.speak + " 수리는 " + suriPhrase(bs) + "입니다."
@@ -2632,18 +2824,12 @@
         const gBad = !!(bg && gweBad(bg));
         const gGood = !!(bg && gweGood(bg));
         if ((sBad || gBad) && !(sGood || gGood)) {
-          // 괘 축약이 있으면 「흉한 기운」 한마디로 덮지 않음
           if (!hexBrief) {
-            bits.push(
-              paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다.")
-            );
+            bits.push(paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다."));
           }
         } else if ((sGood || gGood) && !(sBad || gBad)) {
-          // 이위화 등: 축약본 뜻을 이미 말했으면 「밝은 기운」으로 뭉개지 않음
           if (!hexBrief) {
-            bits.push(
-              paintBlue("이 시기 사주는 길한 기운이 뚜렷합니다.")
-            );
+            bits.push(paintBlue("이 시기 사주는 길한 기운이 뚜렷합니다."));
           }
         } else if ((sBad || gBad) && (sGood || gGood)) {
           if (!hexBrief) {
@@ -2651,47 +2837,15 @@
           }
         }
 
-        // 같은 시기 이름(한글·한문)과 사주를 이야기하듯 견줌
-        const nBadP =
-          !!(nmS[slot.i] && suriBad(nmS[slot.i].data)) ||
-          !!(nmG[slot.i] && gweBad(nmG[slot.i])) ||
-          !!(hasHanja && hjS[slot.i] && suriBad(hjS[slot.i].data)) ||
-          !!(hasHanja && hjG[slot.i] && gweBad(hjG[slot.i]));
-        const nGoodP =
-          !!(nmS[slot.i] && suriGood(nmS[slot.i].data)) ||
-          !!(nmG[slot.i] && gweGood(nmG[slot.i])) ||
-          !!(hasHanja && hjS[slot.i] && suriGood(hjS[slot.i].data)) ||
-          !!(hasHanja && hjG[slot.i] && gweGood(hjG[slot.i]));
-        const bBadP = sBad || gBad;
-        const bGoodP = sGood || gGood;
-        if (nBadP && bGoodP) {
-          bits.push(
-            " 같은 " +
-              slot.ageKey +
-              "에 이름은 무거운데 탄생일은 열려 있어, 이름이 사주의 힘을 누르는지 살펴야 합니다."
-          );
-        } else if (nGoodP && bBadP) {
-          bits.push(
-            " 같은 " +
-              slot.ageKey +
-              "에 탄생일은 무거운데 이름이 밝아, 이름이 사주의 부담을 덜어 줍니다."
-          );
-        } else if (nBadP && bBadP) {
-          bits.push(
-            " 같은 " +
-              slot.ageKey +
-              "에 이름과 탄생일이 모두 무거워 시련이 겹치기 쉽습니다."
-          );
-        } else if (nGoodP && bGoodP) {
-          bits.push(
-            " 같은 " +
-              slot.ageKey +
-              "에 이름과 탄생일이 함께 열려 흐름이 힘차게 읽힙니다."
-          );
-        }
-
         if (bits.length) ageParts.push(bits.join(" "));
+
+        // 탄생일 설명 직후 — 이름↔사주 비교 (말·초·장·중 모두, 누락 금지)
+        const cmp = compareNameVsSajuAtAge(slot.ageKey, slot.i);
+        if (cmp) ageParts.push(cmp);
       });
+
+      const wealthAgg = buildWealthAggregateNote();
+      if (wealthAgg) ageParts.push(wealthAgg);
     } else {
       // 탄생일 없으면 이름 대비 안내만 생략
     }
