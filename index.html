@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260922g")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260922h")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260922g", "1");
+          sessionStorage.setItem("na_sw_purged_20260922h", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260922g");
+            u.searchParams.set("v", "20260922h");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922g').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922g').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922g').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922g').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922h').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922h').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922h').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922h').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922g"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260922g"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922g"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922h"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260922h"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922h"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -87,7 +87,7 @@
     <meta name="apple-mobile-web-app-title" content="이름풀이" />
 
 <style id="print-a4-fix">
-/* screen narrative readability */
+/* screen */
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1201"],
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1307"] {
   display: none !important;
@@ -169,11 +169,18 @@
   color: #6b5535;
   line-height: 1.4;
 }
+
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 14mm 16mm 14mm;
+    margin: 12mm 12mm 18mm 12mm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 10pt;
+      color: #333;
+    }
   }
+
   html, body {
     width: 100% !important;
     margin: 0 !important;
@@ -181,11 +188,12 @@
     background: #fff !important;
     color: #1a1008 !important;
     font-size: 10.5pt !important;
-    line-height: 1.55 !important;
+    line-height: 1.5 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  /* chrome only — hide UI, keep result */
+
+  /* UI chrome */
   .intro-sec, #introPlayerWrap, #introVideo, .intro-mute,
   .intro-mute-btn, .intro-player, audio, video,
   header, nav, [role="tablist"], .tab-nav,
@@ -193,11 +201,29 @@
   .no-print {
     display: none !important;
   }
-  button.no-print,
-  .no-print button {
+
+  /*
+   * CRITICAL: off-screen capture card (Home.tsx:739, #pr-card-capture)
+   * was left:-9999px but print made it visible → blank first page.
+   * Tip overlay must never print either.
+   */
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:739"],
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:740"],
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:741"],
+  #pr-card-capture,
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:tipMask"] {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -99999px !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  /* show result root even if tab chrome is odd */
+
   #root, main, #result-full-capture {
     display: block !important;
     visibility: visible !important;
@@ -208,11 +234,15 @@
     padding: 0 !important;
     overflow: visible !important;
     height: auto !important;
+    min-height: 0 !important;
   }
-  #result-full-capture, #result-full-capture * {
+
+  /* do NOT force every descendant visible — that resurrected the capture card */
+  #result-full-capture {
     visibility: visible !important;
   }
-  /* 종합표 was marked no-print — force show */
+
+  /* 종합표 */
   #result-full-capture [data-loc="client/src/pages/Home.tsx:819"],
   #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] {
     display: block !important;
@@ -228,7 +258,7 @@
   #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] td {
     display: table-cell !important;
   }
-  /* table cell buttons (underlined 수리/괘) stay as text */
+
   #result-full-capture table button {
     display: inline !important;
     background: transparent !important;
@@ -239,37 +269,48 @@
     color: inherit !important;
     text-decoration: underline !important;
   }
-  #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
-    display: none !important;
+
+  /* allow natural page breaks — NEVER avoid on large cards */
+  .ink-card, .suri-card, section, article, table, tr, div {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
+  .ink-card, .suri-card {
+    box-shadow: none !important;
+    background: #fff !important;
+    border: 1px solid #b45309 !important;
+    padding: 6px !important;
+    margin: 6px 0 !important;
+  }
+
   [class*="sticky"], [class*="fixed"], .fixed, .sticky {
     position: static !important;
     transform: none !important;
   }
+
   .max-w-2xl, .max-w-xl, .max-w-lg, .max-w-md, .max-w-3xl, .max-w-4xl,
   .max-w-5xl, .max-w-6xl, .max-w-7xl, .mx-auto {
     max-width: 100% !important;
     width: 100% !important;
   }
-  .ink-card, .suri-card {
-    break-inside: avoid;
-    box-shadow: none !important;
-    background: #fff !important;
-    border: 1px solid #b45309 !important;
-    padding: 8px !important;
-    margin: 10px 0 !important;
-  }
+
   img, svg { max-width: 100% !important; height: auto !important; }
+
   .ko-sum-narr, .ko-sum-concl {
     font-size: 10.5pt !important;
-    line-height: 1.55 !important;
-    max-width: 155mm !important;
-    width: 155mm !important;
-    margin: 0 auto 8px !important;
+    line-height: 1.5 !important;
+    max-width: 170mm !important;
+    width: 100% !important;
+    margin: 0 auto 6px !important;
   }
-  .ko-sum-matrix { max-width: 150mm !important; margin: 0 auto 4px !important; }
+  .ko-sum-matrix { max-width: 170mm !important; margin: 0 auto 4px !important; }
   .ko-sum-mx { font-size: 8.5pt !important; }
-  .ko-sum-mx th, .ko-sum-mx td { padding: 3px 2px !important; }
+  .ko-sum-mx th, .ko-sum-mx td { padding: 2px !important; }
+
+  /* page number fallback label (Chrome may use dialog headers instead) */
+  body::after {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -506,6 +547,6 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260922g"></script>
+    <script src="./pwa-install.js?v=20260922h"></script>
 </body>
 </html>
