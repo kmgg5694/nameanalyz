@@ -1427,7 +1427,7 @@
       }
       if (sajuMalIwi && nameMalDual) {
         t +=
-          " 사주 총운(말년) 「이위화」는 밝고 명랑한 분위기·재물 기운이었으나, 이름 말년 「이산파멸」·「화택규」에 그 재물이 지워지는 모습입니다. 타고난 사주가 훨씬 낫고, 이 이름을 좋다고 할 수 없습니다.";
+          " 사주 총운(말년) 「이위화」는 태양이 두 개 떠 화려한 극치·건강·균형의 편안한 시기·강력한 재운·성공운의 기운이었으나, 이름 말년 「이산파멸」·「화택규」에 그 재물이 지워지는 모습입니다. 타고난 사주가 훨씬 낫고, 이 이름을 좋다고 할 수 없습니다.";
       } else if (nameMalDual) {
         t +=
           " 이름 말년 「이산파멸」·「화택규」가 사주의 힘을 깎아 먹습니다. 타고난 사주가 훨씬 낫습니다.";
@@ -2091,7 +2091,7 @@
           "겉(한글)은 무거운데 속(한자)은 열려, 겉으로 받기 어려운 시기에도 속으로는 버틸 힘이 있습니다.";
       } else if (ht === "길" && jt === "흉") {
         p +=
-          "겉(한글)은 열려 보여도 속(한자)이 눌러, 겉으로 좋아 보여도 속이 흡족하지 않은 결입니다.";
+          "겉(한글)은 열려 보여도 속(한자)이 눌러, 겉으로 좋아 보여도 속이 흡족하지 않은 결과를 보입니다.";
       } else if (ht === "흉" && jt === "흉") {
         p +=
           "한글·한자가 함께 " +
@@ -2529,23 +2529,35 @@
             "탄생일 " + slot.speak + " 수리는 " + suriPhrase(bs) + "입니다."
           );
         }
+        let hexBrief = "";
         if (bg && bg.name) {
-          bits.push("주역은 " + gweNameHtml(bg) + "입니다.");
+          hexBrief = hexCoreBrief(bg);
+          let hexLine = "주역은 " + gweNameHtml(bg) + "입니다.";
+          if (hexBrief) hexLine += " " + hexBrief;
+          bits.push(hexLine);
         }
         const sBad = !!(bs && suriBad(bs.data));
         const sGood = !!(bs && suriGood(bs.data));
         const gBad = !!(bg && gweBad(bg));
         const gGood = !!(bg && gweGood(bg));
         if ((sBad || gBad) && !(sGood || gGood)) {
-          bits.push(
-            paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다.")
-          );
+          // 괘 축약이 있으면 「흉한 기운」 한마디로 덮지 않음
+          if (!hexBrief) {
+            bits.push(
+              paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다.")
+            );
+          }
         } else if ((sGood || gGood) && !(sBad || gBad)) {
-          bits.push(
-            paintBlue("이 시기 사주는 밝은 기운이 뚜렷합니다.")
-          );
+          // 이위화 등: 축약본 뜻을 이미 말했으면 「밝은 기운」으로 뭉개지 않음
+          if (!hexBrief) {
+            bits.push(
+              paintBlue("이 시기 사주는 길한 기운이 뚜렷합니다.")
+            );
+          }
         } else if ((sBad || gBad) && (sGood || gGood)) {
-          bits.push("이 시기 사주는 밝은 기운과 무거운 기운이 함께 있습니다.");
+          if (!hexBrief) {
+            bits.push("이 시기 사주는 길한 기운과 무거운 기운이 함께 있습니다.");
+          }
         }
 
         // 같은 시기 이름(한글·한문)과 사주를 이야기하듯 견줌
