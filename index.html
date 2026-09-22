@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260922b")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260922c")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260922b", "1");
+          sessionStorage.setItem("na_sw_purged_20260922c", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260922b");
+            u.searchParams.set("v", "20260922c");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922b').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922b').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922b').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922b').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922c').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922c').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922c').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922c').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922b"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260922b"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922b"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922c"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260922c"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922c"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -97,7 +97,7 @@
   line-height: 1.65;
   letter-spacing: -0.01em;
   color: #1a1008;
-  max-width: 42rem;
+  max-width: 36rem;
   margin: 0 auto 0.7rem;
   padding: 0;
 }
@@ -106,8 +106,71 @@
   padding-top: 0.45rem;
   border-top: 1px solid #e8dcc8;
 }
+.ko-sum-matrix-head {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0 0 0.65rem;
+  color: #1a1008;
+}
+.ko-sum-matrix {
+  max-width: 34rem;
+  margin: 0 auto 0.4rem;
+  overflow-x: auto;
+}
+.ko-sum-mx {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.ko-sum-mx th,
+.ko-sum-mx td {
+  border: 1px solid #c4b49a;
+  padding: 4px 3px;
+  vertical-align: top;
+  text-align: center;
+  word-break: keep-all;
+}
+.ko-sum-mx thead th {
+  background: #f7f0e4;
+  font-weight: 800;
+  color: #3b2a14;
+}
+.ko-sum-mx tbody th[scope="row"] {
+  width: 3.2rem;
+  background: #faf6ef;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+.ko-sum-mx .mx-age { font-size: 0.82rem; }
+.ko-sum-mx .mx-sub {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #6b5535;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+.ko-sum-mx .mx-mark {
+  display: inline-block;
+  margin: 1px 0;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.ko-sum-mx .mx-g { color: #0000FF; }
+.ko-sum-mx .mx-b { color: #FF0000; }
+.ko-sum-mx .mx-n { color: #3b2a14; }
+.ko-sum-mx .mx-empty { color: #c9b89a; }
+.ko-sum-matrix .mx-note {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: #6b5535;
+  line-height: 1.4;
+}
 @media print {
-  @page { size: A4 portrait; margin: 12mm 14mm; }
+  @page { size: A4 portrait; margin: 12mm 16mm; }
   html, body {
     width: 100% !important;
     max-width: 100% !important;
@@ -193,9 +256,12 @@
   .ko-sum-narr, .ko-sum-concl {
     font-size: 10.5pt !important;
     line-height: 1.55 !important;
-    max-width: none !important;
+    max-width: 155mm !important;
+    width: 155mm !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     padding: 2px 0 !important;
-    margin: 0 0 8px !important;
+    margin-bottom: 8px !important;
     background: transparent !important;
     border: none !important;
   }
@@ -204,6 +270,22 @@
     padding-top: 10px !important;
     margin-top: 16px !important;
   }
+  .ko-sum-matrix {
+    max-width: 150mm !important;
+    width: 100% !important;
+    margin: 0 auto 4px !important;
+  }
+  .ko-sum-mx {
+    font-size: 8.5pt !important;
+  }
+  .ko-sum-mx th,
+  .ko-sum-mx td {
+    padding: 3px 2px !important;
+  }
+  .ko-sum-mx .mx-sub { font-size: 6.5pt !important; }
+  .ko-sum-mx .mx-mark { font-size: 8pt !important; }
+  .ko-sum-matrix .mx-note { font-size: 7.5pt !important; }
+  .ko-sum-matrix-head { font-size: 10pt !important; }
   [data-loc="client/src/pages/Home.tsx:sumAgeCore"] ~ div [style*="grid-template-columns"],
   #result-full-capture div[style*="grid-template-columns: 1fr 1fr"],
   #result-full-capture div[style*="grid-template-columns:1fr 1fr"] {
@@ -445,6 +527,6 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260922b"></script>
+    <script src="./pwa-install.js?v=20260922c"></script>
 </body>
 </html>

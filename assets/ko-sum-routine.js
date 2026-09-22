@@ -2964,179 +2964,203 @@
       });
     }
 
-    function softBalance(bad, good) {
-      if (bad > good && bad - good >= 2) return "무거운 기운이 더 두드러집니다";
-      if (good > bad && good - bad >= 2) return "열린 기운이 더 두드러집니다";
-      if (bad > good) return "부담이 조금 더 무겁습니다";
-      if (good > bad) return "열림이 조금 더 있습니다";
-      if (bad === 0 && good === 0) return "뚜렷한 기복이 크게 드러나지 않습니다";
-      return "열림과 부담이 비슷한 무게로 섞여 있습니다";
+    /**
+     * 보흘 지정 표: 인덕·배우자운 + 초·장·중·말 × 재물운·질병·수술·사고·소송·이혼·암·우울증·비만
+     * 【기운 비교】~결론 장문 대신 이 표만 두고, 해당 내용은 수리·주역에서 찾아 넣음
+     */
+    function hexMatchesAny(g, names) {
+      if (!g || !g.name || !names || !names.length) return false;
+      const n = gweNameOf(g);
+      for (let i = 0; i < names.length; i++) {
+        const h = names[i];
+        if (n === h || n.indexOf(h) === 0) return true;
+      }
+      return false;
     }
 
-    compareParts.push(
-      "【기운 비교】 " +
-        (hasB
-          ? "이름 시기 길흉을 먼저 밝히고, 사주 시기 길흉을 분명히 한 뒤, 나이대별로 치는 쪽·변곡점을 견줬습니다. "
-          : "") +
-        "이름(한글" +
-        (hasHanja ? "+한문" : "") +
-        ")은 " +
-        softBalance(nBad, nGood) +
-        (hasB ? ". 사주는 " + softBalance(bBad, bGood) : "") +
-        "."
-    );
-    compareParts.push(
-      "오행·말년·초년·장년·중년을 한 흐름으로 해설합니다."
-    );
-    if (specialWarn.length) {
-      specialWarn.forEach(function (w) {
-        compareParts.push(w);
-      });
+    function suriInList(ns, nums) {
+      if (!ns || ns.suri == null || !nums || !nums.length) return false;
+      return nums.indexOf(Number(ns.suri)) >= 0;
     }
 
-    compareParts.push("결국 인생은 주역괘대로 흘러갑니다.");
-    compareParts.push(
-      "【나이대 원칙】 말년(총운)만 인생 전체에 영향주며 말년의 기운이 초년·장년·중년에도 영향력을 행사합니다. 초년·장년·중년은 자기 나이대에만 영향력을 행사합니다. 나이대 경계 오차는 플러스·마이너스 약 3년 내외입니다."
-    );
-    if (amplifyParts.length) {
-      compareParts.push("【말년 가중·강화】 " + amplifyParts.join(" "));
-    } else if (malGood || malBad) {
-      compareParts.push(
-        malGood
-          ? "【말년 가중·강화】 이름 말년은 밝은 편입니다. 초·장·중의 열림과 만나면 더 세지고, 사주 부담이 있어도 말년이 삭감·완충합니다."
-          : "【말년 가중·강화】 이름 말년은 무거운 편입니다. 초·장·중 부담과 만나면 더 보태지니 해당 시기를 각별히 조심하십시오."
+    function nameHasAnyHex(names) {
+      if (!names || !names.length) return false;
+      for (let i = 0; i < ages.length; i++) {
+        if (hexMatchesAny(nmG[i], names)) return true;
+        if (hasHanja && hexMatchesAny(hjG[i], names)) return true;
+      }
+      return false;
+    }
+
+    function indeokSpouseLines() {
+      const o = ctx.ohang || {};
+      const saeng = Number(o.M) || 0;
+      let indeok = "부족(상생 " + saeng + "개)";
+      if (saeng >= 3) indeok = "많음(상생 " + saeng + "개)";
+      else if (saeng >= 2) indeok = "어느 정도(상생 " + saeng + "개)";
+
+      let spouse = "해당없음";
+      const up = o.up || o.upHg;
+      const upHj = o.upHj;
+      if (up === "sangsaeng" || upHj === "sangsaeng") {
+        spouse = "원활(위쪽 오행 생)";
+      } else if (up === "sanggeuk" || upHj === "sanggeuk") {
+        spouse = "막힘(위쪽 오행 극)";
+      } else if (up || upHj) {
+        spouse = "비화(관심이 있는듯 없는듯)";
+      }
+
+      return (
+        '<div class="ko-sum-matrix-head">' +
+        "<div>1. 인덕 : " +
+        esc(indeok) +
+        "</div>" +
+        "<div>2. 배우자운 : " +
+        esc(spouse) +
+        "</div>" +
+        "</div>"
       );
     }
 
-    let verdict = "";
-    function listGweNames(arr) {
+    /** 표 행 — hex-fortune-19 / suri81 스펙 기준 */
+    const MATRIX_ROWS = [
+      {
+        title: "재물운",
+        hex: ["화천대유", "화수미제", "수풍정", "산천대축", "이위화"],
+        suri: [16, 24, 29, 47, 7, 13, 3, 33, 41, 58, 61, 65, 67, 1, 5, 6, 8, 18],
+        good: true,
+      },
+      {
+        title: "질병",
+        hex: ["화택규", "택천쾌", "감위수", "산풍고", "지화명이"],
+        suri: [14],
+        bad: true,
+      },
+      {
+        title: "수술",
+        hex: ["화택규", "택천쾌"],
+        suri: [14],
+        bad: true,
+      },
+      {
+        title: "사고",
+        hex: ["화택규"],
+        suri: [14, 19, 20, 26, 27, 28, 46, 70, 74, 79, 4, 9, 10, 22, 34, 64, 69],
+        bad: true,
+      },
+      {
+        title: "소송",
+        hex: ["천수송", "지수사"],
+        suri: [36, 20, 19, 27, 78],
+        bad: true,
+      },
+      {
+        title: "이혼",
+        hex: ["풍천소축"],
+        suri: [2, 14],
+        bad: true,
+      },
+      {
+        title: "암",
+        hex: ["천지비", "지화명이"],
+        hexCompanion: { target: "수화기제", companions: ["천지비", "지화명이"] },
+        suri: [14],
+        bad: true,
+      },
+      {
+        title: "우울증",
+        hex: ["산풍고", "지화명이"],
+        suri: [],
+        bad: true,
+      },
+      {
+        title: "비만",
+        hex: [],
+        suri: [],
+        bad: true,
+      },
+    ];
+
+    const MATRIX_AGES = [
+      { key: "초년", idx: 1, sub: "1~23세<br>1~30세" },
+      { key: "장년", idx: 2, sub: "24~40세<br>31~50세" },
+      { key: "중년", idx: 3, sub: "41~53세<br>51~55세" },
+      { key: "말년", idx: 0, sub: "55세 이후" },
+    ];
+
+    function cellMarks(row, ageIdx) {
       const seen = {};
       const out = [];
-      arr.forEach(function (h) {
-        const key = strip(h.ng.name);
-        if (!seen[key]) {
-          seen[key] = true;
-          out.push(gweNameHtml(h.ng));
+      function add(html, kind) {
+        const key = String(html).replace(/<[^>]+>/g, "");
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        out.push(
+          '<span class="mx-mark mx-' +
+            (kind || "n") +
+            '">' +
+            html +
+            "</span>"
+        );
+      }
+      function tone() {
+        return row.good ? "g" : row.bad ? "b" : "n";
+      }
+      function scan(ns, ng) {
+        if (hexMatchesAny(ng, row.hex)) {
+          add(gweNameHtml(ng), tone());
         }
-      });
-      return out;
-    }
-    function byAgeHelp(arr) {
-      return arr.map(function (h) {
-        if (h.bg) {
-          return (
-            h.ag +
-            "에 " +
-            gweNameHtml(h.ng) +
-            "→사주" +
-            gweNameHtml(h.bg)
-          );
+        if (
+          row.hexCompanion &&
+          hexMatchesAny(ng, [row.hexCompanion.target]) &&
+          nameHasAnyHex(row.hexCompanion.companions)
+        ) {
+          add(gweNameHtml(ng), tone());
         }
-        return h.ag + "에 " + gweNameHtml(h.ng) + "→사주";
-      });
-    }
-    function nameGweTag(who, g, ag) {
-      return who + gweNameHtml(g) + "(" + ag + ")";
+        if (suriInList(ns, row.suri)) {
+          add(suriPhrase(ns), tone());
+        }
+      }
+      scan(nmS[ageIdx], nmG[ageIdx]);
+      if (hasHanja) scan(hjS[ageIdx], hjG[ageIdx]);
+      return out.join(" ");
     }
 
-    if (!hasB) {
-      const nameBadGwes = [];
-      const nameGoodGwes = [];
-      ages.forEach(function (ag, ii) {
-        const g = nmG[ii];
-        if (gweBad(g)) nameBadGwes.push(nameGweTag("한글", g, ag));
-        if (gweGood(g)) nameGoodGwes.push(nameGweTag("한글", g, ag));
-        if (hasHanja) {
-          const h = hjG[ii];
-          if (gweBad(h)) nameBadGwes.push(nameGweTag("한문", h, ag));
-          if (gweGood(h)) nameGoodGwes.push(nameGweTag("한문", h, ag));
-        }
+    function buildFortuneMatrixHtml() {
+      let html =
+        indeokSpouseLines() +
+        '<div class="ko-sum-matrix">' +
+        '<table class="ko-sum-mx">' +
+        "<thead><tr>" +
+        "<th></th>";
+      MATRIX_AGES.forEach(function (a) {
+        html +=
+          "<th><div class=\"mx-age\">" +
+          a.key +
+          '</div><div class="mx-sub">' +
+          a.sub +
+          "</div></th>";
       });
-      if (specialWarn.length) {
-        verdict =
-          "【결론】 위 주의사항을 반드시 보십시오. 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
-      } else if (nameBadGwes.length > 0) {
-        verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 이름 " +
-          nameBadGwes.join("·") +
-          "가 해당 시기에 사주를 칠 수 있으니 조심하십시오.";
-      } else if (hwagtCount >= 2) {
-        verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 「화택규」는 천추원한 백골혼으로 추락·낙상·교통사고 기운인데 " +
-          hwagtCount +
-          "개나 있어 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다.";
-      } else if (nameGoodGwes.length > 0) {
-        verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 부담 괘가 없고 " +
-          nameGoodGwes.join("·") +
-          "가 사주를 시기별로 도와준다. 그래서 좋은이름을 가졌네요.";
-      } else {
-        verdict =
-          "【결론】 생년월일 없이 이름만 봤습니다. 이름에 뚜렷한 부담·열림 괘는 없습니다.";
-      }
-    } else if (specialWarn.length) {
-      verdict =
-        "【결론】 위 주의사항을 반드시 보십시오." +
-        (hitList.length
-          ? " 또한 이름 " +
-            listGweNames(hitList).join("·") +
-            "가 사주를 시기별로 칩니다."
-          : "") +
-        " 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
-    } else if (hitList.length > 0) {
-      const nameList = listGweNames(hitList);
-      const byAge = hitList.map(function (h) {
-        if (h.bg) {
-          return (
-            h.ag +
-            "에 " +
-            gweNameHtml(h.ng) +
-            "→사주" +
-            gweNameHtml(h.bg)
-          );
-        }
-        return h.ag + "에 " + gweNameHtml(h.ng) + "→사주";
+      html += "</tr></thead><tbody>";
+      MATRIX_ROWS.forEach(function (row) {
+        html += '<tr><th scope="row">' + esc(row.title) + "</th>";
+        MATRIX_AGES.forEach(function (a) {
+          const marks = cellMarks(row, a.idx);
+          html +=
+            "<td>" +
+            (marks || '<span class="mx-empty">·</span>') +
+            "</td>";
+        });
+        html += "</tr>";
       });
-      verdict =
-        "【결론】 이름 " +
-        nameList.join("·") +
-        "가 사주를 시기별로 친다. (" +
-        byAge.join(", ") +
-        ")";
-      if (helpList.length > 0) {
-        verdict +=
-          " 한편 " +
-          listGweNames(helpList).join("·") +
-          "가 사주를 시기별로 도와준다. (" +
-          byAgeHelp(helpList).join(", ") +
-          ")";
-      }
-    } else if (hwagtCount >= 2) {
-      verdict =
-        "【결론】 「화택규」는 천추원한 백골혼으로 추락·낙상·교통사고 기운인데 " +
-        hwagtCount +
-        "개나 있어 좋은 이름이라고 할 수 없습니다. 둘 중 하나라도 흉수리를 만나면 사고가 나기 쉽습니다.";
-    } else if (helpList.length > 0) {
-      verdict =
-        "【결론】 이름 부담 괘가 사주를 치는 형국은 없고 " +
-        listGweNames(helpList).join("·") +
-        "가 사주를 시기별로 도와준다. (" +
-        byAgeHelp(helpList).join(", ") +
-        ") 그래서 좋은이름을 가졌네요.";
-    } else {
-      verdict =
-        "【결론】 이름 괘가 사주를 시기별로 치는 형국은 없다. 위 서술의 말년·초년·장년·중년 기운을 참고하십시오.";
+      html +=
+        "</tbody></table>" +
+        '<p class="mx-note">※ 해당 칸은 이름(한글·한문)의 그 시기 수리·주역이 기운 스펙에 맞을 때만 채웁니다. 없으면 비웁니다.</p>' +
+        "</div>";
+      return html;
     }
 
-    compareParts.push(verdict);
-    compareParts.push(
-      "이름이나 탄생일의 말년(총운)이 좋아야 내 인생의 말년·건강·재물이 좋아집니다. (말년만 전체에 미치며 초·장·중년에도 영향을 받고, 나머지 나이대는 해당 시기±3년 안입니다.)"
-    );
-    if (hasB) {
-      compareParts.push(
-        "주역사주를 이름 기운과 비교 분석하면 그 사람의 삶의 궤적과 변곡점이 훤히 들여다보입니다. 그러므로 주역성명학의 통계가 정확하다는 것을 확신합니다."
-      );
-    }
+    const fortuneMatrixHtml = buildFortuneMatrixHtml();
 
     const footnoteHits = collectFootnoteHits(
       nmS,
@@ -3236,18 +3260,12 @@
       return warnBox + footBox;
     }
 
-    const conclusionHtml = compareParts
-      .map(function (p) {
-        return p.indexOf("<span") >= 0 ? p : colorMarks(p);
-      })
-      .join("<br><br>");
-
     return {
       ageText:
         '<div class="ko-sum-narr">' + ageParts.join("<br><br>") + "</div>",
       conclusion:
         '<div class="ko-sum-concl">' +
-        conclusionHtml +
+        fortuneMatrixHtml +
         warningJangHtml(footnoteHits, chongunNotes) +
         "</div>",
     };
