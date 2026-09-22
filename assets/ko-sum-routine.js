@@ -127,6 +127,25 @@
     return n.indexOf("화수미제") >= 0;
   }
 
+  /** 재물운 해당 괘 (hex-fortune 재물운) */
+  const WEALTH_FORTUNE_HEX = [
+    "화천대유",
+    "화수미제",
+    "수풍정",
+    "산천대축",
+    "이위화",
+  ];
+
+  function isWealthFortuneHex(g) {
+    if (!g || !g.name) return false;
+    const n = gweNameOf(g);
+    for (let i = 0; i < WEALTH_FORTUNE_HEX.length; i++) {
+      const h = WEALTH_FORTUNE_HEX[i];
+      if (n === h || n.indexOf(h) === 0) return true;
+    }
+    return false;
+  }
+
   /** ages 배열 [말년,초년,장년,중년] 기준 — 시간순 직전 인덱스 */
   function chronoPrevAgeIdx(ageIdx) {
     if (ageIdx === 2) return 1; // 장년 ← 초년
@@ -159,7 +178,15 @@
     return !!(ns && ns.data && suriBad(ns.data) && gweBlack(ng));
   }
 
-  /** 보흘 지정: 웬만한 흉수리를 덜어 내고 더 좋아지는 경우가 많은 괘 */
+  /**
+   * 흉수리 + 눌러 주는 기운(화수미제·화천대유·이위화·산천대축·뇌천대장·화풍정·수풍정)
+   * → 흉수리 기능 상실, 길괘 영향 배가. 길흉 섞임으로 분류하지 않음. 재물운이면 재물운 명시 (보흘 지정)
+   */
+  function hasBadSuriMitigateHex(ns, ng) {
+    return !!(ns && ns.data && suriBad(ns.data) && isMitigateSuriHex(ng));
+  }
+
+  /** 보흘 지정: 웬만한 흉수리를 눌러 주고 더 좋아지는 경우가 많은 괘 */
   const HEX_MITIGATE_SURI = [
     "이위화",
     "화풍정",
@@ -637,7 +664,7 @@
   }
 
   /** 같은 자리 수리·괘 조합 참고
-   *  - 흉수리 + 완화 길괘(파랑) → 완화·재물 대박
+   *  - 흉수리 + 눌러 주는 기운(파랑 길괘) → 흉 기능 상실·길괘 배가·재물 (길로 봄, 길흉 섞임 금지)
    *  - 흉수리 + 검정 보통 괘(예: 14 이산파멸 + 풍수환) → 괘 본뜻이 파멸에 방해받아 피해
    *    · 같은 시기 사주에 흉수리·흉괘 있으면 피해 가중
    *  - 경고장 흉수리 + 경고장 흉괘(빨강) → 수리 기운 가중·위태 (14는 요절)
@@ -674,7 +701,7 @@
       return t;
     }
 
-    // 경고장 흉수리 + 경고장 흉괘 → 가중·위태 (완화 길괘·보통괘 특례가 아닐 때)
+    // 경고장 흉수리 + 경고장 흉괘 → 가중·위태 (눌러 주는 길괘·보통괘 특례가 아닐 때)
     if (isWarnJangSuri(ns) && isWarnJangHex(ng) && !isMitigateSuriHex(ng)) {
       // 풍수환은 위 보통괘 특례로 이미 처리(14만). 다른 수리+풍수환은 경고장 가중.
       const sLabel = warnJangSuriLabel(ns);
@@ -694,13 +721,28 @@
     if (!isMitigateSuriHex(ng)) return "";
     const wealthTail = wealthTailByAge(ageKey);
     const sName = plainSuriName(ns) || "흉수리";
-    // 흉수리 + 완화 길괘 → 장점은 좋아지고 흉은 지워짐 (보흘 지정)
-    const lift =
+    // 흉수리 + 눌러 주는 길괘 → 흉 기능 상실·길괘 배가 → 길로 봄. 재물운 괘면 재물운 명시 (보흘 지정)
+    let lift =
       " 다만 같은 시기에 " +
       hexPart +
-      " 있어 「" +
+      " 같은 " +
+      paintBlue("눌러 주는 기운") +
+      "이 있어 「" +
       sName +
-      "」의 장점은 더 좋아지고 흉은 지워집니다.";
+      "」의 흉은 기능이 상실되고 그 길괘의 영향력이 배가됩니다. 흉과 길이 섞였다고 분류하지 말고, 이 자리는 " +
+      paintBlue("길") +
+      "로 봅니다.";
+    if (isWealthFortuneHex(ng)) {
+      lift +=
+        " 「" +
+        plain +
+        "」" +
+        josaEunNeun(plain) +
+        " " +
+        paintBlue("재물운") +
+        "이니 재물운으로 설명합니다.";
+    }
+    lift += " 장점은 더 좋아지고 흉은 지워집니다.";
     if (num === 14) {
       const keys = suriDetailKeywordsList(ns);
       const gone = keys
@@ -720,6 +762,17 @@
     const code = ch.charCodeAt(0) - 0xac00;
     if (code < 0 || code > 11171) return "이";
     return code % 28 === 0 ? "가" : "이";
+  }
+
+  /** 은/는 */
+  function josaEunNeun(word) {
+    const ch = String(word || "")
+      .replace(/[^가-힣]/g, "")
+      .slice(-1);
+    if (!ch) return "은";
+    const code = ch.charCodeAt(0) - 0xac00;
+    if (code < 0 || code > 11171) return "은";
+    return code % 28 === 0 ? "는" : "은";
   }
 
   /** 으로/로 */
@@ -1398,7 +1451,7 @@
       specialWarn.push(warn);
     }
 
-    /** 보흘 지정: 말년 이산파멸+화택규 — 사주 완화 한 개로는 둘을 못 막음 */
+    /** 보흘 지정: 말년 이산파멸+화택규 — 사주 눌러 주는 기운 한 개로는 둘을 못 막음 */
     function checkMalDualIsanHwagt(sArr, gArr, who) {
       if (!sArr || !gArr || malIdx < 0) return;
       const ns = sArr[malIdx];
@@ -1415,7 +1468,7 @@
             " 사주말년에 이위화 길괘가 하나 있어도 이 둘을 다 막지 못하니, 둘 중 하나에게 얻어터지기 쉽습니다.";
         } else {
           t +=
-            " 사주 말년에 이를 막아 줄 완화 길괘가 없으면 그 피해가 더 직격으로 옵니다.";
+            " 사주 말년에 이를 막아 줄 눌러 주는 기운이 없으면 그 피해가 더 직격으로 옵니다.";
         }
       }
       specialWarn.push(t);
@@ -1874,7 +1927,7 @@
       });
       if (mitAll.length) {
         p +=
-          "수리의 흉을 덜어 주는 괘로 이위화·화수미제·화천대유·산천대축·수풍정·뇌천대장 등이 있습니다. 이 이름에는 " +
+          "수리의 흉을 눌러 주는 기운으로 이위화·화수미제·화천대유·산천대축·수풍정·뇌천대장 등이 있습니다. 이 이름에는 " +
           joinGweNames(mitAll) +
           "가 있습니다. ";
         const onlyJung =
@@ -1913,6 +1966,8 @@
         const g = gArr && gArr[idx];
         // 흉수리+검정 괘 → 무조건 흉 (검정을 길로 세거나 길흉혼재로 완화 금지)
         if (hasBadSuriBlackHex(s, g)) return "흉";
+        // 흉수리+눌러 주는 길괘 → 흉 기능 상실·길괘 배가 → 길 (길흉 섞임 금지)
+        if (hasBadSuriMitigateHex(s, g)) return "길";
         let good = 0;
         let bad = 0;
         if (s && s.data && suriGood(s.data)) good++;
@@ -2129,6 +2184,8 @@
       const g = gArr && gArr[idx];
       // 흉수리+검정 괘 → 무조건 흉 (검정 괘를 길로 보지 않음)
       if (hasBadSuriBlackHex(s, g)) return "흉";
+      // 흉수리+눌러 주는 길괘 → 흉 기능 상실·길괘 영향 배가 → 길 (길흉 섞임 금지)
+      if (hasBadSuriMitigateHex(s, g)) return "길";
       let good = 0;
       let bad = 0;
       if (s && s.data && suriGood(s.data)) good++;
@@ -2162,7 +2219,7 @@
         "입니다. ";
       if (hangulHard || hanjaHard) {
         p +=
-          "흉수리 아래 검정 보통 괘가 있으면 그 괘의 단점이 더 드러나니, 검정 괘를 길로 보거나 길·흉이 섞였다고 완화하면 안 됩니다.";
+          "흉수리 아래 검정 보통 괘가 있으면 그 괘의 단점이 더 드러나니, 검정 괘를 길로 보거나 길·흉이 섞였다고 하면 안 됩니다.";
         if (hangulHard && hexNameStarts(nmG[idx], "화산려") && nmS[idx] && Number(nmS[idx].suri) === 14) {
           p +=
             " 한글의 「이산파멸」·「화산려」는 이산으로 가족과 헤어지고 역마살을 타 더 불안하고 힘든 생활로 읽습니다.";
@@ -2693,6 +2750,7 @@
           if (bg && gweGood(bg)) good++;
           if (bg && gweBad(bg)) bad++;
           if (hasBadSuriBlackHex(bs, bg)) return "흉";
+          if (hasBadSuriMitigateHex(bs, bg)) return "길";
           if (bad && !good) return "흉";
           if (good && !bad) return "길";
           if (good && bad) return "길흉혼재";
