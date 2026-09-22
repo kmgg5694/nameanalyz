@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260922h")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260922i")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260922h", "1");
+          sessionStorage.setItem("na_sw_purged_20260922i", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260922h");
+            u.searchParams.set("v", "20260922i");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922h').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922h').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922h').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922h').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922i').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922i').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922i').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922i').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922h"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260922h"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922h"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922i"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260922i"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922i"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -170,6 +170,26 @@
   line-height: 1.4;
 }
 
+
+/* 이름 바로 아래 탄생일 — 화면·인쇄 모두 강제 표시 */
+.birth-under-name,
+#result-full-capture [data-loc="client/src/pages/Home.tsx:773b"] {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  width: auto !important;
+  max-width: 280px !important;
+  margin: 8px auto 6px !important;
+  padding: 8px 10px !important;
+  border: 1px solid #d97706 !important;
+  border-radius: 8px !important;
+  background: #fffdf5 !important;
+  position: static !important;
+  left: auto !important;
+  overflow: visible !important;
+}
+
 @media print {
   @page {
     size: A4 portrait;
@@ -223,6 +243,25 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  /* 이름 아래 탄생일 절대 숨기지 않음 */
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:773b"],
+  #result-full-capture .birth-under-name {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    max-width: 280px !important;
+    margin: 8px auto 6px !important;
+    padding: 8px 10px !important;
+    border: 1px solid #d97706 !important;
+    background: #fffdf5 !important;
+    position: static !important;
+    left: auto !important;
+    overflow: visible !important;
+  }
+
 
   #root, main, #result-full-capture {
     display: block !important;
@@ -547,6 +586,6 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260922h"></script>
+    <script src="./pwa-install.js?v=20260922i"></script>
 </body>
 </html>
