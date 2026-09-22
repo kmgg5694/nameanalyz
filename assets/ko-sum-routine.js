@@ -2739,9 +2739,7 @@
       });
       if (specialWarn.length) {
         verdict =
-          "【결론】 " +
-          specialWarn.join(" ") +
-          " 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
+          "【결론】 위 주의사항을 반드시 보십시오. 한글의 열린 괘만 보고 좋은 이름이라고 단정하면 안 됩니다.";
       } else if (nameBadGwes.length > 0) {
         verdict =
           "【결론】 생년월일 없이 이름만 봤습니다. 이름 " +
@@ -2763,8 +2761,7 @@
       }
     } else if (specialWarn.length) {
       verdict =
-        "【결론】 " +
-        specialWarn.join(" ") +
+        "【결론】 위 주의사항을 반드시 보십시오." +
         (hitList.length
           ? " 또한 이름 " +
             listGweNames(hitList).join("·") +
