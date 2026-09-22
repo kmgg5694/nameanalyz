@@ -1669,6 +1669,33 @@
       p += "이름 전체의 기운으로 보면 ";
       if (!unionBad.length && !unionGood.length) {
         p += "시기별로 뚜렷한 길·흉이 한쪽으로 기울지 않습니다. ";
+      } else {
+        if (unionGood.length) {
+          p +=
+            paintBlue("길한 시기") +
+            "는 " +
+            unionGood
+              .map(function (x) {
+                return x.key;
+              })
+              .join("·") +
+            "이고, ";
+        } else {
+          p += "뚜렷이 길한 시기는 없고, ";
+        }
+        if (unionBad.length) {
+          p +=
+            paintRed("흉한 시기") +
+            "는 " +
+            unionBad
+              .map(function (x) {
+                return x.key;
+              })
+              .join("·") +
+            "입니다. ";
+        } else {
+          p += "뚜렷한 흉 시기는 드뭅니다. ";
+        }
       }
 
       if (hwagtCount >= 2) {
@@ -1798,39 +1825,210 @@
 
     function buildNameVsBirthCompare() {
       if (!hasB) return "";
+      const ORDER = [
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+        { key: "말년", idx: 0 },
+      ];
+
+      function toneOf(sArr, gArr, idx) {
+        let good = 0;
+        let bad = 0;
+        const s = sArr && sArr[idx];
+        const g = gArr && gArr[idx];
+        if (s && s.data && suriGood(s.data)) good++;
+        if (s && s.data && suriBad(s.data)) bad++;
+        if (g && g.name && gweGood(g)) good++;
+        if (g && g.name && gweBad(g)) bad++;
+        if (bad && !good) return "흉";
+        if (good && !bad) return "길";
+        if (good && bad) return "길흉혼재";
+        return "평이";
+      }
+      function nameToneAt(idx) {
+        const a = toneOf(nmS, nmG, idx);
+        if (!hasHanja) return a;
+        const b = toneOf(hjS, hjG, idx);
+        if (a === "흉" || b === "흉") {
+          if (a === "길" || b === "길") return "길흉혼재";
+          return "흉";
+        }
+        if (a === "길흉혼재" || b === "길흉혼재") return "길흉혼재";
+        if (a === "길" || b === "길") return "길";
+        return "평이";
+      }
+      function sajuToneAt(idx) {
+        return toneOf(bdS, bdG, idx);
+      }
+      function toneSpeak(t) {
+        if (t === "길") return paintBlue("길");
+        if (t === "흉") return paintRed("흉");
+        if (t === "길흉혼재") return "길·흉이 섞임";
+        return "평이";
+      }
+      function joinKeys(arr) {
+        return (arr || []).join("·");
+      }
+
       const nameGood = [];
       const nameBad = [];
-      (nmG || []).forEach(function (g) {
-        if (!g) return;
-        if (gweGood(g)) nameGood.push(g);
-        if (gweBad(g)) nameBad.push(g);
-      });
-      if (hasHanja) {
-        (hjG || []).forEach(function (g) {
-          if (!g) return;
-          if (gweGood(g)) nameGood.push(g);
-          if (gweBad(g)) nameBad.push(g);
-        });
-      }
-      const birthGood = [];
-      const birthBad = [];
-      (bdG || []).forEach(function (g) {
-        if (!g) return;
-        if (gweGood(g)) birthGood.push(g);
-        if (gweBad(g)) birthBad.push(g);
+      const nameMixed = [];
+      const sajuGood = [];
+      const sajuBad = [];
+      const sajuMixed = [];
+      const nameLines = [];
+      const sajuLines = [];
+      const vsLines = [];
+      const turns = [];
+
+      ORDER.forEach(function (pe) {
+        const nt = nameToneAt(pe.idx);
+        const st = sajuToneAt(pe.idx);
+        nameLines.push(pe.key + "은 " + toneSpeak(nt));
+        sajuLines.push(pe.key + "은 " + toneSpeak(st));
+        if (nt === "길") nameGood.push(pe.key);
+        else if (nt === "흉") nameBad.push(pe.key);
+        else if (nt === "길흉혼재") nameMixed.push(pe.key);
+        if (st === "길") sajuGood.push(pe.key);
+        else if (st === "흉") sajuBad.push(pe.key);
+        else if (st === "길흉혼재") sajuMixed.push(pe.key);
+
+        let vs = pe.key + "에는 ";
+        if (nt === "흉" && (st === "길" || st === "평이")) {
+          vs +=
+            "사주보다 이름이 무거워 " +
+            paintRed("이름이 치는 쪽") +
+            "입니다";
+          turns.push(pe.key + "(이름이 사주를 침)");
+        } else if (nt === "흉" && st === "흉") {
+          vs +=
+            "이름과 사주가 함께 무거워 시련이 겹칩니다";
+          turns.push(pe.key + "(이름·사주 흉 겹침)");
+        } else if (
+          (nt === "길" || nt === "길흉혼재") &&
+          st === "흉"
+        ) {
+          vs +=
+            "사주는 무거운데 이름이 받쳐 " +
+            paintBlue("이름이 돕는 쪽") +
+            "입니다";
+          turns.push(pe.key + "(이름이 사주를 도움)");
+        } else if (nt === "길" && st === "길") {
+          vs += "이름과 사주가 함께 열려 흐름이 힘찹니다";
+        } else if (nt === "길흉혼재" && st === "길") {
+          vs +=
+            "사주는 열리는데 이름에 흉이 섞여 이름이 사주를 일부 누릅니다";
+          turns.push(pe.key + "(이름이 사주를 일부 누름)");
+        } else if (nt === "평이" && st === "길") {
+          vs += "사주가 더 밝은 쪽입니다";
+        } else if (nt === "평이" && st === "흉") {
+          vs += "사주가 더 무거운 쪽입니다";
+        } else {
+          vs += "이름과 사주가 크게 기울지 않습니다";
+        }
+        vsLines.push(vs);
       });
 
-      let p = "이름풀이를 마쳤으니, 탄생일과 견주면 ";
-      if (nameGood.length > birthGood.length && nameBad.length <= birthBad.length) {
-        p += "이 이름은 사주보다 좋습니다. 이름이 사주를 도우며 살리는 쪽으로 읽힙니다.";
-      } else if (birthGood.length > nameGood.length && birthBad.length <= nameBad.length) {
-        p += "사주가 이름보다 좋습니다. 사주의 힘을 이름이 따라가지 못하는 대목이 있습니다.";
-      } else if (nameBad.length > birthBad.length) {
-        p += "사주가 이름보다 좋습니다. 이름에 흉한 주역이 더 많아, 사주가 무난해도 이름이 시기를 눌러 막기 쉽습니다.";
-      } else if (birthBad.length > nameBad.length) {
-        p += "이 이름은 사주보다 좋습니다. 탄생일에 흉한 주역이 더 많아, 이름이 사주의 부담을 받쳐 줍니다.";
+      let p =
+        "먼저 이름 기운이 어느 시기에 길했고 어느 시기에 흉이었는지 보면, " +
+        nameLines.join(", ") +
+        "입니다. ";
+      if (nameGood.length) {
+        p +=
+          "이름이 " +
+          paintBlue("길했던 시기") +
+          "는 " +
+          joinKeys(nameGood) +
+          "이고, ";
       } else {
-        p += "이름과 사주가 비슷합니다. 시기마다 이름이 사주를 치는지·돕는지 함께 보아야 합니다.";
+        p += "이름이 뚜렷이 길했던 시기는 없고, ";
+      }
+      if (nameBad.length) {
+        p +=
+          paintRed("흉했던 시기") +
+          "는 " +
+          joinKeys(nameBad) +
+          "입니다. ";
+      } else if (nameMixed.length) {
+        p +=
+          "길·흉이 섞인 시기는 " + joinKeys(nameMixed) + "입니다. ";
+      } else {
+        p += "뚜렷한 흉 시기도 드뭅니다. ";
+      }
+      if (nameMixed.length && nameBad.length) {
+        p +=
+          "길·흉이 섞인 시기는 " + joinKeys(nameMixed) + "입니다. ";
+      }
+
+      p +=
+        "다음으로 사주 기운이 어느 시기에 길했고 어느 시기에 흉이었는지 보면, " +
+        sajuLines.join(", ") +
+        "입니다. ";
+      if (sajuGood.length) {
+        p +=
+          "사주가 " +
+          paintBlue("길했던 시기") +
+          "는 " +
+          joinKeys(sajuGood) +
+          "이고, ";
+      } else {
+        p += "사주가 뚜렷이 길했던 시기는 없고, ";
+      }
+      if (sajuBad.length) {
+        p +=
+          paintRed("흉했던 시기") +
+          "는 " +
+          joinKeys(sajuBad) +
+          "입니다. ";
+      } else if (sajuMixed.length) {
+        p +=
+          "길·흉이 섞인 시기는 " + joinKeys(sajuMixed) + "입니다. ";
+      } else {
+        p += "뚜렷한 흉 시기도 드뭅니다. ";
+      }
+      if (sajuMixed.length && sajuBad.length) {
+        p +=
+          "길·흉이 섞인 시기는 " + joinKeys(sajuMixed) + "입니다. ";
+      }
+
+      p +=
+        "이름 전체 기운과 사주 전체 기운을 나이대별로 길흉을 견주면, " +
+        vsLines.join(", ") +
+        ". ";
+      if (turns.length) {
+        p +=
+          "삶의 변곡점은 " +
+          turns.join(", ") +
+          "로 읽힙니다. ";
+      }
+
+      const nameGoodCnt = nameGood.length;
+      const nameBadCnt = nameBad.length;
+      const birthGoodCnt = sajuGood.length;
+      const birthBadCnt = sajuBad.length;
+      if (hwagtCount >= 2 || nameBadCnt >= 3) {
+        if (birthGoodCnt > nameGoodCnt || nameBadCnt > birthBadCnt) {
+          p +=
+            "타고난 사주가 이름보다 훨씬 낫습니다. 이름의 무거운 기운이 사주의 힘을 깎아 먹기 쉽습니다.";
+        } else {
+          p +=
+            "이름과 사주를 견줘도 이 이름을 사주보다 좋다고 할 수 없습니다.";
+        }
+      } else if (nameGoodCnt > birthGoodCnt && nameBadCnt <= birthBadCnt) {
+        p += "이 이름은 사주보다 좋습니다.";
+      } else if (birthGoodCnt > nameGoodCnt && birthBadCnt <= nameBadCnt) {
+        p +=
+          "사주가 이름보다 좋습니다. 이름이 사주를 받쳐 주지 못하는 자리가 있습니다.";
+      } else if (nameBadCnt > birthBadCnt) {
+        p +=
+          "사주가 이름보다 좋습니다. 이름 쪽에 흉한 기운이 더 많아 사주가 무난해도 이름이 시기를 누르기 쉽습니다.";
+      } else if (birthBadCnt > nameBadCnt) {
+        p +=
+          "이 이름은 사주보다 좋습니다. 사주에 흉한 기운이 더 많아, 이름이 그 부담을 덜어 줍니다.";
+      } else {
+        p +=
+          "이름과 사주가 비슷하니, 위 나이대별 치는 쪽·변곡점을 함께 보십시오.";
       }
       return p;
     }
@@ -2191,13 +2389,13 @@
       ageParts.push(p + bits.join(" "));
     }
 
-    // j. 탄생일·시기별 비교 — 이름풀이 완료 후 (인쇄 문체)
+    // j. 탄생일·시기별 비교 — ①이름 길흉 → ②사주 길흉 → ③나이대별 치는쪽·변곡점
     if (hasB) {
       const nbCompare = buildNameVsBirthCompare();
       if (nbCompare) ageParts.push(nbCompare);
 
       ageParts.push(
-        "이어서 탄생일(사주)을 시기별로 견줍니다. " +
+        "이어서 사주 각 시기의 수리·주역을 짚고, 같은 나이대 이름과 다시 견줍니다. " +
           paintBlue("좋은 기운") +
           "과 " +
           paintRed("흉한 기운") +
@@ -2352,7 +2550,11 @@
     }
 
     compareParts.push(
-      "【기운 비교】 이름(한글" +
+      "【기운 비교】 " +
+        (hasB
+          ? "이름 시기 길흉을 먼저 밝히고, 사주 시기 길흉을 분명히 한 뒤, 나이대별로 치는 쪽·변곡점을 견줬습니다. "
+          : "") +
+        "이름(한글" +
         (hasHanja ? "+한문" : "") +
         ")은 " +
         softBalance(nBad, nGood) +
