@@ -26,7 +26,7 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922fixhead"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922utf8"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260921port1"></script>
     <script type="module" crossorigin src="./assets/index-kw5.js?v=20260921ohang1"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
@@ -43,22 +43,19 @@
       #result-full-capture{scroll-margin-top:112px;}
     </style>
   <meta property="og:type" content="website">
-		<meta property="og:title" content="김만기 주역 ?�명???�름?�??>
-		<meta property="og:description" content="김만기 주역 성명학 연구소 · 주역 성명학 기반 이름풀이 · 사행 분석, 인덕·재물운·결혼운·자녀운 해석.">
+		<meta property="og:title" content="김만기 주역 성명학 이름풀이">
 		<meta property="og:image" content="https://files.manuscdn.com/webdev_screenshots/2026/04/07/ZNyUGXpkqEvBrvqVmmczWu.png?x-oss-process=image/resize,w_1200/crop,h_630,x_0,y_0">
 		<meta property="og:image:width" content="1200">
 		<meta property="og:image:height" content="630">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="김만기 주역 ?�명???�름?�??>
-		<meta name="twitter:description" content="김만기 주역 성명학 연구소 · 주역 성명학 기반 이름풀이 · 사행 분석, 인덕·재물운·결혼운·자녀운 해석.">
+		<meta name="twitter:title" content="김만기 주역 성명학 이름풀이">
 		<meta name="twitter:image" content="https://files.manuscdn.com/webdev_screenshots/2026/04/07/ZNyUGXpkqEvBrvqVmmczWu.png?x-oss-process=image/resize,w_1200/crop,h_630,x_0,y_0">
 		<meta name="twitter:image:width" content="1200">
 		<meta name="twitter:image:height" content="630">
     <meta name="theme-color" content="#8a5a12" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="?�름?�?? />
-    <link rel="manifest" href="./manifest.json" />
+    <meta name="apple-mobile-web-app-title" content="이름풀이" />
 
 <style id="print-a4-fix">
 /* 종합?�·요?�보기·오?�표?�·서?�·결론�? ?�시. 카드·기운?�정�??��? */
@@ -302,22 +299,22 @@ Error generating stack: `+l.message+`
         .intro-sec,#introVideo,.intro-mute-btn{display:none!important;}
       }
     </style>
-    <section class="intro-sec" aria-label="?�개?�상">
+    <section class="intro-sec" aria-label="소개영상">
       <div class="intro-top">
-        <span class="intro-taegeuk" aria-hidden="true">??/span>
+        <span class="intro-taegeuk" aria-hidden="true">☯</span>
         <div class="intro-top-text">
-          <p class="intro-top-kicker">주역 ?�명??20???�하??/p>
-          <h1 class="intro-top-title">김만기 주역 ?�명???�름?�구??/h1>
+          <p class="intro-top-kicker">주역 성명학 20년 노하우</p>
+          <h1 class="intro-top-title">김만기 주역 성명학 이름연구소</h1>
         </div>
       </div>
       <div class="intro-card">
-        <span class="intro-badge">30�?무료 ?�름?�??/span>
-        <h2 class="intro-ttl">?�신???�름! <em>?�녕?�십?�까?</em></h2>
-        <p class="intro-desc">???�간??과거, ?�재, 미래�??��?�??�여?�보??명쾌?�게 ?�석?�니?? ?�령?�행(?��?) 2개�? ?�원?�행(?�문) 2�? �?4�?기운???�생???�인??보세??</p>
+        <span class="intro-badge">30초 무료 이름풀이</span>
+        <h2 class="intro-ttl">당신의 이름! <em>안녕하십니까?</em></h2>
+        <p class="intro-desc">한 인간의 과거, 현재, 미래를 현미경 들여다보듯 명쾌하게 해석합니다. 음령오행(한글) 2개와 자원오행(한문) 2개, 총 4개 기운의 상생을 확인해 보세요.</p>
         <div class="intro-player" id="introPlayerWrap">
           <video id="introVideo" playsinline autoplay muted preload="auto"
             src="./videos/video_final_intro_dubbed_ass.mp4"></video>
-          <button type="button" class="intro-mute-btn" id="introMuteBtn" aria-label="?�리 켜기">?�리 켜기</button><!-- v20260916mute -->
+          <button type="button" class="intro-mute-btn" id="introMuteBtn" aria-label="소리 켜기">소리 켜기</button><!-- v20260916mute -->
         </div>
       </div>
     </section>
@@ -330,8 +327,8 @@ Error generating stack: `+l.message+`
       v.muted = true;
       function syncBtn() {
         var on = !v.muted;
-        btn.textContent = on ? '?�리 ?�기' : '?�리 켜기';
-        btn.setAttribute('aria-label', on ? '?�리 ?�기' : '?�리 켜기');
+        btn.textContent = on ? '소리 끄기' : '소리 켜기';
+        btn.setAttribute('aria-label', on ? '소리 끄기' : '소리 켜기');
       }
       function tryPlay() {
         var p = v.play();
