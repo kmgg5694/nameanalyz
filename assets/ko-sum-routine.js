@@ -1928,7 +1928,7 @@
       });
       if (mitAll.length) {
         p +=
-          "수리의 흉을 눌러 주는 기운으로 이위화·화수미제·화천대유·산천대축·수풍정·뇌천대장 등이 있습니다. 이 이름에는 " +
+          "사주에 흉이 있더라도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 나쁜 사주를 시기별로 맞춰 눌러 주는 기운으로 지어야 좋은 이름이고 보완이 됩니다. 눌러 주는 기운은 화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장입니다. 이 이름에는 " +
           joinGweNames(mitAll) +
           "가 있습니다. ";
         const onlyJung =
@@ -1949,6 +1949,9 @@
           p +=
             "이 길괘들은 자기 나이대에만 영향을 주니, 다른 시기의 흉까지 한꺼번에 덮어 준다고 보면 안 됩니다. ";
         }
+      } else if (hasB) {
+        p +=
+          "사주에 흉이 있더라도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 나쁜 사주를 시기별로 맞춰 눌러 주는 기운(화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장)으로 지어야 좋은 이름이고 보완이 됩니다. ";
       }
       return p;
     }
@@ -2148,25 +2151,28 @@
       const nameBadCnt = nameBad.length;
       const birthGoodCnt = sajuGood.length;
       const birthBadCnt = sajuBad.length;
-      if (hwagtCount >= 2 || nameBadCnt >= 3) {
-        if (birthGoodCnt > nameGoodCnt || nameBadCnt > birthBadCnt) {
+      // 보흘: 이름에 흉이 있으면 사주가 흉이어도 무조건 나쁜 이름
+      p +=
+        " 사주에 흉이 있더라도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 나쁜 사주를 시기별로 맞춰 눌러 주는 기운(화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장)으로 지어야 좋은 이름이고 보완이 됩니다. ";
+      if (nameBadCnt > 0) {
+        if (birthBadCnt > 0) {
           p +=
-            "타고난 사주가 이름보다 훨씬 낫습니다. 이름의 무거운 기운이 사주의 힘을 깎아 먹기 쉽습니다.";
+            "사주에도 무거운 시기가 있으나, 이름에 흉이 남아 있어 그 사주를 눌러 보완한다고 볼 수 없습니다. 무조건 나쁜 이름으로 읽습니다.";
         } else {
           p +=
-            "이름과 사주를 견줘도 이 이름을 사주보다 좋다고 할 수 없습니다.";
+            "사주가 무난해도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 이름이 사주를 누르기 쉽습니다.";
         }
-      } else if (nameGoodCnt > birthGoodCnt && nameBadCnt <= birthBadCnt) {
+      } else if (hwagtCount >= 2) {
+        p +=
+          "이름과 사주를 견줘도 이 이름을 사주보다 좋다고 할 수 없습니다.";
+      } else if (birthBadCnt > 0 && nameGoodCnt > 0) {
+        p +=
+          "사주의 무거운 시기를 이름이 받쳐 주는 자리가 있으니, 눌러 주는 기운으로 사주를 보완하는 좋은 이름 쪽으로 읽힙니다.";
+      } else if (nameGoodCnt > birthGoodCnt) {
         p += "이 이름은 사주보다 좋습니다.";
-      } else if (birthGoodCnt > nameGoodCnt && birthBadCnt <= nameBadCnt) {
+      } else if (birthGoodCnt > nameGoodCnt) {
         p +=
           "사주가 이름보다 좋습니다. 이름이 사주를 받쳐 주지 못하는 자리가 있습니다.";
-      } else if (nameBadCnt > birthBadCnt) {
-        p +=
-          "사주가 이름보다 좋습니다. 이름 쪽에 흉한 기운이 더 많아 사주가 무난해도 이름이 사주를 누르기 쉽습니다.";
-      } else if (birthBadCnt > nameBadCnt) {
-        p +=
-          "이 이름은 사주보다 좋습니다. 사주에 흉한 기운이 더 많아, 이름이 그 부담을 덜어 줍니다.";
       } else {
         p +=
           "이름과 사주가 비슷하니, 위 나이대별 치는 쪽·변곡점을 함께 보십시오.";
@@ -2792,12 +2798,12 @@
             ageKey +
             "에 사주는 무거운데 이름이 받쳐 " +
             paintBlue("이름이 돕는 쪽") +
-            "입니다.";
+            "입니다. 사주 흉을 시기별로 맞춰 눌러 주는 기운으로 보완하는 모습입니다.";
         } else if (nameToneFixed === "흉" && sajuTone === "흉") {
           p +=
             "같은 " +
             ageKey +
-            "에 이름과 사주가 함께 무거워 시련이 겹치기 쉽습니다.";
+            "에 사주도 무겁지만 이름에 흉이 있으면 무조건 나쁜 이름으로 읽습니다. 사주 흉을 눌러 줄 기운이 이름에 있어야 보완이 됩니다.";
         } else if (nameToneFixed === "길" && sajuTone === "길") {
           p +=
             "같은 " + ageKey + "에 이름과 사주가 함께 열려 흐름이 힘찹니다.";
