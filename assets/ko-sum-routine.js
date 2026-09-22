@@ -2025,6 +2025,9 @@
       const sajuLines = [];
       const vsLines = [];
       const turns = [];
+      const helpAges = [];
+      const worstAges = [];
+      const hitAges = [];
 
       ORDER.forEach(function (pe) {
         const nt = nameToneAt(pe.idx);
@@ -2045,25 +2048,30 @@
             paintRed("이름이 치는 쪽") +
             "입니다";
           turns.push(pe.key + "(이름이 사주를 침)");
+          hitAges.push(pe.key);
         } else if (nt === "흉" && st === "흉") {
           vs +=
-            "이름과 사주가 함께 무거워 시련이 겹칩니다";
-          turns.push(pe.key + "(이름·사주 흉 겹침)");
+            paintRed("최악") +
+            " — 이름의 흉이 사주의 흉을 마주칩니다";
+          turns.push(pe.key + "(이름흉·사주흉 마주침·최악)");
+          worstAges.push(pe.key);
         } else if (
           (nt === "길" || nt === "길흉혼재") &&
           st === "흉"
         ) {
           vs +=
             "사주는 무거운데 이름이 받쳐 " +
-            paintBlue("이름이 돕는 쪽") +
+            paintBlue("이름이 돕는·눌러 주는 쪽") +
             "입니다";
-          turns.push(pe.key + "(이름이 사주를 도움)");
+          turns.push(pe.key + "(이름이 사주를 도와·눌러 줌)");
+          helpAges.push(pe.key);
         } else if (nt === "길" && st === "길") {
           vs += "이름과 사주가 함께 열려 흐름이 힘찹니다";
         } else if (nt === "길흉혼재" && st === "길") {
           vs +=
             "사주는 열리는데 이름에 흉이 섞여 이름이 사주를 일부 누릅니다";
           turns.push(pe.key + "(이름이 사주를 일부 누름)");
+          hitAges.push(pe.key);
         } else if (nt === "평이" && st === "길") {
           vs += "사주가 더 밝은 쪽입니다";
         } else if (nt === "평이" && st === "흉") {
@@ -2151,23 +2159,37 @@
       const nameBadCnt = nameBad.length;
       const birthGoodCnt = sajuGood.length;
       const birthBadCnt = sajuBad.length;
-      // 보흘: 이름에 흉이 있으면 사주가 흉이어도 무조건 나쁜 이름
+      // 보흘: 시기별로 사주를 도와·눌러 주면 좋은 이름 / 이름흉×사주흉 마주침=최악
       p +=
-        " 사주에 흉이 있더라도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 나쁜 사주를 시기별로 맞춰 눌러 주는 기운(화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장)으로 지어야 좋은 이름이고 보완이 됩니다. ";
-      if (nameBadCnt > 0) {
-        if (birthBadCnt > 0) {
+        " 좋은 이름·나쁜 이름은 시기별로 이름이 사주를 도와 주거나 나쁜 기운을 눌러 주는지를 견줘 판정합니다. 눌러 주는 기운은 화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장입니다. 이름의 흉이 사주의 흉을 마주치는 것은 " +
+        paintRed("최악") +
+        "입니다. ";
+      if (worstAges.length) {
+        p +=
+          paintRed("최악") +
+          " — " +
+          joinKeys(worstAges) +
+          "에 이름의 흉이 사주의 흉을 마주칩니다. 사주가 무거워도 이름이 같이 흉이면 무조건 나쁜 이름입니다.";
+      } else if (helpAges.length && helpAges.length >= hitAges.length) {
+        p +=
+          "시기별로 보면 " +
+          joinKeys(helpAges) +
+          "에서 이름이 사주를 도와 주거나 눌러 주니 " +
+          paintBlue("좋은 이름") +
+          " 쪽으로 판정합니다.";
+        if (hitAges.length) {
           p +=
-            "사주에도 무거운 시기가 있으나, 이름에 흉이 남아 있어 그 사주를 눌러 보완한다고 볼 수 없습니다. 무조건 나쁜 이름으로 읽습니다.";
-        } else {
-          p +=
-            "사주가 무난해도 이름에 흉이 있으면 무조건 나쁜 이름입니다. 이름이 사주를 누르기 쉽습니다.";
+            " 다만 " +
+            joinKeys(hitAges) +
+            "에서는 이름이 사주를 치는 자리가 남아 있습니다.";
         }
+      } else if (hitAges.length || nameBadCnt > 0) {
+        p +=
+          paintRed("나쁜 이름") +
+          "으로 판정합니다. 사주에 흉이 있더라도 이름에 흉이 있거나 사주를 치는 시기가 있으면 좋은 이름이라 할 수 없습니다.";
       } else if (hwagtCount >= 2) {
         p +=
           "이름과 사주를 견줘도 이 이름을 사주보다 좋다고 할 수 없습니다.";
-      } else if (birthBadCnt > 0 && nameGoodCnt > 0) {
-        p +=
-          "사주의 무거운 시기를 이름이 받쳐 주는 자리가 있으니, 눌러 주는 기운으로 사주를 보완하는 좋은 이름 쪽으로 읽힙니다.";
       } else if (nameGoodCnt > birthGoodCnt) {
         p += "이 이름은 사주보다 좋습니다.";
       } else if (birthGoodCnt > nameGoodCnt) {
@@ -2803,7 +2825,9 @@
           p +=
             "같은 " +
             ageKey +
-            "에 사주도 무겁지만 이름에 흉이 있으면 무조건 나쁜 이름으로 읽습니다. 사주 흉을 눌러 줄 기운이 이름에 있어야 보완이 됩니다.";
+            "에 " +
+            paintRed("최악") +
+            " — 이름의 흉이 사주의 흉을 마주칩니다. 사주 흉을 눌러 줄 기운이 이름에 있어야 보완이 됩니다.";
         } else if (nameToneFixed === "길" && sajuTone === "길") {
           p +=
             "같은 " + ageKey + "에 이름과 사주가 함께 열려 흐름이 힘찹니다.";
