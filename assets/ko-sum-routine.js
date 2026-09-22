@@ -1952,12 +1952,12 @@
       if (nameGood.length) {
         p +=
           "이름이 " +
-          paintBlue("길했던 시기") +
+          paintBlue("길이었던 시기") +
           "는 " +
           joinKeys(nameGood) +
           "이고, ";
       } else {
-        p += "이름이 뚜렷이 길했던 시기는 없고, ";
+        p += "이름이 뚜렷이 길이었던 시기는 없고, ";
       }
       if (nameBad.length) {
         p +=
@@ -1983,12 +1983,12 @@
       if (sajuGood.length) {
         p +=
           "사주가 " +
-          paintBlue("길했던 시기") +
+          paintBlue("길이었던 시기") +
           "는 " +
           joinKeys(sajuGood) +
           "이고, ";
       } else {
-        p += "사주가 뚜렷이 길했던 시기는 없고, ";
+        p += "사주가 뚜렷이 길이었던 시기는 없고, ";
       }
       if (sajuBad.length) {
         p +=
@@ -2173,12 +2173,12 @@
       }
       if (goodKeys.length) {
         p +=
-          paintBlue("길었던 시기") +
+          paintBlue("길이었던 시기") +
           "는 " +
           goodKeys.join("·") +
           "입니다.";
       } else {
-        p += "뚜렷이 길었던 시기는 드뭅니다.";
+        p += "뚜렷이 길이었던 시기는 드뭅니다.";
       }
       if (mixedKeys.length) {
         p +=
