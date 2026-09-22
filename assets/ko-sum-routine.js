@@ -149,6 +149,16 @@
     return !!(g && g.isBest);
   }
 
+  /** 검정(중성) 보통 괘 — 길로 세지 않음 (보흘 지정) */
+  function gweBlack(g) {
+    return !!(g && g.name) && !gweGood(g) && !gweBad(g);
+  }
+
+  /** 흉수리 + 검정 괘가 같은 자리인지 */
+  function hasBadSuriBlackHex(ns, ng) {
+    return !!(ns && ns.data && suriBad(ns.data) && gweBlack(ng));
+  }
+
   /** 보흘 지정: 웬만한 흉수리를 덜어 내고 더 좋아지는 경우가 많은 괘 */
   const HEX_MITIGATE_SURI = [
     "이위화",
@@ -412,9 +422,60 @@
   function slotComboNotes(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) {
     return (
       hwagtaekBadSuriNote(ns, ng) +
+      badSuriBlackHexNote(ns, ng) +
       suriMitigateByHexNote(ns, ng, bdNs, bdNg, sajuOrdinary, ageKey) +
       footnoteApplyNote(ns, ng, sajuOrdinary)
     );
+  }
+
+  /**
+   * 보흘 지정: 검정(중성) 괘는 길로 보지 않는다.
+   * 흉수리가 위에 있으면 그 괘의 단점이 더 드러난다.
+   * 예: 이산파멸+화산려 → 이산(가족 헤어짐)+역마 → 더 불안·힘든 생활 (길·길흉섞임 금지)
+   */
+  const BLACK_HEX_WEAK_UNDER_BAD = {
+    화산려:
+      "여행·이동의 불안정과 고생·걱정이 더 커지고, 역마살을 타고 떠돌며 불안하고 힘든 생활이 되기 쉽습니다.",
+    진위뢰:
+      "소리만 요란하고 손에 든 것이 없는 외화내빈의 단점이 더 두드러집니다.",
+  };
+
+  function badSuriBlackHexNote(ns, ng) {
+    if (!hasBadSuriBlackHex(ns, ng)) return "";
+    if (isMitigateSuriHex(ng)) return "";
+    if (isWarnJangHex(ng)) return "";
+    const num = ns.suri != null ? Number(ns.suri) : NaN;
+    // 14+풍수환은 suriMitigateByHexNote 특례
+    if (num === 14 && hexNameStarts(ng, "풍수환")) return "";
+
+    const plain = gweNameOf(ng);
+    const hexPart = gweNameHtml(ng) + josaIGA(plain);
+    const sName = plainSuriName(ns) || "흉수리";
+
+    if (num === 14 && hexNameStarts(ng, "화산려")) {
+      return (
+        " 같은 시기에 「이산파멸」과 「화산려」가 겹치면, 이산으로 가족과 헤어지고 역마살을 타 더욱 불안하고 힘든 생활을 한다고 보아야 합니다. 검정 보통 괘를 길로 보거나 길·흉이 섞였다고 하면 안 됩니다. 「화산려」의 단점인 여행·이동의 불안정과 고생·걱정이 「이산파멸」 때문에 더 드러납니다."
+      );
+    }
+
+    let weak = "";
+    const keys = Object.keys(BLACK_HEX_WEAK_UNDER_BAD);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      if (hexNameStarts(ng, k)) {
+        weak = BLACK_HEX_WEAK_UNDER_BAD[k];
+        break;
+      }
+    }
+
+    let t =
+      " 그 아래에 검정 보통 괘 " +
+      hexPart +
+      " 있으나 길로 보면 안 됩니다. 위에 「" +
+      sName +
+      "」 흉수리가 있어 그 괘의 단점이 더 드러납니다.";
+    if (weak) t += " " + weak;
+    return t;
   }
 
   /** 보흘 지정: 화택규 + 같은 시기 흉수리 → 추락·낙상·교통사고 */
@@ -1848,10 +1909,12 @@
       ];
 
       function toneOf(sArr, gArr, idx) {
-        let good = 0;
-        let bad = 0;
         const s = sArr && sArr[idx];
         const g = gArr && gArr[idx];
+        // 흉수리+검정 괘 → 무조건 흉 (검정을 길로 세거나 길흉혼재로 완화 금지)
+        if (hasBadSuriBlackHex(s, g)) return "흉";
+        let good = 0;
+        let bad = 0;
         if (s && s.data && suriGood(s.data)) good++;
         if (s && s.data && suriBad(s.data)) bad++;
         if (g && g.name && gweGood(g)) good++;
@@ -1865,6 +1928,13 @@
         const a = toneOf(nmS, nmG, idx);
         if (!hasHanja) return a;
         const b = toneOf(hjS, hjG, idx);
+        // 한쪽이라도 흉수리+검정이면 길흉혼재로 완화하지 않고 흉
+        if (
+          hasBadSuriBlackHex(nmS[idx], nmG[idx]) ||
+          hasBadSuriBlackHex(hjS[idx], hjG[idx])
+        ) {
+          if (a === "흉" || b === "흉") return "흉";
+        }
         if (a === "흉" || b === "흉") {
           if (a === "길" || b === "길") return "길흉혼재";
           return "흉";
@@ -2055,10 +2125,12 @@
 
     /** 한 자리(한글 또는 한자) 길·흉·혼재·평이 */
     function sideToneAt(sArr, gArr, idx) {
-      let good = 0;
-      let bad = 0;
       const s = sArr && sArr[idx];
       const g = gArr && gArr[idx];
+      // 흉수리+검정 괘 → 무조건 흉 (검정 괘를 길로 보지 않음)
+      if (hasBadSuriBlackHex(s, g)) return "흉";
+      let good = 0;
+      let bad = 0;
       if (s && s.data && suriGood(s.data)) good++;
       if (s && s.data && suriBad(s.data)) bad++;
       if (g && g.name && gweGood(g)) good++;
@@ -2079,6 +2151,8 @@
       if (!hasHanja) return "";
       const ht = sideToneAt(nmS, nmG, idx);
       const jt = sideToneAt(hjS, hjG, idx);
+      const hangulHard = hasBadSuriBlackHex(nmS[idx], nmG[idx]);
+      const hanjaHard = hasBadSuriBlackHex(hjS[idx], hjG[idx]);
       let p =
         ageKey +
         "의 한글이름과 한자이름을 견주면, 한글은 " +
@@ -2086,7 +2160,18 @@
         "이고 한자는 " +
         toneLabel(jt) +
         "입니다. ";
-      if (ht === "흉" && jt === "길") {
+      if (hangulHard || hanjaHard) {
+        p +=
+          "흉수리 아래 검정 보통 괘가 있으면 그 괘의 단점이 더 드러나니, 검정 괘를 길로 보거나 길·흉이 섞였다고 완화하면 안 됩니다.";
+        if (hangulHard && hexNameStarts(nmG[idx], "화산려") && nmS[idx] && Number(nmS[idx].suri) === 14) {
+          p +=
+            " 한글의 「이산파멸」·「화산려」는 이산으로 가족과 헤어지고 역마살을 타 더 불안하고 힘든 생활로 읽습니다.";
+        }
+        if (hanjaHard && hexNameStarts(hjG[idx], "화산려") && hjS[idx] && Number(hjS[idx].suri) === 14) {
+          p +=
+            " 한자의 「이산파멸」·「화산려」는 이산으로 가족과 헤어지고 역마살을 타 더 불안하고 힘든 생활로 읽습니다.";
+        }
+      } else if (ht === "흉" && jt === "길") {
         p +=
           "겉(한글)은 무거운데 속(한자)은 열려, 겉으로 받기 어려운 시기에도 속으로는 버틸 힘이 있습니다.";
       } else if (ht === "길" && jt === "흉") {
@@ -2121,6 +2206,12 @@
         const a = sideToneAt(nmS, nmG, idx);
         if (!hasHanja) return a;
         const b = sideToneAt(hjS, hjG, idx);
+        if (
+          hasBadSuriBlackHex(nmS[idx], nmG[idx]) ||
+          hasBadSuriBlackHex(hjS[idx], hjG[idx])
+        ) {
+          if (a === "흉" || b === "흉") return "흉";
+        }
         if (a === "흉" || b === "흉") {
           if (a === "길" || b === "길") return "길흉혼재";
           return "흉";
