@@ -2056,6 +2056,122 @@
       return n;
     })();
 
+    /** 한 자리(한글 또는 한자) 길·흉·혼재·평이 */
+    function sideToneAt(sArr, gArr, idx) {
+      let good = 0;
+      let bad = 0;
+      const s = sArr && sArr[idx];
+      const g = gArr && gArr[idx];
+      if (s && s.data && suriGood(s.data)) good++;
+      if (s && s.data && suriBad(s.data)) bad++;
+      if (g && g.name && gweGood(g)) good++;
+      if (g && g.name && gweBad(g)) bad++;
+      if (bad && !good) return "흉";
+      if (good && !bad) return "길";
+      if (good && bad) return "길흉혼재";
+      return "평이";
+    }
+    function toneLabel(t) {
+      if (t === "길") return paintBlue("길");
+      if (t === "흉") return paintRed("흉");
+      if (t === "길흉혼재") return "길·흉이 섞임";
+      return "평이";
+    }
+    /** 보흘 지정: 해당 나이대 한글·한문 해설 끝에 반드시 견줌 */
+    function compareHangulHanjaAtAge(ageKey, idx) {
+      if (!hasHanja) return "";
+      const ht = sideToneAt(nmS, nmG, idx);
+      const jt = sideToneAt(hjS, hjG, idx);
+      let p =
+        ageKey +
+        "의 한글이름과 한자이름을 견주면, 한글은 " +
+        toneLabel(ht) +
+        "이고 한자는 " +
+        toneLabel(jt) +
+        "입니다. ";
+      if (ht === "흉" && jt === "길") {
+        p +=
+          "겉(한글)은 무거운데 속(한자)은 열려, 겉으로 받기 어려운 시기에도 속으로는 버틸 힘이 있습니다.";
+      } else if (ht === "길" && jt === "흉") {
+        p +=
+          "겉(한글)은 열려 보여도 속(한자)이 눌러, 겉으로 좋아 보여도 속이 흡족하지 않은 결입니다.";
+      } else if (ht === "흉" && jt === "흉") {
+        p +=
+          "한글·한자가 함께 " +
+          paintRed("흉") +
+          "이라 이 시기 부담이 겹칩니다.";
+      } else if (ht === "길" && jt === "길") {
+        p +=
+          "한글·한자가 함께 " +
+          paintBlue("길") +
+          "로 열려 이 시기 흐름이 힘찹니다.";
+      } else if (ht === jt) {
+        p += "한글과 한자의 결이 비슷하게 읽힙니다.";
+      } else {
+        p += "한글과 한자의 결이 엇갈리니 겉·속을 함께 보아야 합니다.";
+      }
+      return p;
+    }
+    /** 이름풀이 마지막: 초·장·중·말 전체 길흉 명시 */
+    function buildNamePeriodGilHyungSummary() {
+      const ORDER = [
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+        { key: "말년", idx: 0 },
+      ];
+      function nameToneAt(idx) {
+        const a = sideToneAt(nmS, nmG, idx);
+        if (!hasHanja) return a;
+        const b = sideToneAt(hjS, hjG, idx);
+        if (a === "흉" || b === "흉") {
+          if (a === "길" || b === "길") return "길흉혼재";
+          return "흉";
+        }
+        if (a === "길흉혼재" || b === "길흉혼재") return "길흉혼재";
+        if (a === "길" || b === "길") return "길";
+        return "평이";
+      }
+      const lines = [];
+      const goodKeys = [];
+      const badKeys = [];
+      const mixedKeys = [];
+      ORDER.forEach(function (pe) {
+        const t = nameToneAt(pe.idx);
+        lines.push(pe.key + "은 " + toneLabel(t));
+        if (t === "길") goodKeys.push(pe.key);
+        else if (t === "흉") badKeys.push(pe.key);
+        else if (t === "길흉혼재") mixedKeys.push(pe.key);
+      });
+      let p =
+        "초년·장년·중년·말년 전체를 시기별로 보면, " +
+        lines.join(", ") +
+        "입니다. ";
+      if (badKeys.length) {
+        p +=
+          paintRed("흉이었던 시기") +
+          "는 " +
+          badKeys.join("·") +
+          "이고, ";
+      } else {
+        p += "뚜렷이 흉이었던 시기는 없고, ";
+      }
+      if (goodKeys.length) {
+        p +=
+          paintBlue("길었던 시기") +
+          "는 " +
+          goodKeys.join("·") +
+          "입니다.";
+      } else {
+        p += "뚜렷이 길었던 시기는 드뭅니다.";
+      }
+      if (mixedKeys.length) {
+        p +=
+          " 길·흉이 섞인 시기는 " + mixedKeys.join("·") + "입니다.";
+      }
+      return p;
+    }
+
     // a. 전체적으로 봤을 때…
     if (hasHanja && hangulBadMid < hanjaBadMid) {
       ageParts.push(
@@ -2124,6 +2240,11 @@
       );
       p += chongunFootnoteNote(hjS[0], hjG[0], sajuOrdinary);
       ageParts.push(p);
+      const malCmp = compareHangulHanjaAtAge("말년", 0);
+      if (malCmp) ageParts.push(malCmp);
+    } else if (hasHanja) {
+      const malCmp = compareHangulHanjaAtAge("말년", 0);
+      if (malCmp) ageParts.push(malCmp);
     }
 
     // 총운(말년) → 초년~장년 전개 안내
@@ -2206,6 +2327,8 @@
         }
       }
       ageParts.push(p + bits.join(" "));
+      const choCmp = compareHangulHanjaAtAge("초년", 1);
+      if (choCmp) ageParts.push(choCmp);
     }
 
     // g. 30세부터 40세까지 — 장년
@@ -2266,6 +2389,8 @@
         if (mit2h) bits.push(mit2h.trim());
       }
       ageParts.push(p + bits.join(" "));
+      const jangCmp = compareHangulHanjaAtAge("장년", 2);
+      if (jangCmp) ageParts.push(jangCmp);
     }
 
     // h. 40세 이후부터 55세까지 — 중년
@@ -2387,6 +2512,14 @@
       }
 
       ageParts.push(p + bits.join(" "));
+      const jungCmp = compareHangulHanjaAtAge("중년", 3);
+      if (jungCmp) ageParts.push(jungCmp);
+    }
+
+    // 이름풀이 마무리: 초·장·중·말 전체 길흉 명시 (보흘 지정)
+    {
+      const gilHyungSum = buildNamePeriodGilHyungSummary();
+      if (gilHyungSum) ageParts.push(gilHyungSum);
     }
 
     // j. 탄생일·시기별 비교 — ①이름 길흉 → ②사주 길흉 → ③나이대별 치는쪽·변곡점
