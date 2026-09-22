@@ -46,7 +46,7 @@
   if ("serviceWorker" in navigator) {
     var base = location.origin + location.pathname.replace(/index\.html$/, "");
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    navigator.serviceWorker.register(base + "sw.js?v=20260922e").catch(function () {});
+    navigator.serviceWorker.register(base + "sw.js?v=20260922g").catch(function () {});
   }
 
   if (standalone) return;

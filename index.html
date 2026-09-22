@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260922e")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260922g")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260922e", "1");
+          sessionStorage.setItem("na_sw_purged_20260922g", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260922e");
+            u.searchParams.set("v", "20260922g");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922e').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922e').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922e').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922e').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260922g').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260922g').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260922g').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260922g').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260922e"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260922e"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922e"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260922g"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260922g"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260922g"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -87,7 +87,7 @@
     <meta name="apple-mobile-web-app-title" content="이름풀이" />
 
 <style id="print-a4-fix">
-/* print + screen narrative readability */
+/* screen narrative readability */
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1201"],
 #result-full-capture [data-loc="client/src/pages/Home.tsx:1307"] {
   display: none !important;
@@ -172,21 +172,10 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 14mm 20mm 14mm;
-    @bottom-center {
-      content: counter(page);
-      font-size: 10pt;
-      color: #444;
-      font-family: "Noto Sans KR", sans-serif;
-    }
-  }
-  /* 화면용 숨김 · 인쇄 시 하단 페이지 번호(브라우저 지원 시 @page와 함께) */
-  .print-page-num {
-    display: none;
+    margin: 12mm 14mm 16mm 14mm;
   }
   html, body {
     width: 100% !important;
-    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
@@ -196,44 +185,41 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+  /* chrome only — hide UI, keep result */
   .intro-sec, #introPlayerWrap, #introVideo, .intro-mute,
-  .no-print, header, nav, [role="tablist"], .tab-nav,
+  .intro-mute-btn, .intro-player, audio, video,
+  header, nav, [role="tablist"], .tab-nav,
   #pwaSheet, #pwaBar, #manus-previewer-content-root,
-  .intro-player, audio, video {
+  .no-print {
     display: none !important;
   }
-  /* ?? ??? ?? ? ???? ???? ?? ??·??? button?? ??? ?? ? */
-  button {
+  button.no-print,
+  .no-print button {
     display: none !important;
   }
-  #result-full-capture table button {
+  /* show result root even if tab chrome is odd */
+  #root, main, #result-full-capture {
     display: block !important;
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    visibility: visible !important;
+    position: static !important;
     width: 100% !important;
-    font: inherit !important;
-    color: inherit !important;
-    text-decoration: none !important;
-    cursor: default !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
   }
-  #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
-    display: none !important;
+  #result-full-capture, #result-full-capture * {
+    visibility: visible !important;
   }
-  /* 종합표·요약표는 인쇄에 포함 (JS에 no-print 붙어 있어도 강제 표시) */
-  #result-full-capture [data-loc="client/src/pages/Home.tsx:819"].no-print,
-  #result-full-capture [data-loc="client/src/pages/Home.tsx:822"].no-print {
+  /* 종합표 was marked no-print — force show */
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:819"],
+  #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] {
     display: block !important;
   }
   #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] table {
     display: table !important;
     width: 100% !important;
-  }
-  #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] tbody {
-    display: table-row-group !important;
   }
   #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] tr {
     display: table-row !important;
@@ -242,98 +228,48 @@
   #result-full-capture [data-loc="client/src/pages/Home.tsx:822"] td {
     display: table-cell !important;
   }
-  /* 요약보기(인덕·이름기운·탄생일·오행) 테두리 유지 */
-  #result-full-capture .ink-card {
-    border: 1px solid #b45309 !important;
-    padding: 8px !important;
-    margin: 10px 0 !important;
-    background: #fff !important;
+  /* table cell buttons (underlined 수리/괘) stay as text */
+  #result-full-capture table button {
+    display: inline !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font: inherit !important;
+    color: inherit !important;
+    text-decoration: underline !important;
   }
-  #root, #result-full-capture, #result-full-capture * {
-    visibility: visible !important;
+  #result-full-capture [data-loc="client/src/components/PrCard.tsx:219"] {
+    display: none !important;
   }
-  body * { box-shadow: none !important; }
   [class*="sticky"], [class*="fixed"], .fixed, .sticky {
     position: static !important;
-    top: auto !important; left: auto !important;
-    right: auto !important; bottom: auto !important;
     transform: none !important;
-  }
-  #root, #result-full-capture, main {
-    display: block !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
   }
   .max-w-2xl, .max-w-xl, .max-w-lg, .max-w-md, .max-w-3xl, .max-w-4xl,
   .max-w-5xl, .max-w-6xl, .max-w-7xl, .mx-auto {
     max-width: 100% !important;
     width: 100% !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
   }
-  .ink-card, .suri-card, section, article {
-    break-inside: auto;
-    page-break-inside: auto;
+  .ink-card, .suri-card {
+    break-inside: avoid;
     box-shadow: none !important;
     background: #fff !important;
-    margin: 12px 0 !important;
-    padding: 0 !important;
-    border: none !important;
-  }
-  #result-full-capture .ink-card {
     border: 1px solid #b45309 !important;
     padding: 8px !important;
+    margin: 10px 0 !important;
   }
   img, svg { max-width: 100% !important; height: auto !important; }
-  a { color: inherit !important; text-decoration: none !important; }
-  .space-y-6 > :not([hidden]) ~ :not([hidden]),
-  .space-y-4 > :not([hidden]) ~ :not([hidden]),
-  .space-y-3 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 16px !important;
-  }
-  [data-tab="input"], [data-tab="gwe"], [data-tab="hanja"] { display: none !important; }
-  .text-sm, .leading-relaxed, .whitespace-pre-wrap,
-  [data-loc="client/src/pages/Home.tsx:sumAgeCore"],
   .ko-sum-narr, .ko-sum-concl {
     font-size: 10.5pt !important;
     line-height: 1.55 !important;
     max-width: 155mm !important;
     width: 155mm !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    padding: 2px 0 !important;
-    margin-bottom: 8px !important;
-    background: transparent !important;
-    border: none !important;
+    margin: 0 auto 8px !important;
   }
-  .ko-sum-concl {
-    border-top: 1px solid #ccc !important;
-    padding-top: 10px !important;
-    margin-top: 16px !important;
-  }
-  .ko-sum-matrix {
-    max-width: 150mm !important;
-    width: 100% !important;
-    margin: 0 auto 4px !important;
-  }
-  .ko-sum-mx {
-    font-size: 8.5pt !important;
-  }
-  .ko-sum-mx th,
-  .ko-sum-mx td {
-    padding: 3px 2px !important;
-  }
-  .ko-sum-mx .mx-sub { font-size: 6.5pt !important; }
-  .ko-sum-mx .mx-mark { font-size: 8pt !important; }
-  .ko-sum-matrix .mx-note { font-size: 7.5pt !important; }
-  .ko-sum-matrix-head { font-size: 10pt !important; }
-  [data-loc="client/src/pages/Home.tsx:sumAgeCore"] ~ div [style*="grid-template-columns"],
-  #result-full-capture div[style*="grid-template-columns: 1fr 1fr"],
-  #result-full-capture div[style*="grid-template-columns:1fr 1fr"] {
-    display: block !important;
-  }
+  .ko-sum-matrix { max-width: 150mm !important; margin: 0 auto 4px !important; }
+  .ko-sum-mx { font-size: 8.5pt !important; }
+  .ko-sum-mx th, .ko-sum-mx td { padding: 3px 2px !important; }
 }
 </style>
 </head>
@@ -570,16 +506,6 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260922e"></script>
-
-<style id="print-page-num-style">
-@media print {
-  @page {
-    @bottom-center {
-      content: counter(page) !important;
-    }
-  }
-}
-</style>
+    <script src="./pwa-install.js?v=20260922g"></script>
 </body>
 </html>

@@ -127,13 +127,14 @@
     return n.indexOf("화수미제") >= 0;
   }
 
-  /** 재물운 해당 괘 (hex-fortune 재물운) */
+  /** 재물운 해당 괘 (hex-fortune 재물운 · 뇌천대장=재물 보흘 지정) */
   const WEALTH_FORTUNE_HEX = [
     "화천대유",
     "화수미제",
     "수풍정",
     "산천대축",
     "이위화",
+    "뇌천대장",
   ];
 
   function isWealthFortuneHex(g) {
@@ -2667,7 +2668,14 @@
       ];
 
       /** 재물운 해당 괘 (hex-fortune 재물운) */
-      const WEALTH_HEX = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화"];
+      const WEALTH_HEX = [
+        "화천대유",
+        "화수미제",
+        "수풍정",
+        "산천대축",
+        "이위화",
+        "뇌천대장",
+      ];
       function isWealthHex(g) {
         if (!g || !g.name) return false;
         const n = gweNameOf(g);
@@ -3041,7 +3049,14 @@
     const MATRIX_ROWS = [
       {
         title: "재물운",
-        hex: ["화천대유", "화수미제", "수풍정", "산천대축", "이위화"],
+        hex: [
+          "화천대유",
+          "화수미제",
+          "수풍정",
+          "산천대축",
+          "이위화",
+          "뇌천대장",
+        ],
         suri: [16, 24, 29, 47, 7, 13, 3, 33, 41, 58, 61, 65, 67, 1, 5, 6, 8, 18],
         good: true,
       },
