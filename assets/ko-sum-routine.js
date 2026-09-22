@@ -3010,6 +3010,17 @@
         spouse = "비화(관심이 있는듯 없는듯)";
       }
 
+      let child = "해당없음";
+      const dn = o.dn || o.dnHg;
+      const dnHj = o.dnHj;
+      if (dn === "sangsaeng" || dnHj === "sangsaeng") {
+        child = "원활(아래쪽 오행 생)";
+      } else if (dn === "sanggeuk" || dnHj === "sanggeuk") {
+        child = "막힘(아래쪽 오행 극)";
+      } else if (dn || dnHj) {
+        child = "비화(관심이 있는듯 없는듯)";
+      }
+
       return (
         '<div class="ko-sum-matrix-head">' +
         "<div>1. 인덕 : " +
@@ -3017,6 +3028,9 @@
         "</div>" +
         "<div>2. 배우자운 : " +
         esc(spouse) +
+        "</div>" +
+        "<div>3. 자녀운 : " +
+        esc(child) +
         "</div>" +
         "</div>"
       );
