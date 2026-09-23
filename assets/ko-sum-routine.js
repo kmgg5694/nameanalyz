@@ -2701,74 +2701,196 @@
         );
       }
 
+      function nameBadMarksAt(idx) {
+        const marks = [];
+        if (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data))
+          marks.push(suriPhrase(nmS[idx]));
+        if (nmG[idx] && nmG[idx].name) {
+          if (gweBad(nmG[idx]) || hasBadSuriBlackHex(nmS[idx], nmG[idx]))
+            marks.push(gweNameHtml(nmG[idx]));
+        }
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data && suriBad(hjS[idx].data))
+            marks.push(suriPhrase(hjS[idx]));
+          if (hjG[idx] && hjG[idx].name) {
+            if (gweBad(hjG[idx]) || hasBadSuriBlackHex(hjS[idx], hjG[idx]))
+              marks.push(gweNameHtml(hjG[idx]));
+          }
+        }
+        return marks;
+      }
+      function sajuGoodMarksAt(idx) {
+        const marks = [];
+        if (bdS[idx] && bdS[idx].data && suriGood(bdS[idx].data))
+          marks.push(suriPhrase(bdS[idx]));
+        if (bdG[idx] && bdG[idx].name && gweGood(bdG[idx]))
+          marks.push(gweNameHtml(bdG[idx]));
+        if (
+          hasBadSuriMitigateHex(bdS[idx], bdG[idx]) &&
+          bdG[idx] &&
+          bdG[idx].name
+        ) {
+          if (marks.indexOf(gweNameHtml(bdG[idx])) < 0)
+            marks.push(gweNameHtml(bdG[idx]));
+        }
+        return marks;
+      }
+      function sajuBadMarksAt(idx) {
+        const marks = [];
+        if (bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data))
+          marks.push(suriPhrase(bdS[idx]));
+        if (bdG[idx] && bdG[idx].name) {
+          if (gweBad(bdG[idx]) || hasBadSuriBlackHex(bdS[idx], bdG[idx]))
+            marks.push(gweNameHtml(bdG[idx]));
+        }
+        return marks;
+      }
+      function nameGoodMarksAt(idx) {
+        const marks = [];
+        if (nmS[idx] && nmS[idx].data && suriGood(nmS[idx].data))
+          marks.push(suriPhrase(nmS[idx]));
+        if (nmG[idx] && nmG[idx].name && gweGood(nmG[idx]))
+          marks.push(gweNameHtml(nmG[idx]));
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data && suriGood(hjS[idx].data))
+            marks.push(suriPhrase(hjS[idx]));
+          if (hjG[idx] && hjG[idx].name && gweGood(hjG[idx]))
+            marks.push(gweNameHtml(hjG[idx]));
+        }
+        if (nmG[idx] && isMitigateSuriHex(nmG[idx])) {
+          const h = gweNameHtml(nmG[idx]);
+          if (marks.indexOf(h) < 0) marks.push(h);
+        }
+        if (hasHanja && hjG[idx] && isMitigateSuriHex(hjG[idx])) {
+          const h = gweNameHtml(hjG[idx]);
+          if (marks.indexOf(h) < 0) marks.push(h);
+        }
+        return marks;
+      }
+      /** 사주 길 기운으로 「어떻게 살으라」 한 줄 */
+      function sajuLiveHint(idx) {
+        const g = bdG[idx];
+        const n = g ? gweNameOf(g) : "";
+        if (n.indexOf("이위화") === 0) return "건강한 삶";
+        if (
+          n.indexOf("화천대유") === 0 ||
+          n.indexOf("화수미제") === 0 ||
+          n.indexOf("수풍정") === 0 ||
+          n.indexOf("산천대축") === 0 ||
+          n.indexOf("뇌천대장") === 0
+        )
+          return "재물·성공이 따르는 삶";
+        if (n.indexOf("화풍정") === 0) return "뜻을 펴는 삶";
+        if (bdS[idx] && bdS[idx].data && suriGood(bdS[idx].data)) {
+          const sn = plainSuriName(bdS[idx]);
+          if (sn.indexOf("위세") >= 0 || sn.indexOf("권력") >= 0)
+            return "위세·힘을 펼치는 삶";
+          if (sn.indexOf("부귀") >= 0 || sn.indexOf("영화") >= 0)
+            return "부귀한 삶";
+        }
+        return "열린·길한 삶";
+      }
+      function joinMarks(arr) {
+        return (arr || []).join(", ");
+      }
+
       slots.forEach(function (slot) {
         const idx = slot.i;
         const nMarks = nameMarksAt(idx);
         const sMarks = sajuMarksAt(idx);
         if (!nMarks.length && !sMarks.length) return;
 
-        let p = slot.speak + "을 견주면, ";
-        if (sMarks.length) {
-          p += "사주에는 " + sMarks.join("·") + "이(가) 있고, ";
-        } else {
-          p += "사주 쪽 표기가 드물고, ";
-        }
-        if (nMarks.length) {
-          p += "이름에는 " + nMarks.join("·") + "이(가) 들어 있습니다. ";
-        } else {
-          p += "이름 쪽 표기가 드뭅니다. ";
-        }
-
-        const nBody = nameBodyAt(idx, slot.key);
-        if (nBody) p += nBody + " ";
-
         const nBad = nameSideBad(idx);
         const nGood = nameSideGood(idx);
         const sBad = sajuSideBad(idx);
         const sGood = sajuSideGood(idx);
         const mit = nameMitAt(idx);
+        const isMal = slot.key === "말년";
+        const nBadM = nameBadMarksAt(idx);
+        const sGoodM = sajuGoodMarksAt(idx);
+        const sBadM = sajuBadMarksAt(idx);
+        const nGoodM = nameGoodMarksAt(idx);
 
-        if (nBad && sBad) {
-          p +=
-            "같은 " +
+        let p = "";
+
+        if (nBad && sGood && sGoodM.length && nBadM.length) {
+          p =
+            "사주는 " +
+            joinMarks(sGoodM) +
+            "로 " +
+            sajuLiveHint(idx) +
+            "을 살으라 했는데 이름에 " +
+            joinMarks(nBadM) +
+            "가 들어 사주의 좋은 기운을 막아서서 " +
+            paintRed("고통을 주니") +
+            " 이것부터가 좋은 이름이 아니랍니다.";
+          if (isMal) {
+            p +=
+              " 총운은 인생 전반에 영향력을 행사하는 건데 그 고통이 이루 말할 수가 없겠지요.";
+          }
+        } else if (nBad && sBad) {
+          p =
             slot.speak +
-            "에 " +
-            paintRed("이름의 흉한 기운이 사주의 흉한 기운과 마주칩니다") +
-            ". 사주가 무거워도 이름이 같이 무거우면 " +
+            "에 사주 " +
+            (sBadM.length ? joinMarks(sBadM) : "흉한 기운") +
+            "과 이름 " +
+            (nBadM.length ? joinMarks(nBadM) : "흉한 기운") +
+            "이 마주칩니다. 사주가 무거워도 이름이 같이 무거우면 " +
             paintRed("최악") +
             "이니, 이 시기 이름은 사주를 도와 주지 못하고 " +
             paintRed("고통을 줍니다") +
             ".";
-        } else if (nBad && sGood) {
-          p +=
-            "사주는 열려 있는데 이름의 무거운 기운이 그 힘을 눌러, 이 시기 이름은 사주를 도와 주지 못하고 " +
-            paintRed("고통을 줍니다") +
-            ".";
+          if (isMal) {
+            p +=
+              " 총운이 이러면 인생 전반에 그 고통이 미치니 이루 말할 수가 없습니다.";
+          }
         } else if ((nGood || mit) && sBad) {
-          p +=
-            "사주는 무거운데 이름의 기운이 받치거나 눌러 주어 " +
+          p =
+            "사주 " +
+            (sBadM.length ? joinMarks(sBadM) : "무거운 기운") +
+            "은 버거운데 이름에 " +
+            (nGoodM.length ? joinMarks(nGoodM) : "받쳐 주는 기운") +
+            "이 들어 " +
             paintBlue("사주를 도와 줍니다") +
             ". 눌러 주는 기운(화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장)이 있으면 보완이 됩니다.";
         } else if (nGood && sGood) {
-          p +=
-            "이름과 사주가 같은 " +
+          p =
             slot.speak +
-            "에 함께 열려 " +
+            "에 사주 " +
+            (sGoodM.length ? joinMarks(sGoodM) : "길한 기운") +
+            "과 이름 " +
+            (nGoodM.length ? joinMarks(nGoodM) : "길한 기운") +
+            "이 함께 열려 " +
             paintBlue("이름이 사주를 도와 줍니다") +
             ".";
-        } else if (nBad && !sBad) {
-          p +=
-            "사주는 평이한데 이름에 무거운 기운이 있어 이 시기 이름이 사주에 " +
+        } else if (nBad && !sBad && nBadM.length) {
+          p =
+            "이름에 " +
+            joinMarks(nBadM) +
+            "가 들어 이 시기 사주에 " +
             paintRed("고통을 줍니다") +
-            ".";
+            ". 이것부터가 좋은 이름이라 하기 어렵습니다.";
+          if (isMal) {
+            p +=
+              " 총운은 인생 전반에 영향력을 행사하는 건데 그 고통이 이루 말할 수가 없겠지요.";
+          }
         } else if (!nBad && sBad) {
-          p +=
-            "사주는 무겁고 이름은 그 부담을 크게 더하지는 않으나, 눌러 주는 기운이 뚜렷하지 않으면 보완이 약합니다.";
+          p =
+            "사주 " +
+            (sBadM.length ? joinMarks(sBadM) : "무거운 기운") +
+            "은 버겁고 이름은 그 부담을 크게 더하지는 않으나, 눌러 주는 기운이 뚜렷하지 않으면 보완이 약합니다.";
         } else {
-          p +=
-            "같은 " +
+          p =
             slot.speak +
             "에 이름과 사주가 크게 기울지 않아, 도움이 뚜렷하지도 고통이 뚜렷하지도 않습니다.";
+          if (sMarks.length || nMarks.length) {
+            p +=
+              " (사주 " +
+              (sMarks.length ? joinMarks(sMarks) : "—") +
+              " · 이름 " +
+              (nMarks.length ? joinMarks(nMarks) : "—") +
+              ")";
+          }
         }
         paras.push(p);
       });
