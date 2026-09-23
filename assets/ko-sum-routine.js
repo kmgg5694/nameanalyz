@@ -1212,7 +1212,7 @@
     return "비화";
   }
 
-  /** 오행 — 성격(겉·속) + 위·아래 개폐 + 인덕 마무리 */
+  /** 오행 — 선생님 서술형 문체 + 생·극 방향(주는지/받는지) · 보흘 2026-09-24 */
   function buildOhangBlock(ctx) {
     const o = ctx.ohang || null;
     if (!o) return "";
@@ -1220,7 +1220,6 @@
     const who = nameOpt ? esc(nameOpt) + "님" : "이 분";
 
     const OH_KO = { 木: "목", 火: "화", 土: "토", 金: "금", 水: "수" };
-    /** 오행 지칭 시 조사 로/으로 (보흘 지정) */
     const OH_RO = {
       木: "목으로",
       火: "화로",
@@ -1228,20 +1227,16 @@
       金: "금으로",
       水: "수로",
     };
-    const EXT = {
-      木: "성장과 시작을 이끄는 추진력이 겉으로 드러납니다",
-      火: "열정과 표현력, 활동성과 사교성이 겉으로 드러납니다",
-      土: "안정과 중재, 신뢰와 포용이 겉으로 드러납니다",
-      金: "결단력과 원칙, 절제와 완성이 겉으로 드러납니다",
-      水: "유연성과 지혜, 적응력과 소통이 겉으로 드러납니다",
+    /** 가운데(본인) 중심기운 품성 — 선생님 원문 톤 */
+    const MID_TRAIT = {
+      木: "성장·시작의 기운이 있어 추진력이 있고 뻗어 나가려는 성향이 나타납니다",
+      火: "밝고 명랑 쾌활하며, 일처리가 시원시원한 면이 있고, 때론 욱하는 급한 성격이 나타날 수 있습니다",
+      土: "비교적 포용력이 많고 인내심이 있으며 안정·신뢰의 기운이 중심을 이룹니다",
+      金: "비교적 굳세고 강하며, 솔직하고 직선적인 면이 많고, 요구수준이 높고 까다로울 수 있으나 스스로 실력을 쌓으려는 성실한 면도 많습니다. 강자에게는 강하고 약자에게는 부드러운 군자의 모습이 나오기도 합니다",
+      水: "지혜롭고 담백하며 자유자재·능수능란한 융통성을 갖춘 반면에 냉철함도 가지고 있습니다",
     };
-    const INN = {
-      木: "성장·시작·확장의 힘이 움직입니다",
-      火: "열정·표현·활동의 힘이 움직입니다",
-      土: "안정·신뢰·포용의 힘이 움직입니다",
-      金: "결단·원칙·절제의 힘이 움직입니다",
-      水: "지혜·유연·소통의 힘이 움직입니다",
-    };
+    const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
+    const KEUK = { 木: "土", 火: "金", 土: "水", 金: "木", 水: "火" };
 
     function normEl(v) {
       const t = String(v || "").trim();
@@ -1253,80 +1248,304 @@
     function ohRo(el) {
       return OH_RO[el] || OH_KO[el] || el;
     }
-    function sideOpen(kind) {
-      if (kind === "sangsaeng") return "열려";
-      if (kind === "sanggeuk") return "막혀";
+    function elList(arr) {
+      return (arr || [])
+        .map(normEl)
+        .filter(Boolean)
+        .map(function (e) {
+          return ohRo(e) + "(" + e + ")";
+        })
+        .join("·");
+    }
+    /** 위(up)·본인(me) — 내가 생/극을 주는지·받는지 */
+    function dirUp(up, me) {
+      if (!up || !me) return "none";
+      if (up === me) return "sangbi";
+      if (GEN[up] === me) return "recv_saeng"; // 위-생->본인
+      if (GEN[me] === up) return "give_saeng"; // 위<-생-본인
+      if (KEUK[up] === me) return "recv_geuk"; // 위-극->본인
+      if (KEUK[me] === up) return "give_geuk"; // 위<-극-본인
       return "bihwa";
     }
-    function sideSentence(label, kind) {
-      const k = sideOpen(kind);
-      if (k === "열려") return label + "은 열려 있습니다.";
-      if (k === "막혀") return label + "은 막혀 있습니다.";
-      return label + "은 관심이 있는듯 없는듯합니다.";
+    /** 본인(me)·아래(dn) */
+    function dirDn(me, dn) {
+      if (!me || !dn) return "none";
+      if (me === dn) return "sangbi";
+      if (GEN[me] === dn) return "give_saeng"; // 본인-생->아래
+      if (GEN[dn] === me) return "recv_saeng"; // 본인<-생-아래
+      if (KEUK[me] === dn) return "give_geuk"; // 본인-극->아래
+      if (KEUK[dn] === me) return "recv_geuk"; // 본인<-극-아래
+      return "bihwa";
+    }
+    function speakUp(d) {
+      if (d === "recv_saeng")
+        return (
+          "윗사람(양부모·배우자·선배·관공서) 쪽으로는 " +
+          paintBlue("생을 받는") +
+          " 구조입니다. 위로부터 정신적·물질적 도움을 받기 쉽습니다."
+        );
+      if (d === "give_saeng")
+        return (
+          "윗사람 쪽으로는 내가 " +
+          paintBlue("생을 주는") +
+          " 구조입니다. 위를 섬기고 배우며 베푸는 기운입니다."
+        );
+      if (d === "recv_geuk")
+        return (
+          "윗사람 쪽으로는 내가 " +
+          paintRed("극을 받는") +
+          " 구조입니다. 위로부터의 극·배척·소통 막힘이 생기기 쉽습니다."
+        );
+      if (d === "give_geuk")
+        return (
+          "윗사람 쪽으로는 내가 " +
+          paintRed("극을 주는") +
+          " 구조입니다. 위를 치며 정신적·재물 손실을 주기 쉬운 기운입니다."
+        );
+      if (d === "sangbi")
+        return "윗사람 쪽은 같은 오행이 나란히 있어 상비(상생도 상극도 아닌) 기운으로, 관심이 있는듯 없는듯 덤덤한 관계로 읽힙니다.";
+      if (d === "bihwa")
+        return "윗사람 쪽은 생·극이 뚜렷하지 않아 관심이 있는듯 없는듯한 관계로 읽힙니다.";
+      return "";
+    }
+    function speakDn(d) {
+      if (d === "give_saeng")
+        return (
+          "아랫사람(동료·후배·자녀) 쪽으로는 내가 " +
+          paintBlue("생을 주는") +
+          " 구조입니다. 베풀고 자상하게 대하는 기운입니다."
+        );
+      if (d === "recv_saeng")
+        return (
+          "아랫사람 쪽으로는 내가 " +
+          paintBlue("생을 받는") +
+          " 구조입니다. 동료·후배·자녀의 도움을 받기 쉽습니다."
+        );
+      if (d === "give_geuk")
+        return (
+          "아랫사람 쪽으로는 내가 " +
+          paintRed("극을 주는") +
+          " 구조입니다. 아래를 치며 엄격·배척이 생기기 쉽습니다."
+        );
+      if (d === "recv_geuk")
+        return (
+          "아랫사람 쪽으로는 내가 " +
+          paintRed("극을 받는") +
+          " 구조입니다. 아래의 도움을 받기 어렵고 소통이 막히기 쉽습니다."
+        );
+      if (d === "sangbi")
+        return "아랫사람 쪽은 같은 오행이 나란히 있어 상비로, 덤덤하거나 관심이 있는듯 없는듯한 관계로 읽힙니다.";
+      if (d === "bihwa")
+        return "아랫사람 쪽은 생·극이 뚜렷하지 않아 관심이 있는듯 없는듯한 관계로 읽힙니다.";
+      return "";
+    }
+    function pairTone(upD, dnD) {
+      const saengish = function (d) {
+        return d === "give_saeng" || d === "recv_saeng";
+      };
+      const geukish = function (d) {
+        return d === "give_geuk" || d === "recv_geuk";
+      };
+      let s = 0;
+      let g = 0;
+      if (saengish(upD)) s++;
+      if (saengish(dnD)) s++;
+      if (geukish(upD)) g++;
+      if (geukish(dnD)) g++;
+      if (s && !g) return "saeng";
+      if (g && !s) return "geuk";
+      if (s && g) return "mixed";
+      return "flat";
     }
 
-    const K = o.K || ctx.K || [];
-    const hjO = o.hjO || [];
-    const midHg = normEl(K[1] || K[0] || "");
-    const midHj = o.q ? normEl(hjO[1] || hjO[0] || "") : "";
+    const K = (o.K || ctx.K || []).map(normEl);
+    const hjO = (o.hjO || []).map(normEl);
+    const hasHj = !!(o.q && hjO.length);
+    const midHg = K[1] || K[0] || "";
+    const midHj = hasHj ? hjO[1] || hjO[0] || "" : "";
+    const upHg = K[0] || "";
+    const dnHg = K[2] || "";
+    const upHjE = hasHj ? hjO[0] || "" : "";
+    const dnHjE = hasHj ? hjO[2] || "" : "";
 
-    const bits = [];
-    if (midHg) {
-      let p =
-        who +
-        "의 겉성격은 " +
-        ohRo(midHg) +
-        "(" +
-        midHg +
-        ") " +
-        (EXT[midHg] || "그 기운이 겉으로 드러납니다");
-      if (midHj) {
-        p +=
-          ". 속마음은 한자 " +
-          ohRo(midHj) +
-          "(" +
-          midHj +
-          ") " +
-          (INN[midHj] || "그 기운이 안에서 움직입니다");
-      }
-      p += ".";
-      bits.push(p);
-    }
-
-    const up = o.up;
-    const dn = o.dn;
-    const upHj = o.upHj;
-    const dnHj = o.dnHj;
-    if (up || dn) {
-      bits.push(sideSentence("양부모·배우자·선배 쪽", up));
-      bits.push(sideSentence("동료·후배·자녀 쪽", dn));
-    }
-    if (o.q && (upHj || dnHj)) {
-      const u2 = sideOpen(upHj);
-      const d2 = sideOpen(dnHj);
-      let extra = "한자(속)으로 보면 ";
-      if (u2 === "bihwa" && d2 === "bihwa") {
-        extra += "양부모·아래 모두 관심이 있는듯 없는듯합니다.";
-      } else {
-        const parts = [];
-        if (u2 === "열려") parts.push("양부모 쪽은 열린 편");
-        else if (u2 === "막혀") parts.push("양부모 쪽은 막힌 편");
-        else parts.push("양부모 쪽은 관심이 있는듯 없는듯");
-        if (d2 === "열려") parts.push("아래는 열린 편");
-        else if (d2 === "막혀") parts.push("아래는 막힌 편");
-        else parts.push("아래는 관심이 있는듯 없는듯");
-        extra += parts.join(", ") + "입니다.";
-      }
-      bits.push(extra);
-    }
+    const dUpHg = dirUp(upHg, midHg);
+    const dDnHg = dirDn(midHg, dnHg);
+    const dUpHj = hasHj ? dirUp(upHjE, midHj) : "none";
+    const dDnHj = hasHj ? dirDn(midHj, dnHjE) : "none";
 
     const saeng = Number(o.M) || 0;
     const geuk = Number(o.z) || 0;
+    const toneHg = pairTone(dUpHg, dDnHg);
+    const toneHj = hasHj ? pairTone(dUpHj, dDnHj) : "flat";
+
+    const paras = [];
+
+    // 1) 척도·상생·상극 정의 (선생님 원문)
+    paras.push(
+      "오행은 주변 사람들과 어떤 인간관계를 유지하며 살아 가는지, 어떤 성격을 형성하는 기운으로 작용을 하는지, 인복은 있는지, 사람 때문에 받는 스트레스는 어느 정도인지를 알아보는 척도가 됩니다. " +
+        paintBlue("상생") +
+        "의 관계란 서로가 서로에게 도움을 주고, 협조적이며, 화합이 잘 되고, 긍정적이고, 소통이 잘 되는 상태를 말합니다. " +
+        paintRed("상극") +
+        "의 관계는 상생의 반대적인 개념으로 배타적이며, 부정적이고, 소통이 어렵고, 억제·저지·방해·불협화음이 자주 발생하는 상태를 나타냅니다. 오행에 " +
+        paintRed("상극") +
+        "이 과다하면 스트레스가 많고, 몸에 여러가지 질병이 생기기 쉽습니다."
+    );
+
+    // 2) 배치·전체 흐름
+    let flow = who + " 이름 속의 오행을 보면 ";
+    if (K.length) flow += "한글(소리)은 " + elList(K);
+    if (hasHj) flow += (K.length ? "이고, 한자(자원)는 " : "") + elList(hjO);
+    flow += "의 배치입니다. ";
+
+    if (geuk === 0 && saeng >= 2) {
+      flow +=
+        "전체적으로 " +
+        paintBlue("상생") +
+        "이 많아 주변 사람들과 두루 원만하고 매끄럽게 화합을 이루며 지내려는 기운이 나오고, 사람때문에 받는 스트레스는 비교적 적은 편에 속합니다.";
+    } else if (saeng > geuk) {
+      flow +=
+        "전체적으로 " +
+        paintRed("상극") +
+        "보다 " +
+        paintBlue("상생") +
+        "이 많은 구조로 되어 있어 두루 화합이 잘되며 원만한 편에 속하고, 사람때문에 받는 스트레스가 많지 않을 것으로 보입니다.";
+    } else if (geuk > saeng) {
+      flow +=
+        paintBlue("상생") +
+        "보다 " +
+        paintRed("상극") +
+        "이 많아 사람때문에 받는 스트레스가 많다는 것을 한 눈에 알아볼 수 있습니다. 이리 치이고 저리 치이는 일이 생기기 쉽습니다.";
+    } else if (saeng && geuk) {
+      flow +=
+        "반은 " +
+        paintBlue("상생") +
+        "이고 반은 " +
+        paintRed("상극") +
+        "인 흐름이 보이니, 두루 원만하게 지내는듯 하다가도 자존심이 긁히거나 앞길이 막히면 예민하고 날카로운 반응이 나오기 쉽습니다.";
+    } else {
+      flow +=
+        "생·극이 뚜렷이 기울지 않은 구조로 읽힙니다.";
+    }
+    paras.push(flow);
+
+    // 3) 겉·속 (한글 상생 / 한자 상극 등)
+    if (hasHj) {
+      if (toneHg === "saeng" && toneHj === "geuk") {
+        paras.push(
+          "한글이름은 " +
+            paintBlue("상생") +
+            "에 가깝고 한자이름은 " +
+            paintRed("상극") +
+            "에 가까워, 겉으로 드러난 표면적인 인간관계는 큰 어려움없이 원만한듯 보이지만 속으로는 주변 사람들 때문에 겪는 고뇌와 갈등이 많을 수 있습니다. 겉으로 보이는 것이 전부가 아니라는 말씀입니다."
+        );
+      } else if (toneHg === "geuk" && toneHj === "saeng") {
+        paras.push(
+          "한글(겉)은 " +
+            paintRed("상극") +
+            "에 가깝고 한자(속)은 " +
+            paintBlue("상생") +
+            "에 가까워, 겉보기에는 별로인데 속으로는 믿음이 가는 흐름으로 읽힙니다."
+        );
+      }
+    }
+
+    // 4) 중심기운 품성
+    if (midHg) {
+      let mid =
+        "이 이름의 중심기운(가운데·본인)에 해당하는 오행은 한글 " +
+        ohRo(midHg) +
+        "(" +
+        midHg +
+        ")";
+      if (midHj) {
+        mid +=
+          ", 한자 " + ohRo(midHj) + "(" + midHj + ")";
+      }
+      mid += "이니 " + (MID_TRAIT[midHg] || "그 기운이 성격을 이끕니다") + ".";
+      if (midHj && midHj !== midHg && MID_TRAIT[midHj]) {
+        mid +=
+          " 속(한자)으로는 " +
+          ohRo(midHj) +
+          "의 기운이 더해져 " +
+          MID_TRAIT[midHj] +
+          ".";
+      }
+      paras.push(mid);
+    }
+
+    // 5) 한글 — 생/극을 주는지·받는지
+    {
+      const bits = ["한글이름(겉)으로 보면 "];
+      const u = speakUp(dUpHg);
+      const d = speakDn(dDnHg);
+      if (u) bits.push(u + " ");
+      if (d) bits.push(d);
+      // 군자: 위 극(내가 강자에 강함) + 아래 생
+      if (
+        (dUpHg === "give_geuk" || dUpHg === "recv_geuk") &&
+        dDnHg === "give_saeng"
+      ) {
+        bits.push(
+          " 강자에게는 강하고 약자·아랫사람에게는 부드러운 군자의 모습이 나타나기 쉽습니다."
+        );
+      }
+      // 치사랑 / 내리사랑
+      if (
+        (dUpHg === "give_saeng" || dUpHg === "give_geuk") &&
+        (dDnHg === "recv_saeng" || dDnHg === "recv_geuk")
+      ) {
+        bits.push(
+          " 아래에서 도움을 받고 위를 섬기는 치사랑(위로 올라가는 사랑)의 흐름도 읽을 수 있습니다."
+        );
+      }
+      if (
+        (dUpHg === "recv_saeng" || dUpHg === "recv_geuk") &&
+        (dDnHg === "give_saeng" || dDnHg === "give_geuk")
+      ) {
+        bits.push(
+          " 위의 도움을 받고 아래쪽에 베푸는 내리사랑의 흐름도 읽을 수 있습니다."
+        );
+      }
+      paras.push(bits.join("").trim());
+    }
+
+    // 6) 한자 — 생/극을 주는지·받는지
+    if (hasHj) {
+      const bits = ["한자이름(속)으로 보면 "];
+      const u = speakUp(dUpHj);
+      const d = speakDn(dDnHj);
+      if (u) bits.push(u + " ");
+      if (d) bits.push(d);
+      if (
+        (dUpHj === "give_geuk" || dUpHj === "recv_geuk") &&
+        dDnHj === "give_saeng"
+      ) {
+        bits.push(
+          " 속에서도 강자에게 강하고 약자에게 부드러운 기운이 이어질 수 있습니다."
+        );
+      }
+      paras.push(bits.join("").trim());
+    }
+
+    // 7) 인덕 마무리
     let indeok = "";
-    if (saeng >= 3) indeok = "인덕이 많습니다.";
-    else if (saeng >= 2) indeok = "인덕이 어느 정도 있습니다.";
-    else indeok = "인덕이 부족합니다.";
-    bits.push(
+    if (saeng >= 3) {
+      indeok =
+        "인덕이 많습니다. 인덕(상생)이 3개 이상이어야 재물운·출세운·공부운·결혼운이 모두 좋게 작용하기 쉽습니다.";
+    } else if (saeng >= 2) {
+      indeok =
+        "인덕이 어느 정도 있습니다. 다만 인덕 3·4개가 되어야 재물·출세·공부·결혼운이 두루 좋게 작용하기 쉽습니다.";
+    } else {
+      indeok =
+        "인덕이 부족합니다. 상극이 많으면서 큰 재물·출세운이 있어도 그 복은 절반 이하로 떨어지기 쉽습니다.";
+    }
+    if (geuk >= 3) {
+      indeok +=
+        " " +
+        paintRed("상극") +
+        "이 많아 사람 스트레스와 건강 부담이 커질 수 있으니 오행을 고치는 개명을 깊이 검토할 만합니다.";
+    }
+    paras.push(
       paintBlue("상생") +
         "이 " +
         saeng +
@@ -1338,7 +1557,7 @@
         indeok
     );
 
-    return bits.join(" ");
+    return paras.join("<br><br>");
   }
 
   window.paintGH = function paintGH(s) {
