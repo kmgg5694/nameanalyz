@@ -2203,7 +2203,7 @@
     }
 
     const ohangNarr = buildOhangBlock(ctx);
-    if (ohangNarr) ageParts.push(ohangNarr);
+    // 오행 → 사주 시기별 → 비교 맺음 → 이름 서술 (아래 sideToneAt 정의 후 삽입)
 
     // 앞머리 긴 총평·【주의】 나열은 넣지 않음 — 시기별 서술·결론만 (인쇄 가독)
 
@@ -2344,6 +2344,72 @@
           " 길·흉이 섞인 시기는 " + mixedKeys.join("·") + "입니다.";
       }
       return p;
+    }
+
+    /**
+     * 사주 시기별 장·단점 (보흘 2026-09-24)
+     * 순서: 말년(총운) → 초년 → 장년 → 중년. 짧게, 색으로 길·흉.
+     */
+    function buildSajuPeriodBlock() {
+      if (!hasB) return "";
+      const slots = [
+        { i: 0, key: "말년", speak: "말년(56세 이후·총운)" },
+        { i: 1, key: "초년", speak: "초년(23세 이전)" },
+        { i: 2, key: "장년", speak: "장년(30~40세)" },
+        { i: 3, key: "중년", speak: "중년(40~55세)" },
+      ];
+      const paras = [];
+      paras.push(
+        "사주표를 보고 이 사람이 어떻게 살아가라고 했는지를 시기별로 짚어 보겠습니다. " +
+          "말년(총운)은 평생에 영향을 주고, 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
+      );
+      slots.forEach(function (slot) {
+        const bs = bdS[slot.i];
+        const bg = bdG[slot.i];
+        if ((!bs || !bs.data) && (!bg || !bg.name)) return;
+        const tone = sideToneAt(bdS, bdG, slot.i);
+        const bits = [];
+        bits.push(slot.speak + " 사주는 " + toneLabel(tone) + " 기운입니다.");
+        if (bs && bs.data) {
+          bits.push("수리는 " + suriPhrase(bs) + ".");
+          const sb = suriCoreBrief(bs, slot.key);
+          if (sb) bits.push(sb);
+        }
+        if (bg && bg.name) {
+          bits.push("주역은 " + gweNameHtml(bg) + ".");
+          const hb = hexCoreBrief(bg);
+          if (hb) bits.push(hb);
+        }
+        if (tone === "길") {
+          bits.push(
+            paintBlue("장점") +
+              "이 두드러지는 시기이니, 사주가 이 나이대에 열린 삶을 살라고 한 셈입니다."
+          );
+        } else if (tone === "흉") {
+          bits.push(
+            paintRed("단점·시련") +
+              "이 두드러지는 시기이니, 사주가 이 나이대에 견디며 살라고 한 셈입니다."
+          );
+        } else if (tone === "길흉혼재") {
+          bits.push(
+            "길한 기운과 무거운 기운이 함께 있어, 열림과 시련을 동시에 겪을 수 있는 시기입니다."
+          );
+        } else {
+          bits.push("뚜렷한 길·흉으로 기울지 않은 평이한 시기로 읽힙니다.");
+        }
+        paras.push(bits.join(" "));
+      });
+      return paras.length > 1 ? paras.join("<br><br>") : "";
+    }
+
+    // —— 순서: ①오행 → ②사주 시기별 장단점 → ③비교 맺음 → ④이름·비교 ——
+    if (ohangNarr) ageParts.push(ohangNarr);
+    if (hasB) {
+      const sajuNarr = buildSajuPeriodBlock();
+      if (sajuNarr) ageParts.push(sajuNarr);
+      ageParts.push(
+        "이렇게 살아가라고 했는데 당신의 이름이 시기별로 도움을 주는지 고통을 주는지 꼼꼼하게 비교해 보겠습니다."
+      );
     }
 
     // a. 전체 총평 덩어리(「전체적으로 봤을 때…」)는 넣지 않음 — 시기별 서술로 충분
@@ -2675,13 +2741,13 @@
       if (gilHyungSum) ageParts.push(gilHyungSum);
     }
 
-    // j. 탄생일·시기별 비교 — ①이름 길흉 → ②사주 길흉 → ③나이대별 치는쪽·변곡점
+    // j. 이름↔사주 비교 — 사주 본문은 앞에서 끝냄
     if (hasB) {
       const nbCompare = buildNameVsBirthCompare();
       if (nbCompare) ageParts.push(nbCompare);
 
       ageParts.push(
-        "이어서 사주 각 시기의 수리·주역을 짚고, 같은 나이대 이름과 다시 견줍니다. " +
+        "같은 나이대마다 이름과 사주를 한 줄로 견줍니다. " +
           paintBlue("좋은 기운") +
           "과 " +
           paintRed("흉한 기운") +
@@ -2902,40 +2968,7 @@
         const bs = bdS[slot.i];
         const bg = bdG[slot.i];
         if ((!bs || !bs.data) && (!bg || !bg.name)) return;
-        const bits = [];
-        if (bs && bs.data) {
-          bits.push(
-            "탄생일 " + slot.speak + " 수리는 " + suriPhrase(bs) + "입니다."
-          );
-        }
-        let hexBrief = "";
-        if (bg && bg.name) {
-          hexBrief = hexCoreBrief(bg);
-          let hexLine = "주역은 " + gweNameHtml(bg) + "입니다.";
-          if (hexBrief) hexLine += " " + hexBrief;
-          bits.push(hexLine);
-        }
-        const sBad = !!(bs && suriBad(bs.data));
-        const sGood = !!(bs && suriGood(bs.data));
-        const gBad = !!(bg && gweBad(bg));
-        const gGood = !!(bg && gweGood(bg));
-        if ((sBad || gBad) && !(sGood || gGood)) {
-          if (!hexBrief) {
-            bits.push(paintRed("이 시기 사주는 흉한 기운이 뚜렷합니다."));
-          }
-        } else if ((sGood || gGood) && !(sBad || gBad)) {
-          if (!hexBrief) {
-            bits.push(paintBlue("이 시기 사주는 길한 기운이 뚜렷합니다."));
-          }
-        } else if ((sBad || gBad) && (sGood || gGood)) {
-          if (!hexBrief) {
-            bits.push("이 시기 사주는 길한 기운과 무거운 기운이 함께 있습니다.");
-          }
-        }
-
-        if (bits.length) ageParts.push(bits.join(" "));
-
-        // 탄생일 설명 직후 — 이름↔사주 비교 (말·초·장·중 모두, 누락 금지)
+        // 사주 본문 재나열 생략 — 앞 사주 시기별 장단점 + 아래 이름↔사주만
         const cmp = compareNameVsSajuAtAge(slot.ageKey, slot.i);
         if (cmp) ageParts.push(cmp);
       });
