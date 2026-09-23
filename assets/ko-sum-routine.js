@@ -2347,16 +2347,16 @@
     }
 
     /**
-     * 사주 시기별 장·단점 (보흘 2026-09-24)
-     * 순서: 말년(총운) → 초년 → 장년 → 중년. 짧게, 색으로 길·흉.
+     * 사주 시기별 — 수리·주역 내용 서술 (길·흉 라벨만 두지 않음)
+     * 순서: 말년(총운) → 초년 → 장년 → 중년
      */
     function buildSajuPeriodBlock() {
       if (!hasB) return "";
       const slots = [
-        { i: 0, key: "말년", speak: "말년(56세 이후·총운)" },
-        { i: 1, key: "초년", speak: "초년(23세 이전)" },
-        { i: 2, key: "장년", speak: "장년(30~40세)" },
-        { i: 3, key: "중년", speak: "중년(40~55세)" },
+        { i: 0, key: "말년", speak: "말년" },
+        { i: 1, key: "초년", speak: "초년" },
+        { i: 2, key: "장년", speak: "장년" },
+        { i: 3, key: "중년", speak: "중년" },
       ];
       const paras = [];
       paras.push(
@@ -2367,42 +2367,194 @@
         const bs = bdS[slot.i];
         const bg = bdG[slot.i];
         if ((!bs || !bs.data) && (!bg || !bg.name)) return;
-        const tone = sideToneAt(bdS, bdG, slot.i);
-        const bits = [];
-        bits.push(slot.speak + " 사주는 " + toneLabel(tone) + " 기운입니다.");
+        let p = "";
         if (bs && bs.data) {
-          bits.push("수리는 " + suriPhrase(bs) + ".");
-          const sb = suriCoreBrief(bs, slot.key);
-          if (sb) bits.push(sb);
+          p += printSuriSentence("탄생일", slot.speak, bs, suriOpts);
         }
         if (bg && bg.name) {
-          bits.push("주역은 " + gweNameHtml(bg) + ".");
-          const hb = hexCoreBrief(bg);
-          if (hb) bits.push(hb);
+          if (p) p += " ";
+          const prevIdx = chronoPrevAgeIdx(slot.i);
+          const prevG = prevIdx >= 0 ? bdG[prevIdx] : null;
+          p += printHexSentence("탄생일", slot.speak, bg, prevG);
         }
-        if (tone === "길") {
-          bits.push(
-            paintBlue("장점") +
-              "이 두드러지는 시기이니, 사주가 이 나이대에 열린 삶을 살라고 한 셈입니다."
-          );
-        } else if (tone === "흉") {
-          bits.push(
-            paintRed("단점·시련") +
-              "이 두드러지는 시기이니, 사주가 이 나이대에 견디며 살라고 한 셈입니다."
-          );
-        } else if (tone === "길흉혼재") {
-          bits.push(
-            "길한 기운과 무거운 기운이 함께 있어, 열림과 시련을 동시에 겪을 수 있는 시기입니다."
-          );
-        } else {
-          bits.push("뚜렷한 길·흉으로 기울지 않은 평이한 시기로 읽힙니다.");
-        }
-        paras.push(bits.join(" "));
+        paras.push(p);
       });
       return paras.length > 1 ? paras.join("<br><br>") : "";
     }
 
-    // —— 순서: ①오행 → ②사주 시기별 장단점 → ③비교 맺음 → ④이름·비교 ——
+    /**
+     * 이름 vs 사주 — 같은 시기 수리·주역 내용을 짚고, 도움/침/최악을 분명히 말한다.
+     * (길·흉 표시만으로 끝내지 않음 · 보흘 2026-09-24)
+     */
+    function buildNameHelpsHurtsByPeriod() {
+      if (!hasB) return "";
+      const slots = [
+        { i: 0, key: "말년", speak: "말년" },
+        { i: 1, key: "초년", speak: "초년" },
+        { i: 2, key: "장년", speak: "장년" },
+        { i: 3, key: "중년", speak: "중년" },
+      ];
+      const paras = [];
+
+      function nameMarksAt(idx) {
+        const marks = [];
+        if (nmS[idx] && nmS[idx].data) marks.push(suriPhrase(nmS[idx]));
+        if (nmG[idx] && nmG[idx].name) marks.push(gweNameHtml(nmG[idx]));
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data) marks.push(suriPhrase(hjS[idx]));
+          if (hjG[idx] && hjG[idx].name) marks.push(gweNameHtml(hjG[idx]));
+        }
+        return marks;
+      }
+      function sajuMarksAt(idx) {
+        const marks = [];
+        if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
+        if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
+        return marks;
+      }
+      function nameBodyAt(idx, ageKey) {
+        const bits = [];
+        if (nmS[idx] && nmS[idx].data) {
+          const t = suriCoreBrief(nmS[idx], ageKey);
+          if (t) bits.push(t);
+        }
+        if (nmG[idx] && nmG[idx].name) {
+          const t = hexCoreBrief(nmG[idx]);
+          if (t) bits.push(t);
+        }
+        if (hasHanja) {
+          if (hjS[idx] && hjS[idx].data) {
+            const t = suriCoreBrief(hjS[idx], ageKey);
+            if (t) bits.push(t);
+          }
+          if (hjG[idx] && hjG[idx].name) {
+            const t = hexCoreBrief(hjG[idx]);
+            if (t) bits.push(t);
+          }
+        }
+        return bits.join(" ");
+      }
+      function nameSideBad(idx) {
+        return (
+          hasBadSuriBlackHex(nmS[idx], nmG[idx]) ||
+          (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data)) ||
+          (nmG[idx] && gweBad(nmG[idx])) ||
+          (hasHanja &&
+            (hasBadSuriBlackHex(hjS[idx], hjG[idx]) ||
+              (hjS[idx] && hjS[idx].data && suriBad(hjS[idx].data)) ||
+              (hjG[idx] && gweBad(hjG[idx]))))
+        );
+      }
+      function nameSideGood(idx) {
+        if (hasBadSuriBlackHex(nmS[idx], nmG[idx])) return false;
+        if (hasHanja && hasBadSuriBlackHex(hjS[idx], hjG[idx])) return false;
+        return (
+          hasBadSuriMitigateHex(nmS[idx], nmG[idx]) ||
+          (hasHanja && hasBadSuriMitigateHex(hjS[idx], hjG[idx])) ||
+          (nmG[idx] && gweGood(nmG[idx])) ||
+          (nmS[idx] && nmS[idx].data && suriGood(nmS[idx].data)) ||
+          (hasHanja &&
+            ((hjG[idx] && gweGood(hjG[idx])) ||
+              (hjS[idx] && hjS[idx].data && suriGood(hjS[idx].data))))
+        );
+      }
+      function sajuSideBad(idx) {
+        return (
+          hasBadSuriBlackHex(bdS[idx], bdG[idx]) ||
+          (bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data)) ||
+          (bdG[idx] && gweBad(bdG[idx]))
+        );
+      }
+      function sajuSideGood(idx) {
+        if (hasBadSuriBlackHex(bdS[idx], bdG[idx])) return false;
+        return (
+          hasBadSuriMitigateHex(bdS[idx], bdG[idx]) ||
+          (bdG[idx] && gweGood(bdG[idx])) ||
+          (bdS[idx] && bdS[idx].data && suriGood(bdS[idx].data))
+        );
+      }
+      function nameMitAt(idx) {
+        return (
+          hasBadSuriMitigateHex(nmS[idx], nmG[idx]) ||
+          (hasHanja && hasBadSuriMitigateHex(hjS[idx], hjG[idx])) ||
+          (nmG[idx] && isMitigateSuriHex(nmG[idx])) ||
+          (hasHanja && hjG[idx] && isMitigateSuriHex(hjG[idx]))
+        );
+      }
+
+      slots.forEach(function (slot) {
+        const idx = slot.i;
+        const nMarks = nameMarksAt(idx);
+        const sMarks = sajuMarksAt(idx);
+        if (!nMarks.length && !sMarks.length) return;
+
+        let p = slot.speak + "을 견주면, ";
+        if (sMarks.length) {
+          p += "사주에는 " + sMarks.join("·") + "이(가) 있고, ";
+        } else {
+          p += "사주 쪽 표기가 드물고, ";
+        }
+        if (nMarks.length) {
+          p += "이름에는 " + nMarks.join("·") + "이(가) 들어 있습니다. ";
+        } else {
+          p += "이름 쪽 표기가 드뭅니다. ";
+        }
+
+        const nBody = nameBodyAt(idx, slot.key);
+        if (nBody) p += nBody + " ";
+
+        const nBad = nameSideBad(idx);
+        const nGood = nameSideGood(idx);
+        const sBad = sajuSideBad(idx);
+        const sGood = sajuSideGood(idx);
+        const mit = nameMitAt(idx);
+
+        if (nBad && sBad) {
+          p +=
+            "같은 " +
+            slot.speak +
+            "에 " +
+            paintRed("이름의 흉한 기운이 사주의 흉한 기운을 마주칩니다") +
+            ". 사주가 무거워도 이름이 같이 치면 " +
+            paintRed("최악") +
+            "이니, 이 시기 이름은 사주를 도와 주지 못하고 고통을 더합니다.";
+        } else if (nBad && sGood) {
+          p +=
+            "사주는 열려 있는데 이름의 무거운 기운이 그 힘을 " +
+            paintRed("칩니다") +
+            ". 이 시기 이름은 사주를 도와 주지 못하고 고통을 줍니다.";
+        } else if ((nGood || mit) && sBad) {
+          p +=
+            "사주는 무거운데 이름의 기운이 받치거나 눌러 주어 " +
+            paintBlue("사주를 도와 줍니다") +
+            ". 눌러 주는 기운(화천대유·화수미제·이위화·화풍정·산천대축·수풍정·뇌천대장)이 있으면 보완이 됩니다.";
+        } else if (nGood && sGood) {
+          p +=
+            "이름과 사주가 같은 " +
+            slot.speak +
+            "에 함께 열려 " +
+            paintBlue("이름이 사주를 도와 줍니다") +
+            ".";
+        } else if (nBad && !sBad) {
+          p +=
+            "사주는 평이한데 이름에 무거운 기운이 있어 이 시기 이름이 사주를 " +
+            paintRed("일부 누릅니다") +
+            ".";
+        } else if (!nBad && sBad) {
+          p +=
+            "사주는 무겁고 이름은 그 부담을 크게 더하지는 않으나, 눌러 주는 기운이 뚜렷하지 않으면 보완이 약합니다.";
+        } else {
+          p +=
+            "같은 " +
+            slot.speak +
+            "에 이름과 사주가 크게 기울지 않아, 도움이 뚜렷하지도 고통이 뚜렷하지도 않습니다.";
+        }
+        paras.push(p);
+      });
+      return paras.length ? paras.join("<br><br>") : "";
+    }
+
+    // —— 순서: ①오행 → ②사주(수리·주역 서술) → ③비교 맺음 → ④이름↔사주 도움·침 ——
     if (ohangNarr) ageParts.push(ohangNarr);
     if (hasB) {
       const sajuNarr = buildSajuPeriodBlock();
@@ -2410,6 +2562,8 @@
       ageParts.push(
         "이렇게 살아가라고 했는데 당신의 이름이 시기별로 도움을 주는지 고통을 주는지 꼼꼼하게 비교해 보겠습니다."
       );
+      const helpHurt = buildNameHelpsHurtsByPeriod();
+      if (helpHurt) ageParts.push(helpHurt);
     }
 
     // a. 전체 총평 덩어리(「전체적으로 봤을 때…」)는 넣지 않음 — 시기별 서술로 충분
