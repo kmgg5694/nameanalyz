@@ -12,8 +12,8 @@
       /* Quiet SW cleanup only — NEVER location.replace (that made English flash then vanish). */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_quiet_20260924en13")) return;
-          sessionStorage.setItem("na_sw_quiet_20260924en13", "1");
+          if (sessionStorage.getItem("na_sw_quiet_20260924en14")) return;
+          sessionStorage.setItem("na_sw_quiet_20260924en14", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
           if (!("serviceWorker" in navigator)) return;
           navigator.serviceWorker.getRegistrations().then(function (regs) {
             return Promise.all(regs.map(function (r) { return r.unregister(); }));
@@ -31,8 +31,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260924en13"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260924en13"></script>
+    <script src="../assets/en-lang-control.js?v=20260924en14"></script>
+    <script src="../assets/en-sum-routine.js?v=20260924en14"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260924en14"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -329,51 +330,6 @@ Error generating stack: `+l.message+`
         sync();
       }
       window.__introWantSound = window.__introWantSound || false;
-      window.playIntro = function (lang) {
-        var files = {
-          ko: "이름풀이_한국어단독.mp4",
-          en: "영어이름풀이_영어단독.mp4"
-        };
-        var wrap = document.getElementById("introPlayerWrap");
-        var v = document.getElementById("introVideo");
-        var btns = document.querySelectorAll(".intro-btn");
-        if (!wrap || !v || !files[lang]) return false;
-        bindIntroUnmute(wrap, v);
-        for (var i = 0; i < btns.length; i++) {
-          btns[i].classList.toggle("on", btns[i].getAttribute("data-lang") === lang);
-        }
-        v.playsInline = true;
-        v.setAttribute("playsinline", "");
-        v.setAttribute("webkit-playsinline", "");
-        function start() {
-          // Browser autoplay policy: first play must be muted unless user already unlocked sound.
-          v.muted = !window.__introWantSound;
-          if (window.__introWantSound) {
-            try { v.volume = 1; } catch (e) {}
-          }
-          var p = v.play();
-          if (p && p.catch) {
-            p.catch(function () {
-              // If unmuted play is blocked, fall back to muted then wait for tap.
-              v.muted = true;
-              window.__introWantSound = false;
-              var p2 = v.play();
-              if (p2 && p2.catch) p2.catch(function () {});
-              bindIntroUnmute(wrap, v);
-            });
-          }
-          bindIntroUnmute(wrap, v);
-        }
-        if (v.getAttribute("data-lang") !== lang) {
-          v.setAttribute("data-lang", lang);
-          v.src = "https://kmgg5694.github.io/nameanalyz/videos/" + encodeURIComponent(files[lang]);
-          v.onloadeddata = start;
-        } else {
-          try { v.currentTime = 0; } catch (e) {}
-          start();
-        }
-        return true;
-      };
       (function liftInputsAboveKeyboard() {
         function isField(el) {
           if (!el || el.tagName !== "INPUT") return false;
@@ -415,24 +371,7 @@ Error generating stack: `+l.message+`
           });
         }
       })();
-      (function startIntroOnOpen() {
-        function tryStart() {
-          var wrap = document.getElementById("introPlayerWrap");
-          var v = document.getElementById("introVideo");
-          if (!v || !wrap) return false;
-          bindIntroUnmute(wrap, v);
-          if (v.getAttribute("data-lang") && v.getAttribute("src")) return true;
-          var pref="en";
-          try{var ss=sessionStorage.getItem("na_en_lang");if(ss==="ko"||ss==="en")pref=ss;}catch(e){}
-          return window.playIntro(pref);
-        }
-        if (tryStart()) return;
-        var obs = new MutationObserver(function () {
-          if (tryStart()) obs.disconnect();
-        });
-        obs.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(function () { obs.disconnect(); }, 15000);
-      })();
+      
     </script>
     <script src="../pwa-install.js"></script>
 </body>
