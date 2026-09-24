@@ -1,8 +1,7 @@
 /**
- * English overall reading — 총평 서술 없음.
- * 【음령오행 요약】은 EnglishName JSX에 유지.
- * 이 파일은 Warning Board + Footnotes만 반환.
- * Ages arrays: [early, prime, mid, late]
+ * English overall reading — brief narrate then Korean Warning/Footnotes.
+ * Order: 오행 → 탄생일 → 이름↔사주 → 마무리 → 경고장·각주
+ * Suri/hex names always Korean 원어 (14, 이산파멸 / 이위화). Ages: [early,prime,mid,late]
  */
 (function () {
   "use strict";
@@ -41,13 +40,14 @@
   function gweNameOf(g) {
     return strip(g && g.name);
   }
-  function gweNameEn(g) {
+  /** 수리·괘명은 항상 원어(한글). 영어 번역명·자동번역 짬뽕 금지. */
+  function gweNameKo(g) {
     if (!g || !g.name) return "";
-    return strip(g.nameEn || g.name);
+    return strip(g.name);
   }
   function plainSuriName(ns) {
     if (!ns || !ns.data) return "";
-    return strip(ns.data.nameEn || ns.data.name || "");
+    return strip(ns.data.name || "");
   }
   function hexNameStarts(g, name) {
     if (!g || !g.name || !name) return false;
@@ -82,10 +82,13 @@
   }
   function gweNameHtml(g) {
     if (!g || !g.name) return "";
-    const nm = gweNameEn(g);
+    const nm = gweNameKo(g);
     if (gweBad(g)) return paintRed(nm);
     if (gweGood(g)) return paintBlue(nm);
     return "<strong>" + esc(nm) + "</strong>";
+  }
+  function suriLabel(n, name) {
+    return n + " " + name;
   }
   function joinMarks(arr) {
     return (arr || []).join(", ");
@@ -232,17 +235,17 @@
     );
   }
 
-  /** Warning Board + Footnotes (same lists as Korean — keep always) */
+  /** 경고장·각주 — 수리·괘명 원어(한글)만. 영어 번역명 쓰면 자동번역이 크산소과·히어로스톰 짬뽕 만듦. */
   const WARN_JANG_SURI = [
-    { n: 9, en: "Big Ambition" },
-    { n: 10, en: "Empty Effort" },
-    { n: 12, en: "Weak Fortune" },
-    { n: 14, en: "Collapse" },
-    { n: 20, en: "Total Failure" },
-    { n: 22, en: "Midway Fall" },
-    { n: 26, en: "Hero Storm" },
-    { n: 28, en: "Turbulence" },
-    { n: 34, en: "Disaster Chain" },
+    { n: 9, name: "대재무용" },
+    { n: 10, name: "만사허망" },
+    { n: 12, name: "박약박복" },
+    { n: 14, name: "이산파멸" },
+    { n: 20, name: "백사실패" },
+    { n: 22, name: "중도좌절" },
+    { n: 26, name: "영웅풍파" },
+    { n: 28, name: "파란풍파" },
+    { n: 34, name: "재앙연속" },
   ];
   const WARN_JANG_HEX = [
     "천산둔",
@@ -262,13 +265,13 @@
     "지화명이",
   ];
   const FOOT_SURI = [
-    { n: 10, en: "Empty Effort" },
-    { n: 12, en: "Weak Fortune" },
-    { n: 14, en: "Collapse" },
-    { n: 20, en: "Total Failure" },
-    { n: 22, en: "Midway Fall" },
-    { n: 26, en: "Hero Storm" },
-    { n: 28, en: "Turbulence" },
+    { n: 10, name: "만사허망" },
+    { n: 12, name: "박약박복" },
+    { n: 14, name: "이산파멸" },
+    { n: 20, name: "백사실패" },
+    { n: 22, name: "중도좌절" },
+    { n: 26, name: "영웅풍파" },
+    { n: 28, name: "파란풍파" },
   ];
   const FOOT_HEX = [
     "천지비",
@@ -284,29 +287,17 @@
     "산풍고",
   ];
   const FOOT_CHONGUN_DAN =
-    "If overall destiny (56+) has 26 Hero Storm or 28 Turbulence, short life is common; for women, separation/widowhood is common.";
+    "이름 총운에 26 영웅풍파, 28 파란풍파가 있으면 대부분 단명한다. 여자의 경우 이별·사별로 과부가 많다.";
   const FOOT_CHONGUN_CANCER =
-    "Does the name bring cancer? If overall destiny has Collapse (14), Total Failure (20), or Midway Fall (22), cancer is common.";
+    "이름 기운 때문에 암이 오는가? 이름 총운에 이산파멸, 백사실패, 중도좌절이 오면 대부분 암이 많다.";
   const FOOT_SURI20_22 =
-    "20 Total Failure and 22 Midway Fall are more fearsome than 14 Collapse: often cancer. With a strong mind and drive one may rise high, then lose it mid-course—failure, bankruptcy, accident, illness, prison, short life. Exception: 20 with certain helpful hexagrams can read as lasting wealth—only if the birth chart is at least ordinary.";
+    "14 이산파멸보다 더 무서운수리 - 20 백사실패, 22 중도좌절 : 대부분 암이 많다. 총운에 이 운세의 특징은 머리가 좋고 배포가 크며 강한 추진력으로 한때 크게 성공하거나 거물이 되거나 큰 부자가 되기도 하지만 그걸 끝까지 지키지 못하고 중도에 실패, 파산, 사고, 병고, 암, 수술, 감옥, 단명등을 겪게 된다. 하지만 그 아래 주역괘가 수풍정, 수택절이 오면 20 백사실패는 대부대귀로 해석한다. 20수리에 수택절, 수풍정, 지택림, 뇌택귀매 중에 하나가 만들어지면 부자로 살면서 장수, 부귀한다. 단, 사주가 보통 이상이어야 한다.";
   const FOOT_FOOTER =
-    "If this name holds any of the numbers or hexagrams above, there is no real alternative except a name change.";
+    "이름 속에 위와 같은 수리 혹은 주역괘가 있다면 개명 외엔 대안이 없다~!!!";
 
-  function suriInName(nS, num) {
-    for (let i = 0; i < 4; i++) {
-      if (nS[i] && Number(nS[i].suri) === num) return true;
-    }
-    return false;
-  }
-  function hexInName(nG, name) {
-    for (let i = 0; i < 4; i++) {
-      if (hexNameStarts(nG[i], name)) return true;
-    }
-    return false;
-  }
   function collectHits(nS, nG) {
     const hits = [];
-    const labels = ["1–23", "24–40", "41–55", "56+"];
+    const labels = ["초년(1–23)", "장년(24–40)", "중년(41–55)", "말년(56+)"];
     for (let i = 0; i < 4; i++) {
       const ns = nS[i];
       if (ns && ns.suri != null) {
@@ -316,7 +307,7 @@
             hits.push(
               labels[i] +
                 " " +
-                paintRed(num + " " + FOOT_SURI[j].en)
+                paintRed(suriLabel(num, FOOT_SURI[j].name))
             );
           }
         }
@@ -325,7 +316,7 @@
       if (ng && ng.name) {
         for (let j = 0; j < FOOT_HEX.length; j++) {
           if (hexNameStarts(ng, FOOT_HEX[j])) {
-            hits.push(labels[i] + " " + paintRed(gweNameEn(ng) || FOOT_HEX[j]));
+            hits.push(labels[i] + " " + paintRed(gweNameKo(ng) || FOOT_HEX[j]));
           }
         }
       }
@@ -343,53 +334,138 @@
     return notes;
   }
 
+
+  function buildBirth(bS, bG, hasB) {
+    if (!hasB || !bS || !bS.length) return "";
+    const lines = [];
+    lines.push(
+      "Birth chart shows how you were meant to live, stage by stage:"
+    );
+    for (let i = 0; i < 4; i++) {
+      const marks = allMarks(bS, bG, i);
+      if (marks.length) {
+        lines.push(AGE[AGE_KEYS[i]] + ": " + joinMarks(marks) + ".");
+      }
+    }
+    return lines.join(" ");
+  }
+
+  function buildNameVsSaju(nS, nG, bS, bG, hasB) {
+    const bits = [];
+    bits.push(
+      "With that life path set, does the name energy help — or hurt — the birth chart?"
+    );
+    const lateM = allMarks(nS, nG, I.late);
+    if (lateM.length) {
+      bits.push(
+        "Overall destiny (말년, " + AGE.late + "): " + joinMarks(lateM) + "."
+      );
+    }
+    if (hasB && sideBad(nS, nG, I.late) && sideBad(bS, bG, I.late)) {
+      bits.push(
+        paintRed(
+          "Worst pairing: name misfortune meets birth-chart misfortune."
+        )
+      );
+    } else if (sideBad(nS, nG, I.late)) {
+      bits.push(
+        paintRed(
+          "The name presses the lifetime path — a change is strongly advised."
+        )
+      );
+    } else if (sideGood(nS, nG, I.late)) {
+      bits.push(paintBlue("The name supports the overall path."));
+    }
+    for (let i = 0; i < 3; i++) {
+      const bad = badMarks(nS, nG, i);
+      if (bad.length) {
+        bits.push(AGE[AGE_KEYS[i]] + " risk: " + joinMarks(bad) + ".");
+      }
+    }
+    const help = [];
+    for (let i = 0; i < 4; i++) {
+      if (nG[i] && isMitigate(nG[i])) help.push(gweNameHtml(nG[i]));
+    }
+    if (help.length) {
+      bits.push(
+        "Pressing-down hexagrams in the name: " + joinMarks(help) + "."
+      );
+    }
+    return bits.join(" ");
+  }
+
+  function buildWrap(nS, nG) {
+    if (sideBad(nS, nG, I.late)) {
+      return (
+        "A name is a three-syllable daily prayer. If that prayer asks for hardship, change it. " +
+        "Details: tap underlined items in Reading Summary; see Warning Board below."
+      );
+    }
+    return (
+      "Tap underlined items in Reading Summary for details. " +
+      "Warning Board lists the most serious patterns."
+    );
+  }
+
+  /** 한글 페이지 경고장·각주와 동일 문장 + notranslate (뇌→크 자동번역 차단) */
   function warningFootnoteHtml(nS, nG) {
     const warnSuri = WARN_JANG_SURI.map(function (s) {
-      return s.n + " " + s.en;
+      return suriLabel(s.n, s.name);
     }).join(", ");
     const warnHex = WARN_JANG_HEX.join(", ");
     const footSuri = FOOT_SURI.map(function (s) {
-      return s.n + " " + s.en;
+      return suriLabel(s.n, s.name);
     }).join(", ");
     const footHex = FOOT_HEX.join(", ");
     const hits = collectHits(nS, nG);
     const chong = chongunNotes(nS);
 
+    const wrap =
+      ' class="notranslate" translate="no"';
+
     const warnBox =
-      '<div style="margin-top:16px">' +
-      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">Warning Board</div>' +
+      "<div" +
+      wrap +
+      ' style="margin-top:16px">' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">경고장</div>' +
       '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
-      "If your name shows " +
+      "만약 여러분 이름을 분석해서 " +
       '<span style="color:#FF0000">' +
       warnSuri +
-      "</span>" +
-      ", or hexagrams such as " +
+      "</span> 등이 있거나, 이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
       '<span style="color:#FF0000">' +
       warnHex +
-      "</span>" +
-      ", a prompt name change is the surest way to cut the damage." +
+      "</span> 등의 괘가 도사리고 있다면 오로지 신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
       "</div></div>";
 
     let applyBlock = "";
     if (hits.length) {
       applyBlock =
-        '<div style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000">' +
-        "This name hits: " +
+        "<div" +
+        wrap +
+        ' style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000">' +
+        "이 이름에 해당: " +
         hits.join(", ") +
-        ". Serious hardship is likely—consider a name change carefully." +
+        ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
         "</div>";
     }
 
     const chongunBox =
-      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      "<div" +
+      wrap +
+      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
       '<span style="color:#FF0000">' +
       FOOT_CHONGUN_DAN +
       "</span></div>" +
-      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      "<div" +
+      wrap +
+      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
       '<span style="color:#FF0000">' +
       FOOT_CHONGUN_CANCER +
       "</span></div>" +
-      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      "<div" +
+      wrap +
+      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
       '<span style="color:#FF0000">' +
       FOOT_SURI20_22 +
       "</span></div>";
@@ -397,25 +473,27 @@
     let chongApply = "";
     if (chong.length) {
       chongApply =
-        '<div style="margin-top:8px;line-height:1.55;font-size:0.9rem;font-weight:700;color:#FF0000">' +
-        "[Overall-destiny footnote applies] " +
+        "<div" +
+        wrap +
+        ' style="margin-top:8px;line-height:1.55;font-size:0.9rem;font-weight:700;color:#FF0000">' +
+        "【총운 각주 적용】 " +
         chong.join(" ") +
         "</div>";
     }
 
     const footBox =
-      '<div style="margin-top:14px">' +
-      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">Footnotes</div>' +
+      "<div" +
+      wrap +
+      ' style="margin-top:14px">' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">각주</div>' +
       '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem">' +
-      'If your <span style="color:#FF1493">name</span> holds ' +
+      '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
       '<span style="color:#FF0000">' +
       footSuri +
-      "</span>" +
-      ", or hexagrams " +
+      "</span> 등이 있거나, 혹은 이름에 주역을 대입해서 " +
       '<span style="color:#FF0000">' +
       footHex +
-      "</span>" +
-      ", despairing situations follow." +
+      "</span> 괘가 있다면 절망적 상황에 처한다." +
       "</div>" +
       chongunBox +
       applyBlock +
@@ -424,17 +502,35 @@
       FOOT_FOOTER +
       "</div></div>";
 
-    return warnBox + footBox;
+    return (
+      '<div class="notranslate" translate="no">' + warnBox + footBox + "</div>"
+    );
   }
 
   /**
-   * 총평 서술 없음. 【음령오행 요약】은 EnglishName.tsx JSX에 그대로 둠.
-   * 여기선 Warning Board + Footnotes만 반환.
+   * 경고장·각주: 한글 원어 수리·괘명 (뇌산소과 등). 자동번역 차단.
    */
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
     const nG = ctx.nG || [];
-    return { ageText: warningFootnoteHtml(nS, nG) };
+    const bS = ctx.bS || [];
+    const bG = ctx.bG || [];
+    const hasB = !!ctx.hasB;
+    const parts = [];
+    const oh = buildOhang(ctx.ohang);
+    if (oh) parts.push(oh);
+    const birth = buildBirth(bS, bG, hasB);
+    if (birth) parts.push(birth);
+    const vs = buildNameVsSaju(nS, nG, bS, bG, hasB);
+    if (vs) parts.push(vs);
+    const wrap = buildWrap(nS, nG);
+    if (wrap) parts.push(wrap);
+    const narr = parts.length
+      ? '<div class="en-sum-narr notranslate" translate="no">' +
+        parts.join("<br><br>") +
+        "</div>"
+      : "";
+    return { ageText: narr + warningFootnoteHtml(nS, nG) };
   };
 })();
