@@ -2566,8 +2566,8 @@
     }
 
     /**
-     * 사주 시기별 — 수리·주역 내용 서술 (길·흉 라벨만 두지 않음)
-     * 순서: 말년(총운) → 초년 → 장년 → 중년
+     * 사주 시기별 — 먼저 한 줄 요약, 그다음 수리·주역 본문
+     * 예: 사주 말년은 위세강중, 이위화로 좋은 기운이 들어 있고…
      */
     function buildSajuPeriodBlock() {
       if (!hasB) return "";
@@ -2582,6 +2582,82 @@
         "사주표를 보고 이 사람이 어떻게 살아가라고 했는지를 시기별로 짚어 보겠습니다. " +
           "말년(총운)은 평생에 영향을 주고, 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
       );
+
+      /** 한 줄 요약용 표기: 위세강중, 이위화 */
+      function briefMarks(idx) {
+        const marks = [];
+        if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
+        if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
+        return marks;
+      }
+      /** 수리는 부담인데 주역은 흉괘가 아님 → 「약간의 시련…괘는 나쁘지 않은」 */
+      function slightTrialHexOk(idx) {
+        const sBad = !!(bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data));
+        const g = bdG[idx];
+        const hexOk = !!(g && g.name && !gweBad(g));
+        return sBad && hexOk;
+      }
+
+      const filled = slots.filter(function (s) {
+        return briefMarks(s.i).length > 0;
+      });
+      const overviewBits = [];
+      filled.forEach(function (slot, fi) {
+        const marks = briefMarks(slot.i);
+        const tone = sideToneAt(bdS, bdG, slot.i);
+        const isLast = fi === filled.length - 1;
+        const conj =
+          slot.key === "초년" ? "도 " : "은 ";
+        const label =
+          (fi === 0 ? "사주 " : "") + slot.speak + conj;
+        let mid = marks.join(", ");
+        let tail = "";
+
+        if (slightTrialHexOk(slot.i)) {
+          // 보흘: 영걸시비·화산려 → 「인데 약간의 시련이 있지만 주역괘는 나쁘지 않은 편」
+          mid += "인데 ";
+          tail = isLast
+            ? "약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다."
+            : "약간의 시련이 있지만 주역괘는 나쁘지 않은 편이고, ";
+        } else if (tone === "길") {
+          mid += "로 ";
+          if (slot.key === "말년") {
+            tail = isLast
+              ? "좋은 기운이 들어 있습니다."
+              : "좋은 기운이 들어 있고, ";
+          } else if (slot.key === "초년") {
+            tail = isLast
+              ? "좋은 기운입니다."
+              : "좋은 기운이고, ";
+          } else if (slot.key === "장년") {
+            tail = isLast
+              ? "좋은 편입니다."
+              : "좋은 편이고, ";
+          } else {
+            tail = isLast
+              ? "좋은 기운이 들어 있습니다."
+              : "좋은 기운이고, ";
+          }
+        } else if (tone === "길흉혼재") {
+          mid += "로 ";
+          tail = isLast
+            ? "좋은 편입니다."
+            : "좋은 편이고, ";
+        } else if (tone === "흉") {
+          mid += "로 ";
+          tail = isLast
+            ? "무거운 기운이 있어 시련이 따릅니다."
+            : "무거운 기운이 있고, ";
+        } else {
+          mid += "로 ";
+          tail = isLast ? "평이한 편입니다." : "평이한 편이고, ";
+        }
+        overviewBits.push(label + mid + tail);
+      });
+      if (overviewBits.length) {
+        paras.push(overviewBits.join(""));
+      }
+
       slots.forEach(function (slot) {
         const bs = bdS[slot.i];
         const bg = bdG[slot.i];
