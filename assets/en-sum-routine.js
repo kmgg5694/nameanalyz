@@ -167,129 +167,171 @@
     return "";
   }
 
-  /** Short Five Elements — same idea as Korean 오행 first */
-  function buildOhangKo(oh) {
-    const counts = oh.counts || {};
-    const dom = oh.dominant || "";
-    const up = oh.lastRep || "";
-    const me = oh.firstRep || "";
-    const dn = oh.middleRep || me;
-    const bits = [];
-    bits.push(
-      "오행은 사람과의 관계를 보여 줍니다. " +
-        paintBlue("상생") +
-        "은 소통 원활, " +
-        paintRed("상극") +
-        "은 소통불·배척입니다. 개수: 목 " +
-        (counts["木"] || 0) +
-        " · 화 " +
-        (counts["火"] || 0) +
-        " · 토 " +
-        (counts["土"] || 0) +
-        " · 금 " +
-        (counts["金"] || 0) +
-        " · 수 " +
-        (counts["水"] || 0) +
-        "."
+  /** 오행표: 위 <-생/극-> 나 <-생/극-> 아래 (가로) + 방향별 서술. 오행해설 표준 1–13 */
+  function ohBox(role, el, sub, lang) {
+    const col = { 木: "#166534", 火: "#991b1b", 土: "#92400e", 金: "#374151", 水: "#1e3a8a" }[el] || "#111";
+    return (
+      '<div style="flex:1;min-width:0;text-align:center;border:2px solid ' +
+      col +
+      ';border-radius:8px;padding:6px 4px;background:#fff">' +
+      '<div style="font-size:0.75rem;color:#555">' +
+      esc(role) +
+      "</div>" +
+      '<div style="font-size:1rem;font-weight:800;line-height:1.25;white-space:nowrap;color:' +
+      col +
+      '">' +
+      esc((lang === "ko" ? OH_KO[el] : OH_EN[el]) || el || "") +
+      "<br>(" +
+      esc(el || "") +
+      ")</div>" +
+      (sub ? '<div style="font-size:0.7rem;line-height:1.2;color:#777;word-break:keep-all">' + esc(sub) + "</div>" : "") +
+      "</div>"
     );
-    if (me) {
-      bits.push(
-        "가운데(나)는 " + elRo(me) + " " + (MID_TRAIT_KO[me] || "섞인 기운입니다") + "."
-      );
+  }
+  /** kind: gen|ctrl|same, toRight: 화살표가 오른쪽(→)을 향하는지 */
+  function ohArrow(kind, toRight, lang) {
+    const ko = lang === "ko";
+    let label, col;
+    if (kind === "gen") {
+      label = ko ? "생" : "Gen.";
+      col = "#0000FF";
+    } else if (kind === "ctrl") {
+      label = ko ? "극" : "Ctrl.";
+      col = "#FF0000";
+    } else {
+      label = ko ? "비화" : "Same";
+      col = "#555";
     }
-    if (dom && dom !== me) {
-      bits.push(
-        "가장 많은 오행은 " + elName(dom, "ko") + " " + (counts[dom] || 0) + "개입니다."
-      );
-    }
-    if (up && me) {
-      const d = dirUp(up, me);
-      let line = "위(부모·선배·배우자): ";
-      if (d === "recv_gen") line += paintBlue("위의 도움을 받습니다") + ".";
-      else if (d === "give_gen") line += paintBlue("내가 위를 섬기고 돕습니다") + ".";
-      else if (d === "recv_ctrl") line += paintRed("위로부터 극을 당합니다") + ".";
-      else if (d === "give_ctrl") line += paintRed("내가 위를 칩니다") + ".";
-      else if (d === "same") line += "같은 오행이라 무난하나 밋밋합니다.";
-      else line += elName(up, "ko") + " · " + elName(me, "ko") + ".";
-      bits.push(line);
-    }
-    if (me && dn && dn !== me) {
-      const d = dirDn(me, dn);
-      let line = "아래(후배·자녀): ";
-      if (d === "give_gen") line += paintBlue("내가 아래에 베풉니다") + ".";
-      else if (d === "recv_gen") line += paintBlue("아래의 도움을 받습니다") + ".";
-      else if (d === "give_ctrl") line += paintRed("내가 아래를 칩니다") + ".";
-      else if (d === "recv_ctrl") line += paintRed("아래로부터 극을 당합니다") + ".";
-      else if (d === "same") line += "같은 오행이라 무난하나 밋밋합니다.";
-      else line += elName(me, "ko") + " · " + elName(dn, "ko") + ".";
-      bits.push(line);
-    }
-    return bits.join(" ");
+    const arrow = kind === "same" ? "═══" : toRight ? "──▶" : "◀──";
+    return (
+      '<div style="flex:0 0 auto;padding:0 2px;text-align:center;font-weight:800;line-height:1.1;white-space:nowrap;color:' +
+      col +
+      '"><div style="font-size:0.85rem">' +
+      esc(label) +
+      '</div><div style="font-size:1rem">' +
+      esc(arrow) +
+      "</div></div>"
+    );
+  }
+  function relUp(up, me) {
+    const d = dirUp(up, me);
+    if (d === "recv_gen") return { kind: "gen", toRight: true, d };
+    if (d === "give_gen") return { kind: "gen", toRight: false, d };
+    if (d === "recv_ctrl") return { kind: "ctrl", toRight: true, d };
+    if (d === "give_ctrl") return { kind: "ctrl", toRight: false, d };
+    return { kind: "same", toRight: true, d };
+  }
+  function relDn(me, dn) {
+    const d = dirDn(me, dn);
+    if (d === "give_gen") return { kind: "gen", toRight: true, d };
+    if (d === "recv_gen") return { kind: "gen", toRight: false, d };
+    if (d === "give_ctrl") return { kind: "ctrl", toRight: true, d };
+    if (d === "recv_ctrl") return { kind: "ctrl", toRight: false, d };
+    return { kind: "same", toRight: true, d };
+  }
+  const UP_TXT = {
+    ko: {
+      give_gen: ["내가 위를 섬기고 배웁니다.", "blue"],
+      recv_gen: ["위로부터 정신적·물질적 도움을 받습니다.", "blue"],
+      give_ctrl: ["내가 위를 치며 정신적·재물 손실을 줍니다.", "red"],
+      recv_ctrl: ["내가 위로부터 극을 받습니다.", "red"],
+      same: ["위와 같은 오행이라 무난하나 밋밋합니다.", ""],
+    },
+    en: {
+      give_gen: ["You serve and learn from those above.", "blue"],
+      recv_gen: ["You receive mental and material help from above.", "blue"],
+      give_ctrl: ["You strike those above, causing them mental and financial loss.", "red"],
+      recv_ctrl: ["You are pressed down by those above.", "red"],
+      same: ["Same element as above — calm but flat.", ""],
+    },
+  };
+  const DN_TXT = {
+    ko: {
+      give_gen: ["내가 동료·후배·자녀에게 베풉니다.", "blue"],
+      recv_gen: ["동료·후배·자녀의 도움을 받습니다.", "blue"],
+      give_ctrl: ["내가 동료·후배·자녀를 칩니다.", "red"],
+      recv_ctrl: ["동료·후배·자녀의 도움을 받지 못합니다.", "red"],
+      same: ["아래와 같은 오행이라 무난하나 밋밋합니다.", ""],
+    },
+    en: {
+      give_gen: ["You give to colleagues, juniors and children.", "blue"],
+      recv_gen: ["You receive help from colleagues, juniors and children.", "blue"],
+      give_ctrl: ["You strike colleagues, juniors and children.", "red"],
+      recv_ctrl: ["You get no help from colleagues, juniors and children.", "red"],
+      same: ["Same element as below — calm but flat.", ""],
+    },
+  };
+  const PATTERN_TXT = {
+    ko: {
+      "give_gen|give_gen": "위·아래에 퍼주고 사이가 좋습니다. 봉사정신이 투철합니다.",
+      "recv_gen|recv_gen": "위·아래의 도움을 받으나 자기밖에 모릅니다.",
+      "give_ctrl|give_ctrl": "내가 위·아래를 치는 모습입니다.",
+      "recv_ctrl|recv_ctrl": "내가 위·아래로부터 극을 당하는 모습입니다.",
+      "give_gen|recv_gen": "치사랑(위로 올라가는 사랑): 아래에서 도움을 받고 위를 섬깁니다.",
+      "recv_gen|give_gen": "내리사랑: 위의 도움을 받고 아래에 베풉니다.",
+    },
+    en: {
+      "give_gen|give_gen": "You give to both above and below and get along well — a strong spirit of service.",
+      "recv_gen|recv_gen": "You receive help from above and below, but tend to think only of yourself.",
+      "give_ctrl|give_ctrl": "You strike both those above and those below.",
+      "recv_ctrl|recv_ctrl": "You are pressed down from both above and below.",
+      "give_gen|recv_gen": "Love flowing upward: you receive help from below and serve those above.",
+      "recv_gen|give_gen": "Love flowing downward: you receive help from above and give to those below.",
+    },
+  };
+  function paintBy(t, c) {
+    if (c === "blue") return paintBlue(t);
+    if (c === "red") return paintRed(t);
+    return esc(t);
   }
 
   function buildOhang(oh, lang) {
     if (!oh) return "";
-    if (lang === "ko") return buildOhangKo(oh);
-    const counts = oh.counts || {};
-    const dom = oh.dominant || "";
+    const ko = lang === "ko";
+    const L = ko ? "ko" : "en";
     const up = oh.lastRep || "";
     const me = oh.firstRep || "";
-    const dn = oh.middleRep || me;
-    const bits = [];
-    bits.push(
-      "Five Elements show how you relate to people. " +
-        paintBlue("Generating") +
-        " = smooth help; " +
-        paintRed("Controlling") +
-        " = friction. Counts: Wood " +
-        (counts["木"] || 0) +
-        " · Fire " +
-        (counts["火"] || 0) +
-        " · Earth " +
-        (counts["土"] || 0) +
-        " · Metal " +
-        (counts["金"] || 0) +
-        " · Water " +
-        (counts["水"] || 0) +
-        "."
+    const first = oh.first || [];
+    const lastLetter = first.length ? first[first.length - 1] : null;
+    const dn = oh.middleRep || (lastLetter ? lastLetter.ohang : "");
+    const dnSub = oh.middleRep
+      ? ko ? "미들네임" : "middle name"
+      : ko ? "이름 끝 글자" + (lastLetter ? " " + lastLetter.letter : "") : "last letter" + (lastLetter ? " " + lastLetter.letter : "");
+    if (!up || !me) return "";
+    const ru = relUp(up, me);
+    const rd = dn ? relDn(me, dn) : null;
+
+    const row =
+      '<div style="display:flex;align-items:center;gap:2px;margin:4px 0 10px">' +
+      ohBox(ko ? "위" : "Above", up, ko ? "성" : "last name", lang) +
+      ohArrow(ru.kind, ru.toRight, lang) +
+      ohBox(ko ? "나" : "You", me, ko ? "이름" : "first name", lang) +
+      (rd ? ohArrow(rd.kind, rd.toRight, lang) + ohBox(ko ? "아래" : "Below", dn, dnSub, lang) : "") +
+      "</div>";
+
+    const lines = [];
+    const u = UP_TXT[L][ru.d] || UP_TXT[L].same;
+    lines.push((ko ? "위(부모·관청·선배·배우자): " : "Above (parents · authorities · seniors · spouse): ") + paintBy(u[0], u[1]));
+    if (rd) {
+      const t = DN_TXT[L][rd.d] || DN_TXT[L].same;
+      lines.push((ko ? "아래(동료·후배·자녀): " : "Below (colleagues · juniors · children): ") + paintBy(t[0], t[1]));
+      const pat = PATTERN_TXT[L][ru.d + "|" + rd.d];
+      if (pat) lines.push(esc(pat));
+      const g = (ru.kind === "gen" ? 1 : 0) + (rd.kind === "gen" ? 1 : 0);
+      const c = (ru.kind === "ctrl" ? 1 : 0) + (rd.kind === "ctrl" ? 1 : 0);
+      lines.push(
+        ko
+          ? "생 " + g + "개 · 극 " + c + "개입니다."
+          : "Generating links: " + g + " · Controlling links: " + c + "."
+      );
+    }
+    return (
+      '<div style="font-weight:800;color:#5c2d00;margin-bottom:2px">' +
+      (ko ? "오행표" : "Five Elements Chart") +
+      "</div>" +
+      row +
+      lines.join("<br>")
     );
-    if (me) {
-      bits.push(
-        "You (center of the name): " +
-          elName(me) +
-          " — " +
-          (MID_TRAIT[me] || "mixed") +
-          "."
-      );
-    }
-    if (dom && dom !== me) {
-      bits.push(
-        "Dominant element: " + elName(dom) + " (" + (counts[dom] || 0) + "x)."
-      );
-    }
-    if (up && me) {
-      const d = dirUp(up, me);
-      let line = "Above (parents · seniors · partner): ";
-      if (d === "recv_gen") line += paintBlue("you receive support") + ".";
-      else if (d === "give_gen") line += paintBlue("you give support") + ".";
-      else if (d === "recv_ctrl") line += paintRed("pressure from above") + ".";
-      else if (d === "give_ctrl") line += paintRed("you push against above") + ".";
-      else if (d === "same") line += "same element — calm but flat.";
-      else line += elName(up) + " · " + elName(me) + ".";
-      bits.push(line);
-    }
-    if (me && dn && dn !== me) {
-      const d = dirDn(me, dn);
-      let line = "Below (juniors · children): ";
-      if (d === "give_gen") line += paintBlue("you give support") + ".";
-      else if (d === "recv_gen") line += paintBlue("you receive support") + ".";
-      else if (d === "give_ctrl") line += paintRed("you press down") + ".";
-      else if (d === "recv_ctrl") line += paintRed("pressure from below") + ".";
-      else if (d === "same") line += "same element — calm but flat.";
-      else line += elName(me) + " · " + elName(dn) + ".";
-      bits.push(line);
-    }
-    return bits.join(" ");
   }
 
   function badMarks(nS, nG, idx, lang) {
