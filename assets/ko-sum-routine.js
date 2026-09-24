@@ -2630,17 +2630,14 @@
         const marks = [];
         if (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data))
           marks.push(suriPhrase(nmS[idx]));
-        if (nmG[idx] && nmG[idx].name) {
-          if (gweBad(nmG[idx]) || hasBadSuriBlackHex(nmS[idx], nmG[idx]))
-            marks.push(gweNameHtml(nmG[idx]));
-        }
+        // 흉괘만 — 검정 보통 괘(뇌지예·풍수환 등)는 고통 목록에 넣지 않음 (보흘)
+        if (nmG[idx] && nmG[idx].name && gweBad(nmG[idx]))
+          marks.push(gweNameHtml(nmG[idx]));
         if (hasHanja) {
           if (hjS[idx] && hjS[idx].data && suriBad(hjS[idx].data))
             marks.push(suriPhrase(hjS[idx]));
-          if (hjG[idx] && hjG[idx].name) {
-            if (gweBad(hjG[idx]) || hasBadSuriBlackHex(hjS[idx], hjG[idx]))
-              marks.push(gweNameHtml(hjG[idx]));
-          }
+          if (hjG[idx] && hjG[idx].name && gweBad(hjG[idx]))
+            marks.push(gweNameHtml(hjG[idx]));
         }
         return marks;
       }
