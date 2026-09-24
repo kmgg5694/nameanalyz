@@ -2716,13 +2716,6 @@
      */
     function buildNameHelpsHurtsByPeriod() {
       if (!hasB) return "";
-      const slots = [
-        { i: 0, key: "말년", speak: "말년" },
-        { i: 1, key: "초년", speak: "초년" },
-        { i: 2, key: "장년", speak: "장년" },
-        { i: 3, key: "중년", speak: "중년" },
-      ];
-      const paras = [];
 
       function nameMarksAt(idx) {
         const marks = [];
@@ -2733,34 +2726,6 @@
           if (hjG[idx] && hjG[idx].name) marks.push(gweNameHtml(hjG[idx]));
         }
         return marks;
-      }
-      function sajuMarksAt(idx) {
-        const marks = [];
-        if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
-        if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
-        return marks;
-      }
-      function nameBodyAt(idx, ageKey) {
-        const bits = [];
-        if (nmS[idx] && nmS[idx].data) {
-          const t = suriCoreBrief(nmS[idx], ageKey);
-          if (t) bits.push(t);
-        }
-        if (nmG[idx] && nmG[idx].name) {
-          const t = hexCoreBrief(nmG[idx]);
-          if (t) bits.push(t);
-        }
-        if (hasHanja) {
-          if (hjS[idx] && hjS[idx].data) {
-            const t = suriCoreBrief(hjS[idx], ageKey);
-            if (t) bits.push(t);
-          }
-          if (hjG[idx] && hjG[idx].name) {
-            const t = hexCoreBrief(hjG[idx]);
-            if (t) bits.push(t);
-          }
-        }
-        return bits.join(" ");
       }
       function nameSideBad(idx) {
         return (
@@ -2786,13 +2751,6 @@
               (hjS[idx] && hjS[idx].data && suriGood(hjS[idx].data))))
         );
       }
-      function sajuSideBad(idx) {
-        return (
-          hasBadSuriBlackHex(bdS[idx], bdG[idx]) ||
-          (bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data)) ||
-          (bdG[idx] && gweBad(bdG[idx]))
-        );
-      }
       function sajuSideGood(idx) {
         if (hasBadSuriBlackHex(bdS[idx], bdG[idx])) return false;
         return (
@@ -2809,7 +2767,6 @@
           (hasHanja && hjG[idx] && isMitigateSuriHex(hjG[idx]))
         );
       }
-
       function nameBadMarksAt(idx) {
         const marks = [];
         if (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data))
@@ -2825,32 +2782,6 @@
             if (gweBad(hjG[idx]) || hasBadSuriBlackHex(hjS[idx], hjG[idx]))
               marks.push(gweNameHtml(hjG[idx]));
           }
-        }
-        return marks;
-      }
-      function sajuGoodMarksAt(idx) {
-        const marks = [];
-        if (bdS[idx] && bdS[idx].data && suriGood(bdS[idx].data))
-          marks.push(suriPhrase(bdS[idx]));
-        if (bdG[idx] && bdG[idx].name && gweGood(bdG[idx]))
-          marks.push(gweNameHtml(bdG[idx]));
-        if (
-          hasBadSuriMitigateHex(bdS[idx], bdG[idx]) &&
-          bdG[idx] &&
-          bdG[idx].name
-        ) {
-          if (marks.indexOf(gweNameHtml(bdG[idx])) < 0)
-            marks.push(gweNameHtml(bdG[idx]));
-        }
-        return marks;
-      }
-      function sajuBadMarksAt(idx) {
-        const marks = [];
-        if (bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data))
-          marks.push(suriPhrase(bdS[idx]));
-        if (bdG[idx] && bdG[idx].name) {
-          if (gweBad(bdG[idx]) || hasBadSuriBlackHex(bdS[idx], bdG[idx]))
-            marks.push(gweNameHtml(bdG[idx]));
         }
         return marks;
       }
@@ -2876,29 +2807,6 @@
         }
         return marks;
       }
-      /** 사주 길 기운으로 「어떻게 살으라」 한 줄 */
-      function sajuLiveHint(idx) {
-        const g = bdG[idx];
-        const n = g ? gweNameOf(g) : "";
-        if (n.indexOf("이위화") === 0) return "건강한 삶";
-        if (
-          n.indexOf("화천대유") === 0 ||
-          n.indexOf("화수미제") === 0 ||
-          n.indexOf("수풍정") === 0 ||
-          n.indexOf("산천대축") === 0 ||
-          n.indexOf("뇌천대장") === 0
-        )
-          return "재물·성공이 따르는 삶";
-        if (n.indexOf("화풍정") === 0) return "뜻을 펴는 삶";
-        if (bdS[idx] && bdS[idx].data && suriGood(bdS[idx].data)) {
-          const sn = plainSuriName(bdS[idx]);
-          if (sn.indexOf("위세") >= 0 || sn.indexOf("권력") >= 0)
-            return "위세·힘을 펼치는 삶";
-          if (sn.indexOf("부귀") >= 0 || sn.indexOf("영화") >= 0)
-            return "부귀한 삶";
-        }
-        return "열린·길한 삶";
-      }
       function joinMarks(arr) {
         return (arr || []).join(", ");
       }
@@ -2909,9 +2817,6 @@
         if (hasHanja && hjG[idx] && isMitigateSuriHex(hjG[idx]))
           marks.push(gweNameHtml(hjG[idx]));
         return marks;
-      }
-      function nameAllMarksAt(idx) {
-        return nameMarksAt(idx);
       }
       function isWealthMitAt(idx) {
         const gs = [nmG[idx], hasHanja ? hjG[idx] : null];
@@ -2939,14 +2844,18 @@
             joinMarks(malBad) +
             "가 사주를 " +
             paintRed("고통스럽게") +
-            " 하고 있네요. 말년 기운은 인생 전반에 영향력을 행사하는데 이것 하나만 가지고도 이름을 쓰면 안 되니 " +
+            " 하고 있네요. 말년기운은 인생전반에 영향력을 행사하는데 이것 하나만 가지고도 이름을 쓰면 안되니 " +
             paintRed("반드시 개명") +
-            "하셔서 새 인생을 사셔야 합니다."
+            "을 하셔서 새 인생을 사셔야 합니다."
         );
       } else if (nameSideGood(0) && sajuSideGood(0)) {
         bits.push(
           "이름 말년 " +
-            joinMarks(nameGoodMarksAt(0).length ? nameGoodMarksAt(0) : nameAllMarksAt(0)) +
+            joinMarks(
+              nameGoodMarksAt(0).length
+                ? nameGoodMarksAt(0)
+                : nameMarksAt(0)
+            ) +
             "이 사주를 " +
             paintBlue("도와 주는") +
             " 쪽으로 읽힙니다."
@@ -2963,7 +2872,7 @@
 
       if (choBad.length && malHurt && malBad.length) {
         bits.push(
-          "초년 이름에는 " +
+          "초년이름에는 " +
             joinMarks(choBad) +
             "이 들었는데, 말년의 " +
             joinMarks(malBad) +
@@ -2973,7 +2882,7 @@
         );
       } else if (choBad.length) {
         bits.push(
-          "초년 이름에는 " +
+          "초년이름에는 " +
             joinMarks(choBad) +
             "이 들어 이 시기 사주에 " +
             paintRed("고통을 줍니다") +
@@ -2995,7 +2904,7 @@
             joinMarks(malBad) +
             "를 만나서 더 큰 " +
             paintRed("고통") +
-            "을 만들어 내고 있고,"
+            "을 만들어내고 있고,"
         );
       } else if (jangBad.length) {
         bits.push(
@@ -3015,17 +2924,15 @@
 
       if (jungMit.length || (nameMitAt(3) && jungBad.length)) {
         const badPart = jungBad.length
-          ? "중년 이름 기운의 " + joinMarks(jungBad)
-          : "중년 이름";
+          ? "중년이름기운의 " + joinMarks(jungBad)
+          : "중년이름";
         const mitPart = jungMit.length
           ? joinMarks(jungMit)
           : joinMarks(jungGood);
         let jung =
           badPart +
-          (jungBad.length ? "은 " : "은 ") +
-          "다행스럽게도 " +
-          (mitPart || "눌러 주는 기운") +
-          "이 눌러 주고";
+          "은 다행스럽게도 " +
+          (mitPart ? mitPart + "가 눌러주고" : "눌러 주는 기운이 눌러주고");
         if (isWealthMitAt(3) || jungMit.length) {
           jung += " 재물운이니 이 시기에 인생의 절정기라고 보지만";
         } else {
@@ -3037,10 +2944,9 @@
             joinMarks(malBad) +
             "의 " +
             paintRed("고통") +
-            "을 비켜 가기가 힘든 이름으로, 전반적으로 좋은 사주를 이름이 피해를 주는 구조입니다.";
+            "을 비켜가기가 힘든이름으로 전반적으로 좋은사주를 이름이 피해를 주는구조입니다.";
         } else {
-          jung +=
-            " 전체 흐름과 함께 보셔야 합니다.";
+          jung += " 전체 흐름과 함께 보셔야 합니다.";
         }
         bits.push(jung);
       } else if (jungBad.length && malHurt && malBad.length) {
@@ -3051,7 +2957,7 @@
             joinMarks(malBad) +
             "와 겹쳐 " +
             paintRed("고통") +
-            "이 이어집니다. 전반적으로 좋은 사주를 이름이 피해를 주는 구조입니다."
+            "이 이어집니다. 전반적으로 좋은사주를 이름이 피해를 주는구조입니다."
         );
       } else if (jungBad.length) {
         bits.push(
@@ -3073,11 +2979,11 @@
         malHurt &&
         malBad.length &&
         !bits.some(function (b) {
-          return b.indexOf("피해를 주는 구조") >= 0;
+          return b.indexOf("피해를 주는구조") >= 0;
         })
       ) {
         bits.push(
-          "전반적으로 좋은 사주를 이름이 피해를 주는 구조이니, 쓰지 않는 것이 현명합니다."
+          "전반적으로 좋은사주를 이름이 피해를 주는구조이니, 쓰지 않는 것이 현명합니다."
         );
       }
 
@@ -3090,7 +2996,7 @@
       const sajuNarr = buildSajuPeriodBlock();
       if (sajuNarr) ageParts.push(sajuNarr);
       ageParts.push(
-        "이름이 사주를 도와 주는지 고통을 주는지를 살펴 보겠습니다."
+        "이름이 사주를 도와주는지 고통을 주는지를 살펴 보겠습니다."
       );
       const helpHurt = buildNameHelpsHurtsByPeriod();
       if (helpHurt) ageParts.push(helpHurt);
