@@ -2573,8 +2573,8 @@
      * 이름 vs 사주 — 같은 시기 수리·주역 내용을 짚고, 도움/침/최악을 분명히 말한다.
      * (길·흉 표시만으로 끝내지 않음 · 보흘 2026-09-24)
      */
-    function buildNameHelpsHurtsByPeriod() {
-      if (!hasB) return "";
+    function buildNameHelpsHurtsParts() {
+      if (!hasB) return { malRename: "", rest: "" };
 
       function nameMarksAt(idx) {
         const marks = [];
@@ -2684,7 +2684,7 @@
         return false;
       }
 
-      // —— 보흘 서술: 말년→초년→장년→중년, 말년 합세·개명 ——
+      // —— 보흘 서술: 말년(+개명) 먼저, 초·장·중은 사주시기별 한 줄 뒤에 ——
       const malBad = nameBadMarksAt(0);
       const choBad = nameBadMarksAt(1);
       const jangBad = nameBadMarksAt(2);
@@ -2692,165 +2692,260 @@
       const jungMit = nameMitMarksAt(3);
       const jungGood = nameGoodMarksAt(3);
       const malHurt = nameSideBad(0);
-      const bits = [];
 
-      if (malHurt && malBad.length) {
-        bits.push(
-          "이름 말년에 " +
-            joinMarks(malBad) +
-            "가 사주를 " +
-            paintRed("고통스럽게") +
-            " 하고 있네요. 말년기운은 인생전반에 영향력을 행사하는데 이것 하나만 가지고도 이름을 쓰면 안되니 " +
-            paintRed("반드시 개명") +
-            "을 하셔서 새 인생을 사셔야 합니다."
-        );
-      } else if (nameSideGood(0) && sajuSideGood(0)) {
-        bits.push(
-          "이름 말년 " +
-            joinMarks(
-              nameGoodMarksAt(0).length
-                ? nameGoodMarksAt(0)
-                : nameMarksAt(0)
-            ) +
-            "이 사주를 " +
-            paintBlue("도와 주는") +
-            " 쪽으로 읽힙니다."
-        );
-      } else if (malBad.length) {
-        bits.push(
-          "이름 말년에 " +
-            joinMarks(malBad) +
-            "가 있어 사주에 " +
-            paintRed("고통을 줍니다") +
-            ". 말년은 인생 전반에 미치니 신중히 보셔야 합니다."
-        );
-      }
-
-      if (choBad.length && malHurt && malBad.length) {
-        bits.push(
-          "초년이름에는 " +
-            joinMarks(choBad) +
-            "이 들었는데, 말년의 " +
-            joinMarks(malBad) +
-            "가 합세를 해서 더욱 큰 " +
-            paintRed("고통") +
-            "을 주고 있습니다."
-        );
-      } else if (choBad.length) {
-        bits.push(
-          "초년이름에는 " +
-            joinMarks(choBad) +
-            "이 들어 이 시기 사주에 " +
-            paintRed("고통을 줍니다") +
-            "."
-        );
-      } else if (nameSideGood(1)) {
-        bits.push(
-          "초년 이름은 사주를 " +
-            paintBlue("도와 주는") +
-            " 편으로 읽힙니다."
-        );
-      }
-
-      if (jangBad.length && malHurt && malBad.length) {
-        bits.push(
-          "장년은 " +
-            joinMarks(jangBad) +
-            "가 말년의 " +
-            joinMarks(malBad) +
-            "를 만나서 더 큰 " +
-            paintRed("고통") +
-            "을 만들어내고 있고,"
-        );
-      } else if (jangBad.length) {
-        bits.push(
-          "장년은 " +
-            joinMarks(jangBad) +
-            "가 사주에 " +
-            paintRed("고통을 줍니다") +
-            "."
-        );
-      } else if (nameSideGood(2)) {
-        bits.push(
-          "장년 이름은 사주를 " +
-            paintBlue("도와 주는") +
-            " 편입니다."
-        );
-      }
-
-      if (jungMit.length || (nameMitAt(3) && jungBad.length)) {
-        const badPart = jungBad.length
-          ? "중년이름기운의 " + joinMarks(jungBad)
-          : "중년이름";
-        const mitPart = jungMit.length
-          ? joinMarks(jungMit)
-          : joinMarks(jungGood);
-        let jung =
-          badPart +
-          "은 다행스럽게도 " +
-          (mitPart ? mitPart + "가 눌러주고" : "눌러 주는 기운이 눌러주고");
-        if (isWealthMitAt(3) || jungMit.length) {
-          jung += " 재물운이니 이 시기에 인생의 절정기라고 보지만";
-        } else {
-          jung += " 보완이 되지만";
-        }
+      function buildMalRenameBits() {
+        const bits = [];
         if (malHurt && malBad.length) {
-          jung +=
-            " 말년의 " +
-            joinMarks(malBad) +
-            "의 " +
-            paintRed("고통") +
-            "을 비켜가기가 힘든이름으로 전반적으로 좋은사주를 이름이 피해를 주는구조입니다.";
-        } else {
-          jung += " 전체 흐름과 함께 보셔야 합니다.";
+          bits.push(
+            "이름 말년에 " +
+              joinMarks(malBad) +
+              "가 사주를 " +
+              paintRed("고통스럽게") +
+              " 하고 있네요. 말년기운은 인생전반에 영향력을 행사하는데 이것 하나만 가지고도 이름을 쓰면 안되니 " +
+              paintRed("반드시 개명") +
+              "을 하셔서 새 인생을 사셔야 합니다."
+          );
+        } else if (nameSideGood(0) && sajuSideGood(0)) {
+          bits.push(
+            "이름 말년 " +
+              joinMarks(
+                nameGoodMarksAt(0).length
+                  ? nameGoodMarksAt(0)
+                  : nameMarksAt(0)
+              ) +
+              "이 사주를 " +
+              paintBlue("도와 주는") +
+              " 쪽으로 읽힙니다."
+          );
+        } else if (malBad.length) {
+          bits.push(
+            "이름 말년에 " +
+              joinMarks(malBad) +
+              "가 있어 사주에 " +
+              paintRed("고통을 줍니다") +
+              ". 말년은 인생 전반에 미치니 신중히 보셔야 합니다."
+          );
         }
-        bits.push(jung);
-      } else if (jungBad.length && malHurt && malBad.length) {
-        bits.push(
-          "중년은 " +
-            joinMarks(jungBad) +
-            "가 말년의 " +
-            joinMarks(malBad) +
-            "와 겹쳐 " +
-            paintRed("고통") +
-            "이 이어집니다. 전반적으로 좋은사주를 이름이 피해를 주는구조입니다."
-        );
-      } else if (jungBad.length) {
-        bits.push(
-          "중년 이름에 " +
-            joinMarks(jungBad) +
-            "가 들어 사주에 " +
-            paintRed("고통을 줍니다") +
-            "."
-        );
-      } else if (nameSideGood(3)) {
-        bits.push(
-          "중년 이름은 사주를 " +
-            paintBlue("도와 주는") +
-            " 편입니다."
-        );
+        return bits;
       }
 
-      if (
-        malHurt &&
-        malBad.length &&
-        !bits.some(function (b) {
-          return b.indexOf("피해를 주는구조") >= 0;
-        })
-      ) {
-        bits.push(
-          "전반적으로 좋은사주를 이름이 피해를 주는구조이니, 쓰지 않는 것이 현명합니다."
-        );
+      function buildChoJangJungBits() {
+        const bits = [];
+        if (choBad.length && malHurt && malBad.length) {
+          bits.push(
+            "초년이름에는 " +
+              joinMarks(choBad) +
+              "이 들었는데, 말년의 " +
+              joinMarks(malBad) +
+              "가 합세를 해서 더욱 큰 " +
+              paintRed("고통") +
+              "을 주고 있습니다."
+          );
+        } else if (choBad.length) {
+          bits.push(
+            "초년이름에는 " +
+              joinMarks(choBad) +
+              "이 들어 이 시기 사주에 " +
+              paintRed("고통을 줍니다") +
+              "."
+          );
+        } else if (nameSideGood(1)) {
+          bits.push(
+            "초년 이름은 사주를 " +
+              paintBlue("도와 주는") +
+              " 편으로 읽힙니다."
+          );
+        }
+
+        if (jangBad.length && malHurt && malBad.length) {
+          bits.push(
+            "장년은 " +
+              joinMarks(jangBad) +
+              "가 말년의 " +
+              joinMarks(malBad) +
+              "를 만나서 더 큰 " +
+              paintRed("고통") +
+              "을 만들어내고 있고,"
+          );
+        } else if (jangBad.length) {
+          bits.push(
+            "장년은 " +
+              joinMarks(jangBad) +
+              "가 사주에 " +
+              paintRed("고통을 줍니다") +
+              "."
+          );
+        } else if (nameSideGood(2)) {
+          bits.push(
+            "장년 이름은 사주를 " +
+              paintBlue("도와 주는") +
+              " 편입니다."
+          );
+        }
+
+        if (jungMit.length || (nameMitAt(3) && jungBad.length)) {
+          const badPart = jungBad.length
+            ? "중년이름기운의 " + joinMarks(jungBad)
+            : "중년이름";
+          const mitPart = jungMit.length
+            ? joinMarks(jungMit)
+            : joinMarks(jungGood);
+          let jung =
+            badPart +
+            "은 다행스럽게도 " +
+            (mitPart ? mitPart + "가 눌러주고" : "눌러 주는 기운이 눌러주고");
+          if (isWealthMitAt(3) || jungMit.length) {
+            jung += " 재물운이니 이 시기에 인생의 절정기라고 보지만";
+          } else {
+            jung += " 보완이 되지만";
+          }
+          if (malHurt && malBad.length) {
+            jung +=
+              " 말년의 " +
+              joinMarks(malBad) +
+              "의 " +
+              paintRed("고통") +
+              "을 비켜가기가 힘든이름으로 전반적으로 좋은사주를 이름이 피해를 주는구조입니다.";
+          } else {
+            jung += " 전체 흐름과 함께 보셔야 합니다.";
+          }
+          bits.push(jung);
+        } else if (jungBad.length && malHurt && malBad.length) {
+          bits.push(
+            "중년은 " +
+              joinMarks(jungBad) +
+              "가 말년의 " +
+              joinMarks(malBad) +
+              "와 겹쳐 " +
+              paintRed("고통") +
+              "이 이어집니다. 전반적으로 좋은사주를 이름이 피해를 주는구조입니다."
+          );
+        } else if (jungBad.length) {
+          bits.push(
+            "중년 이름에 " +
+              joinMarks(jungBad) +
+              "가 들어 사주에 " +
+              paintRed("고통을 줍니다") +
+              "."
+          );
+        } else if (nameSideGood(3)) {
+          bits.push(
+            "중년 이름은 사주를 " +
+              paintBlue("도와 주는") +
+              " 편입니다."
+          );
+        }
+
+        if (
+          malHurt &&
+          malBad.length &&
+          !bits.some(function (b) {
+            return b.indexOf("피해를 주는구조") >= 0;
+          })
+        ) {
+          bits.push(
+            "전반적으로 좋은사주를 이름이 피해를 주는구조이니, 쓰지 않는 것이 현명합니다."
+          );
+        }
+        return bits;
       }
 
-      return bits.length ? bits.join(" ") : "";
+      return {
+        malRename: buildMalRenameBits().join(" "),
+        rest: buildChoJangJungBits().join(" "),
+      };
+    }
+
+    function buildNameHelpsHurtsByPeriod() {
+      const parts = buildNameHelpsHurtsParts();
+      const out = [];
+      if (parts.malRename) out.push(parts.malRename);
+      if (parts.rest) out.push(parts.rest);
+      return out.join(" ");
     }
 
     /**
-     * 사주 전체 기운 — 한 줄 요약만 (탄생일 긴 수리·주역 본문은 밑줄로)
-     * 보흘: 「이름이 사주를…」 바로 위에 둠
+     * 사주 — 도입 / 말년(전체기운 축) / 시기별 한 줄
+     * 순서: 도입·말년축 → 이름비교·개명 → 시기별 한 줄 (보흘)
      */
-    function buildSajuOverviewBlock() {
+    function sajuBriefMarks(idx) {
+      const marks = [];
+      if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
+      if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
+      return marks;
+    }
+    function sajuSlightTrialHexOk(idx) {
+      const sBad = !!(bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data));
+      const g = bdG[idx];
+      const hexOk = !!(g && g.name && !gweBad(g));
+      return sBad && hexOk;
+    }
+    function sajuWealthPainClose() {
+      const BIG_WEALTH = [
+        "화천대유",
+        "화수미제",
+        "수풍정",
+        "산천대축",
+        "뇌천대장",
+      ];
+      let wealthCnt = 0;
+      let painCnt = 0;
+      for (let bi = 0; bi < bdG.length; bi++) {
+        const g = bdG[bi];
+        if (!g || !g.name) continue;
+        const n = gweNameOf(g);
+        for (let wi = 0; wi < BIG_WEALTH.length; wi++) {
+          if (n === BIG_WEALTH[wi] || n.indexOf(BIG_WEALTH[wi]) === 0) {
+            wealthCnt++;
+            break;
+          }
+        }
+        if (gweBad(g)) painCnt++;
+      }
+      if (wealthCnt >= 1) {
+        return " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다.";
+      }
+      if (painCnt >= 2) {
+        return " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
+      }
+      return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
+    }
+
+    function buildSajuIntro() {
+      if (!hasB) return "";
+      return (
+        "사주표를 보고 이 사람이 어떻게 살아가라고 했는지를 먼저 짚어 보겠습니다. " +
+        "말년(총운)은 평생에 영향을 주고, 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
+      );
+    }
+
+    /** 사주 전체기운의 축 = 말년 */
+    function buildSajuMalOverall() {
+      if (!hasB) return "";
+      const marks = sajuBriefMarks(0);
+      if (!marks.length) return "";
+      const tone = sideToneAt(bdS, bdG, 0);
+      let p =
+        "사주 전체기운의 축인 말년(총운)은 " + marks.join(", ");
+      if (sajuSlightTrialHexOk(0)) {
+        p +=
+          "인데 약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다.";
+      } else if (tone === "길") {
+        p += "로 좋은 기운이 들어 있습니다.";
+      } else if (tone === "흉") {
+        p += "로 무거운 기운이 있어 시련이 따릅니다.";
+      } else if (tone === "길흉혼재") {
+        p += "로 좋은 편입니다.";
+      } else {
+        p += "로 평이한 편입니다.";
+      }
+      p +=
+        " 말년기운은 인생전반에 영향력을 행사하니, 이 사주가 어떻게 살으라고 했는지의 중심이 여기입니다.";
+      return p;
+    }
+
+    /** 시기별 한 줄 (사주 말년은 … 초년 … 무난한 사주) — 이름비교·개명 뒤에 둠 */
+    function buildSajuPeriodLine() {
       if (!hasB) return "";
       const slots = [
         { i: 0, key: "말년", speak: "말년" },
@@ -2858,31 +2953,13 @@
         { i: 2, key: "장년", speak: "장년" },
         { i: 3, key: "중년", speak: "중년" },
       ];
-      const paras = [];
-      paras.push(
-        "사주표를 보고 이 사람이 어떻게 살아가라고 했는지를 시기별로 짚어 보겠습니다. " +
-          "말년(총운)은 평생에 영향을 주고, 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
-      );
-
-      function briefMarks(idx) {
-        const marks = [];
-        if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
-        if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
-        return marks;
-      }
-      function slightTrialHexOk(idx) {
-        const sBad = !!(bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data));
-        const g = bdG[idx];
-        const hexOk = !!(g && g.name && !gweBad(g));
-        return sBad && hexOk;
-      }
-
       const filled = slots.filter(function (s) {
-        return briefMarks(s.i).length > 0;
+        return sajuBriefMarks(s.i).length > 0;
       });
+      if (!filled.length) return "";
       const overviewBits = [];
       filled.forEach(function (slot, fi) {
-        const marks = briefMarks(slot.i);
+        const marks = sajuBriefMarks(slot.i);
         const tone = sideToneAt(bdS, bdG, slot.i);
         const isLast = fi === filled.length - 1;
         const conj = slot.key === "초년" ? "도 " : "은 ";
@@ -2890,7 +2967,7 @@
         let mid = marks.join(", ");
         let tail = "";
 
-        if (slightTrialHexOk(slot.i)) {
+        if (sajuSlightTrialHexOk(slot.i)) {
           mid += "인데 ";
           tail = isLast
             ? "약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다."
@@ -2924,42 +3001,7 @@
         }
         overviewBits.push(label + mid + tail);
       });
-      if (overviewBits.length) {
-        let overview = overviewBits.join("");
-        const BIG_WEALTH = [
-          "화천대유",
-          "화수미제",
-          "수풍정",
-          "산천대축",
-          "뇌천대장",
-        ];
-        let wealthCnt = 0;
-        let painCnt = 0;
-        for (let bi = 0; bi < bdG.length; bi++) {
-          const g = bdG[bi];
-          if (!g || !g.name) continue;
-          const n = gweNameOf(g);
-          for (let wi = 0; wi < BIG_WEALTH.length; wi++) {
-            if (n === BIG_WEALTH[wi] || n.indexOf(BIG_WEALTH[wi]) === 0) {
-              wealthCnt++;
-              break;
-            }
-          }
-          if (gweBad(g)) painCnt++;
-        }
-        if (wealthCnt >= 1) {
-          overview +=
-            " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다.";
-        } else if (painCnt >= 2) {
-          overview +=
-            " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
-        } else {
-          overview +=
-            " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
-        }
-        paras.push(overview);
-      }
-      return paras.length ? paras.join("<br><br>") : "";
+      return overviewBits.join("") + sajuWealthPainClose();
     }
 
     /** 초·장·중·말 네 자리 수리 숫자 (ages=[말년,초년,장년,중년]) · 7차 원문 표기 */
@@ -3141,18 +3183,23 @@
       );
     }
 
-    // —— ①오행 → ②수리4자리 → ③사주 전체기운 → ④이름↔사주 → ⑤위험 → ⑥주기도문·밑줄 ——
+    // —— ①오행 → ②수리4자리 → ③사주말년(전체기운) → ④이름비교·개명 → ⑤사주시기별 → ⑥위험·주기도문·밑줄 ——
     if (ohangNarr) ageParts.push(ohangNarr);
     const suriFour = buildSuriFourBlock();
     if (suriFour) ageParts.push(suriFour);
     if (hasB) {
-      const sajuOverview = buildSajuOverviewBlock();
-      if (sajuOverview) ageParts.push(sajuOverview);
+      const sajuIntro = buildSajuIntro();
+      if (sajuIntro) ageParts.push(sajuIntro);
+      const sajuMal = buildSajuMalOverall();
+      if (sajuMal) ageParts.push(sajuMal);
       ageParts.push(
         "이름이 사주를 도와주는지 고통을 주는지를 살펴 보겠습니다."
       );
-      const helpHurt = buildNameHelpsHurtsByPeriod();
-      if (helpHurt) ageParts.push(helpHurt);
+      const nameParts = buildNameHelpsHurtsParts();
+      if (nameParts.malRename) ageParts.push(nameParts.malRename);
+      const sajuPeriods = buildSajuPeriodLine();
+      if (sajuPeriods) ageParts.push(sajuPeriods);
+      if (nameParts.rest) ageParts.push(nameParts.rest);
     }
     const hazard = buildNameHazardBrief();
     if (hazard) ageParts.push(hazard);
