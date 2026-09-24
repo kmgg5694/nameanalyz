@@ -597,6 +597,36 @@
     const k = String(koName || "").replace(/\s*\([^)]*\)\s*/g, "").trim();
     return HEX_EN[k] || koName || "";
   };
+  /** 세로 오행 흐름도 화살표: top=위 칸 오행, bot=아래 칸 오행, meTop=나가 위 칸인지 */
+  window.naOhLink = function (top, bot, meTop, ko) {
+    let kind = "same";
+    let down = true;
+    if (GEN[top] === bot) kind = "gen";
+    else if (GEN[bot] === top) (kind = "gen"), (down = false);
+    else if (KEUK[top] === bot) kind = "ctrl";
+    else if (KEUK[bot] === top) (kind = "ctrl"), (down = false);
+    const T = ko
+      ? {
+          up: { gen: ["위가 나를 도와 줍니다", "내가 위를 섬깁니다"], ctrl: ["위가 나를 칩니다", "내가 위를 칩니다"] },
+          dn: { gen: ["내가 아래를 도와 줍니다", "아래가 나를 도와 줍니다"], ctrl: ["내가 아래를 칩니다", "아래가 나를 칩니다"] },
+          same: "같은 오행",
+          k: { gen: "생(生)", ctrl: "극(剋)", same: "비화" },
+        }
+      : {
+          up: { gen: ["Above helps you", "You serve Above"], ctrl: ["Above controls you", "You control Above"] },
+          dn: { gen: ["You help Below", "Below helps you"], ctrl: ["You control Below", "Below controls you"] },
+          same: "Same element",
+          k: { gen: "Generating", ctrl: "Controlling", same: "Same" },
+        };
+    const side = meTop ? T.dn : T.up;
+    const text = kind === "same" ? T.same : side[kind][down ? 0 : 1];
+    return {
+      kind,
+      arrow: kind === "same" ? "↕" : down ? "▼" : "▲",
+      color: kind === "ctrl" ? "#ef4444" : kind === "gen" ? "#16a34a" : "#6b7280",
+      label: T.k[kind] + " · " + text,
+    };
+  };
   /** 한글 UI는 원어, 영어 UI는 영어 이름 */
   function suriLab(n, koName, lang) {
     if (lang === "en" && SURI_EN[n]) return n + " " + SURI_EN[n];
