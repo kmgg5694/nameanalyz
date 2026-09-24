@@ -1,9 +1,8 @@
 /**
- * English overall reading — brief like Korean ko-sum
- * Order: Five Elements → name by age → birth by age → help/hurt → tip → Warning + Footnotes
- * Ages: 1–23 · 24–40 · 41–55 · 56+ (whole life)
- * Arrays: [early, prime, mid, late]
- * Keeps Warning Board + Footnotes (do not remove).
+ * English overall reading — 총평 서술 없음.
+ * 【음령오행 요약】은 EnglishName JSX에 유지.
+ * 이 파일은 Warning Board + Footnotes만 반환.
+ * Ages arrays: [early, prime, mid, late]
  */
 (function () {
   "use strict";
@@ -428,144 +427,14 @@
     return warnBox + footBox;
   }
 
+  /**
+   * 총평 서술 없음. 【음령오행 요약】은 EnglishName.tsx JSX에 그대로 둠.
+   * 여기선 Warning Board + Footnotes만 반환.
+   */
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
     const nG = ctx.nG || [];
-    const bS = ctx.bS || [];
-    const bG = ctx.bG || [];
-    const hasB = !!ctx.hasB;
-    const parts = [];
-
-    // 1) Five Elements
-    const ohangHtml = buildOhang(ctx.ohang);
-    if (ohangHtml) parts.push(ohangHtml);
-
-    // 2) Name by age (one glance)
-    {
-      const bits = [];
-      for (let i = 0; i < 4; i++) {
-        const m = allMarks(nS, nG, i);
-        if (m.length) bits.push(AGE[AGE_KEYS[i]] + ": " + m.join(", "));
-      }
-      if (bits.length) {
-        parts.push(
-          "<strong>Name</strong> (red = hard, blue = helpful)<br>" +
-            bits.join("<br>")
-        );
-      }
-    }
-
-    if (!hasB) {
-      parts.push(
-        "No birth date—name only. Tap any underlined table item for full text."
-      );
-      parts.push(warningFootnoteHtml(nS, nG));
-      return { ageText: parts.join("<br><br>") };
-    }
-
-    // 3) Birth chart by age
-    {
-      const bits = [];
-      for (let i = 0; i < 4; i++) {
-        const m = allMarks(bS, bG, i);
-        if (m.length) bits.push(AGE[AGE_KEYS[i]] + ": " + m.join(", "));
-      }
-      if (bits.length) {
-        parts.push("<strong>Birth chart</strong><br>" + bits.join("<br>"));
-      }
-    }
-
-    parts.push(
-      "56+ colors the whole life (± about 3 years). 1–23, 24–40, and 41–55 mainly act in their own ages."
-    );
-
-    // 4) Name help or hurt — short, like Korean
-    parts.push("Does the name help the birth chart, or cause it pain?");
-
-    const malBad = badMarks(nS, nG, I.late);
-    const malHurt = sideBad(nS, nG, I.late);
-    const sajuMal = allMarks(bS, bG, I.late);
-
-    if (malHurt && malBad.length) {
-      parts.push(
-        "At 56+, birth chart has " +
-          (sajuMal.join(", ") || "—") +
-          ", but the name has " +
-          joinMarks(malBad) +
-          " — it " +
-          paintRed("hurts the chart for life") +
-          ". " +
-          paintRed("A name change") +
-          " is needed."
-      );
-    } else if (sideGood(nS, nG, I.late) && sideGood(bS, bG, I.late)) {
-      const gm = goodMarks(nS, nG, I.late);
-      parts.push(
-        "At 56+, the name " +
-          joinMarks(gm.length ? gm : allMarks(nS, nG, I.late)) +
-          " " +
-          paintBlue("helps") +
-          " the birth chart."
-      );
-    } else if (malBad.length) {
-      parts.push(
-        "At 56+, the name " +
-          joinMarks(malBad) +
-          " " +
-          paintRed("causes pain") +
-          ". Take this seriously."
-      );
-    }
-
-    const bandBits = [];
-    [
-      { i: I.early, key: "early" },
-      { i: I.prime, key: "prime" },
-      { i: I.mid, key: "mid" },
-    ].forEach(function (b) {
-      const bad = badMarks(nS, nG, b.i);
-      if (bad.length && malHurt && malBad.length) {
-        bandBits.push(
-          AGE[b.key] +
-            ": " +
-            joinMarks(bad) +
-            " + later " +
-            joinMarks(malBad) +
-            " → more " +
-            paintRed("pain") +
-            "."
-        );
-      } else if (bad.length) {
-        bandBits.push(
-          AGE[b.key] +
-            ": " +
-            joinMarks(bad) +
-            " " +
-            paintRed("hurts") +
-            " here."
-        );
-      } else if (sideGood(nS, nG, b.i)) {
-        bandBits.push(AGE[b.key] + ": name " + paintBlue("helps") + " here.");
-      }
-    });
-    if (bandBits.length) parts.push(bandBits.join("<br>"));
-
-    if (malHurt && malBad.length) {
-      parts.push(
-        "This name harms a workable birth chart. It is wiser not to keep " +
-          paintRed("this name") +
-          "."
-      );
-    }
-
-    parts.push(
-      "For details, tap any underlined number or hexagram in the table."
-    );
-
-    // 5) Warning Board + Footnotes (always — do not remove)
-    parts.push(warningFootnoteHtml(nS, nG));
-
-    return { ageText: parts.join("<br><br>") };
+    return { ageText: warningFootnoteHtml(nS, nG) };
   };
 })();
