@@ -1,8 +1,8 @@
 /**
- * English overall reading — brief narrate then Korean Warning/Footnotes.
+ * English overall reading — brief narrate then Warning/Footnotes.
  * Order: 오행 → 탄생일 → 이름↔사주 → 마무리 → 경고장·각주
- * Brief narrate suri/hex: EN nameEn when lang=en, KO name when lang=ko.
- * Warning/footnotes: always Korean 원어 + notranslate (뇌산소과…). Ages: [early,prime,mid,late]
+ * Suri/hex names: always Korean 원어 (table·narrate·warning match). Sentences follow lang.
+ * Warning/footnotes: ko=Korean text, en=English text with Korean names + notranslate. Ages: [early,prime,mid,late]
  */
 (function () {
   "use strict";
@@ -46,15 +46,13 @@
     if (!g || !g.name) return "";
     return strip(g.name);
   }
-  /** 간략 해설 표시명 — lang=en이면 nameEn, ko면 한글. */
+  /** 해설 표시명 — 영어 UI에서도 원어(한글). 요약보기 칸과 같은 이름. */
   function plainSuriName(ns, lang) {
     if (!ns || !ns.data) return "";
-    if (lang === "en") return strip(ns.data.nameEn || ns.data.name || "");
     return strip(ns.data.name || "");
   }
   function gweDisplayName(g, lang) {
     if (!g || !g.name) return "";
-    if (lang === "en") return strip(g.nameEn || g.name);
     return strip(g.name);
   }
   function hexNameStarts(g, name) {
@@ -303,9 +301,29 @@
   const FOOT_FOOTER =
     "이름 속에 위와 같은 수리 혹은 주역괘가 있다면 개명 외엔 대안이 없다~!!!";
 
-  function collectHits(nS, nG) {
+  /** 수리·주역명은 영어 UI에서도 우리 원어(한글) 그대로. 문장만 영어. */
+  function suriLab(n, koName) {
+    return suriLabel(n, koName);
+  }
+  function hexLab(koName) {
+    return strip(koName);
+  }
+
+  const FOOT_CHONGUN_DAN_EN =
+    "If the name's overall destiny (Late, whole life) holds 26 영웅풍파 or 28 파란풍파, most die young. For women, many are widowed through separation or bereavement.";
+  const FOOT_CHONGUN_CANCER_EN =
+    "Does a name's energy bring cancer? When the overall destiny holds 이산파멸, 백사실패 or 중도좌절, cancer is common in most cases.";
+  const FOOT_SURI20_22_EN =
+    "Numbers more fearsome than 14 이산파멸 — 20 백사실패 and 22 중도좌절: cancer is common in most cases. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but cannot keep it to the end and midway meet failure, bankruptcy, accidents, illness, cancer, surgery, prison or an early death. However, if the hexagram below is 수풍정 or 수택절, 20 백사실패 is read as great wealth and great honor. When 20 forms any one of 수택절, 수풍정, 지택림 or 뇌택귀매, the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
+  const FOOT_FOOTER_EN =
+    "If your name holds any of the numbers or hexagrams above, there is no alternative but a name change!!!";
+
+  function collectHits(nS, nG, lang) {
     const hits = [];
-    const labels = ["초년(1–23)", "장년(24–40)", "중년(41–55)", "말년(56+)"];
+    const labels =
+      lang === "en"
+        ? ["Early (1–23)", "Prime (24–40)", "Midlife (41–55)", "Late (56+)"]
+        : ["초년(1–23)", "장년(24–40)", "중년(41–55)", "말년(56+)"];
     for (let i = 0; i < 4; i++) {
       const ns = nS[i];
       if (ns && ns.suri != null) {
@@ -313,9 +331,7 @@
         for (let j = 0; j < FOOT_SURI.length; j++) {
           if (FOOT_SURI[j].n === num) {
             hits.push(
-              labels[i] +
-                " " +
-                paintRed(suriLabel(num, FOOT_SURI[j].name))
+              labels[i] + " " + paintRed(suriLab(num, FOOT_SURI[j].name))
             );
           }
         }
@@ -324,21 +340,23 @@
       if (ng && ng.name) {
         for (let j = 0; j < FOOT_HEX.length; j++) {
           if (hexNameStarts(ng, FOOT_HEX[j])) {
-            hits.push(labels[i] + " " + paintRed(gweNameKo(ng) || FOOT_HEX[j]));
+            hits.push(labels[i] + " " + paintRed(hexLab(FOOT_HEX[j])));
           }
         }
       }
     }
     return hits;
   }
-  function chongunNotes(nS) {
+  function chongunNotes(nS, lang) {
     const late = nS[I.late];
     if (!late || late.suri == null) return [];
     const n = Number(late.suri);
+    const en = lang === "en";
     const notes = [];
-    if (n === 26 || n === 28) notes.push(FOOT_CHONGUN_DAN);
-    if (n === 14 || n === 20 || n === 22) notes.push(FOOT_CHONGUN_CANCER);
-    if (n === 20 || n === 22) notes.push(FOOT_SURI20_22);
+    if (n === 26 || n === 28) notes.push(en ? FOOT_CHONGUN_DAN_EN : FOOT_CHONGUN_DAN);
+    if (n === 14 || n === 20 || n === 22)
+      notes.push(en ? FOOT_CHONGUN_CANCER_EN : FOOT_CHONGUN_CANCER);
+    if (n === 20 || n === 22) notes.push(en ? FOOT_SURI20_22_EN : FOOT_SURI20_22);
     return notes;
   }
 
@@ -366,7 +384,7 @@
     const lateM = allMarks(nS, nG, I.late, lang);
     if (lateM.length) {
       bits.push(
-        "Overall destiny (말년, " + AGE.late + "): " + joinMarks(lateM) + "."
+        "Overall destiny, " + AGE.late + ": " + joinMarks(lateM) + "."
       );
     }
     if (hasB && sideBad(nS, nG, I.late) && sideBad(bS, bG, I.late)) {
@@ -415,35 +433,52 @@
     );
   }
 
-  /** 한글 페이지 경고장·각주와 동일 문장 + notranslate (뇌→크 자동번역 차단) */
-  function warningFootnoteHtml(nS, nG) {
+  /** 경고장·각주 — ko: 한글 문장 / en: 영어 문장 + 원어 수리·괘명. notranslate로 자동번역 짬뽕 차단. */
+  function warningFootnoteHtml(nS, nG, lang) {
+    const en = lang === "en";
     const warnSuri = WARN_JANG_SURI.map(function (s) {
-      return suriLabel(s.n, s.name);
+      return suriLab(s.n, s.name);
     }).join(", ");
-    const warnHex = WARN_JANG_HEX.join(", ");
+    const warnHex = WARN_JANG_HEX.map(function (h) {
+      return hexLab(h);
+    }).join(", ");
     const footSuri = FOOT_SURI.map(function (s) {
-      return suriLabel(s.n, s.name);
+      return suriLab(s.n, s.name);
     }).join(", ");
-    const footHex = FOOT_HEX.join(", ");
-    const hits = collectHits(nS, nG);
-    const chong = chongunNotes(nS);
+    const footHex = FOOT_HEX.map(function (h) {
+      return hexLab(h);
+    }).join(", ");
+    const hits = collectHits(nS, nG, lang);
+    const chong = chongunNotes(nS, lang);
 
-    const wrap =
-      ' class="notranslate" translate="no"';
+    const wrap = ' class="notranslate" translate="no"';
+    const yellowNote =
+      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">';
+    const red = function (t) {
+      return '<span style="color:#FF0000">' + esc(t) + "</span>";
+    };
+
+    const warnBody = en
+      ? "Warning: If your name contains unfavorable numerology numbers such as " +
+        red(warnSuri) +
+        ", or difficult Hexagrams such as " +
+        red(warnHex) +
+        "—promptly changing your name is the most reliable way to mitigate misfortune."
+      : "만약 여러분 이름을 분석해서 " +
+        red(warnSuri) +
+        " 등이 있거나, 이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
+        red(warnHex) +
+        " 등의 괘가 도사리고 있다면 오로지 신속한 개명만이 피해를 대폭 줄일 수 있습니다.";
 
     const warnBox =
       "<div" +
       wrap +
       ' style="margin-top:16px">' +
-      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">경고장</div>' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">' +
+      (en ? "Warning Board" : "경고장") +
+      "</div>" +
       '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
-      "만약 여러분 이름을 분석해서 " +
-      '<span style="color:#FF0000">' +
-      warnSuri +
-      "</span> 등이 있거나, 이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
-      '<span style="color:#FF0000">' +
-      warnHex +
-      "</span> 등의 괘가 도사리고 있다면 오로지 신속한 개명만이 피해를 대폭 줄일 수 있습니다." +
+      warnBody +
       "</div></div>";
 
     let applyBlock = "";
@@ -452,31 +487,23 @@
         "<div" +
         wrap +
         ' style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000">' +
-        "이 이름에 해당: " +
+        (en ? "This name contains: " : "이 이름에 해당: ") +
         hits.join(", ") +
-        ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오." +
+        (en
+          ? ". It easily leads into a desperate situation — please consider a name change seriously."
+          : ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오.") +
         "</div>";
     }
 
-    const chongunBox =
-      "<div" +
-      wrap +
-      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
-      '<span style="color:#FF0000">' +
-      FOOT_CHONGUN_DAN +
-      "</span></div>" +
-      "<div" +
-      wrap +
-      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
-      '<span style="color:#FF0000">' +
-      FOOT_CHONGUN_CANCER +
-      "</span></div>" +
-      "<div" +
-      wrap +
-      ' style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
-      '<span style="color:#FF0000">' +
-      FOOT_SURI20_22 +
-      "</span></div>";
+    const chongunBox = [
+      en ? FOOT_CHONGUN_DAN_EN : FOOT_CHONGUN_DAN,
+      en ? FOOT_CHONGUN_CANCER_EN : FOOT_CHONGUN_CANCER,
+      en ? FOOT_SURI20_22_EN : FOOT_SURI20_22,
+    ]
+      .map(function (t) {
+        return "<div" + wrap + yellowNote + red(t) + "</div>";
+      })
+      .join("");
 
     let chongApply = "";
     if (chong.length) {
@@ -484,30 +511,38 @@
         "<div" +
         wrap +
         ' style="margin-top:8px;line-height:1.55;font-size:0.9rem;font-weight:700;color:#FF0000">' +
-        "【총운 각주 적용】 " +
-        chong.join(" ") +
+        (en ? "[Overall-destiny footnote applies] " : "【총운 각주 적용】 ") +
+        esc(chong.join(" ")) +
         "</div>";
     }
+
+    const footBody = en
+      ? 'Analyze your <span style="color:#FF1493">name</span>: if it contains numbers such as ' +
+        red(footSuri) +
+        ", or, applying the I Ching to the name, hexagrams such as " +
+        red(footHex) +
+        ", you will face a desperate situation."
+      : '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
+        red(footSuri) +
+        " 등이 있거나, 혹은 이름에 주역을 대입해서 " +
+        red(footHex) +
+        " 괘가 있다면 절망적 상황에 처한다.";
 
     const footBox =
       "<div" +
       wrap +
       ' style="margin-top:14px">' +
-      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">각주</div>' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">' +
+      (en ? "Footnotes" : "각주") +
+      "</div>" +
       '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem">' +
-      '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
-      '<span style="color:#FF0000">' +
-      footSuri +
-      "</span> 등이 있거나, 혹은 이름에 주역을 대입해서 " +
-      '<span style="color:#FF0000">' +
-      footHex +
-      "</span> 괘가 있다면 절망적 상황에 처한다." +
+      footBody +
       "</div>" +
       chongunBox +
       applyBlock +
       chongApply +
       '<div style="margin-top:8px;line-height:1.5;font-size:0.9rem;font-weight:800;color:#FF1493">' +
-      FOOT_FOOTER +
+      esc(en ? FOOT_FOOTER_EN : FOOT_FOOTER) +
       "</div></div>";
 
     return (
@@ -515,9 +550,6 @@
     );
   }
 
-  /**
-   * 경고장·각주: 한글 원어 수리·괘명 (뇌산소과 등). 자동번역 차단.
-   */
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
@@ -540,6 +572,6 @@
         parts.join("<br><br>") +
         "</div>"
       : "";
-    return { ageText: narr + warningFootnoteHtml(nS, nG) };
+    return { ageText: narr + warningFootnoteHtml(nS, nG, lang) };
   };
 })();
