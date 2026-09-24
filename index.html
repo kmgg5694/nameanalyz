@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260924g")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260924h")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260924g", "1");
+          sessionStorage.setItem("na_sw_purged_20260924h", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260924g");
+            u.searchParams.set("v", "20260924h");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -44,10 +44,10 @@
       window.__CORE_SUMMARIES__ = { suri: {}, hex: {} };
       window.__NARRATE__ = { suri: {}, hex: {} };
       Promise.all([
-        fetch('./data/core-summaries/suri-core-by-num.json?v=20260924g').then(r => r.json()),
-        fetch('./data/core-summaries/hex-core-by-id.json?v=20260924g').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260924g').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260924g').then(r => r.json())
+        fetch('./data/core-summaries/suri-core-by-num.json?v=20260924h').then(r => r.json()),
+        fetch('./data/core-summaries/hex-core-by-id.json?v=20260924h').then(r => r.json()),
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260924h').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260924h').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -55,9 +55,9 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
-    <script src="./assets/ko-sum-routine.js?v=20260924g"></script>
-    <script src="./assets/hex-fortune-routine.js?v=20260924g"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260924g"></script>
+    <script src="./assets/ko-sum-routine.js?v=20260924h"></script>
+    <script src="./assets/hex-fortune-routine.js?v=20260924h"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260924h"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
@@ -642,7 +642,7 @@ Error generating stack: `+l.message+`
 			})
 		</script>
 
-    <script src="./pwa-install.js?v=20260924g"></script>
+    <script src="./pwa-install.js?v=20260924h"></script>
 
 <script>
 (function(){

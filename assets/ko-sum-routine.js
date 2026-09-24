@@ -1231,7 +1231,7 @@
     const MID_TRAIT = {
       木: "성장·시작의 기운이 있어 추진력이 있고 뻗어 나가려는 성향이 나타납니다",
       火: "밝고 명랑 쾌활하며, 일처리가 시원시원한 면이 있고, 때론 욱하는 급한 성격이 나타날 수 있습니다",
-      土: "비교적 포용력이 많고 인내심이 있으며 안정·신뢰의 기운이 중심을 이룹니다",
+      土: "비교적 포용력이 있고 인내심이 있으며 안정·신뢰의 기운이 중심을 이룹니다",
       金: "비교적 굳세고 강하며, 솔직하고 직선적인 면이 많고, 요구수준이 높고 까다로울 수 있으나 스스로 실력을 쌓으려는 성실한 면도 많습니다. 강자에게는 강하고 약자에게는 부드러운 군자의 모습이 나오기도 합니다",
       水: "지혜롭고 담백하며 자유자재·능수능란한 융통성을 갖춘 반면에 냉철함도 가지고 있습니다",
     };
@@ -1245,15 +1245,19 @@
       const map = { 목: "木", 화: "火", 토: "土", 금: "金", 수: "水" };
       return map[t] || t;
     }
+    function ohName(el) {
+      return OH_KO[el] || el;
+    }
     function ohRo(el) {
       return OH_RO[el] || OH_KO[el] || el;
     }
+    /** 나열: 토(土)·금(金) — 「로/으로」는 붙이지 않음(중복 방지) */
     function elList(arr) {
       return (arr || [])
         .map(normEl)
         .filter(Boolean)
         .map(function (e) {
-          return ohRo(e) + "(" + e + ")";
+          return ohName(e) + "(" + e + ")";
         })
         .join("·");
     }
@@ -1449,23 +1453,19 @@
       }
     }
 
-    // 4) 중심기운 품성
+    // 4) 중심기운 품성 — 「오행은 토이고, 한문은 수이니…」(보흘)
     if (midHg) {
-      let mid =
-        "이 이름의 중심기운(가운데·본인)에 해당하는 오행은 한글 " +
-        ohRo(midHg) +
-        "(" +
-        midHg +
-        ")";
+      let mid = "오행은 " + ohName(midHg) + "이고";
       if (midHj) {
-        mid +=
-          ", 한자 " + ohRo(midHj) + "(" + midHj + ")";
+        mid += ", 한문은 " + ohName(midHj) + "이니 ";
+      } else {
+        mid += "이니 ";
       }
-      mid += "이니 " + (MID_TRAIT[midHg] || "그 기운이 성격을 이끕니다") + ".";
+      mid += (MID_TRAIT[midHg] || "그 기운이 성격을 이끕니다") + ".";
       if (midHj && midHj !== midHg && MID_TRAIT[midHj]) {
         mid +=
-          " 속(한자)으로는 " +
-          ohRo(midHj) +
+          " 속(한문)으로는 " +
+          ohName(midHj) +
           "의 기운이 더해져 " +
           MID_TRAIT[midHj] +
           ".";
