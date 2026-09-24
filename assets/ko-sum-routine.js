@@ -2846,14 +2846,199 @@
       return bits.length ? bits.join(" ") : "";
     }
 
-    // —— 순서: ①오행 → ②이름↔사주 비교 → ③주기도문·개명 → ④밑줄 안내로 끝 ——
+    /** 초·장·중·말 네 자리 수리 숫자 (ages=[말년,초년,장년,중년]) · 7차 원문 표기 */
+    function chronoSuriNums(sArr) {
+      const order = [1, 2, 3, 0];
+      const out = [];
+      for (let i = 0; i < 4; i++) {
+        const ns = sArr && sArr[order[i]];
+        out.push(ns && ns.suri != null ? Number(ns.suri) : null);
+      }
+      return out;
+    }
+    function formatSuriFour(nums) {
+      return (nums || [])
+        .map(function (n) {
+          return n == null || isNaN(n) ? "—" : String(n);
+        })
+        .join(", ");
+    }
+    function nameSlotHasSuri(num) {
+      const n = Number(num);
+      for (let i = 0; i < 4; i++) {
+        if (nmS[i] && Number(nmS[i].suri) === n) return true;
+        if (hasHanja && hjS[i] && Number(hjS[i].suri) === n) return true;
+      }
+      return false;
+    }
+    function nameSlotHasHex(hexName) {
+      for (let i = 0; i < 4; i++) {
+        if (hexNameStarts(nmG[i], hexName)) return true;
+        if (hasHanja && hexNameStarts(hjG[i], hexName)) return true;
+      }
+      return false;
+    }
+    function note14InFour(nums, who) {
+      if (!nums || nums.indexOf(14) < 0) return "";
+      const labels = ["초년", "장년", "중년", "말년(총운)"];
+      const hits = [];
+      for (let i = 0; i < 4; i++) {
+        if (nums[i] === 14) hits.push(labels[i]);
+      }
+      if (!hits.length) return "";
+      const where = hits.join("·");
+      if (nums[3] === 14 && hits.length === 1) {
+        return (
+          " " +
+          who +
+          " " +
+          paintRed("말년(총운)에 14, 이산파멸") +
+          "이 있습니다."
+        );
+      }
+      if (nums[3] === 14) {
+        return (
+          " " +
+          who +
+          " " +
+          where +
+          "에 " +
+          paintRed("14, 이산파멸") +
+          "이 있습니다."
+        );
+      }
+      return (
+        " " +
+        who +
+        " " +
+        where +
+        "에 " +
+        paintRed("14, 이산파멸") +
+        "이 내재합니다."
+      );
+    }
+
+    /** 오행 다음 — 수리 네 자리 한 줄 (보흘·7차) */
+    function buildSuriFourBlock() {
+      const hg = chronoSuriNums(nmS);
+      if (hg.every(function (n) {
+        return n == null;
+      }))
+        return "";
+      let p =
+        "한글 수리 " +
+        formatSuriFour(hg) +
+        "(초·장·중·말).";
+      p += note14InFour(hg, "한글");
+      if (hasHanja) {
+        const hj = chronoSuriNums(hjS);
+        if (
+          !hj.every(function (n) {
+            return n == null;
+          })
+        ) {
+          p +=
+            " 한문 수리 " +
+            formatSuriFour(hj) +
+            "(초·장·중·말).";
+          p += note14InFour(hj, "한문");
+        }
+      }
+      return p;
+    }
+
+    /**
+     * 이름 속 암·자살·이별·이혼·사고사 — 해당될 때만 짧게 (7차·스펙 목록만)
+     * 상세는 밑줄·기운표·각주
+     */
+    function buildNameHazardBrief() {
+      const has14 = nameSlotHasSuri(14);
+      const has19 = nameSlotHasSuri(19);
+      const has20 = nameSlotHasSuri(20);
+      const has22 = nameSlotHasSuri(22);
+      const has2 = nameSlotHasSuri(2);
+      const mal14or20or22 =
+        (nmS[0] && [14, 20, 22].indexOf(Number(nmS[0].suri)) >= 0) ||
+        (hasHanja &&
+          hjS[0] &&
+          [14, 20, 22].indexOf(Number(hjS[0].suri)) >= 0);
+      const deathSuri = [
+        14, 19, 20, 26, 27, 28, 46, 70, 74, 79, 4, 9, 10, 22, 34, 64, 69,
+      ];
+      let hasDeath = false;
+      for (let di = 0; di < deathSuri.length; di++) {
+        if (nameSlotHasSuri(deathSuri[di])) {
+          hasDeath = true;
+          break;
+        }
+      }
+      const hexCancer =
+        nameSlotHasHex("천지비") || nameSlotHasHex("지화명이");
+      const hexSuicideDivorce = nameSlotHasHex("풍천소축");
+      const hexAccident = nameSlotHasHex("화택규");
+
+      const tags = [];
+      if (has14 || has2 || hexSuicideDivorce) {
+        tags.push(paintRed("이별·이혼"));
+      }
+      if (has14 || mal14or20or22 || hexCancer) {
+        tags.push(paintRed("암·병·수술"));
+      }
+      if (has14 || has19 || has20 || has22 || hasDeath || hexAccident) {
+        tags.push(paintRed("사고·사망"));
+      }
+      if (has14 || hexSuicideDivorce || has2) {
+        tags.push(paintRed("자살·단명"));
+      }
+      if (
+        (nmS[0] && [26, 28].indexOf(Number(nmS[0].suri)) >= 0) ||
+        (hasHanja &&
+          hjS[0] &&
+          [26, 28].indexOf(Number(hjS[0].suri)) >= 0)
+      ) {
+        tags.push(paintRed("이별·사별"));
+      }
+
+      if (!tags.length) return "";
+
+      // 중복 제거
+      const seen = {};
+      const uniq = [];
+      for (let ti = 0; ti < tags.length; ti++) {
+        const k = tags[ti].replace(/<[^>]+>/g, "");
+        if (seen[k]) continue;
+        seen[k] = true;
+        uniq.push(tags[ti]);
+      }
+
+      let lead = "이름 속에는 ";
+      if (has14) {
+        lead =
+          "수리학에서 " +
+          paintRed("14, 이산파멸") +
+          "은 이별·사고·수술·암·사망을 뜻합니다. 이 이름에는 ";
+      }
+      return (
+        lead +
+        uniq.join(", ") +
+        " 기운이 보입니다. 자세한 자리는 위 네 자리 수리와 아래 밑줄·표를 보시면 됩니다."
+      );
+    }
+
+    // —— ①오행 → ②수리4자리 → ③이름↔사주 → ④이름속위험 → ⑤주기도문·개명 → ⑥밑줄 안내 ——
     if (ohangNarr) ageParts.push(ohangNarr);
+    const suriFour = buildSuriFourBlock();
+    if (suriFour) ageParts.push(suriFour);
     if (hasB) {
       ageParts.push(
         "이름이 사주를 도와주는지 고통을 주는지를 살펴 보겠습니다."
       );
       const helpHurt = buildNameHelpsHurtsByPeriod();
       if (helpHurt) ageParts.push(helpHurt);
+    }
+    const hazard = buildNameHazardBrief();
+    if (hazard) ageParts.push(hazard);
+    if (hasB) {
       ageParts.push(
         "이름은 세 글자의 주기도문이랍니다. 실제 기도를 할 때는 백일기도, 천일기도처럼 날마다 하루도 쉬지 않고 기도를 해야 소원이 이루어지는데, 수십 년을 하루도 거르지 않고 기도하는 것이 바로 이름 세 글자이니 기도발이 엄청 강하답니다. 그 이름이 나는 고통스럽게 살다가 일찍 죽겠다든지, 암으로 죽겠다든지, 심장마비로 죽겠다든지 하는 내용이라면 아주 끔찍한 일이 아니겠습니까. 여기서 이름을 풀어 보신 분들은 신중하게 개명을 고려하시길 바랍니다."
       );
