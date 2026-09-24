@@ -1,8 +1,9 @@
 /**
- * English name reading — short overall reading (aligned with Korean brief flow)
- * Ages: early 1–23 (hex 1–30) · prime 24–40 (31–50) · mid 41–55 (51–55) · late 56+
- * Arrays from English app: [early, prime, mid, late]
- * Does not touch Korean tables / iljin / print / d6·Ee source text.
+ * English overall reading — brief like Korean ko-sum
+ * Order: Five Elements → name by age → birth by age → help/hurt → tip → Warning + Footnotes
+ * Ages: 1–23 · 24–40 · 41–55 · 56+ (whole life)
+ * Arrays: [early, prime, mid, late]
+ * Keeps Warning Board + Footnotes (do not remove).
  */
 (function () {
   "use strict";
@@ -91,30 +92,24 @@
     return (arr || []).join(", ");
   }
 
-  /** Clear age labels (not “early / prime / mid”) */
   const AGE = {
-    early: "ages 1–23",
-    prime: "ages 24–40",
-    mid: "ages 41–55",
-    late: "ages 56 and after (whole-life tone)",
+    early: "1–23",
+    prime: "24–40",
+    mid: "41–55",
+    late: "56+ (whole life)",
   };
   const I = { early: 0, prime: 1, mid: 2, late: 3 };
+  const AGE_KEYS = ["early", "prime", "mid", "late"];
 
-  const OH_EN = {
-    木: "Wood",
-    火: "Fire",
-    土: "Earth",
-    金: "Metal",
-    水: "Water",
-  };
+  const OH_EN = { 木: "Wood", 火: "Fire", 土: "Earth", 金: "Metal", 水: "Water" };
   const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
   const KEUK = { 木: "土", 火: "金", 土: "水", 金: "木", 水: "火" };
   const MID_TRAIT = {
-    木: "growth and drive—you push forward and start things",
-    火: "bright, quick, and open—sometimes impatient",
-    土: "steady, patient, and trustworthy",
-    金: "firm, direct, and exacting—but also serious about skill",
-    水: "flexible and clear-headed—sometimes cool or distant",
+    木: "growth and drive",
+    火: "bright and quick (sometimes impatient)",
+    土: "steady and trustworthy",
+    金: "firm and direct",
+    水: "flexible and clear-headed",
   };
 
   function elName(el) {
@@ -139,27 +134,21 @@
     return "";
   }
 
+  /** Short Five Elements — same idea as Korean 오행 first */
   function buildOhang(oh) {
     if (!oh) return "";
     const counts = oh.counts || {};
     const dom = oh.dominant || "";
-    const last = oh.lastRep || (oh.last && oh.last[0] && oh.last[0].ohang) || "";
-    const first = oh.firstRep || (oh.first && oh.first[0] && oh.first[0].ohang) || "";
-    const mid =
-      oh.middleRep ||
-      (oh.middle && oh.middle.length
-        ? oh.middle[0].ohang
-        : first);
-    // English layout: last = family (above), first/middle = given (self/below varies)
-    // Match existing English UI: upper link uses last→first generating count
-    const up = last;
-    const me = first || mid;
-    const dn = mid && mid !== first ? mid : first;
-
+    const up = oh.lastRep || "";
+    const me = oh.firstRep || "";
+    const dn = oh.middleRep || me;
     const bits = [];
     bits.push(
-      "<strong>Five Elements (from the letters)</strong><br>" +
-        "Wood " +
+      "Five Elements show how you relate to people. " +
+        paintBlue("Generating") +
+        " = smooth help; " +
+        paintRed("Controlling") +
+        " = friction. Counts: Wood " +
         (counts["木"] || 0) +
         " · Fire " +
         (counts["火"] || 0) +
@@ -173,40 +162,32 @@
     );
     if (dom) {
       bits.push(
-        "Strongest: " +
+        "Center energy is " +
           elName(dom) +
-          ". Center feel: " +
+          " — " +
           (MID_TRAIT[dom] || "mixed") +
           "."
       );
     }
     if (up && me) {
       const d = dirUp(up, me);
-      let line = "Toward parents / seniors / partner (last→first name): ";
-      if (d === "recv_gen")
-        line += paintBlue("you receive support") + " from above.";
-      else if (d === "give_gen")
-        line += paintBlue("you give support") + " upward.";
-      else if (d === "recv_ctrl")
-        line += paintRed("pressure from above") + " is easier.";
-      else if (d === "give_ctrl")
-        line += paintRed("you push against above") + " more easily.";
-      else if (d === "same") line += "same element—calm but flat.";
+      let line = "Above (parents · seniors · partner): ";
+      if (d === "recv_gen") line += paintBlue("you receive support") + ".";
+      else if (d === "give_gen") line += paintBlue("you give support") + ".";
+      else if (d === "recv_ctrl") line += paintRed("pressure from above") + ".";
+      else if (d === "give_ctrl") line += paintRed("you push against above") + ".";
+      else if (d === "same") line += "same element — calm but flat.";
       else line += elName(up) + " · " + elName(me) + ".";
       bits.push(line);
     }
     if (me && dn && dn !== me) {
       const d = dirDn(me, dn);
-      let line = "Toward juniors / children (given-name flow): ";
-      if (d === "give_gen")
-        line += paintBlue("you give support") + " downward.";
-      else if (d === "recv_gen")
-        line += paintBlue("you receive support") + " from below.";
-      else if (d === "give_ctrl")
-        line += paintRed("you press down") + " more easily.";
-      else if (d === "recv_ctrl")
-        line += paintRed("pressure from below") + " is easier.";
-      else if (d === "same") line += "same element—calm but flat.";
+      let line = "Below (juniors · children): ";
+      if (d === "give_gen") line += paintBlue("you give support") + ".";
+      else if (d === "recv_gen") line += paintBlue("you receive support") + ".";
+      else if (d === "give_ctrl") line += paintRed("you press down") + ".";
+      else if (d === "recv_ctrl") line += paintRed("pressure from below") + ".";
+      else if (d === "same") line += "same element — calm but flat.";
       else line += elName(me) + " · " + elName(dn) + ".";
       bits.push(line);
     }
@@ -252,6 +233,201 @@
     );
   }
 
+  /** Warning Board + Footnotes (same lists as Korean — keep always) */
+  const WARN_JANG_SURI = [
+    { n: 9, en: "Big Ambition" },
+    { n: 10, en: "Empty Effort" },
+    { n: 12, en: "Weak Fortune" },
+    { n: 14, en: "Collapse" },
+    { n: 20, en: "Total Failure" },
+    { n: 22, en: "Midway Fall" },
+    { n: 26, en: "Hero Storm" },
+    { n: 28, en: "Turbulence" },
+    { n: 34, en: "Disaster Chain" },
+  ];
+  const WARN_JANG_HEX = [
+    "천산둔",
+    "천수송",
+    "천지비",
+    "택화혁",
+    "택뢰수",
+    "택수곤",
+    "풍수환",
+    "뇌산소과",
+    "수화기제",
+    "수산건",
+    "수뢰둔",
+    "풍천소축",
+    "산풍고",
+    "산지박",
+    "지화명이",
+  ];
+  const FOOT_SURI = [
+    { n: 10, en: "Empty Effort" },
+    { n: 12, en: "Weak Fortune" },
+    { n: 14, en: "Collapse" },
+    { n: 20, en: "Total Failure" },
+    { n: 22, en: "Midway Fall" },
+    { n: 26, en: "Hero Storm" },
+    { n: 28, en: "Turbulence" },
+  ];
+  const FOOT_HEX = [
+    "천지비",
+    "천수송",
+    "택수곤",
+    "뇌산소과",
+    "수화기제",
+    "수산건",
+    "수뢰둔",
+    "풍천소축",
+    "풍수환",
+    "산지박",
+    "산풍고",
+  ];
+  const FOOT_CHONGUN_DAN =
+    "If overall destiny (56+) has 26 Hero Storm or 28 Turbulence, short life is common; for women, separation/widowhood is common.";
+  const FOOT_CHONGUN_CANCER =
+    "Does the name bring cancer? If overall destiny has Collapse (14), Total Failure (20), or Midway Fall (22), cancer is common.";
+  const FOOT_SURI20_22 =
+    "20 Total Failure and 22 Midway Fall are more fearsome than 14 Collapse: often cancer. With a strong mind and drive one may rise high, then lose it mid-course—failure, bankruptcy, accident, illness, prison, short life. Exception: 20 with certain helpful hexagrams can read as lasting wealth—only if the birth chart is at least ordinary.";
+  const FOOT_FOOTER =
+    "If this name holds any of the numbers or hexagrams above, there is no real alternative except a name change.";
+
+  function suriInName(nS, num) {
+    for (let i = 0; i < 4; i++) {
+      if (nS[i] && Number(nS[i].suri) === num) return true;
+    }
+    return false;
+  }
+  function hexInName(nG, name) {
+    for (let i = 0; i < 4; i++) {
+      if (hexNameStarts(nG[i], name)) return true;
+    }
+    return false;
+  }
+  function collectHits(nS, nG) {
+    const hits = [];
+    const labels = ["1–23", "24–40", "41–55", "56+"];
+    for (let i = 0; i < 4; i++) {
+      const ns = nS[i];
+      if (ns && ns.suri != null) {
+        const num = Number(ns.suri);
+        for (let j = 0; j < FOOT_SURI.length; j++) {
+          if (FOOT_SURI[j].n === num) {
+            hits.push(
+              labels[i] +
+                " " +
+                paintRed(num + " " + FOOT_SURI[j].en)
+            );
+          }
+        }
+      }
+      const ng = nG[i];
+      if (ng && ng.name) {
+        for (let j = 0; j < FOOT_HEX.length; j++) {
+          if (hexNameStarts(ng, FOOT_HEX[j])) {
+            hits.push(labels[i] + " " + paintRed(gweNameEn(ng) || FOOT_HEX[j]));
+          }
+        }
+      }
+    }
+    return hits;
+  }
+  function chongunNotes(nS) {
+    const late = nS[I.late];
+    if (!late || late.suri == null) return [];
+    const n = Number(late.suri);
+    const notes = [];
+    if (n === 26 || n === 28) notes.push(FOOT_CHONGUN_DAN);
+    if (n === 14 || n === 20 || n === 22) notes.push(FOOT_CHONGUN_CANCER);
+    if (n === 20 || n === 22) notes.push(FOOT_SURI20_22);
+    return notes;
+  }
+
+  function warningFootnoteHtml(nS, nG) {
+    const warnSuri = WARN_JANG_SURI.map(function (s) {
+      return s.n + " " + s.en;
+    }).join(", ");
+    const warnHex = WARN_JANG_HEX.join(", ");
+    const footSuri = FOOT_SURI.map(function (s) {
+      return s.n + " " + s.en;
+    }).join(", ");
+    const footHex = FOOT_HEX.join(", ");
+    const hits = collectHits(nS, nG);
+    const chong = chongunNotes(nS);
+
+    const warnBox =
+      '<div style="margin-top:16px">' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">Warning Board</div>' +
+      '<div style="background:#FFFF00;color:#FF1493;font-weight:700;line-height:1.6;padding:12px 10px;border-radius:6px;font-size:0.95rem">' +
+      "If your name shows " +
+      '<span style="color:#FF0000">' +
+      warnSuri +
+      "</span>" +
+      ", or hexagrams such as " +
+      '<span style="color:#FF0000">' +
+      warnHex +
+      "</span>" +
+      ", a prompt name change is the surest way to cut the damage." +
+      "</div></div>";
+
+    let applyBlock = "";
+    if (hits.length) {
+      applyBlock =
+        '<div style="margin-top:10px;line-height:1.65;font-size:0.95rem;font-weight:700;color:#FF0000">' +
+        "This name hits: " +
+        hits.join(", ") +
+        ". Serious hardship is likely—consider a name change carefully." +
+        "</div>";
+    }
+
+    const chongunBox =
+      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      '<span style="color:#FF0000">' +
+      FOOT_CHONGUN_DAN +
+      "</span></div>" +
+      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      '<span style="color:#FF0000">' +
+      FOOT_CHONGUN_CANCER +
+      "</span></div>" +
+      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem;margin-top:8px">' +
+      '<span style="color:#FF0000">' +
+      FOOT_SURI20_22 +
+      "</span></div>";
+
+    let chongApply = "";
+    if (chong.length) {
+      chongApply =
+        '<div style="margin-top:8px;line-height:1.55;font-size:0.9rem;font-weight:700;color:#FF0000">' +
+        "[Overall-destiny footnote applies] " +
+        chong.join(" ") +
+        "</div>";
+    }
+
+    const footBox =
+      '<div style="margin-top:14px">' +
+      '<div style="font-weight:800;font-size:1.1rem;color:#111;margin:0 0 8px">Footnotes</div>' +
+      '<div style="background:#FFFF00;border:2px solid #111;color:#111;font-weight:700;line-height:1.55;padding:10px;font-size:0.9rem">' +
+      'If your <span style="color:#FF1493">name</span> holds ' +
+      '<span style="color:#FF0000">' +
+      footSuri +
+      "</span>" +
+      ", or hexagrams " +
+      '<span style="color:#FF0000">' +
+      footHex +
+      "</span>" +
+      ", despairing situations follow." +
+      "</div>" +
+      chongunBox +
+      applyBlock +
+      chongApply +
+      '<div style="margin-top:8px;line-height:1.5;font-size:0.9rem;font-weight:800;color:#FF1493">' +
+      FOOT_FOOTER +
+      "</div></div>";
+
+    return warnBox + footBox;
+  }
+
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
@@ -261,22 +437,20 @@
     const hasB = !!ctx.hasB;
     const parts = [];
 
-    // 1) Five Elements — like Korean 오행 first
+    // 1) Five Elements
     const ohangHtml = buildOhang(ctx.ohang);
     if (ohangHtml) parts.push(ohangHtml);
 
-    // 2) Four name numbers with ages
+    // 2) Name by age (one glance)
     {
-      const keys = ["early", "prime", "mid", "late"];
       const bits = [];
       for (let i = 0; i < 4; i++) {
         const m = allMarks(nS, nG, i);
-        if (!m.length) continue;
-        bits.push(AGE[keys[i]] + ": " + m.join(", "));
+        if (m.length) bits.push(AGE[AGE_KEYS[i]] + ": " + m.join(", "));
       }
       if (bits.length) {
         parts.push(
-          "<strong>Name by age</strong> (red = hard, blue = helpful)<br>" +
+          "<strong>Name</strong> (red = hard, blue = helpful)<br>" +
             bits.join("<br>")
         );
       }
@@ -284,88 +458,79 @@
 
     if (!hasB) {
       parts.push(
-        "No birth date entered—this is the name only. Tap any underlined table item for the full text of a number or hexagram."
+        "No birth date—name only. Tap any underlined table item for full text."
       );
+      parts.push(warningFootnoteHtml(nS, nG));
       return { ageText: parts.join("<br><br>") };
     }
 
     // 3) Birth chart by age
     {
-      const keys = ["early", "prime", "mid", "late"];
       const bits = [];
       for (let i = 0; i < 4; i++) {
         const m = allMarks(bS, bG, i);
-        if (!m.length) continue;
-        bits.push(AGE[keys[i]] + ": " + m.join(", "));
+        if (m.length) bits.push(AGE[AGE_KEYS[i]] + ": " + m.join(", "));
       }
       if (bits.length) {
-        parts.push(
-          "<strong>Birth chart by age</strong><br>" + bits.join("<br>")
-        );
+        parts.push("<strong>Birth chart</strong><br>" + bits.join("<br>"));
       }
     }
 
     parts.push(
-      "Ages 56+ set the whole-life tone (± about 3 years). Ages 1–23, 24–40, and 41–55 mainly act in their own band."
+      "56+ colors the whole life (± about 3 years). 1–23, 24–40, and 41–55 mainly act in their own ages."
     );
 
-    // 4) Does the name help or hurt? (short)
+    // 4) Name help or hurt — short, like Korean
+    parts.push("Does the name help the birth chart, or cause it pain?");
+
     const malBad = badMarks(nS, nG, I.late);
     const malHurt = sideBad(nS, nG, I.late);
     const sajuMal = allMarks(bS, bG, I.late);
 
     if (malHurt && malBad.length) {
       parts.push(
-        "Birth chart at " +
-          AGE.late +
-          ": " +
+        "At 56+, birth chart has " +
           (sajuMal.join(", ") || "—") +
-          ". Name at the same ages: " +
+          ", but the name has " +
           joinMarks(malBad) +
-          " — this " +
+          " — it " +
           paintRed("hurts the chart for life") +
           ". " +
           paintRed("A name change") +
           " is needed."
       );
     } else if (sideGood(nS, nG, I.late) && sideGood(bS, bG, I.late)) {
+      const gm = goodMarks(nS, nG, I.late);
       parts.push(
-        "At " +
-          AGE.late +
-          ", the name " +
-          joinMarks(goodMarks(nS, nG, I.late).length ? goodMarks(nS, nG, I.late) : allMarks(nS, nG, I.late)) +
+        "At 56+, the name " +
+          joinMarks(gm.length ? gm : allMarks(nS, nG, I.late)) +
           " " +
           paintBlue("helps") +
           " the birth chart."
       );
     } else if (malBad.length) {
       parts.push(
-        "At " +
-          AGE.late +
-          ", the name " +
+        "At 56+, the name " +
           joinMarks(malBad) +
           " " +
           paintRed("causes pain") +
-          " to the chart. Take this seriously."
+          ". Take this seriously."
       );
     }
 
-    const bands = [
+    const bandBits = [];
+    [
       { i: I.early, key: "early" },
       { i: I.prime, key: "prime" },
       { i: I.mid, key: "mid" },
-    ];
-    const bandBits = [];
-    for (let bi = 0; bi < bands.length; bi++) {
-      const idx = bands[bi].i;
-      const key = bands[bi].key;
-      const bad = badMarks(nS, nG, idx);
+    ].forEach(function (b) {
+      const bad = badMarks(nS, nG, b.i);
       if (bad.length && malHurt && malBad.length) {
         bandBits.push(
-          AGE[key] +
-            ": name " +
+          AGE[b.key] +
+            ": " +
             joinMarks(bad) +
-            " stacks with later-years " +
+            " + later " +
             joinMarks(malBad) +
             " → more " +
             paintRed("pain") +
@@ -373,32 +538,33 @@
         );
       } else if (bad.length) {
         bandBits.push(
-          AGE[key] +
-            ": name " +
+          AGE[b.key] +
+            ": " +
             joinMarks(bad) +
             " " +
             paintRed("hurts") +
-            " the chart here."
+            " here."
         );
-      } else if (sideGood(nS, nG, idx)) {
-        bandBits.push(
-          AGE[key] + ": name " + paintBlue("helps") + " the chart here."
-        );
+      } else if (sideGood(nS, nG, b.i)) {
+        bandBits.push(AGE[b.key] + ": name " + paintBlue("helps") + " here.");
       }
-    }
+    });
     if (bandBits.length) parts.push(bandBits.join("<br>"));
 
     if (malHurt && malBad.length) {
       parts.push(
-        "Bottom line: a workable birth chart is being harmed by " +
+        "This name harms a workable birth chart. It is wiser not to keep " +
           paintRed("this name") +
-          ". It is wiser not to keep it."
+          "."
       );
     }
 
     parts.push(
-      "For the full meaning of any number or hexagram, tap the underlined item in the table above."
+      "For details, tap any underlined number or hexagram in the table."
     );
+
+    // 5) Warning Board + Footnotes (always — do not remove)
+    parts.push(warningFootnoteHtml(nS, nG));
 
     return { ageText: parts.join("<br><br>") };
   };
