@@ -101,12 +101,21 @@
     return (arr || []).join(", ");
   }
 
-  const AGE = {
+  const AGE_EN = {
     early: "Ages 1–23",
     prime: "Ages 24–40",
     mid: "Ages 41–55",
     late: "Ages 56+ (whole life)",
   };
+  const AGE_KO = {
+    early: "초년(1~23세)",
+    prime: "장년(24~40세)",
+    mid: "중년(41~55세)",
+    late: "말년·총운(56세~)",
+  };
+  function ageOf(key, lang) {
+    return (lang === "ko" ? AGE_KO : AGE_EN)[key];
+  }
   const I = { early: 0, prime: 1, mid: 2, late: 3 };
   const AGE_KEYS = ["early", "prime", "mid", "late"];
 
@@ -120,9 +129,24 @@
     金: "firm and direct",
     水: "flexible and clear-headed",
   };
+  const OH_KO = { 木: "목", 火: "화", 土: "토", 金: "금", 水: "수" };
+  const MID_TRAIT_KO = {
+    木: "성장과 추진력의 기운입니다",
+    火: "밝고 빠르며 때로 성급한 기운입니다",
+    土: "안정되고 믿음직한 기운입니다",
+    金: "단단하고 곧은 기운입니다",
+    水: "유연하고 지혜로운 기운입니다",
+  };
 
-  function elName(el) {
+  function elName(el, lang) {
+    if (lang === "ko") return OH_KO[el] ? OH_KO[el] + "(" + el + ")" : String(el || "");
     return OH_EN[el] ? OH_EN[el] + " (" + el + ")" : String(el || "");
+  }
+  /** 오행 지칭: 목으로 · 화로 · 토로 · 금으로 · 수로 */
+  function elRo(el) {
+    const k = OH_KO[el];
+    if (!k) return String(el || "");
+    return k + (k === "화" || k === "토" || k === "수" ? "로" : "으로") + "(" + el + ")";
   }
   function dirUp(up, me) {
     if (!up || !me) return "";
@@ -144,8 +168,68 @@
   }
 
   /** Short Five Elements — same idea as Korean 오행 first */
-  function buildOhang(oh) {
+  function buildOhangKo(oh) {
+    const counts = oh.counts || {};
+    const dom = oh.dominant || "";
+    const up = oh.lastRep || "";
+    const me = oh.firstRep || "";
+    const dn = oh.middleRep || me;
+    const bits = [];
+    bits.push(
+      "오행은 사람과의 관계를 보여 줍니다. " +
+        paintBlue("상생") +
+        "은 소통 원활, " +
+        paintRed("상극") +
+        "은 소통불·배척입니다. 개수: 목 " +
+        (counts["木"] || 0) +
+        " · 화 " +
+        (counts["火"] || 0) +
+        " · 토 " +
+        (counts["土"] || 0) +
+        " · 금 " +
+        (counts["金"] || 0) +
+        " · 수 " +
+        (counts["水"] || 0) +
+        "."
+    );
+    if (me) {
+      bits.push(
+        "가운데(나)는 " + elRo(me) + " " + (MID_TRAIT_KO[me] || "섞인 기운입니다") + "."
+      );
+    }
+    if (dom && dom !== me) {
+      bits.push(
+        "가장 많은 오행은 " + elName(dom, "ko") + " " + (counts[dom] || 0) + "개입니다."
+      );
+    }
+    if (up && me) {
+      const d = dirUp(up, me);
+      let line = "위(부모·선배·배우자): ";
+      if (d === "recv_gen") line += paintBlue("위의 도움을 받습니다") + ".";
+      else if (d === "give_gen") line += paintBlue("내가 위를 섬기고 돕습니다") + ".";
+      else if (d === "recv_ctrl") line += paintRed("위로부터 극을 당합니다") + ".";
+      else if (d === "give_ctrl") line += paintRed("내가 위를 칩니다") + ".";
+      else if (d === "same") line += "같은 오행이라 무난하나 밋밋합니다.";
+      else line += elName(up, "ko") + " · " + elName(me, "ko") + ".";
+      bits.push(line);
+    }
+    if (me && dn && dn !== me) {
+      const d = dirDn(me, dn);
+      let line = "아래(후배·자녀): ";
+      if (d === "give_gen") line += paintBlue("내가 아래에 베풉니다") + ".";
+      else if (d === "recv_gen") line += paintBlue("아래의 도움을 받습니다") + ".";
+      else if (d === "give_ctrl") line += paintRed("내가 아래를 칩니다") + ".";
+      else if (d === "recv_ctrl") line += paintRed("아래로부터 극을 당합니다") + ".";
+      else if (d === "same") line += "같은 오행이라 무난하나 밋밋합니다.";
+      else line += elName(me, "ko") + " · " + elName(dn, "ko") + ".";
+      bits.push(line);
+    }
+    return bits.join(" ");
+  }
+
+  function buildOhang(oh, lang) {
     if (!oh) return "";
+    if (lang === "ko") return buildOhangKo(oh);
     const counts = oh.counts || {};
     const dom = oh.dominant || "";
     const up = oh.lastRep || "";
@@ -538,49 +622,65 @@
 
   function buildBirth(bS, bG, hasB, lang) {
     if (!hasB || !bS || !bS.length) return "";
+    const ko = lang === "ko";
     const lines = [];
     lines.push(
-      "Birth chart shows how you were meant to live, stage by stage:"
+      ko
+        ? "탄생일(사주)표는 시기별로 어떻게 살아가라 했는지를 보여 줍니다."
+        : "Birth chart shows how you were meant to live, stage by stage:"
     );
     for (let i = 0; i < 4; i++) {
       const marks = allMarks(bS, bG, i, lang);
       if (marks.length) {
-        lines.push(AGE[AGE_KEYS[i]] + ": " + joinMarks(marks) + ".");
+        lines.push(ageOf(AGE_KEYS[i], lang) + ": " + joinMarks(marks) + ".");
       }
     }
     return lines.join(" ");
   }
 
   function buildNameVsSaju(nS, nG, bS, bG, hasB, lang) {
+    const ko = lang === "ko";
     const bits = [];
     bits.push(
-      "With that life path set, does the name energy help — or hurt — the birth chart?"
+      ko
+        ? "이런 삶을 살아가라 했는데, 이름의 기운이 사주를 도와 주는지 해롭게 하는지 보겠습니다."
+        : "With that life path set, does the name energy help — or hurt — the birth chart?"
     );
     const lateM = allMarks(nS, nG, I.late, lang);
     if (lateM.length) {
       bits.push(
-        "Overall destiny, " + AGE.late + ": " + joinMarks(lateM) + "."
+        (ko ? ageOf("late", lang) + ": " : "Overall destiny, " + ageOf("late", lang) + ": ") +
+          joinMarks(lateM) +
+          "."
       );
     }
     if (hasB && sideBad(nS, nG, I.late) && sideBad(bS, bG, I.late)) {
       bits.push(
         paintRed(
-          "Worst pairing: name misfortune meets birth-chart misfortune."
+          ko
+            ? "이름 흉과 사주 흉이 마주쳐 최악입니다."
+            : "Worst pairing: name misfortune meets birth-chart misfortune."
         )
       );
     } else if (sideBad(nS, nG, I.late)) {
       bits.push(
         paintRed(
-          "The name presses the lifetime path — a change is strongly advised."
+          ko
+            ? "이름이 평생의 길을 누르고 있어 개명을 강력히 권합니다."
+            : "The name presses the lifetime path — a change is strongly advised."
         )
       );
     } else if (sideGood(nS, nG, I.late)) {
-      bits.push(paintBlue("The name supports the overall path."));
+      bits.push(
+        paintBlue(ko ? "이름이 전체 삶의 길을 도와 줍니다." : "The name supports the overall path.")
+      );
     }
     for (let i = 0; i < 3; i++) {
       const bad = badMarks(nS, nG, i, lang);
       if (bad.length) {
-        bits.push(AGE[AGE_KEYS[i]] + " risk: " + joinMarks(bad) + ".");
+        bits.push(
+          ageOf(AGE_KEYS[i], lang) + (ko ? " 흉: " : " risk: ") + joinMarks(bad) + "."
+        );
       }
     }
     const help = [];
@@ -589,23 +689,27 @@
     }
     if (help.length) {
       bits.push(
-        "Protective hexagrams in the name (offset the risk): " + joinMarks(help) + "."
+        (ko ? "이름 속 흉을 눌러 주는 괘: " : "Protective hexagrams in the name (offset the risk): ") +
+          joinMarks(help) +
+          "."
       );
     }
     return bits.join(" ");
   }
 
-  function buildWrap(nS, nG) {
+  function buildWrap(nS, nG, lang) {
+    const ko = lang === "ko";
     if (sideBad(nS, nG, I.late)) {
-      return (
-        "Your name works like a prayer you hear every day. If it calls for hardship, a change is worth considering. " +
-        "Details: tap underlined items in Reading Summary; see Warning Board below."
-      );
+      return ko
+        ? "이름은 매일 듣는 세 글자 주기도문입니다. 고난을 부르는 기도라면 개명을 생각해 볼 만합니다. " +
+            "자세한 것은 요약보기의 밑줄을 누르고, 아래 경고장을 보세요."
+        : "Your name works like a prayer you hear every day. If it calls for hardship, a change is worth considering. " +
+            "Details: tap underlined items in Reading Summary; see Warning Board below.";
     }
-    return (
-      "Tap underlined items in Reading Summary for details. " +
-      "Warning Board lists the most serious patterns."
-    );
+    return ko
+      ? "자세한 것은 요약보기의 밑줄을 누르면 나옵니다. 가장 심각한 흉은 아래 경고장에 있습니다."
+      : "Tap underlined items in Reading Summary for details. " +
+          "Warning Board lists the most serious patterns.";
   }
 
   /** 경고장·각주 — ko: 한글 문장 / en: 영어 문장 + 원어 수리·괘명. notranslate로 자동번역 짬뽕 차단. */
@@ -740,13 +844,13 @@
     const hasB = !!ctx.hasB;
     const lang = ctx.lang === "ko" ? "ko" : "en";
     const parts = [];
-    const oh = buildOhang(ctx.ohang);
+    const oh = buildOhang(ctx.ohang, lang);
     if (oh) parts.push(oh);
     const birth = buildBirth(bS, bG, hasB, lang);
     if (birth) parts.push(birth);
     const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);
     if (vs) parts.push(vs);
-    const wrap = buildWrap(nS, nG);
+    const wrap = buildWrap(nS, nG, lang);
     if (wrap) parts.push(wrap);
     const narr = parts.length
       ? '<div class="en-sum-narr notranslate" translate="no">' +
