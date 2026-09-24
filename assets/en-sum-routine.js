@@ -49,11 +49,12 @@
   /** 해설 표시명 — 영어 UI에서도 원어(한글). 요약보기 칸과 같은 이름. */
   function plainSuriName(ns, lang) {
     if (!ns || !ns.data) return "";
-    return strip(ns.data.name || "");
+    const ko = strip(ns.data.name || "");
+    return lang === "en" ? window.naEnSuri(ns.suri, ko) : ko;
   }
   function gweDisplayName(g, lang) {
     if (!g || !g.name) return "";
-    return strip(g.name);
+    return lang === "en" ? window.naEnHex(g.name) : strip(g.name);
   }
   function hexNameStarts(g, name) {
     if (!g || !g.name || !name) return false;
@@ -251,7 +252,7 @@
     { n: 22, name: "중도좌절" },
     { n: 26, name: "영웅풍파" },
     { n: 28, name: "파란풍파" },
-    { n: 34, name: "재앙연속" },
+    { n: 34, name: "재화연속" },
   ];
   const WARN_JANG_HEX = [
     "천산둔",
@@ -301,20 +302,187 @@
   const FOOT_FOOTER =
     "이름 속에 위와 같은 수리 혹은 주역괘가 있다면 개명 외엔 대안이 없다~!!!";
 
-  /** 수리·주역명은 영어 UI에서도 우리 원어(한글) 그대로. 문장만 영어. */
-  function suriLab(n, koName) {
+  /** 영어 UI 이름표 — 경고장·각주 전용 (번역기 꺼진 상태 기준, notranslate 적용됨) */
+  const SURI_EN = {
+    1: "Starting Authority",
+    2: "Division & Destruction",
+    3: "Born Leader",
+    4: "Nothing Achieved",
+    5: "Wealth & Rank",
+    6: "Inheritance & Growth",
+    7: "Tiger Leaving the Forest",
+    8: "Longevity & Blessing",
+    9: "Great Talent Unused",
+    10: "All Things in Vain",
+    11: "Trusted by Many",
+    12: "Frail & Ill-Fated",
+    13: "Bright Wisdom",
+    14: "Scattering & Ruin",
+    15: "Crane Among Chickens",
+    16: "Virtue & Abundance",
+    17: "Fame Across the Seas",
+    18: "Wealth & Advancement",
+    19: "Lonely Misery",
+    20: "Failure in All Things",
+    21: "Leader's Wisdom",
+    22: "Midway Collapse",
+    23: "Sun at Its Zenith",
+    24: "Wealth & Glory",
+    25: "Wise & Smooth",
+    26: "Hero's Storm",
+    27: "Great Character",
+    28: "Turbulent Waves",
+    29: "Power & Riches",
+    30: "Half Fortune, Half Misfortune",
+    31: "Self-Made Success",
+    32: "Unexpected Wealth",
+    33: "Soaring Authority",
+    34: "Continuous Disasters",
+    35: "Gentle Harmony",
+    36: "Hero in Dispute",
+    37: "Authority & Benevolence",
+    38: "Arts & Skills",
+    39: "Mighty Influence",
+    40: "Change & Emptiness",
+    41: "Foresight & Renown",
+    42: "Waves of Trouble",
+    43: "Family Ruin",
+    44: "Defeat in Every Battle",
+    45: "Mastery Across the Seas",
+    46: "Poverty & Hardship",
+    47: "Sudden Fortune",
+    48: "Power Behind the Scenes",
+    49: "Hermit's Retreat",
+    50: "Emptiness & Despair",
+    51: "Turbulent Change",
+    52: "Dragon Ascending",
+    53: "Rich Outside, Poor Inside",
+    54: "Short-Lived Despair",
+    55: "Peak Then Collapse",
+    56: "Endless Change",
+    57: "Sweet After Bitter",
+    58: "Fame & Fortune",
+    59: "Weak Will",
+    60: "Lost Fortune",
+    61: "Glory",
+    62: "Desolation",
+    63: "Auspicious Sign",
+    64: "Hard Path",
+    65: "Achievement",
+    66: "Aimless Drift",
+    67: "Growth",
+    68: "Invention",
+    69: "Dire Straits",
+    70: "Void",
+    71: "Steadfast",
+    72: "Mixed Fate",
+    73: "Ordinary Life",
+    74: "Folly",
+    75: "Peaceful Fortune",
+    76: "Late Fortune",
+    77: "Vitality",
+    78: "Powerlessness",
+    79: "Unable to Rise",
+    80: "The End",
+    81: "Return to Origin",
+  };
+  const HEX_EN = {
+    건위천: "Creative (Hex. 1)",
+    천택리: "Treading (Hex. 10)",
+    천화동인: "Fellowship (Hex. 13)",
+    천뢰무망: "Innocence (Hex. 25)",
+    천풍구: "Coming to Meet (Hex. 44)",
+    천수송: "Conflict (Hex. 6)",
+    천산둔: "Retreat (Hex. 33)",
+    천지비: "Standstill (Hex. 12)",
+    택천쾌: "Breakthrough (Hex. 43)",
+    태위택: "The Joyous (Hex. 58)",
+    택화혁: "Revolution (Hex. 49)",
+    택뢰수: "Following (Hex. 17)",
+    택풍대과: "Great Excess (Hex. 28)",
+    택수곤: "Oppression (Hex. 47)",
+    택산함: "Influence (Hex. 31)",
+    택지췌: "Gathering Together (Hex. 45)",
+    화천대유: "Great Possession (Hex. 14)",
+    화택규: "Opposition (Hex. 38)",
+    이위화: "The Clinging Fire (Hex. 30)",
+    화뢰서합: "Biting Through (Hex. 21)",
+    화풍정: "The Cauldron (Hex. 50)",
+    화수미제: "Before Completion (Hex. 64)",
+    화산려: "The Wanderer (Hex. 56)",
+    화지진: "Progress (Hex. 35)",
+    뇌천대장: "Great Power (Hex. 34)",
+    뇌택귀매: "The Marrying Maiden (Hex. 54)",
+    뇌화풍: "Abundance (Hex. 55)",
+    진위뢰: "The Arousing Thunder (Hex. 51)",
+    뇌풍항: "Duration (Hex. 32)",
+    뇌수해: "Deliverance (Hex. 40)",
+    뇌산소과: "Small Excess (Hex. 62)",
+    뇌지예: "Enthusiasm (Hex. 16)",
+    풍천소축: "Small Taming (Hex. 9)",
+    풍택중부: "Inner Truth (Hex. 61)",
+    풍화가인: "The Family (Hex. 37)",
+    풍뢰익: "Increase (Hex. 42)",
+    손위풍: "The Gentle Wind (Hex. 57)",
+    풍수환: "Dispersion (Hex. 59)",
+    풍산점: "Development (Hex. 53)",
+    풍지관: "Contemplation (Hex. 20)",
+    수천수: "Waiting (Hex. 5)",
+    수택절: "Limitation (Hex. 60)",
+    수화기제: "After Completion (Hex. 63)",
+    수뢰둔: "Difficult Beginning (Hex. 3)",
+    수풍정: "The Well (Hex. 48)",
+    감위수: "The Abysmal Water (Hex. 29)",
+    수산건: "Obstruction (Hex. 39)",
+    수지비: "Holding Together (Hex. 8)",
+    산천대축: "Great Taming (Hex. 26)",
+    산택손: "Decrease (Hex. 41)",
+    산화비: "Grace (Hex. 22)",
+    산뢰이: "Nourishment (Hex. 27)",
+    산풍고: "Decay (Hex. 18)",
+    산수몽: "Youthful Folly (Hex. 4)",
+    간위산: "Keeping Still (Hex. 52)",
+    산지박: "Splitting Apart (Hex. 23)",
+    지천태: "Peace (Hex. 11)",
+    지택림: "Approach (Hex. 19)",
+    지화명이: "Darkened Light (Hex. 36)",
+    지뢰복: "Return (Hex. 24)",
+    지풍승: "Pushing Upward (Hex. 46)",
+    지수사: "The Army (Hex. 7)",
+    지산겸: "Modesty (Hex. 15)",
+    곤위지: "The Receptive (Hex. 2)",
+  };
+  /** 영어 UI 전역 이름표 — 인생카드·요약표(index-eTNXNndF.js)도 이것을 씀 */
+  window.naEnSuri = function (n, koName, withHanja) {
+    const en = SURI_EN[Number(n)];
+    if (!en) return koName || "";
+    if (withHanja) {
+      const m = String(koName || "").match(/\(([^)]+)\)/);
+      if (m) return en + " (" + m[1].replace(/\s+/g, "") + ")";
+    }
+    return en;
+  };
+  window.naEnHex = function (koName) {
+    const k = String(koName || "").replace(/\s*\([^)]*\)\s*/g, "").trim();
+    return HEX_EN[k] || koName || "";
+  };
+  /** 한글 UI는 원어, 영어 UI는 영어 이름 */
+  function suriLab(n, koName, lang) {
+    if (lang === "en" && SURI_EN[n]) return n + " " + SURI_EN[n];
     return suriLabel(n, koName);
   }
-  function hexLab(koName) {
-    return strip(koName);
+  function hexLab(koName, lang) {
+    const k = strip(koName);
+    if (lang === "en" && HEX_EN[k]) return HEX_EN[k];
+    return k;
   }
 
   const FOOT_CHONGUN_DAN_EN =
-    "If the name's overall destiny (Late, whole life) holds 26 영웅풍파 or 28 파란풍파, most die young. For women, many are widowed through separation or bereavement.";
+    "If the name's overall destiny (Late, whole life) holds 26 Hero's Storm or 28 Turbulent Waves, most die young. For women, many are widowed through separation or bereavement.";
   const FOOT_CHONGUN_CANCER_EN =
-    "Does a name's energy bring cancer? When the overall destiny holds 이산파멸, 백사실패 or 중도좌절, cancer is common in most cases.";
+    "Does a name's energy bring cancer? When the overall destiny holds 14 Scattering & Ruin, 20 Failure in All Things or 22 Midway Collapse, cancer is common in most cases.";
   const FOOT_SURI20_22_EN =
-    "Numbers more fearsome than 14 이산파멸 — 20 백사실패 and 22 중도좌절: cancer is common in most cases. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but cannot keep it to the end and midway meet failure, bankruptcy, accidents, illness, cancer, surgery, prison or an early death. However, if the hexagram below is 수풍정 or 수택절, 20 백사실패 is read as great wealth and great honor. When 20 forms any one of 수택절, 수풍정, 지택림 or 뇌택귀매, the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
+    "Numbers more fearsome than 14 Scattering & Ruin — 20 Failure in All Things and 22 Midway Collapse: cancer is common in most cases. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but cannot keep it to the end and midway meet failure, bankruptcy, accidents, illness, cancer, surgery, prison or an early death. However, if the hexagram below is The Well (Hex. 48) or Limitation (Hex. 60), 20 Failure in All Things is read as great wealth and great honor. When 20 forms any one of Limitation (Hex. 60), The Well (Hex. 48), Approach (Hex. 19) or The Marrying Maiden (Hex. 54), the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
   const FOOT_FOOTER_EN =
     "If your name holds any of the numbers or hexagrams above, there is no alternative but a name change!!!";
 
@@ -331,7 +499,7 @@
         for (let j = 0; j < FOOT_SURI.length; j++) {
           if (FOOT_SURI[j].n === num) {
             hits.push(
-              labels[i] + " " + paintRed(suriLab(num, FOOT_SURI[j].name))
+              labels[i] + " " + paintRed(suriLab(num, FOOT_SURI[j].name, lang))
             );
           }
         }
@@ -340,7 +508,7 @@
       if (ng && ng.name) {
         for (let j = 0; j < FOOT_HEX.length; j++) {
           if (hexNameStarts(ng, FOOT_HEX[j])) {
-            hits.push(labels[i] + " " + paintRed(hexLab(FOOT_HEX[j])));
+            hits.push(labels[i] + " " + paintRed(hexLab(FOOT_HEX[j], lang)));
           }
         }
       }
@@ -437,16 +605,16 @@
   function warningFootnoteHtml(nS, nG, lang) {
     const en = lang === "en";
     const warnSuri = WARN_JANG_SURI.map(function (s) {
-      return suriLab(s.n, s.name);
+      return suriLab(s.n, s.name, lang);
     }).join(", ");
     const warnHex = WARN_JANG_HEX.map(function (h) {
-      return hexLab(h);
+      return hexLab(h, lang);
     }).join(", ");
     const footSuri = FOOT_SURI.map(function (s) {
-      return suriLab(s.n, s.name);
+      return suriLab(s.n, s.name, lang);
     }).join(", ");
     const footHex = FOOT_HEX.map(function (h) {
-      return hexLab(h);
+      return hexLab(h, lang);
     }).join(", ");
     const hits = collectHits(nS, nG, lang);
     const chong = chongunNotes(nS, lang);
