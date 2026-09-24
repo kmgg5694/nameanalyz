@@ -12,9 +12,9 @@
       /* One-time purge of stuck service workers / caches that left a blank screen */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260920")) return;
+          if (sessionStorage.getItem("na_sw_purged_20260924en")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260920", "1");
+          sessionStorage.setItem("na_sw_purged_20260924en", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -29,7 +29,7 @@
             );
           }
           Promise.all(jobs).then(function () {
-            location.replace(location.pathname + "?v=20260920fix2");
+            location.replace(location.pathname + "?v=20260924en1");
           });
         } catch (e) {}
       })();
@@ -39,8 +39,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-sum-routine.js?v=20260920fix2"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260920fix2"></script>
+    <script src="../assets/en-sum-routine.js?v=20260924en1"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260924en1"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
