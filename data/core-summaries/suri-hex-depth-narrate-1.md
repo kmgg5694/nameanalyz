@@ -3,7 +3,8 @@
 오행 서술(`ohang-teacher-narrate-1.md`)과 **별도**.  
 수리·획순·주역으로 구설·관재·사고·개명 설득 등을 푸는 **선생님 심층 감명** 문체.
 
-관련: `worklog-2026-09-18-suri-fortune-spec.mdc` (14 이산파멸 · 20 백사실패 등), `suri81-fortune-spec.json`
+관련: `worklog-2026-09-18-suri-fortune-spec.mdc` (14 이산파멸 · 20 백사실패 등), `suri81-fortune-spec.json`  
+**7차**(14·이혼·암·사망·자살·네 자리 수리): `suri-hex-depth-narrate-7.md`
 
 ---
 
