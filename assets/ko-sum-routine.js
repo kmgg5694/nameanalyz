@@ -2695,9 +2695,33 @@
 
       function buildMalRenameBits() {
         const bits = [];
+        function sajuMalComfortLead() {
+          const g = bdG[0];
+          const hexName = g ? gweNameOf(g) : "";
+          if (hexName.indexOf("이위화") === 0) {
+            return (
+              "사주말년에는 " +
+              gweNameHtml(g) +
+              "가 들어 " +
+              paintBlue("편안한 기운") +
+              "인데 "
+            );
+          }
+          const marks = [];
+          if (bdS[0] && bdS[0].data) marks.push(suriPhrase(bdS[0]));
+          if (g && g.name) marks.push(gweNameHtml(g));
+          if (!marks.length) return "";
+          const toneWord = sajuSideGood(0)
+            ? paintBlue("좋은 기운")
+            : "들어온 기운";
+          return (
+            "사주말년에는 " + marks.join(", ") + "가 들어 " + toneWord + "인데 "
+          );
+        }
         if (malHurt && malBad.length) {
           bits.push(
-            "이름 말년에 " +
+            sajuMalComfortLead() +
+              "이름 말년에 " +
               joinMarks(malBad) +
               "가 사주를 " +
               paintRed("고통스럽게") +
@@ -2719,7 +2743,8 @@
           );
         } else if (malBad.length) {
           bits.push(
-            "이름 말년에 " +
+            sajuMalComfortLead() +
+              "이름 말년에 " +
               joinMarks(malBad) +
               "가 있어 사주에 " +
               paintRed("고통을 줍니다") +
