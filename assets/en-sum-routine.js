@@ -1,7 +1,8 @@
 /**
  * English overall reading — brief narrate then Korean Warning/Footnotes.
  * Order: 오행 → 탄생일 → 이름↔사주 → 마무리 → 경고장·각주
- * Suri/hex names always Korean 원어 (14, 이산파멸 / 이위화). Ages: [early,prime,mid,late]
+ * Brief narrate suri/hex: EN nameEn when lang=en, KO name when lang=ko.
+ * Warning/footnotes: always Korean 원어 + notranslate (뇌산소과…). Ages: [early,prime,mid,late]
  */
 (function () {
   "use strict";
@@ -40,14 +41,21 @@
   function gweNameOf(g) {
     return strip(g && g.name);
   }
-  /** 수리·괘명은 항상 원어(한글). 영어 번역명·자동번역 짬뽕 금지. */
+  /** 경고장·각주·매칭용 — 항상 원어(한글). */
   function gweNameKo(g) {
     if (!g || !g.name) return "";
     return strip(g.name);
   }
-  function plainSuriName(ns) {
+  /** 간략 해설 표시명 — lang=en이면 nameEn, ko면 한글. */
+  function plainSuriName(ns, lang) {
     if (!ns || !ns.data) return "";
+    if (lang === "en") return strip(ns.data.nameEn || ns.data.name || "");
     return strip(ns.data.name || "");
+  }
+  function gweDisplayName(g, lang) {
+    if (!g || !g.name) return "";
+    if (lang === "en") return strip(g.nameEn || g.name);
+    return strip(g.name);
   }
   function hexNameStarts(g, name) {
     if (!g || !g.name || !name) return false;
@@ -72,17 +80,17 @@
     return false;
   }
 
-  function suriPhrase(ns) {
+  function suriPhrase(ns, lang) {
     if (!ns || ns.suri == null || !ns.data) return "";
-    const nm = plainSuriName(ns);
+    const nm = plainSuriName(ns, lang);
     const head = nm ? ns.suri + ", " + nm : String(ns.suri);
     if (suriBad(ns.data)) return paintRed(head);
     if (suriGood(ns.data)) return paintBlue(head);
     return "<strong>" + esc(head) + "</strong>";
   }
-  function gweNameHtml(g) {
+  function gweNameHtml(g, lang) {
     if (!g || !g.name) return "";
-    const nm = gweNameKo(g);
+    const nm = gweDisplayName(g, lang);
     if (gweBad(g)) return paintRed(nm);
     if (gweGood(g)) return paintBlue(nm);
     return "<strong>" + esc(nm) + "</strong>";
@@ -196,30 +204,30 @@
     return bits.join(" ");
   }
 
-  function badMarks(nS, nG, idx) {
+  function badMarks(nS, nG, idx, lang) {
     const marks = [];
     if (nS[idx] && nS[idx].data && suriBad(nS[idx].data))
-      marks.push(suriPhrase(nS[idx]));
+      marks.push(suriPhrase(nS[idx], lang));
     if (nG[idx] && nG[idx].name && gweBad(nG[idx]))
-      marks.push(gweNameHtml(nG[idx]));
+      marks.push(gweNameHtml(nG[idx], lang));
     return marks;
   }
-  function goodMarks(nS, nG, idx) {
+  function goodMarks(nS, nG, idx, lang) {
     const marks = [];
     if (nS[idx] && nS[idx].data && suriGood(nS[idx].data))
-      marks.push(suriPhrase(nS[idx]));
+      marks.push(suriPhrase(nS[idx], lang));
     if (nG[idx] && nG[idx].name && gweGood(nG[idx]))
-      marks.push(gweNameHtml(nG[idx]));
+      marks.push(gweNameHtml(nG[idx], lang));
     if (nG[idx] && isMitigate(nG[idx])) {
-      const h = gweNameHtml(nG[idx]);
+      const h = gweNameHtml(nG[idx], lang);
       if (marks.indexOf(h) < 0) marks.push(h);
     }
     return marks;
   }
-  function allMarks(sArr, gArr, idx) {
+  function allMarks(sArr, gArr, idx, lang) {
     const marks = [];
-    if (sArr[idx] && sArr[idx].data) marks.push(suriPhrase(sArr[idx]));
-    if (gArr[idx] && gArr[idx].name) marks.push(gweNameHtml(gArr[idx]));
+    if (sArr[idx] && sArr[idx].data) marks.push(suriPhrase(sArr[idx], lang));
+    if (gArr[idx] && gArr[idx].name) marks.push(gweNameHtml(gArr[idx], lang));
     return marks;
   }
   function sideBad(nS, nG, idx) {
@@ -335,14 +343,14 @@
   }
 
 
-  function buildBirth(bS, bG, hasB) {
+  function buildBirth(bS, bG, hasB, lang) {
     if (!hasB || !bS || !bS.length) return "";
     const lines = [];
     lines.push(
       "Birth chart shows how you were meant to live, stage by stage:"
     );
     for (let i = 0; i < 4; i++) {
-      const marks = allMarks(bS, bG, i);
+      const marks = allMarks(bS, bG, i, lang);
       if (marks.length) {
         lines.push(AGE[AGE_KEYS[i]] + ": " + joinMarks(marks) + ".");
       }
@@ -350,12 +358,12 @@
     return lines.join(" ");
   }
 
-  function buildNameVsSaju(nS, nG, bS, bG, hasB) {
+  function buildNameVsSaju(nS, nG, bS, bG, hasB, lang) {
     const bits = [];
     bits.push(
       "With that life path set, does the name energy help — or hurt — the birth chart?"
     );
-    const lateM = allMarks(nS, nG, I.late);
+    const lateM = allMarks(nS, nG, I.late, lang);
     if (lateM.length) {
       bits.push(
         "Overall destiny (말년, " + AGE.late + "): " + joinMarks(lateM) + "."
@@ -377,14 +385,14 @@
       bits.push(paintBlue("The name supports the overall path."));
     }
     for (let i = 0; i < 3; i++) {
-      const bad = badMarks(nS, nG, i);
+      const bad = badMarks(nS, nG, i, lang);
       if (bad.length) {
         bits.push(AGE[AGE_KEYS[i]] + " risk: " + joinMarks(bad) + ".");
       }
     }
     const help = [];
     for (let i = 0; i < 4; i++) {
-      if (nG[i] && isMitigate(nG[i])) help.push(gweNameHtml(nG[i]));
+      if (nG[i] && isMitigate(nG[i])) help.push(gweNameHtml(nG[i], lang));
     }
     if (help.length) {
       bits.push(
@@ -517,12 +525,13 @@
     const bS = ctx.bS || [];
     const bG = ctx.bG || [];
     const hasB = !!ctx.hasB;
+    const lang = ctx.lang === "ko" ? "ko" : "en";
     const parts = [];
     const oh = buildOhang(ctx.ohang);
     if (oh) parts.push(oh);
-    const birth = buildBirth(bS, bG, hasB);
+    const birth = buildBirth(bS, bG, hasB, lang);
     if (birth) parts.push(birth);
-    const vs = buildNameVsSaju(nS, nG, bS, bG, hasB);
+    const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);
     if (vs) parts.push(vs);
     const wrap = buildWrap(nS, nG);
     if (wrap) parts.push(wrap);
