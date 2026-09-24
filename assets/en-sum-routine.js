@@ -102,10 +102,10 @@
   }
 
   const AGE = {
-    early: "1–23",
-    prime: "24–40",
-    mid: "41–55",
-    late: "56+ (whole life)",
+    early: "Ages 1–23",
+    prime: "Ages 24–40",
+    mid: "Ages 41–55",
+    late: "Ages 56+ (whole life)",
   };
   const I = { early: 0, prime: 1, mid: 2, late: 3 };
   const AGE_KEYS = ["early", "prime", "mid", "late"];
@@ -122,7 +122,7 @@
   };
 
   function elName(el) {
-    return OH_EN[el] ? OH_EN[el] + "(" + el + ")" : String(el || "");
+    return OH_EN[el] ? OH_EN[el] + " (" + el + ")" : String(el || "");
   }
   function dirUp(up, me) {
     if (!up || !me) return "";
@@ -169,13 +169,18 @@
         (counts["水"] || 0) +
         "."
     );
-    if (dom) {
+    if (me) {
       bits.push(
-        "Center energy is " +
-          elName(dom) +
+        "You (center of the name): " +
+          elName(me) +
           " — " +
-          (MID_TRAIT[dom] || "mixed") +
+          (MID_TRAIT[me] || "mixed") +
           "."
+      );
+    }
+    if (dom && dom !== me) {
+      bits.push(
+        "Dominant element: " + elName(dom) + " (" + (counts[dom] || 0) + "x)."
       );
     }
     if (up && me) {
@@ -478,13 +483,15 @@
   }
 
   const FOOT_CHONGUN_DAN_EN =
-    "If the name's overall destiny (Late, whole life) holds 26 Hero's Storm or 28 Turbulent Waves, most die young. For women, many are widowed through separation or bereavement.";
+    "Traditionally, 26 Hero's Storm or 28 Turbulent Waves in the overall destiny (Late, whole life) is associated with a shorter life and with separation from or loss of a spouse.";
   const FOOT_CHONGUN_CANCER_EN =
-    "Does a name's energy bring cancer? When the overall destiny holds 14 Scattering & Ruin, 20 Failure in All Things or 22 Midway Collapse, cancer is common in most cases.";
+    "In the traditional reading, 14 Scattering & Ruin, 20 Failure in All Things or 22 Midway Collapse in the overall destiny is associated with a higher risk of serious illness, including cancer.";
   const FOOT_SURI20_22_EN =
-    "Numbers more fearsome than 14 Scattering & Ruin — 20 Failure in All Things and 22 Midway Collapse: cancer is common in most cases. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but cannot keep it to the end and midway meet failure, bankruptcy, accidents, illness, cancer, surgery, prison or an early death. However, if the hexagram below is The Well (Hex. 48) or Limitation (Hex. 60), 20 Failure in All Things is read as great wealth and great honor. When 20 forms any one of Limitation (Hex. 60), The Well (Hex. 48), Approach (Hex. 19) or The Marrying Maiden (Hex. 54), the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
+    "Even more serious than 14 Scattering & Ruin are 20 Failure in All Things and 22 Midway Collapse, traditionally associated with a higher risk of serious illness. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but may not keep it to the end and may meet failure, bankruptcy, accidents, illness, surgery, legal trouble or an early death midway. However, if the hexagram below is The Well (Hex. 48) or Limitation (Hex. 60), 20 Failure in All Things is read as great wealth and great honor. When 20 forms any one of Limitation (Hex. 60), The Well (Hex. 48), Approach (Hex. 19) or The Marrying Maiden (Hex. 54), the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
   const FOOT_FOOTER_EN =
-    "If your name holds any of the numbers or hexagrams above, there is no alternative but a name change!!!";
+    "If your name contains any of the numbers or hexagrams above, the traditional recommendation is to consider a name change.";
+  const DISCLAIMER_EN =
+    "These readings follow traditional Korean I Ching name analysis. They are for cultural reference only and are not medical, legal or financial advice.";
 
   function collectHits(nS, nG, lang) {
     const hits = [];
@@ -582,7 +589,7 @@
     }
     if (help.length) {
       bits.push(
-        "Pressing-down hexagrams in the name: " + joinMarks(help) + "."
+        "Protective hexagrams in the name (offset the risk): " + joinMarks(help) + "."
       );
     }
     return bits.join(" ");
@@ -591,7 +598,7 @@
   function buildWrap(nS, nG) {
     if (sideBad(nS, nG, I.late)) {
       return (
-        "A name is a three-syllable daily prayer. If that prayer asks for hardship, change it. " +
+        "Your name works like a prayer you hear every day. If it calls for hardship, a change is worth considering. " +
         "Details: tap underlined items in Reading Summary; see Warning Board below."
       );
     }
@@ -658,7 +665,7 @@
         (en ? "This name contains: " : "이 이름에 해당: ") +
         hits.join(", ") +
         (en
-          ? ". It easily leads into a desperate situation — please consider a name change seriously."
+          ? ". In the traditional reading this points to serious hardship; a name change is worth considering."
           : ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오.") +
         "</div>";
     }
@@ -689,7 +696,7 @@
         red(footSuri) +
         ", or, applying the I Ching to the name, hexagrams such as " +
         red(footHex) +
-        ", you will face a desperate situation."
+        ", the traditional reading warns of serious hardship."
       : '여러분 <span style="color:#FF1493">이름</span>을 분석해서 만약 그 안에 ' +
         red(footSuri) +
         " 등이 있거나, 혹은 이름에 주역을 대입해서 " +
@@ -711,7 +718,13 @@
       chongApply +
       '<div style="margin-top:8px;line-height:1.5;font-size:0.9rem;font-weight:800;color:#FF1493">' +
       esc(en ? FOOT_FOOTER_EN : FOOT_FOOTER) +
-      "</div></div>";
+      "</div>" +
+      (en
+        ? '<div style="margin-top:12px;line-height:1.5;font-size:0.8rem;color:#555">' +
+          esc(DISCLAIMER_EN) +
+          "</div>"
+        : "") +
+      "</div>";
 
     return (
       '<div class="notranslate" translate="no">' + warnBox + footBox + "</div>"
