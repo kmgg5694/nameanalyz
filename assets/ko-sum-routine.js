@@ -2846,6 +2846,122 @@
       return bits.length ? bits.join(" ") : "";
     }
 
+    /**
+     * 사주 전체 기운 — 한 줄 요약만 (탄생일 긴 수리·주역 본문은 밑줄로)
+     * 보흘: 「이름이 사주를…」 바로 위에 둠
+     */
+    function buildSajuOverviewBlock() {
+      if (!hasB) return "";
+      const slots = [
+        { i: 0, key: "말년", speak: "말년" },
+        { i: 1, key: "초년", speak: "초년" },
+        { i: 2, key: "장년", speak: "장년" },
+        { i: 3, key: "중년", speak: "중년" },
+      ];
+      const paras = [];
+      paras.push(
+        "사주표를 보고 이 사람이 어떻게 살아가라고 했는지를 시기별로 짚어 보겠습니다. " +
+          "말년(총운)은 평생에 영향을 주고, 초년·장년·중년은 해당 나이대(±3년)에만 영향을 줍니다."
+      );
+
+      function briefMarks(idx) {
+        const marks = [];
+        if (bdS[idx] && bdS[idx].data) marks.push(suriPhrase(bdS[idx]));
+        if (bdG[idx] && bdG[idx].name) marks.push(gweNameHtml(bdG[idx]));
+        return marks;
+      }
+      function slightTrialHexOk(idx) {
+        const sBad = !!(bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data));
+        const g = bdG[idx];
+        const hexOk = !!(g && g.name && !gweBad(g));
+        return sBad && hexOk;
+      }
+
+      const filled = slots.filter(function (s) {
+        return briefMarks(s.i).length > 0;
+      });
+      const overviewBits = [];
+      filled.forEach(function (slot, fi) {
+        const marks = briefMarks(slot.i);
+        const tone = sideToneAt(bdS, bdG, slot.i);
+        const isLast = fi === filled.length - 1;
+        const conj = slot.key === "초년" ? "도 " : "은 ";
+        const label = (fi === 0 ? "사주 " : "") + slot.speak + conj;
+        let mid = marks.join(", ");
+        let tail = "";
+
+        if (slightTrialHexOk(slot.i)) {
+          mid += "인데 ";
+          tail = isLast
+            ? "약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다."
+            : "약간의 시련이 있지만 주역괘는 나쁘지 않은 편이고, ";
+        } else if (tone === "길") {
+          mid += "로 ";
+          if (slot.key === "말년") {
+            tail = isLast
+              ? "좋은 기운이 들어 있습니다."
+              : "좋은 기운이 들어 있고, ";
+          } else if (slot.key === "초년") {
+            tail = isLast ? "좋은 기운입니다." : "좋은 기운이고, ";
+          } else if (slot.key === "장년") {
+            tail = isLast ? "좋은 편입니다." : "좋은 편이고, ";
+          } else {
+            tail = isLast
+              ? "좋은 기운이 들어 있습니다."
+              : "좋은 기운이고, ";
+          }
+        } else if (tone === "길흉혼재") {
+          mid += "로 ";
+          tail = isLast ? "좋은 편입니다." : "좋은 편이고, ";
+        } else if (tone === "흉") {
+          mid += "로 ";
+          tail = isLast
+            ? "무거운 기운이 있어 시련이 따릅니다."
+            : "무거운 기운이 있고, ";
+        } else {
+          mid += "로 ";
+          tail = isLast ? "평이한 편입니다." : "평이한 편이고, ";
+        }
+        overviewBits.push(label + mid + tail);
+      });
+      if (overviewBits.length) {
+        let overview = overviewBits.join("");
+        const BIG_WEALTH = [
+          "화천대유",
+          "화수미제",
+          "수풍정",
+          "산천대축",
+          "뇌천대장",
+        ];
+        let wealthCnt = 0;
+        let painCnt = 0;
+        for (let bi = 0; bi < bdG.length; bi++) {
+          const g = bdG[bi];
+          if (!g || !g.name) continue;
+          const n = gweNameOf(g);
+          for (let wi = 0; wi < BIG_WEALTH.length; wi++) {
+            if (n === BIG_WEALTH[wi] || n.indexOf(BIG_WEALTH[wi]) === 0) {
+              wealthCnt++;
+              break;
+            }
+          }
+          if (gweBad(g)) painCnt++;
+        }
+        if (wealthCnt >= 1) {
+          overview +=
+            " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다.";
+        } else if (painCnt >= 2) {
+          overview +=
+            " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
+        } else {
+          overview +=
+            " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
+        }
+        paras.push(overview);
+      }
+      return paras.length ? paras.join("<br><br>") : "";
+    }
+
     /** 초·장·중·말 네 자리 수리 숫자 (ages=[말년,초년,장년,중년]) · 7차 원문 표기 */
     function chronoSuriNums(sArr) {
       const order = [1, 2, 3, 0];
@@ -3025,11 +3141,13 @@
       );
     }
 
-    // —— ①오행 → ②수리4자리 → ③이름↔사주 → ④이름속위험 → ⑤주기도문·개명 → ⑥밑줄 안내 ——
+    // —— ①오행 → ②수리4자리 → ③사주 전체기운 → ④이름↔사주 → ⑤위험 → ⑥주기도문·밑줄 ——
     if (ohangNarr) ageParts.push(ohangNarr);
     const suriFour = buildSuriFourBlock();
     if (suriFour) ageParts.push(suriFour);
     if (hasB) {
+      const sajuOverview = buildSajuOverviewBlock();
+      if (sajuOverview) ageParts.push(sajuOverview);
       ageParts.push(
         "이름이 사주를 도와주는지 고통을 주는지를 살펴 보겠습니다."
       );
