@@ -2655,7 +2655,40 @@
         overviewBits.push(label + mid + tail);
       });
       if (overviewBits.length) {
-        paras.push(overviewBits.join(""));
+        let overview = overviewBits.join("");
+        // 보흘: 전체 주역 맺음 — 큰 재물운·큰 고통 여부
+        const BIG_WEALTH = [
+          "화천대유",
+          "화수미제",
+          "수풍정",
+          "산천대축",
+          "뇌천대장",
+        ];
+        let wealthCnt = 0;
+        let painCnt = 0;
+        for (let bi = 0; bi < bdG.length; bi++) {
+          const g = bdG[bi];
+          if (!g || !g.name) continue;
+          const n = gweNameOf(g);
+          for (let wi = 0; wi < BIG_WEALTH.length; wi++) {
+            if (n === BIG_WEALTH[wi] || n.indexOf(BIG_WEALTH[wi]) === 0) {
+              wealthCnt++;
+              break;
+            }
+          }
+          if (gweBad(g)) painCnt++;
+        }
+        if (wealthCnt >= 1) {
+          overview +=
+            " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다.";
+        } else if (painCnt >= 2) {
+          overview +=
+            " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
+        } else {
+          overview +=
+            " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
+        }
+        paras.push(overview);
       }
 
       slots.forEach(function (slot) {
