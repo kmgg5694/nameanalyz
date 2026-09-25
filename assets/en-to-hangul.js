@@ -7,6 +7,8 @@
 
   /** Common given / family names → Korean reading */
   var DICT = {
+    junior: "주니어",
+    jr: "주니어",
     // family
     smith: "스미스",
     johnson: "존슨",
@@ -382,6 +384,10 @@
   }
 
   function word(s) {
+    return String(wordRaw(s) || "").replace(/주니오르|쥬니어/g, "주니어");
+  }
+
+  function wordRaw(s) {
     var raw = String(s || "").trim();
     if (!raw) return "";
     var key = raw.toLowerCase().replace(/[^a-z]/g, "");
