@@ -616,9 +616,30 @@
       .replace(/^(길수|흉수|평수|주의|길괘|흉괘|중성)\s*[—–-]\s*/, "")
       .trim();
   }
-  window.naSuriSum = function (n, d, en, ko, label) {
+  const CARD_KO = ["초년운", "장년운", "중년운", "말년·총운"];
+  const CARD_EN = ["Early Fortune", "Prime Years", "Midlife Peak", "Ultimate Destiny"];
+  window.naSame = function (arr, k) {
+    const b = arr[k];
+    if (b == null) return -1;
+    for (let j = 0; j < k; j++) {
+      const a = arr[j];
+      if (a == null) continue;
+      if (typeof a === "object" ? a.id === b.id : a === b) return j;
+    }
+    return -1;
+  };
+  window.naSuriSum = function (n, d, en, ko, label, same) {
     const key = String(n);
     const ak = ageKeyOf(label);
+    if (same >= 0) {
+      const head = ko
+        ? "앞의 " + CARD_KO[same] + "과 같은 수리입니다."
+        : "Same number as " + CARD_EN[same] + " above.";
+      const extra = ko
+        ? ak && (((window.__NARRATE__ || {}).suri || {})[key] || {})[ak]
+        : ak && (((window.NA_NARR_EN || {}).suriAge || {})[key] || {})[ak];
+      return extra ? head + " " + String(extra).trim() : head;
+    }
     if (ko) {
       const nar = ((window.__NARRATE__ || {}).suri || {})[key];
       if (nar && nar.narrate) {
@@ -637,8 +658,12 @@
     }
     return (en && (en.shortDescEn || en.descEn)) || (d && d.shortDesc) || "";
   };
-  window.naHexSum = function (g, pen, ko) {
+  window.naHexSum = function (g, pen, ko, same) {
     if (!g) return "";
+    if (same >= 0)
+      return ko
+        ? "앞의 " + CARD_KO[same] + "과 같은 괘입니다."
+        : "Same hexagram as " + CARD_EN[same] + " above.";
     const key = String(g.id);
     if (ko) {
       const nar = ((window.__NARRATE__ || {}).hex || {})[key];
