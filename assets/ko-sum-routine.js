@@ -2176,7 +2176,7 @@
     }
 
     function buildNameVsBirthCompare(onlyTurns) {
-      if (!hasB) return "";
+      if (!hasB && !onlyTurns) return "";
       const ORDER = [
         { key: "초년", idx: 1 },
         { key: "장년", idx: 2 },
@@ -2406,6 +2406,27 @@
           return Math.min.apply(null, a.map(function (x) { return x[0]; })) + "~" +
             Math.max.apply(null, a.map(function (x) { return x[1]; })) + "세";
         }
+        const WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "뇌천대장"];
+        function wealthMarks(idx) {
+          const m = [];
+          let last = "";
+          const who = [[hasHanja ? "한글" : "이름", nmG]].concat(hasHanja ? [["한문", hjG]] : []).concat(hasB ? [["사주", bdG]] : []);
+          who.forEach(function (w) {
+            const g = w[1] && w[1][idx];
+            if (!g || !g.name) return;
+            const n = gweNameOf(g);
+            if (WEALTH.some(function (x) { return n === x || n.indexOf(x) === 0; })) {
+              m.push(w[0] + " " + gweNameHtml(g));
+              last = n;
+            }
+          });
+          return { html: m.join("·"), last: last };
+        }
+        function rangeG(pe) {
+          if (pe.key === "말년") return "56세 이후";
+          const g = AGE_G[pe.key];
+          return g[0] + "~" + g[1] + "세";
+        }
         const lastT = nameToneAt(0);
         const lastBadM = marks(nameArrs, 0, true);
         const lastGoodM = marks(nameArrs, 0, false);
@@ -2425,8 +2446,20 @@
           let tp = false;
           let rg = "";
           let worst = false;
+          let skip = false;
+          const wm = wealthMarks(pe.idx);
           if (nt === "길") nameGoodAny = true;
-          if (nt === "흉" && (st === "흉" || st === "길흉혼재")) {
+          const hgBad = toneOf(nmS, nmG, pe.idx) === "흉";
+          const hjBad = hasHanja && toneOf(hjS, hjG, pe.idx) === "흉";
+          const sajuHasBad = hasB && (st === "흉" || st === "길흉혼재");
+          if (hgBad && hjBad && !sajuHasBad) {
+            tp = true;
+            worst = true;
+            nameBadAny = true;
+            rg = range(pe, nameArrs);
+            txt = "한글 " + marks([[nmS, nmG]], pe.idx, true) + " × 한문 " + marks([[hjS, hjG]], pe.idx, true) +
+              " — " + paintRed("한글과 한문 이름이 함께 흉이라 위기가 겹친 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
+          } else if (nt === "흉" && sajuHasBad) {
             tp = true;
             worst = true;
             nameBadAny = true;
@@ -2441,8 +2474,13 @@
             txt = st === "길"
               ? "이름 " + nm + " — 이름 흉이 좋은 사주(" + marks(sajuArrs, pe.idx, false) + ")를 치는 변곡점입니다."
               : "이름 " + nm + " — 이름 흉이 드러나는 변곡점입니다.";
-          } else if (st === "흉" || st === "길흉혼재") {
-            if (!anyBad(sajuArrs, pe.idx, false) && !anyBad(sajuArrs, pe.idx, true)) return;
+            if (hasHanja) {
+              if (hgBad && toneOf(hjS, hjG, pe.idx) === "길")
+                txt += " 다만 한문(속)의 " + marks([[hjS, hjG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
+              else if (hjBad && toneOf(nmS, nmG, pe.idx) === "길")
+                txt += " 다만 한글(겉)의 " + marks([[nmS, nmG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
+            }
+          } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
             const sm = marks(sajuArrs, pe.idx, true);
             if (nt === "길" || nt === "길흉혼재") {
@@ -2459,15 +2497,28 @@
               txt = "사주 " + sm + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다.";
             }
           } else {
+            skip = true;
+          }
+          const badTp = tp;
+          if (wm.html) {
+            if (skip) {
+              rg = rangeG(pe);
+              txt = "주역 " + wm.html + josaEuro(wm.last) + " " + paintBlue("재물운이 들어오는 변곡점") + "입니다.";
+            } else {
+              txt += " 주역 " + wm.html + josaEuro(wm.last) + " " + paintBlue("재물운도 함께 들어오는 시기") + "입니다.";
+            }
+            tp = true;
+          } else if (skip) {
             return;
           }
-          if (tp && pe.key !== "말년") {
+          if (badTp && pe.key !== "말년") {
             if (worst && lastT === "흉" && lastBadM)
-              txt += " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 사라질 수도 있습니다.");
+              txt += " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 위태로울 수도 있답니다.");
             else if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
-            else if (lastT === "길" && lastGoodM) txt += " 총운 " + lastGoodM + "이 흉을 덜어 줍니다.";
+            else if (lastT === "길" && lastGoodM)
+              txt += " 총운 " + lastGoodM + josaIGA(lastGoodM.replace(/<[^>]+>/g, "")) + " 흉을 덜어 줍니다.";
           }
-          if (tp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
+          if (badTp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
           if (tp) tps.push(pe.key);
           const label = pe.key === "말년" ? "말년·총운" : pe.key;
           lines.push((tp ? NUM[tps.length - 1] + " " : "· ") + "<strong>" + label + "(" + rg + ")</strong>: " + txt);
@@ -2479,7 +2530,12 @@
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
         else if (nameGoodAny) verdict = paintBlue("이름과 사주가 함께 편안하니 좋은 이름을 가졌네요.");
         else verdict = "이름과 사주에 큰 흉이 없어 무난한 이름입니다.";
-        return "<strong>변곡점</strong> — 이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. " +
+        return "<strong>변곡점</strong> — " +
+          (hasB
+            ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. "
+            : hasHanja
+              ? "한글 이름과 한문 이름을 시기별로 견주면 삶의 변곡점이 드러납니다. "
+              : "이름을 시기별로 보면 삶의 변곡점이 드러납니다. ") +
           (tps.length
             ? "이 사람의 변곡점은 " + tps.join("·") + ", " + KNUM[tps.length] + " 곳입니다."
             : "시기별로 뚜렷한 변곡점이 없습니다.") +
@@ -3338,6 +3394,9 @@
       const sajuPeriods = buildSajuPeriodLine();
       if (sajuPeriods) ageParts.push(sajuPeriods);
       if (nameParts.rest) ageParts.push(nameParts.rest);
+      const turnList = buildNameVsBirthCompare(true);
+      if (turnList) ageParts.push(turnList);
+    } else {
       const turnList = buildNameVsBirthCompare(true);
       if (turnList) ageParts.push(turnList);
     }

@@ -1227,6 +1227,21 @@
     const lastBadM = marks(nS[3], nG[3], true);
     const lastGoodM = marks(nS[3], nG[3], false);
 
+    const WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "뇌천대장"];
+    const isWealth = (g) => !!(g && g.name && WEALTH.some((x) => hexNameStarts(g, x)));
+    const wealthMarks = (ng, bg) => {
+      const m = [];
+      let last = "";
+      if (isWealth(ng)) {
+        m.push((ko ? "이름 " : "the name's ") + gweNameHtml(ng, lang));
+        last = gweDisplayName(ng, lang);
+      }
+      if (isWealth(bg)) {
+        m.push((ko ? "사주 " : "the birth chart's ") + gweNameHtml(bg, lang));
+        last = gweDisplayName(bg, lang);
+      }
+      return { html: m.join(ko ? "·" : " and "), last: last };
+    };
     const lines = [];
     const tpNames = [];
     let nameBadAny = false, helped = false, sajuSurface = false, nameGoodAny = false;
@@ -1238,7 +1253,8 @@
       const nameGood = !nameBad && !!marks(ns, ng, false);
       const birthGood = !birthBad && !!marks(bs, bg, false);
       const P = ko ? P_KO[i] : P_EN[i];
-      let txt = "", tp = false, rg = "", worst = false;
+      let txt = "", tp = false, rg = "", worst = false, skip = false;
+      const wm = wealthMarks(ng, bg);
       if (nameGood) nameGoodAny = true;
       if (nameBad && birthBad) {
         tp = true;
@@ -1283,13 +1299,29 @@
             : "birth chart " + marks(bs, bg, true) + " — the name does not block it, so the chart's misfortune surfaces.";
         }
       } else {
+        skip = true;
+      }
+      const badTp = tp;
+      if (wm.html) {
+        if (skip) {
+          rg = range(i, false, true);
+          txt = ko
+            ? "주역 " + wm.html + josaRo(wm.last) + " " + paintBlue("재물운이 들어오는 변곡점") + "입니다."
+            : "with " + wm.html + ", " + paintBlue("wealth flows in — a turning point of fortune") + ".";
+        } else {
+          txt += ko
+            ? " 주역 " + wm.html + josaRo(wm.last) + " " + paintBlue("재물운도 함께 들어오는 시기") + "입니다."
+            : " With " + wm.html + ", " + paintBlue("wealth also flows in during this period") + ".";
+        }
+        tp = true;
+      } else if (skip) {
         return;
       }
-      if (tp && i < 3) {
+      if (badTp && i < 3) {
         if (worst && lastBad && lastBadM)
           txt += ko
-            ? " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 사라질 수도 있습니다.")
-            : " With the overall destiny " + lastBadM + " also unfavorable, " + paintRed("this single turning point can cost a life.");
+            ? " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 위태로울 수도 있답니다.")
+            : " With the overall destiny " + lastBadM + " also unfavorable, " + paintRed("this single turning point may even put a life in danger.");
         else if (lastBad && lastBadM)
           txt += ko
             ? " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다."
@@ -1299,7 +1331,7 @@
             ? " 총운 " + lastGoodM + josa(tail(nS[3], nG[3], false), "이", "가") + " 흉을 덜어 줍니다."
             : " The overall destiny " + lastGoodM + " lightens it.";
       }
-      if (tp && i === 3)
+      if (badTp && i === 3)
         txt += ko ? " 총운이라 앞 시기에도 영향을 줍니다." : " As the overall destiny, it reaches into the earlier stages too.";
       if (tp) tpNames.push(ko ? P_KO[i].replace("·총운", "") : P_EN[i].replace(" · overall destiny", ""));
       lines.push((tp ? TP_NUM[tpNames.length - 1] + " " : "· ") + "<strong>" + esc(P) + (ko ? "(" : " (") + esc(rg) + ")</strong>: " + txt);
