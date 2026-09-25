@@ -552,12 +552,30 @@
     return ruleWord(raw);
   }
 
+  /** Jr./Junior typed in any field is counted at the end of the middle name (보흘 지정). */
+  var JR_RE = /^(jr\.?|junior)$/i;
+  function jrSplit(last, first, middle) {
+    var found = false;
+    var strip = function (v) {
+      var parts = String(v || "").replace(/,/g, " ").trim().split(/\s+/).filter(Boolean);
+      var keep = parts.filter(function (p) {
+        if (JR_RE.test(p)) { found = true; return false; }
+        return true;
+      });
+      return keep.join(" ");
+    };
+    var l = strip(last), f = strip(first), m = strip(middle);
+    if (found) m = m ? m + " Jr." : "Jr.";
+    return [l || String(last || "").trim(), f || String(first || "").trim(), m];
+  }
+
   function convertName(inp) {
     inp = inp || {};
+    var a = jrSplit(inp.last, inp.first, inp.middle);
     return {
-      last: word(inp.last),
-      first: word(inp.first),
-      middle: inp.middle ? word(inp.middle) : "",
+      last: word(a[0]),
+      first: word(a[1]),
+      middle: a[2] ? word(a[2]) : "",
     };
   }
 
@@ -567,8 +585,7 @@
 
   var SEED_FIX = { "케네디": 16 };
 
-  function strokes(str) {
-    if (SEED_FIX[str]) return SEED_FIX[str];
+  function tableStrokes(str) {
     var t = 0;
     String(str || "").split("").forEach(function (ch) {
       var a = ch.charCodeAt(0) - 44032;
@@ -578,5 +595,16 @@
     return t;
   }
 
-  window.enToHangul = { word: word, convertName: convertName, strokes: strokes, DICT: DICT };
+  function strokes(str) {
+    str = String(str || "");
+    var t = tableStrokes(str);
+    Object.keys(SEED_FIX).forEach(function (k) {
+      var n = str.split(k).length - 1;
+      if (n > 0) t += n * (SEED_FIX[k] - tableStrokes(k));
+    });
+    return t;
+  }
+
+  window.enToHangul = { word: word, convertName: convertName, strokes: strokes, jrSplit: jrSplit, DICT: DICT };
+  window.naJrSplit = jrSplit;
 })();
