@@ -927,6 +927,140 @@
     return lines.join(" ");
   }
 
+  function suriNameHtml(ns, lang) {
+    if (!ns || !ns.data) return "";
+    const nm = plainSuriName(ns, lang) || String(ns.suri);
+    if (suriBad(ns.data)) return paintRed(nm);
+    if (suriGood(ns.data)) return paintBlue(nm);
+    return "<strong>" + esc(nm) + "</strong>";
+  }
+  /** 받침 없거나 ㄹ이면 로, 그 밖은 으로 */
+  function josaRo(word) {
+    const w = String(word || "");
+    const c = w.charCodeAt(w.length - 1);
+    if (c >= 0xac00 && c <= 0xd7a3) {
+      const j = (c - 0xac00) % 28;
+      return j === 0 || j === 8 ? "로" : "으로";
+    }
+    return "로";
+  }
+  function hexMeaning(g, ko) {
+    if (!g) return "";
+    if (ko) {
+      const nar = ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
+      const m = nar && String(nar.narrate || "").match(/^(.{2,12}?)\s*이?라는 뜻/);
+      return m ? m[1].trim() : "";
+    }
+    const t = ((window.NA_NARR_EN || {}).hex || {})[String(g.id)];
+    const m = t && String(t).match(/^It means ([^—.,;]+?)\s*[—.,;]/);
+    return m ? m[1].trim() : "";
+  }
+  const FLOW_P_KO = ["초년", "장년", "중년", "말년"];
+  const FLOW_P_EN = ["in the early years", "in the prime years", "in midlife", "in the later years"];
+  const FLOW_HA_KO = ["1세에서 30세", "31세에서 50세", "51세에서 55세", "56세 이후"];
+  const FLOW_HA_EN = ["ages 1–30", "ages 31–50", "ages 51–55", "age 56 and after"];
+
+  /** 탄생일표 흐름: 총운 → 시기별 흉(흉수리·흉괘) → 이름이 막아 주는지. 흉괘는 이름으로도 막기 힘듦. */
+  function buildSajuFlow(nS, nG, bS, bG, lang) {
+    const ko = lang === "ko";
+    const ls = bS[3];
+    const lg = bG[3];
+    const lead = [];
+    if (ls && ls.data) lead.push(suriNameHtml(ls, lang));
+    if (lg && lg.name) lead.push(gweNameHtml(lg, lang));
+    const lastLead = lg && lg.name ? gweDisplayName(lg, lang) : ls ? plainSuriName(ls, lang) : "";
+    const items = [];
+    const redHex = [];
+    let lastIsSuri = false;
+    let lastSuriName = "";
+    for (let i = 0; i < 4; i++) {
+      const s = bS[i];
+      const g = bG[i];
+      if (s && s.data && suriBad(s.data)) {
+        items.push(
+          ko
+            ? FLOW_P_KO[i] + "에 " + suriNameHtml(s, lang)
+            : suriNameHtml(s, lang) + " " + FLOW_P_EN[i]
+        );
+        lastIsSuri = true;
+        lastSuriName = plainSuriName(s, lang);
+      }
+      if (g && g.name && gweBad(g)) {
+        const gw = gweDisplayName(g, lang);
+        const mean = hexMeaning(g, ko);
+        redHex.push(gweNameHtml(g, lang));
+        items.push(
+          ko
+            ? FLOW_P_KO[i] +
+                "에 주역괘 " +
+                gweNameHtml(g, lang) +
+                josaRo(gw) +
+                " " +
+                (mean ? mean + josa(mean, "이라", "라") + " " : "") +
+                "위기가 " +
+                FLOW_HA_KO[i] +
+                "에 있으니"
+            : "the hexagram " +
+                gweNameHtml(g, lang) +
+                " " +
+                FLOW_P_EN[i] +
+                (mean ? " — " + mean + " —" : "") +
+                " so a crisis lies at " +
+                FLOW_HA_EN[i]
+        );
+        lastIsSuri = false;
+      }
+    }
+    const head = lead.length
+      ? ko
+        ? lead.join(", ") + josaRo(lastLead) + " "
+        : "With " + lead.join(" and ") + " as the overall destiny, the birth chart brings "
+      : ko
+        ? ""
+        : "The birth chart brings ";
+    if (!items.length) {
+      return ko
+        ? head + "시기별로 큰 흉이 없는 사주입니다."
+        : (lead.length ? "With " + lead.join(" and ") + " as the overall destiny, " : "") +
+            "the birth chart has no major misfortune by period.";
+    }
+    let body = ko ? items.join(", ") : items.join(", and ");
+    if (ko && lastIsSuri) body += josa(lastSuriName, "이", "가") + " 있으니";
+    let nameRed = 0;
+    let nameHelp = 0;
+    for (let i = 0; i < 4; i++) {
+      const g = nG[i];
+      if (!g || !g.name) continue;
+      if (gweBad(g)) nameRed++;
+      else if (gweGood(g) || isMitigate(g)) nameHelp++;
+    }
+    const lastRed = redHex.length ? gweDisplayName(bG.filter(gweBad).pop(), lang) : "";
+    let tail;
+    if (nameRed) {
+      tail = ko
+        ? " 이런 사주를 이름의 흉괘까지 겹쳐 더 힘들게 합니다."
+        : ". The name's own unfavorable hexagram piles on and makes this chart even harder.";
+    } else if (nameHelp) {
+      const much = nameHelp >= 2;
+      tail = ko
+        ? " 이런 사주를 이름이 " +
+          (much ? "많은 " : "") +
+          "재물과 위기를 막아 줬으나" +
+          (redHex.length
+            ? " " + joinMarks(redHex) + josa(lastRed, "은", "는") + " 막기가 힘이 듭니다."
+            : " 사주의 흉을 잘 눌러 줍니다.")
+        : ". The name brought " +
+          (much ? "much " : "") +
+          "wealth and held back the crises" +
+          (redHex.length ? ", but " + joinMarks(redHex) + " is hard to block." : ".");
+    } else {
+      tail = ko
+        ? " 이런 사주를 이름이 막아 주지 못합니다."
+        : ". The name cannot hold these back.";
+    }
+    return head + body + tail;
+  }
+
   function buildNameVsSaju(nS, nG, bS, bG, hasB, lang) {
     const ko = lang === "ko";
     const bits = [];
@@ -1119,7 +1253,7 @@
     const detail = buildNameDetail(nS, nG, lang);
     if (detail) parts.push(detail);
     const birth = buildBirth(bS, bG, hasB, lang);
-    if (birth) parts.push(birth);
+    if (birth) parts.push(birth + " " + buildSajuFlow(nS, nG, bS, bG, lang));
     const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);
     if (vs) parts.push(vs);
     const wrap = buildWrap(nS, nG, lang);
