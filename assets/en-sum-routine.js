@@ -1193,6 +1193,122 @@
     return bits.join(" ");
   }
 
+  const TP_SURI_AGE = [[1, 23], [24, 40], [41, 55], [56, 0]];
+  const TP_HEX_AGE = [[1, 30], [31, 50], [51, 55], [56, 0]];
+  const TP_NUM = ["①", "②", "③", "④"];
+
+  /** 변곡점: 시기별로 이름 ↔ 사주를 견줘 흉이 드러나는 곳을 모두 짚는다. 말년을 먼저 둔다. */
+  function buildTurningPoints(nS, nG, bS, bG, hasB, lang) {
+    const ko = lang === "ko";
+    const P_KO = ["초년", "장년", "중년", "말년·총운"];
+    const P_EN = ["Early years", "Prime years", "Midlife", "Later years · overall destiny"];
+    const range = (i, useS, useH) => {
+      const a = [];
+      if (useS) a.push(TP_SURI_AGE[i]);
+      if (useH) a.push(TP_HEX_AGE[i]);
+      if (!a.length) a.push(TP_SURI_AGE[i]);
+      const st = Math.min.apply(null, a.map((x) => x[0]));
+      const open = a.some((x) => !x[1]);
+      const en = Math.max.apply(null, a.map((x) => x[1]));
+      if (open) return ko ? st + "세 이후" : "age " + st + "+";
+      return ko ? st + "~" + en + "세" : "ages " + st + "–" + en;
+    };
+    const marks = (s, g, bad) => {
+      const m = [];
+      if (s && s.data && (bad ? suriBad(s.data) : suriGood(s.data)))
+        m.push((bad ? paintRed : paintBlue)(s.suri + " " + plainSuriName(s, lang)));
+      if (g && g.name && (bad ? gweBad(g) : gweGood(g) || isMitigate(g))) m.push(gweNameHtml(g, lang));
+      return m.join("·");
+    };
+    const tail = (s, g, bad) =>
+      g && g.name && (bad ? gweBad(g) : gweGood(g) || isMitigate(g)) ? gweDisplayName(g, lang) : plainSuriName(s, lang);
+    const lastBad = sideBad(nS, nG, I.late);
+    const lastGood = !lastBad && sideGood(nS, nG, I.late);
+    const lastBadM = marks(nS[3], nG[3], true);
+    const lastGoodM = marks(nS[3], nG[3], false);
+
+    const lines = [];
+    const tpNames = [];
+    [3, 0, 1, 2].forEach((i) => {
+      const ns = nS[i], ng = nG[i], bs = hasB ? bS[i] : null, bg = hasB ? bG[i] : null;
+      const nSB = !!(ns && ns.data && suriBad(ns.data)), nGB = gweBad(ng);
+      const bSB = !!(bs && bs.data && suriBad(bs.data)), bGB = gweBad(bg);
+      const nameBad = nSB || nGB, birthBad = bSB || bGB;
+      const nameGood = !nameBad && !!marks(ns, ng, false);
+      const birthGood = !birthBad && !!marks(bs, bg, false);
+      const P = ko ? P_KO[i] : P_EN[i];
+      let txt = "", tp = false, rg = "";
+      if (nameBad && birthBad) {
+        tp = true;
+        rg = range(i, nSB || bSB, nGB || bGB);
+        txt = ko
+          ? "이름 " + marks(ns, ng, true) + " × 사주 " + marks(bs, bg, true) + " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다.")
+          : "name " + marks(ns, ng, true) + " × birth chart " + marks(bs, bg, true) + " — " + paintRed("name misfortune meets birth-chart misfortune: the worst turning point.");
+      } else if (nameBad) {
+        tp = true;
+        rg = range(i, nSB, nGB);
+        if (hasB && birthGood) {
+          txt = ko
+            ? "이름 " + marks(ns, ng, true) + josa(tail(ns, ng, true), "이", "가") + " 좋은 사주(" + marks(bs, bg, false) + ")를 치는 변곡점입니다."
+            : "the name's " + marks(ns, ng, true) + " strikes a good birth chart (" + marks(bs, bg, false) + ") — a turning point.";
+        } else {
+          txt = ko
+            ? "이름 " + marks(ns, ng, true) + " — 이름 흉이 드러나는 변곡점입니다."
+            : "the name's " + marks(ns, ng, true) + " — the name's misfortune surfaces here.";
+        }
+      } else if (birthBad) {
+        if (nameGood) {
+          rg = range(i, bSB, bGB);
+          txt = ko
+            ? "사주의 흉(" + marks(bs, bg, true) + ")을 이름(" + marks(ns, ng, false) + ")이 눌러 주는 시기입니다."
+            : "the name (" + marks(ns, ng, false) + ") presses down the birth chart's misfortune (" + marks(bs, bg, true) + ").";
+          if (bGB) {
+            tp = true;
+            txt += ko
+              ? " 다만 흉괘 " + gweNameHtml(bg, lang) + josa(gweDisplayName(bg, lang), "은", "는") + " 막기가 힘이 들어 변곡점이 됩니다."
+              : " Still, the hexagram " + gweNameHtml(bg, lang) + " is hard to block, so it remains a turning point.";
+          }
+        } else {
+          tp = true;
+          rg = range(i, bSB, bGB);
+          txt = ko
+            ? "사주 " + marks(bs, bg, true) + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다."
+            : "birth chart " + marks(bs, bg, true) + " — the name does not block it, so the chart's misfortune surfaces.";
+        }
+      } else {
+        return;
+      }
+      if (tp && i < 3) {
+        if (lastBad && lastBadM)
+          txt += ko
+            ? " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다."
+            : " The overall destiny " + lastBadM + " adds weight to this trial.";
+        else if (lastGood && lastGoodM)
+          txt += ko
+            ? " 총운 " + lastGoodM + josa(tail(nS[3], nG[3], false), "이", "가") + " 흉을 덜어 줍니다."
+            : " The overall destiny " + lastGoodM + " lightens it.";
+      }
+      if (tp && i === 3)
+        txt += ko ? " 총운이라 앞 시기에도 영향을 줍니다." : " As the overall destiny, it reaches into the earlier stages too.";
+      if (tp) tpNames.push(ko ? P_KO[i].replace("·총운", "") : P_EN[i].replace(" · overall destiny", ""));
+      lines.push((tp ? TP_NUM[tpNames.length - 1] + " " : "· ") + "<strong>" + esc(P) + (ko ? "(" : " (") + esc(rg) + ")</strong>: " + txt);
+    });
+
+    const KNUM = ["", "한", "두", "세", "네"];
+    const head = ko
+      ? "<strong>변곡점</strong> — " +
+        (hasB ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. " : "이름을 시기별로 보면 변곡점이 드러납니다. ") +
+        (tpNames.length
+          ? "이 사람의 변곡점은 " + tpNames.join("·") + ", " + KNUM[tpNames.length] + " 곳입니다."
+          : "시기별로 뚜렷한 변곡점이 없습니다.")
+      : "<strong>Turning points</strong> — " +
+        (hasB ? "Setting the name beside the birth chart period by period reveals the turning points of a life. " : "Reading the name period by period reveals its turning points. ") +
+        (tpNames.length
+          ? "This person has " + tpNames.length + " turning point" + (tpNames.length > 1 ? "s" : "") + ": " + tpNames.join(", ") + "."
+          : "There is no clear turning point by period.");
+    return head + (lines.length ? "<br>" + lines.join("<br>") : "");
+  }
+
   function buildWrap(nS, nG, lang) {
     const ko = lang === "ko";
     if (sideBad(nS, nG, I.late)) {
@@ -1348,6 +1464,8 @@
     if (birth) parts.push(birth + " " + buildSajuFlow(nS, nG, bS, bG, lang));
     const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);
     if (vs) parts.push(vs);
+    const tp = buildTurningPoints(nS, nG, bS, bG, hasB, lang);
+    if (tp) parts.push(tp);
     const wrap = buildWrap(nS, nG, lang);
     if (wrap) parts.push(wrap);
     const narr = parts.length
