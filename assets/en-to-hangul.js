@@ -54,6 +54,7 @@
     carter: "카터",
     roberts: "로버츠",
     kennedy: "케네디",
+    fitzgerald: "피츠제럴드",
     kim: "킴",
     park: "박",
     choi: "최",
@@ -405,5 +406,22 @@
     };
   }
 
-  window.enToHangul = { word: word, convertName: convertName, DICT: DICT };
+  var CHO_STROKE = [1, 2, 1, 2, 4, 3, 3, 4, 8, 2, 4, 2, 3, 6, 4, 2, 3, 4, 4];
+  var JUNG_STROKE = [2, 3, 3, 4, 2, 3, 3, 4, 2, 4, 5, 3, 3, 2, 4, 5, 3, 3, 1, 2, 1];
+  var JONG_STROKE = [0, 1, 2, 3, 1, 4, 5, 2, 3, 4, 6, 7, 5, 6, 7, 7, 3, 4, 6, 2, 4, 2, 3, 4, 2, 3, 4, 4];
+
+  var SEED_FIX = { "케네디": 16 };
+
+  function strokes(str) {
+    if (SEED_FIX[str]) return SEED_FIX[str];
+    var t = 0;
+    String(str || "").split("").forEach(function (ch) {
+      var a = ch.charCodeAt(0) - 44032;
+      if (a < 0 || a > 11171) return;
+      t += CHO_STROKE[Math.floor(a / 588)] + JUNG_STROKE[Math.floor(a / 28) % 21] + JONG_STROKE[a % 28];
+    });
+    return t;
+  }
+
+  window.enToHangul = { word: word, convertName: convertName, strokes: strokes, DICT: DICT };
 })();
