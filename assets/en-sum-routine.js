@@ -802,17 +802,17 @@
   const FOOT_FOOTER_EN =
     "If your name contains any of the numbers or hexagrams above, the traditional recommendation is to change the first or middle name.";
   const KEEP_FAMILY_KO =
-    "성(가문)은 그대로 두고, 퍼스트네임이나 미들네임만 바꾸어도 이름의 기운이 달라집니다.";
+    "성씨는 가문을 대표하니 바꾸지 않습니다. 미들네임만 바꾸어도 되고, 퍼스트네임과 미들네임을 둘 다 바꾸어도 됩니다.";
   const KEEP_FAMILY_EN =
-    "Keep your family name — changing only your first or middle name is enough to change the energy of the name.";
+    "Your family name stands for your family, so it is not changed. You may change only your middle name, or both your first and middle names.";
   const JR_NOTE_KO =
     "특히 Jr.처럼 아버지 이름을 그대로 물려받은 경우, 자기만의 미들네임을 가지는 것이 사주를 편하게 합니다.";
   const JR_NOTE_EN =
     "Especially with a Jr. name, inherited unchanged from the father, having a middle name of your own eases the birth chart.";
   const RECHECK_KO =
-    "퍼스트네임이나 미들네임을 바꾼 뒤 이 사이트로 와서 풀어 보고, 흉이 없으면 사용하셔도 됩니다.";
+    "바꾼 이름은 이 사이트로 와서 풀어 보고, 흉이 없으면 사용하셔도 됩니다. 흉이 나오면 다른 이름을 골라야 합니다.";
   const RECHECK_EN =
-    "After changing your first or middle name, come back to this site and read the new name; if no misfortune shows, you may use it.";
+    "Read the new name on this site first; if no misfortune shows, you may use it. If misfortune shows, choose a different name.";
   function keepFamily(ko) {
     return (
       (ko ? KEEP_FAMILY_KO : KEEP_FAMILY_EN) +
