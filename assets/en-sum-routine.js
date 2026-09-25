@@ -1502,12 +1502,6 @@
     const parts = [];
     const oh = buildOhang(ctx.ohang, lang);
     if (oh) parts.push(oh);
-    const detail = buildNameDetail(nS, nG, lang);
-    if (detail) parts.push(detail);
-    const birth = buildBirth(bS, bG, hasB, lang);
-    if (birth) parts.push(birth + " " + buildSajuFlow(nS, nG, bS, bG, lang));
-    const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);
-    if (vs) parts.push(vs);
     const tp = buildTurningPoints(nS, nG, bS, bG, hasB, lang);
     if (tp) parts.push(tp);
     const wrap = buildWrap(nS, nG, lang);

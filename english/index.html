@@ -13,8 +13,8 @@
       /* Quiet SW cleanup only — NEVER location.replace (that made English flash then vanish). */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_quiet_20260925en44")) return;
-          sessionStorage.setItem("na_sw_quiet_20260925en44", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
+          if (sessionStorage.getItem("na_sw_quiet_20260925en45")) return;
+          sessionStorage.setItem("na_sw_quiet_20260925en45", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
           if (!("serviceWorker" in navigator)) return;
           navigator.serviceWorker.getRegistrations().then(function (regs) {
             return Promise.all(regs.map(function (r) { return r.unregister(); }));
@@ -32,8 +32,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-lang-control.js?v=20260925en44"></script>
-    <script src="../assets/en-to-hangul.js?v=20260925en44"></script>
+    <script src="../assets/en-lang-control.js?v=20260925en45"></script>
+    <script src="../assets/en-to-hangul.js?v=20260925en45"></script>
     <script>
       (function () {
         function g(u) {
@@ -45,14 +45,14 @@
           } catch (e) {}
           return {};
         }
-        var d = "../data/core-summaries/", v = "?v=20260925en44";
+        var d = "../data/core-summaries/", v = "?v=20260925en45";
         window.__CORE_SUMMARIES__ = { suri: g(d + "suri-core-by-num.json" + v), hex: g(d + "hex-core-by-id.json" + v) };
         window.__NARRATE__ = { suri: g(d + "suri-narrate-by-num.json" + v), hex: g(d + "hex-narrate-by-id.json" + v) };
       })();
     </script>
-    <script src="../assets/en-narrate.js?v=20260925en44"></script>
-    <script src="../assets/en-sum-routine.js?v=20260925en44"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en44"></script>
+    <script src="../assets/en-narrate.js?v=20260925en45"></script>
+    <script src="../assets/en-sum-routine.js?v=20260925en45"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en45"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -127,6 +127,20 @@
         0%{transform:translateX(0)}
         100%{transform:translateX(-100%)}
       }
+      [data-loc="client/src/pages/EnglishName.tsx:886"]{flex-direction:row !important;flex-wrap:wrap !important;justify-content:center !important;align-items:center !important;gap:0.35rem 0.5rem !important;}
+      [data-loc="client/src/pages/EnglishName.tsx:888"],
+      [data-loc="client/src/pages/EnglishName.tsx:920"]{max-width:12rem;}
+      [data-loc="client/src/pages/EnglishName.tsx:889"],
+      [data-loc="client/src/pages/EnglishName.tsx:926"]{text-align:center;font-size:0.66rem !important;line-height:1.25;}
+      [data-loc="client/src/pages/EnglishName.tsx:892"],
+      [data-loc="client/src/pages/EnglishName.tsx:906"],
+      [data-loc="client/src/pages/EnglishName.tsx:921"]{padding:0.35rem 0.6rem !important;}
+      [data-loc="client/src/pages/EnglishName.tsx:900"],
+      [data-loc="client/src/pages/EnglishName.tsx:917"]{flex-direction:column !important;gap:0.15rem !important;}
+      [data-loc="client/src/pages/EnglishName.tsx:900"] > div:first-child,
+      [data-loc="client/src/pages/EnglishName.tsx:917"] > div:first-child{transform:rotate(-90deg);margin:0.2rem 0;}
+      [data-loc="client/src/pages/EnglishName.tsx:900"] > span,
+      [data-loc="client/src/pages/EnglishName.tsx:917"] > span{font-size:0.68rem !important;max-width:7.5rem;text-align:center;line-height:1.2;}
       @media (max-width:640px){
         [data-loc="client/src/pages/EnglishName.tsx:566"]{padding:8px 12px !important;}
         [data-loc="client/src/pages/EnglishName.tsx:568"]{font-size:0.95rem !important;line-height:1.25 !important;}
@@ -195,7 +209,7 @@
         html,body,#root{background:#fff !important;overflow:visible !important;}
         html,body{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
         html.kb-open{padding-bottom:0 !important;}
-        #na-notrans-tip,#pwaSheet,#pwaBar,.intro-sec,video,audio,
+        #na-notrans-tip,#pwaSheet,#pwaBar,.intro-sec,.intro-player,.intro-overlay,.intro-caption,video,audio,iframe,
         [data-loc="client/src/pages/EnglishName.tsx:566"],
         [data-loc="client/src/pages/EnglishName.tsx:598"],
         [data-loc="client/src/pages/EnglishName.tsx:1043n"],
