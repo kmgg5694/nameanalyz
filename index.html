@@ -46,8 +46,8 @@
       Promise.all([
         fetch('./data/core-summaries/suri-core-by-num.json?v=20260924y').then(r => r.json()),
         fetch('./data/core-summaries/hex-core-by-id.json?v=20260924y').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260925a').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260925a').then(r => r.json())
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260925b').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260925b').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
@@ -57,7 +57,7 @@
     </script>
     <script src="./assets/ko-sum-routine.js?v=20260924y"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260924y"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260925a"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260925b"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
