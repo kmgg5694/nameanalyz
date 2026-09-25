@@ -1263,6 +1263,8 @@
         parts.join("<br><br>") +
         "</div>"
       : "";
-    return { ageText: narr + warningFootnoteHtml(nS, nG, lang) };
+    const warn = warningFootnoteHtml(nS, nG, lang);
+    window.__enWarnHtml = warn;
+    return { ageText: narr, warnHtml: warn };
   };
 })();
