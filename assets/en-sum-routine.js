@@ -604,6 +604,98 @@
     const k = String(koName || "").replace(/\s*\([^)]*\)\s*/g, "").trim();
     return HEX_EN[k] || koName || "";
   };
+
+  window.enOverviewTable = function (w, lang) {
+    if (!w) return "";
+    const en = lang === "en";
+    const OH = { 木: "#166534", 火: "#991b1b", 土: "#92400e", 金: "#1c1917", 水: "#1e3a8a" };
+    const OH_EN = { 木: "Wood", 火: "Fire", 土: "Earth", 金: "Metal", 水: "Water" };
+    const tdL = 'style="color:#92400e;font-weight:700;text-align:right;white-space:nowrap;padding:3px 6px 3px 0;width:3.6rem"';
+    const tdC = (html, span, extra) =>
+      '<td colspan="' + (span || 1) + '" style="text-align:center;padding:3px 2px;' + (extra || "") + '">' + html + "</td>";
+    const row = (label, cells) =>
+      '<tr style="border-bottom:1px solid #e5e7eb"><td ' + tdL + ">" + esc(label) + "</td>" + cells.join("") + "</tr>";
+    const title = (t) =>
+      '<tr><td colspan="5" style="text-align:center;font-weight:700;color:#92400e;font-size:13px;letter-spacing:1px;padding:6px 0 2px">' + esc(t) + "</td></tr>";
+    const suriHtml = (n, d) => {
+      const s = String(n);
+      return suriBad(d) ? paintRed(s) : suriGood(d) ? paintBlue(s) : "<strong>" + esc(s) + "</strong>";
+    };
+    const suriNm = (n, d) => {
+      const nm = plainSuriName({ suri: n, data: d }, lang) || "";
+      return suriBad(d) ? paintRed(nm) : suriGood(d) ? paintBlue(nm) : esc(nm);
+    };
+    const gweNm = (g) => {
+      if (!g) return "-";
+      const nm = gweDisplayName(g, lang);
+      return gweBad(g) ? paintRed(nm) : gweGood(g) ? paintBlue(nm) : esc(nm);
+    };
+    const ohCell = (o) =>
+      o ? '<span style="color:' + (OH[o] || "#9ca3af") + ';font-weight:800;font-size:15px">' + esc(en ? OH_EN[o] || o : o) + "</span>" : "-";
+    const hasM = !!(w.middleName && w.mc > 0);
+    const three = (a, b, c) => (hasM ? [tdC(a), tdC(b), tdC(c, 2)] : [tdC(a), tdC(b, 3)]);
+    const nameCell = (hg, enName) =>
+      '<span style="font-weight:700;font-size:14px">' + esc(en ? enName : hg || enName) + "</span>";
+    const stroke = (n) => '<strong style="font-size:13px">' + esc(n + (en ? "" : "획")) + "</strong>";
+    const stageHead = () =>
+      (en ? ["Early", "Prime", "Midlife", "Overall"] : ["원격", "형격", "이격", "정격"]).map((x) =>
+        tdC(esc(x), 1, "color:#92400e;font-weight:700;font-size:11px")
+      );
+    const ageS = en ? ["1–23", "24–40", "41–55", "56+"] : ["1~23세", "24~40세", "41~55세", "56세~"];
+    const ageG = en ? ["1–30", "31–50", "51–55", "56+"] : ["1~30세", "31~50세", "51~55세", "56세~"];
+    const ageCells = (a) => a.map((x) => tdC(esc(x), 1, "color:#78350f;font-size:10px"));
+    const four = (arr, fn) => arr.map((x) => tdC(fn(x), 1, "font-size:11px"));
+
+    const nS = [
+      [w.won, w.wonData],
+      [w.hyeong, w.hyeongData],
+      [w.i, w.iData],
+      [w.jeong, w.jeongData],
+    ];
+    const nG = [w.wonGwe, w.hyeongGwe, w.iGwe, w.jeongGwe];
+    const rows = [
+      title(en ? "Name Overview" : "이름풀이"),
+      row(en ? "Name" : "이름", three(nameCell(w.hgLast, w.lastName), nameCell(w.hgFirst, w.firstName), nameCell(w.hgMiddle, w.middleName))),
+      row(en ? "Seed" : "씨앗수", three(stroke(w.lc), stroke(w.fc), stroke(w.mc))),
+      row(en ? "4 Stages" : "4격", stageHead()),
+      row(en ? "Number" : "수리", nS.map((x) => tdC(suriHtml(x[0], x[1])))),
+      row(en ? "Meaning" : "수리뜻", four(nS, (x) => suriNm(x[0], x[1]))),
+      row(en ? "Ages" : "연령대", ageCells(ageS)),
+      row(en ? "Hexagram" : "주역", four(nG, gweNm)),
+      row(en ? "Ages" : "연령대", ageCells(ageG)),
+      row(en ? "Element" : "오행", three(ohCell(w.lastRep), ohCell(w.firstRep), ohCell(w.middleRep))),
+    ];
+    const b = w.birthSuri;
+    if (b && w.birthWonData && w.birthHyeongData && w.birthIData && w.birthJeongData) {
+      const bS = [
+        [b.won, w.birthWonData],
+        [b.hyeong, w.birthHyeongData],
+        [b.i, w.birthIData],
+        [b.jeong, w.birthJeongData],
+      ];
+      const bG = [w.birthWonGwe, w.birthHyeongGwe, w.birthIGwe, w.birthJeongGwe];
+      rows.push(
+        title(en ? "Birth Date" : "탄생일(사주)"),
+        row(en ? "Seed" : "씨앗수", [
+          tdC("<strong>" + esc((en ? "Year " : "연 ") + b.yearSum) + "</strong>"),
+          tdC("<strong>" + esc((en ? "Month " : "월 ") + b.month) + "</strong>"),
+          tdC("<strong>" + esc((en ? "Day " : "일 ") + b.day) + "</strong>", 2),
+        ]),
+        row(en ? "4 Stages" : "4격", stageHead()),
+        row(en ? "Number" : "수리", bS.map((x) => tdC(suriHtml(x[0], x[1])))),
+        row(en ? "Meaning" : "수리뜻", four(bS, (x) => suriNm(x[0], x[1]))),
+        row(en ? "Hexagram" : "주역", four(bG, gweNm))
+      );
+    }
+    return (
+      '<div style="background:#fef9f0;border:2px solid #d4a017;border-radius:0.75rem;padding:1rem;margin-bottom:1.5rem">' +
+      '<h3 style="text-align:center;font-weight:700;color:#92400e;font-size:0.95rem;letter-spacing:2px;margin:0 0 0.6rem">' +
+      esc(en ? "Name Reading Overview" : "이름풀이 종합표") +
+      '</h3><div style="overflow-x:auto"><table style="width:100%;min-width:280px;border-collapse:collapse;font-size:12px"><tbody>' +
+      rows.join("") +
+      "</tbody></table></div></div>"
+    );
+  };
   /** 인생카드·요약보기 = 요약본(narrate). 한글은 __NARRATE__, 영어는 NA_NARR_EN. 초년·말년 칸은 해당 나이대에만. */
   function ageKeyOf(label) {
     const s = String(label || "");
