@@ -46,8 +46,8 @@
       Promise.all([
         fetch('./data/core-summaries/suri-core-by-num.json?v=20260924y').then(r => r.json()),
         fetch('./data/core-summaries/hex-core-by-id.json?v=20260924y').then(r => r.json()),
-        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260924y').then(r => r.json()),
-        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260924y').then(r => r.json())
+        fetch('./data/core-summaries/suri-narrate-by-num.json?v=20260925a').then(r => r.json()),
+        fetch('./data/core-summaries/hex-narrate-by-id.json?v=20260925a').then(r => r.json())
       ]).then(([s, h, sn, hn]) => {
         window.__CORE_SUMMARIES__.suri = s;
         window.__CORE_SUMMARIES__.hex = h;
