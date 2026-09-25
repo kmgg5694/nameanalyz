@@ -2413,6 +2413,10 @@
         const KNUM = ["", "한", "두", "세", "네"];
         const lines = [];
         const tps = [];
+        let nameBadAny = false;
+        let helped = false;
+        let sajuSurface = false;
+        let nameGoodAny = false;
         [ORDER[3], ORDER[0], ORDER[1], ORDER[2]].forEach(function (pe) {
           const nt = nameToneAt(pe.idx);
           const st = sajuToneAt(pe.idx);
@@ -2420,13 +2424,18 @@
           let txt = "";
           let tp = false;
           let rg = "";
+          let worst = false;
+          if (nt === "길") nameGoodAny = true;
           if (nt === "흉" && (st === "흉" || st === "길흉혼재")) {
             tp = true;
+            worst = true;
+            nameBadAny = true;
             rg = range(pe, both);
             txt = "이름 " + marks(nameArrs, pe.idx, true) + " × 사주 " + marks(sajuArrs, pe.idx, true) +
-              " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다.");
+              " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
           } else if (nt === "흉" || (nt === "길흉혼재" && st !== "흉")) {
             tp = true;
+            nameBadAny = true;
             rg = range(pe, nameArrs);
             const nm = marks(nameArrs, pe.idx, true);
             txt = st === "길"
@@ -2437,6 +2446,7 @@
             rg = range(pe, sajuArrs);
             const sm = marks(sajuArrs, pe.idx, true);
             if (nt === "길" || nt === "길흉혼재") {
+              helped = true;
               txt = "사주의 흉(" + sm + ")을 이름(" + marks(nameArrs, pe.idx, false) + ")이 " +
                 paintBlue("눌러 주는 시기") + "입니다.";
               if (anyBad(sajuArrs, pe.idx, true)) {
@@ -2445,13 +2455,16 @@
               }
             } else {
               tp = true;
+              sajuSurface = true;
               txt = "사주 " + sm + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다.";
             }
           } else {
             return;
           }
           if (tp && pe.key !== "말년") {
-            if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
+            if (worst && lastT === "흉" && lastBadM)
+              txt += " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 사라질 수도 있습니다.");
+            else if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
             else if (lastT === "길" && lastGoodM) txt += " 총운 " + lastGoodM + "이 흉을 덜어 줍니다.";
           }
           if (tp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
@@ -2459,12 +2472,19 @@
           const label = pe.key === "말년" ? "말년·총운" : pe.key;
           lines.push((tp ? NUM[tps.length - 1] + " " : "· ") + "<strong>" + label + "(" + rg + ")</strong>: " + txt);
         });
-        if (!lines.length && !tps.length) return "";
+        let verdict;
+        if (nameBadAny) verdict = paintRed("이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다.");
+        else if (helped) verdict = paintBlue("이름 기운이 나쁜 사주를 도와주고 있으니 좋은 이름을 가졌네요.");
+        else if (sajuSurface)
+          verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
+        else if (nameGoodAny) verdict = paintBlue("이름과 사주가 함께 편안하니 좋은 이름을 가졌네요.");
+        else verdict = "이름과 사주에 큰 흉이 없어 무난한 이름입니다.";
         return "<strong>변곡점</strong> — 이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. " +
           (tps.length
             ? "이 사람의 변곡점은 " + tps.join("·") + ", " + KNUM[tps.length] + " 곳입니다."
             : "시기별로 뚜렷한 변곡점이 없습니다.") +
-          "<br>" + lines.join("<br>");
+          (lines.length ? "<br>" + lines.join("<br>") : "") +
+          "<br>" + verdict;
       }
 
       const nameGoodCnt = nameGood.length;

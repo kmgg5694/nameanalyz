@@ -1229,6 +1229,7 @@
 
     const lines = [];
     const tpNames = [];
+    let nameBadAny = false, helped = false, sajuSurface = false, nameGoodAny = false;
     [3, 0, 1, 2].forEach((i) => {
       const ns = nS[i], ng = nG[i], bs = hasB ? bS[i] : null, bg = hasB ? bG[i] : null;
       const nSB = !!(ns && ns.data && suriBad(ns.data)), nGB = gweBad(ng);
@@ -1237,15 +1238,19 @@
       const nameGood = !nameBad && !!marks(ns, ng, false);
       const birthGood = !birthBad && !!marks(bs, bg, false);
       const P = ko ? P_KO[i] : P_EN[i];
-      let txt = "", tp = false, rg = "";
+      let txt = "", tp = false, rg = "", worst = false;
+      if (nameGood) nameGoodAny = true;
       if (nameBad && birthBad) {
         tp = true;
+        worst = true;
+        nameBadAny = true;
         rg = range(i, nSB || bSB, nGB || bGB);
         txt = ko
-          ? "이름 " + marks(ns, ng, true) + " × 사주 " + marks(bs, bg, true) + " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다.")
-          : "name " + marks(ns, ng, true) + " × birth chart " + marks(bs, bg, true) + " — " + paintRed("name misfortune meets birth-chart misfortune: the worst turning point.");
+          ? "이름 " + marks(ns, ng, true) + " × 사주 " + marks(bs, bg, true) + " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다. 아직도 살아 있다는게 신기합니다.")
+          : "name " + marks(ns, ng, true) + " × birth chart " + marks(bs, bg, true) + " — " + paintRed("name misfortune meets birth-chart misfortune: the worst turning point. It is a wonder this person is still alive.");
       } else if (nameBad) {
         tp = true;
+        nameBadAny = true;
         rg = range(i, nSB, nGB);
         if (hasB && birthGood) {
           txt = ko
@@ -1258,6 +1263,7 @@
         }
       } else if (birthBad) {
         if (nameGood) {
+          helped = true;
           rg = range(i, bSB, bGB);
           txt = ko
             ? "사주의 흉(" + marks(bs, bg, true) + ")을 이름(" + marks(ns, ng, false) + ")이 눌러 주는 시기입니다."
@@ -1270,6 +1276,7 @@
           }
         } else {
           tp = true;
+          sajuSurface = true;
           rg = range(i, bSB, bGB);
           txt = ko
             ? "사주 " + marks(bs, bg, true) + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다."
@@ -1279,7 +1286,11 @@
         return;
       }
       if (tp && i < 3) {
-        if (lastBad && lastBadM)
+        if (worst && lastBad && lastBadM)
+          txt += ko
+            ? " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 사라질 수도 있습니다.")
+            : " With the overall destiny " + lastBadM + " also unfavorable, " + paintRed("this single turning point can cost a life.");
+        else if (lastBad && lastBadM)
           txt += ko
             ? " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다."
             : " The overall destiny " + lastBadM + " adds weight to this trial.";
@@ -1306,7 +1317,23 @@
         (tpNames.length
           ? "This person has " + tpNames.length + " turning point" + (tpNames.length > 1 ? "s" : "") + ": " + tpNames.join(", ") + "."
           : "There is no clear turning point by period.");
-    return head + (lines.length ? "<br>" + lines.join("<br>") : "");
+    let verdict;
+    if (nameBadAny) {
+      verdict = paintRed(ko ? "이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다." : "This is a bad name. A name change is a must.");
+    } else if (helped) {
+      verdict = paintBlue(
+        ko ? "이름 기운이 나쁜 사주를 도와주고 있으니 좋은 이름을 가졌네요." : "The name energy is helping a weak birth chart — you have a good name."
+      );
+    } else if (sajuSurface) {
+      verdict = ko
+        ? "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다."
+        : "The name is not bad, but it does not hold back the chart's misfortune — consider a name that presses it down.";
+    } else if (nameGoodAny) {
+      verdict = paintBlue(ko ? "이름과 사주가 함께 편안하니 좋은 이름을 가졌네요." : "Name and birth chart are at ease together — you have a good name.");
+    } else {
+      verdict = ko ? "이름과 사주에 큰 흉이 없어 무난한 이름입니다." : "No major misfortune in name or chart — an ordinary, safe name.";
+    }
+    return head + (lines.length ? "<br>" + lines.join("<br>") : "") + "<br>" + verdict;
   }
 
   function buildWrap(nS, nG, lang) {
