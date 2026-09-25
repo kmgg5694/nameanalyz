@@ -732,16 +732,7 @@
         : ak && (((window.NA_NARR_EN || {}).suriAge || {})[key] || {})[ak];
       return extra ? head + " " + String(extra).trim() : head;
     }
-    if (ko) {
-      const nar = ((window.__NARRATE__ || {}).suri || {})[key];
-      if (nar && nar.narrate) {
-        const extra = ak && nar[ak] ? " " + String(nar[ak]).trim() : "";
-        return String(nar.narrate).trim() + extra;
-      }
-      const cs = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key];
-      if (cs && (cs.core || cs.shortDesc)) return coreBrief(cs.core || cs.shortDesc);
-      return [d && d.shortDesc, d && d.desc].filter(Boolean).join(" ");
-    }
+    if (ko) return (d && (d.desc || d.shortDesc)) || "";
     const E = window.NA_NARR_EN || {};
     const t = (E.suri || {})[key];
     if (t) {
@@ -757,13 +748,7 @@
         ? "앞의 " + CARD_KO[same] + "과 같은 괘입니다."
         : "Same hexagram as " + CARD_EN[same] + " above.";
     const key = String(g.id);
-    if (ko) {
-      const nar = ((window.__NARRATE__ || {}).hex || {})[key];
-      if (nar && nar.narrate) return String(nar.narrate).trim();
-      const cs = ((window.__CORE_SUMMARIES__ || {}).hex || {})[key];
-      if (cs && cs.core) return coreBrief(cs.core);
-      return g.desc || "";
-    }
+    if (ko) return g.desc || "";
     const t = ((window.NA_NARR_EN || {}).hex || {})[key];
     return t || (pen && pen.descEn) || g.desc || "";
   };
