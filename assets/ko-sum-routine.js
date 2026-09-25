@@ -2175,7 +2175,7 @@
       return p;
     }
 
-    function buildNameVsBirthCompare() {
+    function buildNameVsBirthCompare(onlyTurns) {
       if (!hasB) return "";
       const ORDER = [
         { key: "초년", idx: 1 },
@@ -2183,6 +2183,7 @@
         { key: "중년", idx: 3 },
         { key: "말년", idx: 0 },
       ];
+      if (onlyTurns) return buildTurnList();
 
       function toneOf(sArr, gArr, idx) {
         const s = sArr && sArr[idx];
@@ -2372,6 +2373,98 @@
           "삶의 변곡점은 " +
           turns.join(", ") +
           "로 읽힙니다. ";
+      }
+
+      function buildTurnList() {
+        const AGE_S = { 초년: [1, 23], 장년: [24, 40], 중년: [41, 55] };
+        const AGE_G = { 초년: [1, 30], 장년: [31, 50], 중년: [51, 55] };
+        const nameArrs = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []);
+        const sajuArrs = [[bdS, bdG]];
+        function anyBad(arrs, idx, hex) {
+          return arrs.some(function (a) {
+            const x = hex ? a[1] && a[1][idx] : a[0] && a[0][idx];
+            return hex ? !!(x && x.name && gweBad(x)) : !!(x && x.data && suriBad(x.data));
+          });
+        }
+        function marks(arrs, idx, bad) {
+          const m = [];
+          arrs.forEach(function (a) {
+            const s = a[0] && a[0][idx];
+            const g = a[1] && a[1][idx];
+            if (s && s.data && (bad ? suriBad(s.data) : suriGood(s.data))) m.push(suriPhrase(s));
+            if (g && g.name && (bad ? gweBad(g) : gweGood(g))) m.push(gweNameHtml(g));
+          });
+          return m.filter(function (x, i) { return m.indexOf(x) === i; }).join("·");
+        }
+        function range(pe, arrs) {
+          if (pe.key === "말년") return "56세 이후";
+          const useS = anyBad(arrs, pe.idx, false);
+          const useG = anyBad(arrs, pe.idx, true);
+          const a = [];
+          if (useS || !useG) a.push(AGE_S[pe.key]);
+          if (useG) a.push(AGE_G[pe.key]);
+          return Math.min.apply(null, a.map(function (x) { return x[0]; })) + "~" +
+            Math.max.apply(null, a.map(function (x) { return x[1]; })) + "세";
+        }
+        const lastT = nameToneAt(0);
+        const lastBadM = marks(nameArrs, 0, true);
+        const lastGoodM = marks(nameArrs, 0, false);
+        const NUM = ["①", "②", "③", "④"];
+        const KNUM = ["", "한", "두", "세", "네"];
+        const lines = [];
+        const tps = [];
+        [ORDER[3], ORDER[0], ORDER[1], ORDER[2]].forEach(function (pe) {
+          const nt = nameToneAt(pe.idx);
+          const st = sajuToneAt(pe.idx);
+          const both = nameArrs.concat(sajuArrs);
+          let txt = "";
+          let tp = false;
+          let rg = "";
+          if (nt === "흉" && (st === "흉" || st === "길흉혼재")) {
+            tp = true;
+            rg = range(pe, both);
+            txt = "이름 " + marks(nameArrs, pe.idx, true) + " × 사주 " + marks(sajuArrs, pe.idx, true) +
+              " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다.");
+          } else if (nt === "흉" || (nt === "길흉혼재" && st !== "흉")) {
+            tp = true;
+            rg = range(pe, nameArrs);
+            const nm = marks(nameArrs, pe.idx, true);
+            txt = st === "길"
+              ? "이름 " + nm + " — 이름 흉이 좋은 사주(" + marks(sajuArrs, pe.idx, false) + ")를 치는 변곡점입니다."
+              : "이름 " + nm + " — 이름 흉이 드러나는 변곡점입니다.";
+          } else if (st === "흉" || st === "길흉혼재") {
+            if (!anyBad(sajuArrs, pe.idx, false) && !anyBad(sajuArrs, pe.idx, true)) return;
+            rg = range(pe, sajuArrs);
+            const sm = marks(sajuArrs, pe.idx, true);
+            if (nt === "길" || nt === "길흉혼재") {
+              txt = "사주의 흉(" + sm + ")을 이름(" + marks(nameArrs, pe.idx, false) + ")이 " +
+                paintBlue("눌러 주는 시기") + "입니다.";
+              if (anyBad(sajuArrs, pe.idx, true)) {
+                tp = true;
+                txt += " 다만 사주의 흉괘는 막기가 힘이 들어 변곡점이 됩니다.";
+              }
+            } else {
+              tp = true;
+              txt = "사주 " + sm + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다.";
+            }
+          } else {
+            return;
+          }
+          if (tp && pe.key !== "말년") {
+            if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
+            else if (lastT === "길" && lastGoodM) txt += " 총운 " + lastGoodM + "이 흉을 덜어 줍니다.";
+          }
+          if (tp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
+          if (tp) tps.push(pe.key);
+          const label = pe.key === "말년" ? "말년·총운" : pe.key;
+          lines.push((tp ? NUM[tps.length - 1] + " " : "· ") + "<strong>" + label + "(" + rg + ")</strong>: " + txt);
+        });
+        if (!lines.length && !tps.length) return "";
+        return "<strong>변곡점</strong> — 이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. " +
+          (tps.length
+            ? "이 사람의 변곡점은 " + tps.join("·") + ", " + KNUM[tps.length] + " 곳입니다."
+            : "시기별로 뚜렷한 변곡점이 없습니다.") +
+          "<br>" + lines.join("<br>");
       }
 
       const nameGoodCnt = nameGood.length;
@@ -3225,6 +3318,8 @@
       const sajuPeriods = buildSajuPeriodLine();
       if (sajuPeriods) ageParts.push(sajuPeriods);
       if (nameParts.rest) ageParts.push(nameParts.rest);
+      const turnList = buildNameVsBirthCompare(true);
+      if (turnList) ageParts.push(turnList);
     }
     const hazard = buildNameHazardBrief();
     if (hazard) ageParts.push(hazard);
