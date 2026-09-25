@@ -13,8 +13,8 @@
       /* Quiet SW cleanup only — NEVER location.replace (that made English flash then vanish). */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_quiet_20260925en43")) return;
-          sessionStorage.setItem("na_sw_quiet_20260925en43", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
+          if (sessionStorage.getItem("na_sw_quiet_20260925en44")) return;
+          sessionStorage.setItem("na_sw_quiet_20260925en44", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
           if (!("serviceWorker" in navigator)) return;
           navigator.serviceWorker.getRegistrations().then(function (regs) {
             return Promise.all(regs.map(function (r) { return r.unregister(); }));
@@ -32,8 +32,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-lang-control.js?v=20260925en43"></script>
-    <script src="../assets/en-to-hangul.js?v=20260925en43"></script>
+    <script src="../assets/en-lang-control.js?v=20260925en44"></script>
+    <script src="../assets/en-to-hangul.js?v=20260925en44"></script>
     <script>
       (function () {
         function g(u) {
@@ -45,14 +45,14 @@
           } catch (e) {}
           return {};
         }
-        var d = "../data/core-summaries/", v = "?v=20260925en43";
+        var d = "../data/core-summaries/", v = "?v=20260925en44";
         window.__CORE_SUMMARIES__ = { suri: g(d + "suri-core-by-num.json" + v), hex: g(d + "hex-core-by-id.json" + v) };
         window.__NARRATE__ = { suri: g(d + "suri-narrate-by-num.json" + v), hex: g(d + "hex-narrate-by-id.json" + v) };
       })();
     </script>
-    <script src="../assets/en-narrate.js?v=20260925en43"></script>
-    <script src="../assets/en-sum-routine.js?v=20260925en43"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en43"></script>
+    <script src="../assets/en-narrate.js?v=20260925en44"></script>
+    <script src="../assets/en-sum-routine.js?v=20260925en44"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en44"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -184,6 +184,34 @@
         .intro-caption-text{font-size:clamp(11px,3.1vw,14px);}
         .intro-media-btn{width:48px;height:48px;}
         .intro-media-btn svg{width:24px;height:24px;}
+      }
+      @media print{
+        @page{
+          size:A4 portrait;
+          margin:9mm 9mm 13mm 9mm;
+          @bottom-center{content:counter(page) " / " counter(pages);font-size:9pt;color:#444;}
+        }
+        html{font-size:13px !important;}
+        html,body,#root{background:#fff !important;overflow:visible !important;}
+        html,body{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+        html.kb-open{padding-bottom:0 !important;}
+        #na-notrans-tip,#pwaSheet,#pwaBar,.intro-sec,video,audio,
+        [data-loc="client/src/pages/EnglishName.tsx:566"],
+        [data-loc="client/src/pages/EnglishName.tsx:598"],
+        [data-loc="client/src/pages/EnglishName.tsx:1043n"],
+        [data-loc="client/src/pages/EnglishName.tsx:1253"],
+        [data-loc^="client/src/pages/EnglishName.tsx:tip"]{display:none !important;}
+        [data-loc="client/src/pages/EnglishName.tsx:564"]{min-height:0 !important;}
+        [data-loc="client/src/pages/EnglishName.tsx:595"]{max-width:none !important;padding:0 !important;}
+        #root [style*="box-shadow"]{box-shadow:none !important;}
+        #root [style*="margin-bottom: 1.5rem"],#root [style*="margin-bottom: 1.25rem"]{margin-bottom:0.55rem !important;}
+        #root [style*="margin-top: 1rem"]{margin-top:0.45rem !important;}
+        #root [style*="padding: 1.5rem"],#root [style*="padding: 1.25rem"],#root [style*="padding: 1rem"]{padding:0.55rem 0.7rem !important;}
+        #root [style*="padding: 0.75rem"],#root [style*="padding: 0.6rem 0.75rem"]{padding:0.4rem 0.55rem !important;}
+        #root [style*="line-height: 1.75"]{line-height:1.5 !important;}
+        #root h3{margin-bottom:0.35rem !important;}
+        table,tr,img,svg{break-inside:avoid;}
+        h2,h3{break-after:avoid;}
       }
     </style>
   <meta property="og:type" content="website">
