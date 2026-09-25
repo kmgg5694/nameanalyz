@@ -800,7 +800,27 @@
   const FOOT_SURI20_22_EN =
     "Even more serious than 14 Scattering & Ruin are 20 Failure in All Things and 22 Midway Collapse, traditionally associated with a higher risk of serious illness. In the overall destiny these numbers bring a sharp mind, big ambition and strong drive; some succeed hugely for a time, become a major figure or grow very rich, but may not keep it to the end and may meet failure, bankruptcy, accidents, illness, surgery, legal trouble or an early death midway. However, if the hexagram below is The Well (Hex. 48) or Limitation (Hex. 60), 20 Failure in All Things is read as great wealth and great honor. When 20 forms any one of Limitation (Hex. 60), The Well (Hex. 48), Approach (Hex. 19) or The Marrying Maiden (Hex. 54), the person lives wealthy, long-lived and honored — provided the birth chart is at least average.";
   const FOOT_FOOTER_EN =
-    "If your name contains any of the numbers or hexagrams above, the traditional recommendation is to consider a name change.";
+    "If your name contains any of the numbers or hexagrams above, the traditional recommendation is to change the first or middle name.";
+  const KEEP_FAMILY_KO =
+    "성(가문)은 그대로 두고, 퍼스트네임이나 미들네임만 바꾸어도 이름의 기운이 달라집니다.";
+  const KEEP_FAMILY_EN =
+    "Keep your family name — changing only your first or middle name is enough to change the energy of the name.";
+  const JR_NOTE_KO =
+    "특히 Jr.처럼 아버지 이름을 그대로 물려받은 경우, 자기만의 미들네임을 가지는 것이 사주를 편하게 합니다.";
+  const JR_NOTE_EN =
+    "Especially with a Jr. name, inherited unchanged from the father, having a middle name of your own eases the birth chart.";
+  const RECHECK_KO =
+    "퍼스트네임이나 미들네임을 바꾼 뒤 이 사이트로 와서 풀어 보고, 흉이 없으면 사용하셔도 됩니다.";
+  const RECHECK_EN =
+    "After changing your first or middle name, come back to this site and read the new name; if no misfortune shows, you may use it.";
+  function keepFamily(ko) {
+    return (
+      (ko ? KEEP_FAMILY_KO : KEEP_FAMILY_EN) +
+      (window.__naHasJr ? " " + (ko ? JR_NOTE_KO : JR_NOTE_EN) : "") +
+      " " +
+      (ko ? RECHECK_KO : RECHECK_EN)
+    );
+  }
   const DISCLAIMER_EN =
     "These readings follow traditional Korean I Ching name analysis. They are for cultural reference only and are not medical, legal or financial advice.";
 
@@ -1166,8 +1186,8 @@
       bits.push(
         paintRed(
           ko
-            ? "이름이 평생의 길을 누르고 있어 개명을 강력히 권합니다."
-            : "The name presses the lifetime path — a change is strongly advised."
+            ? "이름이 평생의 길을 누르고 있어 퍼스트네임·미들네임을 바꾸기를 강력히 권합니다."
+            : "The name presses the lifetime path — changing the first or middle name is strongly advised."
         )
       );
     } else if (sideGood(nS, nG, I.late)) {
@@ -1336,15 +1356,15 @@
           : "There is no clear turning point by period.");
     let verdict;
     if (nameBadAny) {
-      verdict = paintRed(ko ? "이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다." : "This is a bad name. A name change is a must.");
+      verdict = paintRed(ko ? "이 이름은 나쁜 이름입니다." : "This is a bad name.") + " " + keepFamily(ko);
     } else if (helped) {
       verdict = paintBlue(
         ko ? "이름 기운이 나쁜 사주를 도와주고 있으니 좋은 이름을 가졌네요." : "The name energy is helping a weak birth chart — you have a good name."
       );
     } else if (sajuSurface) {
       verdict = ko
-        ? "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다."
-        : "The name is not bad, but it does not hold back the chart's misfortune — consider a name that presses it down.";
+        ? "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 성은 그대로 두고 사주를 눌러 주는 퍼스트네임·미들네임을 생각해 보셔야 합니다."
+        : "The name is not bad, but it does not hold back the chart's misfortune — keep the family name and consider a first or middle name that presses it down.";
     } else if (nameGoodAny) {
       verdict = paintBlue(ko ? "이름과 사주가 함께 편안하니 좋은 이름을 가졌네요." : "Name and birth chart are at ease together — you have a good name.");
     } else {
@@ -1357,9 +1377,9 @@
     const ko = lang === "ko";
     if (sideBad(nS, nG, I.late)) {
       return ko
-        ? "이름은 매일 듣는 세 글자 주기도문입니다. 고난을 부르는 기도라면 개명을 생각해 볼 만합니다. " +
+        ? "이름은 매일 듣는 주기도문입니다. 고난을 부르는 기도라면 성은 그대로 두고 퍼스트네임이나 미들네임을 바꾸어 볼 만합니다. " +
             "자세한 것은 요약보기의 밑줄을 누르고, 아래 경고장을 보세요."
-        : "Your name works like a prayer you hear every day. If it calls for hardship, a change is worth considering. " +
+        : "Your name works like a prayer you hear every day. If it calls for hardship, keep the family name and consider changing the first or middle name. " +
             "Details: tap underlined items in Reading Summary; see Warning Board below.";
     }
     return ko
@@ -1398,7 +1418,7 @@
         red(warnSuri) +
         ", or difficult Hexagrams such as " +
         red(warnHex) +
-        "—promptly changing your name is the most reliable way to mitigate misfortune."
+        "—promptly changing your first or middle name (the family name can stay) is the most reliable way to reduce misfortune."
       : "만약 여러분 이름을 분석해서 " +
         red(warnSuri) +
         " 등이 있거나, 이러한 수리가 아니라 해도 수리에 주역을 대입해서 " +
@@ -1425,7 +1445,7 @@
         (en ? "This name contains: " : "이 이름에 해당: ") +
         hits.join(", ") +
         (en
-          ? ". In the traditional reading this points to serious hardship; a name change is worth considering."
+          ? ". In the traditional reading this points to serious hardship; changing the first or middle name is worth considering."
           : ". 절망적 상황에 처하기 쉬우니 개명을 심사숙고하십시오.") +
         "</div>";
     }
@@ -1479,6 +1499,11 @@
       '<div style="margin-top:8px;line-height:1.5;font-size:0.9rem;font-weight:800;color:#FF1493">' +
       esc(en ? FOOT_FOOTER_EN : FOOT_FOOTER) +
       "</div>" +
+      (hits.length
+        ? '<div style="margin-top:6px;line-height:1.5;font-size:0.9rem;font-weight:700;color:#111">' +
+          esc(keepFamily(!en)) +
+          "</div>"
+        : "") +
       (en
         ? '<div style="margin-top:12px;line-height:1.5;font-size:0.8rem;color:#555">' +
           esc(DISCLAIMER_EN) +

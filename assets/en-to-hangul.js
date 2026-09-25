@@ -566,6 +566,7 @@
     };
     var l = strip(last), f = strip(first), m = strip(middle);
     if (found) m = m ? m + " Jr." : "Jr.";
+    window.__naHasJr = found;
     return [l || String(last || "").trim(), f || String(first || "").trim(), m];
   }
 
