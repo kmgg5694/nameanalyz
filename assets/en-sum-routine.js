@@ -1,6 +1,6 @@
 /**
  * English overall reading — brief narrate then Warning/Footnotes.
- * Order: 오행 → 탄생일 → 이름↔사주 → 마무리 → 경고장·각주
+ * Order: 오행 → 이름표 자세히 → 탄생일 → 이름↔사주 → 마무리 → 경고장·각주
  * Suri/hex names: always Korean 원어 (table·narrate·warning match). Sentences follow lang.
  * Warning/footnotes: ko=Korean text, en=English text with Korean names + notranslate. Ages: [early,prime,mid,late]
  */
@@ -99,6 +99,13 @@
   }
   function joinMarks(arr) {
     return (arr || []).join(", ");
+  }
+  /** 받침 있으면 a(이·은), 없으면 b(가·는) */
+  function josa(word, a, b) {
+    const w = String(word || "");
+    const c = w.charCodeAt(w.length - 1);
+    if (c >= 0xac00 && c <= 0xd7a3) return (c - 0xac00) % 28 ? a : b;
+    return b;
   }
 
   const AGE_EN = {
@@ -597,6 +604,52 @@
     const k = String(koName || "").replace(/\s*\([^)]*\)\s*/g, "").trim();
     return HEX_EN[k] || koName || "";
   };
+  /** 인생카드·요약보기 = 요약본(narrate). 한글은 __NARRATE__, 영어는 NA_NARR_EN. 초년·말년 칸은 해당 나이대에만. */
+  function ageKeyOf(label) {
+    const s = String(label || "");
+    if (s.indexOf("초년") >= 0) return "초년";
+    if (s.indexOf("말년") >= 0 || s.indexOf("총운") >= 0) return "말년";
+    return "";
+  }
+  function coreBrief(t) {
+    return String(t || "")
+      .replace(/^(길수|흉수|평수|주의|길괘|흉괘|중성)\s*[—–-]\s*/, "")
+      .trim();
+  }
+  window.naSuriSum = function (n, d, en, ko, label) {
+    const key = String(n);
+    const ak = ageKeyOf(label);
+    if (ko) {
+      const nar = ((window.__NARRATE__ || {}).suri || {})[key];
+      if (nar && nar.narrate) {
+        const extra = ak && nar[ak] ? " " + String(nar[ak]).trim() : "";
+        return String(nar.narrate).trim() + extra;
+      }
+      const cs = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key];
+      if (cs && (cs.core || cs.shortDesc)) return coreBrief(cs.core || cs.shortDesc);
+      return [d && d.shortDesc, d && d.desc].filter(Boolean).join(" ");
+    }
+    const E = window.NA_NARR_EN || {};
+    const t = (E.suri || {})[key];
+    if (t) {
+      const age = ((E.suriAge || {})[key] || {})[ak];
+      return age ? t + " " + age : t;
+    }
+    return (en && (en.shortDescEn || en.descEn)) || (d && d.shortDesc) || "";
+  };
+  window.naHexSum = function (g, pen, ko) {
+    if (!g) return "";
+    const key = String(g.id);
+    if (ko) {
+      const nar = ((window.__NARRATE__ || {}).hex || {})[key];
+      if (nar && nar.narrate) return String(nar.narrate).trim();
+      const cs = ((window.__CORE_SUMMARIES__ || {}).hex || {})[key];
+      if (cs && cs.core) return coreBrief(cs.core);
+      return g.desc || "";
+    }
+    const t = ((window.NA_NARR_EN || {}).hex || {})[key];
+    return t || (pen && pen.descEn) || g.desc || "";
+  };
   /** 세로 오행 흐름도 화살표: top=위 칸 오행, bot=아래 칸 오행, meTop=나가 위 칸인지 */
   window.naOhLink = function (top, bot, meTop, ko) {
     let kind = "same";
@@ -692,6 +745,145 @@
   }
 
 
+  /** 이름표 자세히: 수리 빨강·파랑 개수 → 주역 4괘 흉 여부 → 재물운(청색) → 흉수리 밑 괘 → 판정 */
+  function buildNameDetail(nS, nG, lang) {
+    const ko = lang === "ko";
+    const sRed = [];
+    let sBlue = 0;
+    const gRed = [];
+    const gBlue = [];
+    let gBlack = 0;
+    const mit = [];
+    let mitLast = "";
+    for (let i = 0; i < 4; i++) {
+      const s = nS[i];
+      if (s && s.data) {
+        if (suriBad(s.data)) sRed.push(i);
+        else if (suriGood(s.data)) sBlue++;
+      }
+      const g = nG[i];
+      if (g && g.name) {
+        if (gweBad(g)) gRed.push(gweNameHtml(g, lang));
+        else if (gweGood(g)) gBlue.push(gweNameHtml(g, lang));
+        else gBlack++;
+        if (isMitigate(g)) {
+          mit.push(gweNameHtml(g, lang));
+          mitLast = gweDisplayName(g, lang);
+        }
+      }
+    }
+    if (!nS.length && !nG.length) return "";
+    const redList = sRed.map(function (i) {
+      return suriPhrase(nS[i], lang);
+    });
+    const bits = [];
+    bits.push(
+      ko
+        ? "이름표를 자세히 보겠습니다. 수리 4개 중 빨간색이 " +
+            sRed.length +
+            "개" +
+            (redList.length ? "(" + joinMarks(redList) + ")" : "") +
+            ", 파란색이 " +
+            sBlue +
+            "개입니다."
+        : "Reading the name chart closely: of the 4 numbers, " +
+            sRed.length +
+            " are red" +
+            (redList.length ? " (" + joinMarks(redList) + ")" : "") +
+            " and " +
+            sBlue +
+            " are blue."
+    );
+    bits.push(
+      ko
+        ? "주역 4괘는 청색 " +
+            gBlue.length +
+            "개, 검정 " +
+            gBlack +
+            "개" +
+            (gRed.length ? ", 빨간색 " + gRed.length + "개(" + joinMarks(gRed) + ")" : "") +
+            "입니다."
+        : "Of the 4 hexagrams, " +
+            gBlue.length +
+            " are blue, " +
+            gBlack +
+            " black" +
+            (gRed.length ? ", " + gRed.length + " red (" + joinMarks(gRed) + ")" : "") +
+            "."
+    );
+    if (gBlue.length) {
+      bits.push(
+        ko
+          ? "청색 괘는 재물운이니 재물운이 " + gBlue.length + "개나 됩니다."
+          : "Blue hexagrams are wealth signs — this name has " + gBlue.length + "."
+      );
+    }
+    if (mit.length && sRed.length) {
+      bits.push(
+        ko
+          ? joinMarks(mit) + josa(mitLast, "은", "는") + " 수리의 흉을 눌러 주는 기운이기도 합니다."
+          : joinMarks(mit) + " also press down the misfortune of the numbers."
+      );
+    }
+    sRed.forEach(function (i) {
+      const s = nS[i];
+      const g = nG[i];
+      if (!g || !g.name) return;
+      const sp = suriPhrase(s, lang);
+      const gp = gweNameHtml(g, lang);
+      const gw = gweDisplayName(g, lang);
+      if (gweGood(g) || isMitigate(g)) {
+        if (Number(s.suri) === 14) {
+          bits.push(
+            ko
+              ? sp +
+                  " 밑에 청색 재물운 " +
+                  gp +
+                  josa(gw, "이", "가") +
+                  " 들어 이산파멸의 장점만 살아나, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 살면서 재물을 더 크게 만들어 줍니다."
+              : "Under " +
+                  sp +
+                  " sits the blue wealth hexagram " +
+                  gp +
+                  ", so only the strength of 14 survives — you live fiercely, never giving up in a crisis, and grow your wealth even bigger."
+          );
+        } else {
+          bits.push(
+            ko
+              ? sp + " 밑에 청색 " + gp + josa(gw, "이", "가") + " 들어 흉을 눌러 줍니다."
+              : "Under " + sp + " sits the blue " + gp + ", pressing down its misfortune."
+          );
+        }
+      } else if (gweBad(g)) {
+        bits.push(
+          ko
+            ? sp + " 밑에 " + gp + "까지 들어 흉이 겹칩니다."
+            : "Under " + sp + " sits " + gp + " as well — the misfortune doubles."
+        );
+      } else {
+        bits.push(
+          ko
+            ? sp + " 밑의 " + gp + josa(gw, "은", "는") + " 보통 괘라 흉을 눌러 주지 못합니다."
+            : "Under " + sp + " sits " + gp + ", an ordinary hexagram that cannot press down the misfortune."
+        );
+      }
+    });
+    bits.push(
+      gRed.length
+        ? paintRed(
+            ko
+              ? "주역 괘에 흉이 있어 좋은 이름이라 하기 어렵습니다."
+              : "An unfavorable hexagram is present — this is hard to call a good name."
+          )
+        : paintBlue(
+            ko
+              ? "주역 4괘에 흉이 없으니 좋은 이름입니다."
+              : "None of the four hexagrams is unfavorable — this is a good name."
+          )
+    );
+    return bits.join(" ");
+  }
+
   function buildBirth(bS, bG, hasB, lang) {
     if (!hasB || !bS || !bS.length) return "";
     const ko = lang === "ko";
@@ -745,25 +937,6 @@
     } else if (sideGood(nS, nG, I.late)) {
       bits.push(
         paintBlue(ko ? "이름이 전체 삶의 길을 도와 줍니다." : "The name supports the overall path.")
-      );
-    }
-    for (let i = 0; i < 3; i++) {
-      const bad = badMarks(nS, nG, i, lang);
-      if (bad.length) {
-        bits.push(
-          ageOf(AGE_KEYS[i], lang) + (ko ? " 흉: " : " risk: ") + joinMarks(bad) + "."
-        );
-      }
-    }
-    const help = [];
-    for (let i = 0; i < 4; i++) {
-      if (nG[i] && isMitigate(nG[i])) help.push(gweNameHtml(nG[i], lang));
-    }
-    if (help.length) {
-      bits.push(
-        (ko ? "이름 속 흉을 눌러 주는 괘: " : "Protective hexagrams in the name (offset the risk): ") +
-          joinMarks(help) +
-          "."
       );
     }
     return bits.join(" ");
@@ -918,6 +1091,8 @@
     const parts = [];
     const oh = buildOhang(ctx.ohang, lang);
     if (oh) parts.push(oh);
+    const detail = buildNameDetail(nS, nG, lang);
+    if (detail) parts.push(detail);
     const birth = buildBirth(bS, bG, hasB, lang);
     if (birth) parts.push(birth);
     const vs = buildNameVsSaju(nS, nG, bS, bG, hasB, lang);

@@ -13,8 +13,8 @@
       /* Quiet SW cleanup only — NEVER location.replace (that made English flash then vanish). */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_quiet_20260925en29")) return;
-          sessionStorage.setItem("na_sw_quiet_20260925en29", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
+          if (sessionStorage.getItem("na_sw_quiet_20260925en30")) return;
+          sessionStorage.setItem("na_sw_quiet_20260925en30", "1");try{sessionStorage.removeItem("na_en_lang")}catch(e){}
           if (!("serviceWorker" in navigator)) return;
           navigator.serviceWorker.getRegistrations().then(function (regs) {
             return Promise.all(regs.map(function (r) { return r.unregister(); }));
@@ -32,10 +32,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-    <script src="../assets/en-lang-control.js?v=20260925en29"></script>
-    <script src="../assets/en-to-hangul.js?v=20260925en29"></script>
-    <script src="../assets/en-sum-routine.js?v=20260925en29"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en29"></script>
+    <script src="../assets/en-lang-control.js?v=20260925en30"></script>
+    <script src="../assets/en-to-hangul.js?v=20260925en30"></script>
+    <script>
+      (function () {
+        function g(u) {
+          try {
+            var x = new XMLHttpRequest();
+            x.open("GET", u, false);
+            x.send(null);
+            if (x.status >= 200 && x.status < 300) return JSON.parse(x.responseText);
+          } catch (e) {}
+          return {};
+        }
+        var d = "../data/core-summaries/", v = "?v=20260925en30";
+        window.__CORE_SUMMARIES__ = { suri: g(d + "suri-core-by-num.json" + v), hex: g(d + "hex-core-by-id.json" + v) };
+        window.__NARRATE__ = { suri: g(d + "suri-narrate-by-num.json" + v), hex: g(d + "hex-narrate-by-id.json" + v) };
+      })();
+    </script>
+    <script src="../assets/en-narrate.js?v=20260925en30"></script>
+    <script src="../assets/en-sum-routine.js?v=20260925en30"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260925en30"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
