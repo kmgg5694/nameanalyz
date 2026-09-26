@@ -3026,7 +3026,7 @@
         });
         let verdict;
         if (nameBadAny && !nameBadBare) verdict = paintBlue("흉이 길로 승화하니 아주 좋은 이름입니다.");
-        else if (nameBadAny) verdict = paintRed("이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다.");
+        else if (nameBadAny) verdict = paintRed("이 이름을 평생 쓰게 되면 내 사주를 조정하여 고통스럽게 할 수 있으니 개명을 하셔야 합니다.");
         else if (helped) verdict = paintBlue("이름 기운이 나쁜 사주를 도와주고 있으니 좋은 이름을 가졌네요.");
         else if (sajuSurface)
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
