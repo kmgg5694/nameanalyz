@@ -2429,10 +2429,10 @@
           return g[0] + "~" + g[1] + "세";
         }
         /** 흉수리 + 눌러 주는 괘(같은 자리) → 수리의 단점이 장점으로 승화 (보흘 지정 · 빠뜨리지 말 것) */
-        function sublimeAt(idx) {
+        function sublimeAt(idx, skipSaju) {
           const who = [[hasHanja ? "한글" : "이름", nmS, nmG]]
             .concat(hasHanja ? [["한문", hjS, hjG]] : [])
-            .concat(hasB ? [["사주", bdS, bdG]] : []);
+            .concat(hasB && !skipSaju ? [["사주", bdS, bdG]] : []);
           const out = [];
           const sides = [];
           who.forEach(function (w) {
@@ -2451,6 +2451,48 @@
             );
           });
           return { html: out.join(" "), sides: sides };
+        }
+        /** 사주 말년(총운) = 사주 전체 기운의 축 — 이 사주가 어떻게 살라고 했는지의 중심 (보흘 지정) */
+        function sajuAxisHtml() {
+          if (!hasB) return "";
+          const s = bdS[0];
+          const g = bdG[0];
+          const sOk = !!(s && s.data);
+          const gOk = !!(g && g.name);
+          if (!sOk && !gOk) return "";
+          const sn = sOk ? plainSuriName(s) : "";
+          const gn = gOk ? gweNameOf(g) : "";
+          const gh = gOk ? gweNameHtml(g) : "";
+          let t =
+            "사주 전체 기운의 축인 말년(총운)은 " +
+            [sOk ? suriPhrase(s) : "", gh].filter(Boolean).join("·") +
+            "입니다. ";
+          if (hasBadSuriMitigateHex(s, g)) {
+            t +=
+              sn + josaEuro(sn) + " 약간의 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) +
+              " 나쁘지 않은 편이고, 오히려 " + sn + josaEuro(sn) + " 인한 고통·재난 등을 " +
+              paintBlue("눌러 주니") + " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
+              (isWealthFortuneHex(g) ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") +
+              "고난 끝에 행복이 온답니다. ";
+          } else if (sOk && suriBad(s.data) && gOk && gweBad(g)) {
+            t += "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 사주입니다. ";
+          } else if (hasBadSuriBlackHex(s, g)) {
+            t += sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. ";
+          } else if (sOk && suriBad(s.data)) {
+            t += sn + josaEuro(sn) + " 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) + " 좋은 편입니다. ";
+          } else if (gOk && gweBad(g)) {
+            t += "수리는 괜찮지만 주역괘 " + gh + josaIGA(gn) + " " + paintRed("흉") + "하여 시련이 따릅니다. ";
+          } else if (sOk && suriGood(s.data) && gOk && gweGood(g)) {
+            t += "수리와 주역괘가 모두 " + paintBlue("길") + "하여 든든한 사주입니다. ";
+          } else if (sOk && suriGood(s.data)) {
+            t += "수리가 " + paintBlue("길") + "하여 무난한 편입니다. ";
+          } else if (gOk && gweGood(g)) {
+            t += "주역괘 " + gh + josaIGA(gn) + " " + paintBlue("길") + "하여 무난한 편입니다. ";
+          }
+          return (
+            "<strong>사주의 중심</strong> — " + t +
+            "말년 기운은 인생 전반에 영향력을 행사하니, 이 사주가 어떻게 살라고 했는지의 중심이 여기입니다."
+          );
         }
         const lastT = nameToneAt(0);
         const lastBadM = marks(nameArrs, 0, true);
@@ -2472,8 +2514,9 @@
           let rg = "";
           let worst = false;
           let skip = false;
-          const sub = sublimeAt(pe.idx);
-          const wm = wealthMarks(pe.idx, sub.sides);
+          const axisSaju = pe.idx === 0 && hasB && hasBadSuriMitigateHex(bdS[0], bdG[0]);
+          const sub = sublimeAt(pe.idx, axisSaju);
+          const wm = wealthMarks(pe.idx, axisSaju ? sub.sides.concat(["사주"]) : sub.sides);
           if (nt === "길") nameGoodAny = true;
           const hgBad = toneOf(nmS, nmG, pe.idx) === "흉";
           const hjBad = hasHanja && toneOf(hjS, hjG, pe.idx) === "흉";
@@ -2565,7 +2608,8 @@
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
         else if (nameGoodAny) verdict = paintBlue("이름과 사주가 함께 편안하니 좋은 이름을 가졌네요.");
         else verdict = "이름과 사주에 큰 흉이 없어 무난한 이름입니다.";
-        return "<strong>변곡점</strong> — " +
+        const axis = sajuAxisHtml();
+        return (axis ? axis + "<br><br>" : "") + "<strong>변곡점</strong> — " +
           (hasB
             ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. "
             : hasHanja

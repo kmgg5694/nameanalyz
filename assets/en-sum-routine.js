@@ -1269,9 +1269,10 @@
       const bMit = !!(bs && bs.data && suriBad(bs.data) && isMitigate(bg));
       const nSB = !nMit && !!(ns && ns.data && suriBad(ns.data)), nGB = gweBad(ng);
       const bSB = !bMit && !!(bs && bs.data && suriBad(bs.data)), bGB = gweBad(bg);
+      const axisCovers = i === 3 && bMit;
       const subParts = [];
       if (nMit) subParts.push(sublimeOne(ko ? "이름" : "the name", ns, ng));
-      if (bMit) subParts.push(sublimeOne(ko ? "사주" : "the birth chart", bs, bg));
+      if (bMit && !axisCovers) subParts.push(sublimeOne(ko ? "사주" : "the birth chart", bs, bg));
       const sub = subParts.join(" ");
       const nameBad = nSB || nGB, birthBad = bSB || bGB;
       const nameGood = !nameBad && !!marks(ns, ng, false);
@@ -1371,7 +1372,66 @@
     });
 
     const KNUM = ["", "한", "두", "세", "네"];
-    const head = ko
+    let axis = "";
+    if (hasB && ((bS[3] && bS[3].data) || (bG[3] && bG[3].name))) {
+      const s = bS[3], g = bG[3];
+      const sOk = !!(s && s.data), gOk = !!(g && g.name);
+      const sn = sOk ? plainSuriName(s, lang) : "";
+      const gn = gOk ? gweDisplayName(g, lang) : "";
+      const gh = gOk ? gweNameHtml(g, lang) : "";
+      const sPh = sOk ? (suriBad(s.data) ? paintRed : suriGood(s.data) ? paintBlue : String)(s.suri + " " + sn) : "";
+      const sB = sOk && suriBad(s.data), sG = sOk && suriGood(s.data);
+      const gB = gOk && gweBad(g), gG = gOk && gweGood(g);
+      const mit = sB && isMitigate(g);
+      const wealth = mit && SUB_WEALTH.some((x) => hexNameStarts(g, x));
+      let t = ko
+        ? "사주 전체 기운의 축인 말년(총운)은 " + [sPh, gh].filter(Boolean).join("·") + "입니다. "
+        : "The axis of the whole birth chart is its later years (overall destiny): " + [sPh, gh].filter(Boolean).join(" · ") + ". ";
+      if (mit) {
+        t += ko
+          ? sn + josaRo(sn) + " 약간의 시련이 있지만 주역괘 " + gh + josa(gn, "은", "는") + " 나쁘지 않은 편이고, 오히려 " + sn + josaRo(sn) +
+            " 인한 고통·재난 등을 " + paintBlue("눌러 주니") + " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
+            (wealth ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") + "고난 끝에 행복이 온답니다. "
+          : sn + " brings some hardship, but the hexagram " + gh + " is not bad; in fact it " + paintBlue("presses down") +
+            " the pain and trouble " + sn + " brings, so the number's weakness is " + paintBlue("turned into a strength") + ". " +
+            (wealth ? "It changes into even greater " + paintBlue("wealth") + " — " : "") + "happiness comes after hardship. ";
+      } else if (sB && gB) {
+        t += ko
+          ? "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 사주입니다. "
+          : "Both number and hexagram are " + paintRed("unfavorable") + ", so hardship tends to follow all through life. ";
+      } else if (sB && gOk && !gG) {
+        t += ko
+          ? sn + josaRo(sn) + " 시련이 있고, 보통 괘인 " + gh + josa(gn, "이", "가") + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. "
+          : sn + " brings hardship, and the ordinary hexagram " + gh + " cannot press it down, so the misfortune shows more. ";
+      } else if (sB) {
+        t += ko
+          ? sn + josaRo(sn) + " 시련이 있지만 주역괘 " + gh + josa(gn, "은", "는") + " 좋은 편입니다. "
+          : sn + " brings hardship, but the hexagram " + gh + " is favorable. ";
+      } else if (gB) {
+        t += ko
+          ? "수리는 괜찮지만 주역괘 " + gh + josa(gn, "이", "가") + " " + paintRed("흉") + "하여 시련이 따릅니다. "
+          : "The number is fine, but the hexagram " + gh + " is " + paintRed("unfavorable") + ", so hardship follows. ";
+      } else if (sG && gG) {
+        t += ko
+          ? "수리와 주역괘가 모두 " + paintBlue("길") + "하여 든든한 사주입니다. "
+          : "Both number and hexagram are " + paintBlue("favorable") + " — a solid birth chart. ";
+      } else if (sG) {
+        t += ko
+          ? "수리가 " + paintBlue("길") + "하여 무난한 편입니다. "
+          : "The number is " + paintBlue("favorable") + ", so it is a steady chart. ";
+      } else if (gG) {
+        t += ko
+          ? "주역괘 " + gh + josa(gn, "이", "가") + " " + paintBlue("길") + "하여 무난한 편입니다. "
+          : "The hexagram " + gh + " is " + paintBlue("favorable") + ", so it is a steady chart. ";
+      }
+      axis =
+        "<strong>" + (ko ? "사주의 중심" : "Center of the birth chart") + "</strong> — " + t +
+        (ko
+          ? "말년 기운은 인생 전반에 영향력을 행사하니, 이 사주가 어떻게 살라고 했는지의 중심이 여기입니다."
+          : "The later-years energy reaches across the whole life, so this is the center of how the birth chart tells this person to live.") +
+        "<br><br>";
+    }
+    const head = axis + (ko
       ? "<strong>변곡점</strong> — " +
         (hasB ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. " : "이름을 시기별로 보면 변곡점이 드러납니다. ") +
         (tpNames.length
@@ -1381,7 +1441,7 @@
         (hasB ? "Setting the name beside the birth chart period by period reveals the turning points of a life. " : "Reading the name period by period reveals its turning points. ") +
         (tpNames.length
           ? "This person has " + tpNames.length + " turning point" + (tpNames.length > 1 ? "s" : "") + ": " + tpNames.join(", ") + "."
-          : "There is no clear turning point by period.");
+          : "There is no clear turning point by period."));
     let verdict;
     if (nameBadAny) {
       verdict = paintRed(ko ? "이 이름은 나쁜 이름입니다." : "This is a bad name.") + " " + keepFamily(ko);
