@@ -55,9 +55,42 @@
         window.__NARRATE__.hex = hn;
       }).catch(() => {});
     </script>
+    <script>
+      window.__hjPop = function (ch, list) {
+        var old = document.getElementById('hjPop');
+        if (old) old.remove();
+        var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+        var col = { '木': '#15803d', '火': '#dc2626', '土': '#a16207', '金': '#6b7280', '水': '#1d4ed8' };
+        var rows = (list && list.length ? list : [{ char: ch }]).map(function (e) {
+          var c = col[e.ohang] || '#6b7280';
+          var st = e.wonHoek != null ? e.wonHoek : e.strokes;
+          return '<div style="border-top:1px solid #eee3cf;padding:10px 0;text-align:left">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+            (e.ohang ? '<span style="padding:1px 8px;border-radius:6px;font-weight:700;font-size:13px;color:' + c + ';background:' + c + '18;border:1px solid ' + c + '50">' + esc(e.ohang) + '</span>' : '') +
+            (st != null ? '<span style="font-size:13px;color:#78716c">' + esc(st) + '획</span>' : '') +
+            '<span style="font-size:15px;font-weight:700;color:#1c1917">' + esc(e.meaning || '') + '</span></div>' +
+            (e.detail ? '<div style="font-size:14px;line-height:1.6;color:#44403c">' + esc(e.detail) + '</div>' : '') +
+            '</div>';
+        }).join('');
+        var ov = document.createElement('div');
+        ov.id = 'hjPop';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px';
+        ov.innerHTML = '<div role="dialog" aria-modal="true" style="background:#fbf8f2;border:1px solid #d6c7a8;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:100%;max-width:340px;max-height:80vh;display:flex;flex-direction:column;padding:18px 18px 14px">' +
+          '<div style="text-align:center;font-size:44px;font-weight:700;color:#7c2d12;line-height:1.1;margin-bottom:8px">' + esc(ch) + '</div>' +
+          '<div style="overflow-y:auto;flex:1">' + rows + '</div>' +
+          '<button type="button" id="hjPopClose" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:2px solid #b45309;background:#fff7ed;color:#92400e;font-size:15px;font-weight:700;cursor:pointer">닫기</button>' +
+          '</div>';
+        var close = function () { ov.remove(); document.removeEventListener('keydown', onKey); };
+        var onKey = function (e) { if (e.key === 'Escape') close(); };
+        ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+        ov.querySelector('#hjPopClose').addEventListener('click', close);
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(ov);
+      };
+    </script>
     <script src="./assets/ko-sum-routine.js?v=20260926tp8"></script>
     <script src="./assets/hex-fortune-routine.js?v=20260924y"></script>
-    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260926d"></script>
+    <script type="module" crossorigin src="./assets/index-kw5.js?v=20260926e"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-D-uQpcUF.css">
     <style>
       body, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, a, button {
