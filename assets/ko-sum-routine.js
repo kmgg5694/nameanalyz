@@ -2681,6 +2681,44 @@
           return " 이름 말년(총운)의 흉은 " + marks(nameArrs, 0, true) + "인데 사주의 " + sajuPressAll[0].html +
             " 하나가 막기가 버겁지만 그래도 " + paintBlue("죽지는 않고 겨우겨우 이어지는 삶") + "으로 보여집니다.";
         }
+        /** 그 시기·이름 말년 어디에도 눌러 주는 괘가 없으면 흉을 고스란히 맞는다 (보흘 지정) */
+        let bareCnt = 0;
+        function unpressedAt(idx) {
+          const here = nameArrs.concat(sajuArrs).some(function (a) { return isMitigateSuriHex(a[1] && a[1][idx]); });
+          return !here && (idx === 0 || !nameMalPress.length);
+        }
+        function bareNote(pe) {
+          if (!unpressedAt(pe.idx)) return "";
+          const both = nameArrs.concat(sajuArrs);
+          const html = [];
+          const plain = [];
+          let has14 = false;
+          both.forEach(function (a) {
+            const s = a[0] && a[0][pe.idx];
+            const g = a[1] && a[1][pe.idx];
+            if (s && s.data && suriBad(s.data)) {
+              const h = suriPhrase(s);
+              if (html.indexOf(h) < 0) { html.push(h); plain.push(plainSuriName(s)); }
+              if (Number(s.suri) === 14) has14 = true;
+            }
+            if (g && g.name && gweBad(g)) {
+              const h = gweNameHtml(g);
+              if (html.indexOf(h) < 0) { html.push(h); plain.push(gweNameOf(g)); }
+            }
+          });
+          if (!html.length) return "";
+          const first = bareCnt === 0;
+          bareCnt++;
+          let t = " " + pe.key + "의 흉은 " + html.join(", ");
+          t += first
+            ? "인데 눌러 주는 기운이 없으니 " + paintRed("고스란히 얻어터지는 모습") + "입니다."
+            : josaEuro(plain[plain.length - 1]) + " 막아 주는 괘가 없어 여기도 " +
+              paintRed("고스란히 얻어 맞아야 하는 암울한 시기") + "입니다.";
+          if (has14)
+            t += " " + paintRed("14, 이산파멸") +
+              "로 이혼 등 잘 나가다가 끝이 안 좋고 시름시름 아프기도 하고 여러 가지 고통이 수반되는 수입니다.";
+          return t;
+        }
         [ORDER[3], ORDER[0], ORDER[1], ORDER[2]].forEach(function (pe) {
           const nt = nameToneAt(pe.idx);
           const st = sajuToneAt(pe.idx);
@@ -2707,7 +2745,7 @@
             const barely = pe.idx === 0 ? malBarelyNote() : "";
             txt = "한글 " + marks([[nmS, nmG]], pe.idx, true) + " × 한문 " + marks([[hjS, hjG]], pe.idx, true) +
               " — " + paintRed("한글과 한문 이름이 함께 흉이라 위기가 겹친 변곡점입니다." +
-                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely;
+                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely + bareNote(pe);
           } else if (nt === "흉" && sajuHasBad) {
             tp = true;
             worst = true;
@@ -2717,7 +2755,7 @@
             const barely = pe.idx === 0 ? malBarelyNote() : "";
             txt = "이름 " + marks(nameArrs, pe.idx, true) + " × 사주 " + marks(sajuArrs, pe.idx, true) +
               " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다." +
-                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely;
+                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely + bareNote(pe);
           } else if (nt === "흉" || (nt === "길흉혼재" && st !== "흉")) {
             tp = true;
             nameBadAny = true;
@@ -2744,6 +2782,7 @@
             } else {
               nameBadBare = true;
               if (pe.idx === 0) txt += malBarelyNote();
+              txt += bareNote(pe);
             }
           } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
@@ -2763,6 +2802,7 @@
               tp = true;
               sajuSurface = true;
               txt = "사주 " + sm + " — 이름이 막아 주지 못해 사주 흉이 그대로 드러나는 변곡점입니다.";
+              txt += bareNote(pe);
             }
           } else {
             skip = true;
