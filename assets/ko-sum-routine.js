@@ -2651,6 +2651,7 @@
         const lines = [];
         const tps = [];
         let nameBadAny = false;
+        let nameBadBare = false;
         let helped = false;
         let sajuSurface = false;
         let nameGoodAny = false;
@@ -2675,6 +2676,7 @@
             tp = true;
             worst = true;
             nameBadAny = true;
+            nameBadBare = true;
             rg = range(pe, nameArrs);
             txt = "한글 " + marks([[nmS, nmG]], pe.idx, true) + " × 한문 " + marks([[hjS, hjG]], pe.idx, true) +
               " — " + paintRed("한글과 한문 이름이 함께 흉이라 위기가 겹친 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
@@ -2682,6 +2684,7 @@
             tp = true;
             worst = true;
             nameBadAny = true;
+            nameBadBare = true;
             rg = range(pe, both);
             txt = "이름 " + marks(nameArrs, pe.idx, true) + " × 사주 " + marks(sajuArrs, pe.idx, true) +
               " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
@@ -2708,6 +2711,8 @@
             if (pe.idx !== 0 && nameMalPress.length) {
               txt += malSupportNote(propped ? "받쳐 주는 기운이 다 막지 못한 흉도 " : "이 흉도 ");
               supported = true;
+            } else {
+              nameBadBare = true;
             }
           } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
@@ -2780,7 +2785,8 @@
           lines.push((tp ? NUM[tps.length - 1] + " " : "· ") + "<strong>" + label + "(" + rg + ")</strong>: " + txt);
         });
         let verdict;
-        if (nameBadAny) verdict = paintRed("이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다.");
+        if (nameBadAny && !nameBadBare) verdict = paintBlue("흉이 길로 승화하니 아주 좋은 이름입니다.");
+        else if (nameBadAny) verdict = paintRed("이 이름은 나쁜 이름입니다. 반드시 개명을 하셔야 합니다.");
         else if (helped) verdict = paintBlue("이름 기운이 나쁜 사주를 도와주고 있으니 좋은 이름을 가졌네요.");
         else if (sajuSurface)
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
