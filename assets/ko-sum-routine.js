@@ -389,6 +389,24 @@
     return false;
   }
 
+  /** 말년(총운, idx 0)의 눌러 주는 괘 목록 — arrs: [[수리배열, 괘배열], ...] */
+  function malPressHexes(arrs) {
+    const out = [];
+    const seen = {};
+    arrs.forEach(function (a) {
+      const g = a[1] && a[1][0];
+      if (!isMitigateSuriHex(g)) return;
+      const n = gweNameOf(g);
+      if (seen[n]) return;
+      seen[n] = true;
+      out.push({ name: n, html: gweNameHtml(g) });
+    });
+    return out;
+  }
+  function pressHtml(list) {
+    return list.map(function (x) { return x.html; }).join("·");
+  }
+
   function isFootnoteWarnSuri(ns) {
     if (!ns || ns.suri == null) return false;
     const num = Number(ns.suri);
@@ -2596,6 +2614,38 @@
         const lastT = nameToneAt(0);
         const lastBadM = marks(nameArrs, 0, true);
         const lastGoodM = marks(nameArrs, 0, false);
+        const nameMalPress = malPressHexes(nameArrs);
+        const sajuMalPress = hasB ? malPressHexes([[bdS, bdG]]) : [];
+        /** 말년(총운)의 눌러 주는 괘 = 다른 시기 흉을 도와주는 지원군 (보흘 지정) */
+        function malSupportNote(lead) {
+          if (!nameMalPress.length) return "";
+          const last = nameMalPress[nameMalPress.length - 1].name;
+          let t =
+            " " + lead + "말년(총운)의 " + pressHtml(nameMalPress) +
+            (josaIGA(last) === "이" ? "이라는 " : "라는 ") + paintBlue("지원군") +
+            "이 도와주니, 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝납니다.";
+          if (sajuMalPress.length) {
+            const sl = sajuMalPress[sajuMalPress.length - 1].name;
+            t += " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sl) +
+              " 있으니 그런 흉은 " + paintBlue("살짝 스크래치만 남기고 사라집니다") + ".";
+          }
+          return t;
+        }
+        function malSublimeNote(idx) {
+          if (!nameMalPress.length) return "";
+          const s = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : [])
+            .map(function (a) { return hasBadSuriMitigateHex(a[0][idx], a[1][idx]) ? a[0][idx] : null; })
+            .filter(Boolean)[0];
+          if (!s) return "";
+          const last = nameMalPress[nameMalPress.length - 1].name;
+          return " 여기에 말년(총운)의 " + pressHtml(nameMalPress) + josaIGA(last) +
+            " 한 번 더 눌러 주니 " + paintRed(s.suri + ", " + plainSuriName(s)) + "의 흉은 " +
+            paintBlue("작동하지 않습니다") + "." +
+            (sajuMalPress.length
+              ? " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sajuMalPress[sajuMalPress.length - 1].name) +
+                " 있어 남는 흉이 있어도 살짝 스크래치 정도입니다."
+              : "");
+        }
         const NUM = ["①", "②", "③", "④"];
         const KNUM = ["", "한", "두", "세", "네"];
         const lines = [];
@@ -2613,6 +2663,7 @@
           let rg = "";
           let worst = false;
           let skip = false;
+          let supported = false;
           const axisSaju = pe.idx === 0 && hasB && hasBadSuriMitigateHex(bdS[0], bdG[0]);
           const sub = sublimeAt(pe.idx, axisSaju);
           const wm = wealthMarks(pe.idx, axisSaju ? sub.sides.concat(["사주"]) : sub.sides);
@@ -2642,11 +2693,21 @@
             txt = st === "길"
               ? "이름 " + nm + " — 이름 흉이 좋은 사주(" + marks(sajuArrs, pe.idx, false) + ")를 치는 변곡점입니다."
               : "이름 " + nm + " — 이름 흉이 드러나는 변곡점입니다.";
+            let propped = false;
             if (hasHanja) {
-              if (hgBad && toneOf(hjS, hjG, pe.idx) === "길")
+              const hgT = toneOf(nmS, nmG, pe.idx);
+              const hjT = toneOf(hjS, hjG, pe.idx);
+              if ((hgT === "흉" || hgT === "길흉혼재") && hjT === "길") {
+                propped = true;
                 txt += " 다만 한문(속)의 " + marks([[hjS, hjG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
-              else if (hjBad && toneOf(nmS, nmG, pe.idx) === "길")
+              } else if ((hjT === "흉" || hjT === "길흉혼재") && hgT === "길") {
+                propped = true;
                 txt += " 다만 한글(겉)의 " + marks([[nmS, nmG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
+              }
+            }
+            if (pe.idx !== 0 && nameMalPress.length) {
+              txt += malSupportNote(propped ? "받쳐 주는 기운이 다 막지 못한 흉도 " : "이 흉도 ");
+              supported = true;
             }
           } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
@@ -2684,6 +2745,13 @@
             } else {
               txt += " " + sub.html;
             }
+            if (pe.idx !== 0) {
+              const ms = malSublimeNote(pe.idx);
+              if (ms) {
+                txt += ms;
+                supported = true;
+              }
+            }
             tp = true;
           } else if (skip && !wm.html) {
             return;
@@ -2703,7 +2771,7 @@
             if (worst && lastT === "흉" && lastBadM)
               txt += " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 위태로울 수도 있답니다.");
             else if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
-            else if (lastT === "길" && lastGoodM)
+            else if (lastT === "길" && lastGoodM && !supported)
               txt += " 총운 " + lastGoodM + josaIGA(lastGoodM.replace(/<[^>]+>/g, "")) + " 흉을 덜어 줍니다.";
           }
           if (badTp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
@@ -2986,13 +3054,23 @@
       }
       function nameBadMarksAt(idx) {
         const marks = [];
-        if (nmS[idx] && nmS[idx].data && suriBad(nmS[idx].data))
+        if (
+          nmS[idx] &&
+          nmS[idx].data &&
+          suriBad(nmS[idx].data) &&
+          !isMitigateSuriHex(nmG[idx])
+        )
           marks.push(suriPhrase(nmS[idx]));
         // 흉괘만 — 검정 보통 괘(뇌지예·풍수환 등)는 고통 목록에 넣지 않음 (보흘)
         if (nmG[idx] && nmG[idx].name && gweBad(nmG[idx]))
           marks.push(gweNameHtml(nmG[idx]));
         if (hasHanja) {
-          if (hjS[idx] && hjS[idx].data && suriBad(hjS[idx].data))
+          if (
+            hjS[idx] &&
+            hjS[idx].data &&
+            suriBad(hjS[idx].data) &&
+            !isMitigateSuriHex(hjG[idx])
+          )
             marks.push(suriPhrase(hjS[idx]));
           if (hjG[idx] && hjG[idx].name && gweBad(hjG[idx]))
             marks.push(gweNameHtml(hjG[idx]));
@@ -3175,8 +3253,11 @@
             : joinMarks(jungGood);
           let jung =
             badPart +
-            "은 다행스럽게도 " +
-            (mitPart ? mitPart + "가 눌러주고" : "눌러 주는 기운이 눌러주고");
+            josaEunNeun(badPart) +
+            " 다행스럽게도 " +
+            (mitPart
+              ? mitPart + josaIGA(mitPart) + " 눌러주고"
+              : "눌러 주는 기운이 눌러주고");
           if (isWealthMitAt(3) || jungMit.length) {
             jung += " 재물운이니 이 시기에 인생의 절정기라고 보지만";
           } else {
@@ -3285,9 +3366,44 @@
         }
         if (gweBad(g)) painCnt++;
       }
-      if (wealthCnt >= 1) {
-        return " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다.";
+      const POWER_HEX = ["택풍대과", "택산함"];
+      const powerHtml = [];
+      [1, 2, 3, 0].forEach(function (bi) {
+        const g = bdG[bi];
+        if (!g || !g.name) return;
+        const n = gweNameOf(g);
+        for (let pi = 0; pi < POWER_HEX.length; pi++) {
+          if (n === POWER_HEX[pi] || n.indexOf(POWER_HEX[pi]) === 0) {
+            powerHtml.push(gweNameHtml(g));
+            break;
+          }
+        }
+      });
+      let powerLine = "";
+      if (powerHtml.length >= 2) {
+        powerLine =
+          " 이 사주는 " +
+          powerHtml.join("·") +
+          josaEuro(powerHtml[powerHtml.length - 1]) +
+          " " +
+          paintBlue("권력과 출세하고자 하는 기운이 넘치는") +
+          " 사주입니다.";
+      } else if (powerHtml.length === 1) {
+        powerLine =
+          " 이 사주는 " +
+          powerHtml[0] +
+          josaEuro(powerHtml[0]) +
+          " " +
+          paintBlue("권력과 출세하고자 하는 기운") +
+          "이 있는 사주입니다.";
       }
+      if (wealthCnt >= 1) {
+        return (
+          powerLine +
+          " 이 사주의 주역괘에는 재물·성공 기운이 보여 활용할 자리가 있습니다."
+        );
+      }
+      if (powerLine) return powerLine;
       if (painCnt >= 2) {
         return " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
       }
@@ -3356,7 +3472,7 @@
             ? "약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다."
             : "약간의 시련이 있지만 주역괘는 나쁘지 않은 편이고, ";
         } else if (tone === "길") {
-          mid += "로 ";
+          mid += josaEuro(mid) + " ";
           if (slot.key === "말년") {
             tail = isLast
               ? "좋은 기운이 들어 있습니다."
@@ -3371,15 +3487,15 @@
               : "좋은 기운이고, ";
           }
         } else if (tone === "길흉혼재") {
-          mid += "로 ";
+          mid += josaEuro(mid) + " ";
           tail = isLast ? "좋은 편입니다." : "좋은 편이고, ";
         } else if (tone === "흉") {
-          mid += "로 ";
+          mid += josaEuro(mid) + " ";
           tail = isLast
             ? "무거운 기운이 있어 시련이 따릅니다."
             : "무거운 기운이 있고, ";
         } else {
-          mid += "로 ";
+          mid += josaEuro(mid) + " ";
           tail = isLast ? "평이한 편입니다." : "평이한 편이고, ";
         }
         overviewBits.push(label + mid + tail);
@@ -3582,7 +3698,22 @@
       return (
         lead +
         uniq.join(", ") +
-        " 기운이 보입니다. 자세한 자리는 위 네 자리 수리와 밑줄 친 곳을 보시면 됩니다."
+        " 기운이 보입니다. 자세한 자리는 위 네 자리 수리와 밑줄 친 곳을 보시면 됩니다." +
+        hazardSupportTail()
+      );
+    }
+    function hazardSupportTail() {
+      const np = malPressHexes([[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []));
+      if (!np.length) return "";
+      const sp = hasB ? malPressHexes([[bdS, bdG]]) : [];
+      const last = np[np.length - 1].name;
+      return (
+        " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
+        "이 되어 주니, 이런 흉은 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
+        (sp.length
+          ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
+            " 있으니 살짝 스크래치만 남기고 사라집니다."
+          : "")
       );
     }
 
