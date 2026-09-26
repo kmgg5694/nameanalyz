@@ -645,14 +645,14 @@
     }
     for (let i = 0; i < ageNames.length; i++) {
       const ag = ageNames[i];
-      if (nmS[i] && isFootnoteWarnSuri(nmS[i])) {
+      if (nmS[i] && isFootnoteWarnSuri(nmS[i]) && !isMitigateSuriHex(nmG[i])) {
         pushHit("한글이름", ag, "수리", suriPhrase(nmS[i]));
       }
       if (nmG[i] && isFootnoteWarnHex(nmG[i])) {
         pushHit("한글이름", ag, "주역", gweNameHtml(nmG[i]));
       }
       if (hasHanja) {
-        if (hjS[i] && isFootnoteWarnSuri(hjS[i])) {
+        if (hjS[i] && isFootnoteWarnSuri(hjS[i]) && !isMitigateSuriHex(hjG[i])) {
           pushHit("한자이름", ag, "수리", suriPhrase(hjS[i]));
         }
         if (hjG[i] && isFootnoteWarnHex(hjG[i])) {
@@ -3407,10 +3407,16 @@
     function nameSlotHasSuri(num) {
       const n = Number(num);
       for (let i = 0; i < 4; i++) {
-        if (nmS[i] && Number(nmS[i].suri) === n) return true;
-        if (hasHanja && hjS[i] && Number(hjS[i].suri) === n) return true;
+        if (nmS[i] && Number(nmS[i].suri) === n && !isMitigateSuriHex(nmG[i])) return true;
+        if (hasHanja && hjS[i] && Number(hjS[i].suri) === n && !isMitigateSuriHex(hjG[i])) return true;
       }
       return false;
+    }
+    function malSuriIn(list) {
+      return (
+        (nmS[0] && list.indexOf(Number(nmS[0].suri)) >= 0 && !isMitigateSuriHex(nmG[0])) ||
+        (hasHanja && hjS[0] && list.indexOf(Number(hjS[0].suri)) >= 0 && !isMitigateSuriHex(hjG[0]))
+      );
     }
     function nameSlotHasHex(hexName) {
       for (let i = 0; i < 4; i++) {
@@ -3419,16 +3425,39 @@
       }
       return false;
     }
-    function note14InFour(nums, who) {
+    function note14InFour(nums, who, gs) {
       if (!nums || nums.indexOf(14) < 0) return "";
       const labels = ["초년", "장년", "중년", "말년(총운)"];
       const hits = [];
+      let mitNote = "";
+      let malBad = false;
       for (let i = 0; i < 4; i++) {
-        if (nums[i] === 14) hits.push(labels[i]);
+        if (nums[i] !== 14) continue;
+        const g = gs && gs[i];
+        if (isMitigateSuriHex(g)) {
+          const hn = gweNameOf(g);
+          mitNote +=
+            " " +
+            who +
+            " " +
+            labels[i] +
+            "의 " +
+            paintRed("14, 이산파멸") +
+            "은 바로 아래 " +
+            gweNameHtml(g) +
+            josaIGA(hn) +
+            " 눌러 주어 그 수리의 단점이 장점으로 승화되니 흉으로 보지 않습니다.";
+        } else {
+          hits.push(labels[i]);
+          if (i === 3) malBad = true;
+        }
       }
-      if (!hits.length) return "";
+      if (!hits.length) return mitNote;
+      return note14Bad(hits, malBad, who) + mitNote;
+    }
+    function note14Bad(hits, malBad, who) {
       const where = hits.join("·");
-      if (nums[3] === 14 && hits.length === 1) {
+      if (malBad && hits.length === 1) {
         return (
           " " +
           who +
@@ -3470,7 +3499,7 @@
         "한글 수리 " +
         formatSuriFour(hg) +
         "(초·장·중·말).";
-      p += note14InFour(hg, "한글");
+      p += note14InFour(hg, "한글", [nmG[1], nmG[2], nmG[3], nmG[0]]);
       if (hasHanja) {
         const hj = chronoSuriNums(hjS);
         if (
@@ -3482,7 +3511,7 @@
             " 한문 수리 " +
             formatSuriFour(hj) +
             "(초·장·중·말).";
-          p += note14InFour(hj, "한문");
+          p += note14InFour(hj, "한문", [hjG[1], hjG[2], hjG[3], hjG[0]]);
         }
       }
       return p;
@@ -3490,7 +3519,7 @@
 
     /**
      * 이름 속 암·자살·이별·이혼·사고사 — 해당될 때만 짧게 (7차·스펙 목록만)
-     * 상세는 밑줄·기운표·각주
+     * 상세는 밑줄·각주
      */
     function buildNameHazardBrief() {
       const has14 = nameSlotHasSuri(14);
@@ -3498,11 +3527,7 @@
       const has20 = nameSlotHasSuri(20);
       const has22 = nameSlotHasSuri(22);
       const has2 = nameSlotHasSuri(2);
-      const mal14or20or22 =
-        (nmS[0] && [14, 20, 22].indexOf(Number(nmS[0].suri)) >= 0) ||
-        (hasHanja &&
-          hjS[0] &&
-          [14, 20, 22].indexOf(Number(hjS[0].suri)) >= 0);
+      const mal14or20or22 = malSuriIn([14, 20, 22]);
       const deathSuri = [
         14, 19, 20, 26, 27, 28, 46, 70, 74, 79, 4, 9, 10, 22, 34, 64, 69,
       ];
@@ -3531,12 +3556,7 @@
       if (has14 || hexSuicideDivorce || has2) {
         tags.push(paintRed("자살·단명"));
       }
-      if (
-        (nmS[0] && [26, 28].indexOf(Number(nmS[0].suri)) >= 0) ||
-        (hasHanja &&
-          hjS[0] &&
-          [26, 28].indexOf(Number(hjS[0].suri)) >= 0)
-      ) {
+      if (malSuriIn([26, 28])) {
         tags.push(paintRed("이별·사별"));
       }
 
@@ -3562,7 +3582,7 @@
       return (
         lead +
         uniq.join(", ") +
-        " 기운이 보입니다. 자세한 자리는 위 네 자리 수리와 아래 밑줄·표를 보시면 됩니다."
+        " 기운이 보입니다. 자세한 자리는 위 네 자리 수리와 밑줄 친 곳을 보시면 됩니다."
       );
     }
 
@@ -3605,8 +3625,8 @@
     );
 
     /**
-     * 보흘 지정 표: 인덕·배우자운 + 초·장·중·말 × 재물운·질병·수술·사고·소송·이혼·암·우울증·비만
-     * 【기운 비교】~결론 장문 대신 이 표만 두고, 해당 내용은 수리·주역에서 찾아 넣음
+     * 보흘 지정: 1. 인덕 · 2. 배우자운 · 3. 자녀운 · 4. 재물운(이름재물운 / 사주재물운)
+     * 질병·수술·사고·이혼·암 등 분류표는 두지 않음 (흉수리를 눌러 주는 괘를 표가 반영하지 못함)
      */
     function hexMatchesAny(g, names) {
       if (!g || !g.name || !names || !names.length) return false;
@@ -3621,16 +3641,6 @@
     function suriInList(ns, nums) {
       if (!ns || ns.suri == null || !nums || !nums.length) return false;
       return nums.indexOf(Number(ns.suri)) >= 0;
-    }
-
-    function nameHasAnyHex(names) {
-      if (!names || !names.length) return false;
-      for (let i = 0; i < ages.length; i++) {
-        if (hexMatchesAny(nmG[i], names)) return true;
-        if (hasHanja && hexMatchesAny(hjG[i], names)) return true;
-        if (hasB && hexMatchesAny(bdG[i], names)) return true;
-      }
-      return false;
     }
 
     function indeokSpouseLines() {
@@ -3677,7 +3687,7 @@
       );
     }
 
-    /** 표 행 — hex-fortune-19 / suri81 스펙 기준 */
+    /** 재물운 — hex-fortune-19 / suri81 스펙 기준 */
     const MATRIX_ROWS = [
       {
         title: "재물운",
@@ -3690,154 +3700,58 @@
           "뇌천대장",
         ],
         suri: [16, 24, 29, 47, 7, 13, 3, 33, 41, 58, 61, 65, 67, 1, 5, 6, 8, 18],
-        good: true,
-      },
-      {
-        title: "질병",
-        hex: ["화택규", "택천쾌", "감위수", "산풍고", "지화명이"],
-        suri: [14],
-        bad: true,
-      },
-      {
-        title: "수술",
-        hex: ["화택규", "택천쾌"],
-        suri: [14],
-        bad: true,
-      },
-      {
-        title: "사고",
-        hex: ["화택규"],
-        suri: [14, 19, 20, 26, 27, 28, 46, 70, 74, 79, 4, 9, 10, 22, 34, 64, 69],
-        bad: true,
-      },
-      {
-        title: "소송",
-        hex: ["천수송", "지수사"],
-        suri: [36, 20, 19, 27, 78],
-        bad: true,
-      },
-      {
-        title: "이혼",
-        hex: ["풍천소축"],
-        suri: [2, 14],
-        bad: true,
-      },
-      {
-        title: "암",
-        hex: ["천지비", "지화명이"],
-        hexCompanion: { target: "수화기제", companions: ["천지비", "지화명이"] },
-        suri: [14],
-        bad: true,
-      },
-      {
-        title: "우울증",
-        hex: ["산풍고", "지화명이"],
-        suri: [],
-        bad: true,
-      },
-      {
-        title: "비만",
-        hex: [],
-        suri: [],
-        bad: true,
       },
     ];
 
     const MATRIX_AGES = [
-      { key: "초년", idx: 1, sub: "1~23세<br>1~30세" },
-      { key: "장년", idx: 2, sub: "24~40세<br>31~50세" },
-      { key: "중년", idx: 3, sub: "41~53세<br>51~55세" },
-      { key: "말년", idx: 0, sub: "55세 이후" },
+      { key: "초년", idx: 1 },
+      { key: "장년", idx: 2 },
+      { key: "중년", idx: 3 },
+      { key: "말년", idx: 0 },
     ];
 
-    function cellMarks(row, ageIdx) {
-      const seen = {};
-      const out = [];
-      function add(html, kind) {
-        const key = String(html).replace(/<[^>]+>/g, "");
-        if (!key || seen[key]) return;
-        seen[key] = true;
-        out.push(
-          '<span class="mx-mark mx-' +
-            (kind || "n") +
-            '">' +
-            html +
-            "</span>"
-        );
-      }
-      function tone() {
-        return row.good ? "g" : row.bad ? "b" : "n";
-      }
-      function scan(ns, ng) {
-        if (hexMatchesAny(ng, row.hex)) {
-          add(gweNameHtml(ng), tone());
-        }
-        if (
-          row.hexCompanion &&
-          hexMatchesAny(ng, [row.hexCompanion.target]) &&
-          nameHasAnyHex(row.hexCompanion.companions)
-        ) {
-          add(gweNameHtml(ng), tone());
-        }
-        if (suriInList(ns, row.suri)) {
-          add(suriPhrase(ns), tone());
-        }
-      }
-      scan(nmS[ageIdx], nmG[ageIdx]);
-      if (hasHanja) scan(hjS[ageIdx], hjG[ageIdx]);
-      if (hasB) {
-        function scanSaju(ns, ng) {
-          if (hexMatchesAny(ng, row.hex)) {
-            add("사주 " + gweNameHtml(ng), tone());
-          }
-          if (
-            row.hexCompanion &&
-            hexMatchesAny(ng, [row.hexCompanion.target]) &&
-            nameHasAnyHex(row.hexCompanion.companions)
-          ) {
-            add("사주 " + gweNameHtml(ng), tone());
-          }
-          if (suriInList(ns, row.suri)) {
-            add("사주 " + suriPhrase(ns), tone());
+    function wealthLineHtml(isSaju) {
+      const row = MATRIX_ROWS[0];
+      const parts = [];
+      MATRIX_AGES.forEach(function (a) {
+        const i = a.idx;
+        const bits = [];
+        function scan(who, ns, ng) {
+          const got = [];
+          if (hexMatchesAny(ng, row.hex)) got.push(gweNameHtml(ng));
+          if (suriInList(ns, row.suri)) got.push(suriPhrase(ns));
+          if (got.length) {
+            bits.push(
+              (who ? who + " " : "") +
+                '<span class="mx-mark mx-g">' +
+                got.join(" · ") +
+                "</span>"
+            );
           }
         }
-        scanSaju(bdS[ageIdx], bdG[ageIdx]);
-      }
-      return out.join(" ");
+        if (isSaju) {
+          scan("", bdS[i], bdG[i]);
+        } else {
+          scan(hasHanja ? "한글" : "", nmS[i], nmG[i]);
+          if (hasHanja) scan("한문", hjS[i], hjG[i]);
+        }
+        if (bits.length) parts.push(a.key + " " + bits.join(", "));
+      });
+      return parts.length ? parts.join(" / ") : "해당없음";
     }
 
     function buildFortuneMatrixHtml() {
-      let html =
-        indeokSpouseLines() +
-        '<div class="ko-sum-matrix">' +
-        '<table class="ko-sum-mx">' +
-        "<thead><tr>" +
-        "<th></th>";
-      MATRIX_AGES.forEach(function (a) {
-        html +=
-          "<th><div class=\"mx-age\">" +
-          a.key +
-          '</div><div class="mx-sub">' +
-          a.sub +
-          "</div></th>";
-      });
-      html += "</tr></thead><tbody>";
-      MATRIX_ROWS.forEach(function (row) {
-        html += '<tr><th scope="row">' + esc(row.title) + "</th>";
-        MATRIX_AGES.forEach(function (a) {
-          const marks = cellMarks(row, a.idx);
-          html +=
-            "<td>" +
-            (marks || '<span class="mx-empty">·</span>') +
-            "</td>";
-        });
-        html += "</tr>";
-      });
-      html +=
-        "</tbody></table>" +
-        '<p class="mx-note">※ 해당 칸은 이름(한글·한문)·사주의 그 시기 수리·주역이 기운 스펙에 맞을 때만 채웁니다. 없으면 비웁니다.</p>' +
-        "</div>";
-      return html;
+      const wealth =
+        "<div>4. 재물운</div>" +
+        '<div class="mx-wealth" style="padding-left:1em">· 이름재물운 : ' +
+        wealthLineHtml(false) +
+        "</div>" +
+        (hasB
+          ? '<div class="mx-wealth" style="padding-left:1em">· 사주재물운 : ' +
+            wealthLineHtml(true) +
+            "</div>"
+          : "");
+      return indeokSpouseLines().replace(/<\/div>$/, wealth + "</div>");
     }
 
     const fortuneMatrixHtml = buildFortuneMatrixHtml();
