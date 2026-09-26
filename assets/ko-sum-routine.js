@@ -3432,18 +3432,20 @@
       const tone = sideToneAt(bdS, bdG, 0);
       let p =
         "사주 전체기운의 축인 말년(총운)은 " + marks.join(", ");
+      const ro = josaEuro(marks[marks.length - 1]);
       if (sajuSlightTrialHexOk(0)) {
         p +=
           "인데 약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다.";
       } else if (tone === "길") {
-        p += "로 좋은 기운이 들어 있습니다.";
+        p += ro + " 좋은 기운이 들어 있습니다.";
       } else if (tone === "흉") {
-        p += "로 무거운 기운이 있어 시련이 따릅니다.";
+        p += ro + " 무거운 기운이 있어 시련이 따릅니다.";
       } else if (tone === "길흉혼재") {
-        p += "로 좋은 편입니다.";
+        p += ro + " " + paintBlue("길") + "·" + paintRed("흉") + "이 섞여 있습니다.";
       } else {
-        p += "로 평이한 편입니다.";
+        p += ro + " 평이한 편입니다.";
       }
+      if (bdG[0] && bdG[0].malWarn) p += " " + paintRed(bdG[0].malWarn);
       p +=
         " 말년기운은 인생전반에 영향력을 행사하니, 이 사주가 어떻게 살으라고 했는지의 중심이 여기입니다.";
       return p;
@@ -3494,7 +3496,7 @@
           }
         } else if (tone === "길흉혼재") {
           mid += josaEuro(mid) + " ";
-          tail = isLast ? "좋은 편입니다." : "좋은 편이고, ";
+          tail = isLast ? "길·흉이 섞여 있습니다." : "길·흉이 섞여 있고, ";
         } else if (tone === "흉") {
           mid += josaEuro(mid) + " ";
           tail = isLast
@@ -3933,7 +3935,12 @@
         const ts = sides.map(function (sd) { return sideToneAt(sd[0], sd[1], 0); });
         if (ts.indexOf("흉") >= 0) return "흉";
         if (ts.every(function (t) { return t === "길"; })) return "길";
+        if (ts.indexOf("길흉혼재") >= 0) return "혼재";
         return "보통";
+      }
+      function malWarn(sides) {
+        const g = sides.map(function (sd) { return sd[1][0]; }).filter(function (x) { return x && x.malWarn; })[0];
+        return g ? " " + paintRed(gweNameOf(g) + josaEunNeun(gweNameOf(g)) + " " + g.malWarn) : "";
       }
       const nameSides = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []);
       const sajuSides = hasB ? [[bdS, bdG]] : [];
@@ -3944,17 +3951,22 @@
         ? "이름의 중심인 말년(총운)이 " + paintBlue("든든하여") + " 전체 분위기가 밝고, "
         : nt === "흉"
           ? "이름의 말년(총운)에 " + paintRed("흉") + "이 있어 전체 분위기가 무겁고, "
-          : "이름의 전체 분위기는 무난하고, ";
+          : nt === "혼재"
+            ? "이름의 말년(총운)에는 " + paintBlue("길") + "·" + paintRed("흉") + "이 섞여 있고, "
+            : "이름의 전체 분위기는 무난하고, ";
       if (hasB) {
         const st = malTone(sajuSides);
         p += st === "길"
-          ? "사주의 중심인 말년(총운)도 " + paintBlue("좋은 기운") + "입니다. "
+          ? "사주의 중심인 말년(총운)도 " + paintBlue("좋은 기운") + "입니다."
           : st === "흉"
-            ? "사주의 말년(총운)에는 " + paintRed("시련") + "이 있습니다. "
-            : "사주의 말년(총운)은 평이한 편입니다. ";
+            ? "사주의 말년(총운)에는 " + paintRed("시련") + "이 있습니다."
+            : st === "혼재"
+              ? "사주의 말년(총운)에는 " + paintBlue("길") + "·" + paintRed("흉") + "이 섞여 있습니다."
+              : "사주의 말년(총운)은 평이한 편입니다.";
       } else {
-        p = p.replace(/, $/, ". ");
+        p = p.replace(/, $/, ".");
       }
+      p += malWarn(nameSides.concat(sajuSides)) + " ";
 
       const nw = wealthAges(nameSides);
       const sw = hasB ? wealthAges(sajuSides) : [];
