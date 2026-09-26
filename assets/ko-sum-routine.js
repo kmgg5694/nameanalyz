@@ -1115,6 +1115,152 @@
     return "";
   }
 
+  /**
+   * 흉수리는 든 자리(초·장·중·말)에 따라 작용이 다르다 (보흘 지정).
+   * 출처: 9·12 초년, 10 초년 사주, 20 총운, 총운 14·20·22 암, 총운 26·28 단명(각주),
+   * 14 사례(7차: 총운 14 이혼·암·사망, 장년 14 이혼·병, 초년 14 사고).
+   */
+  const SURI_AGE_BAD = {
+    9: {
+      초년: "예·체능에는 강하지만 실의에 빠지기 쉽습니다.",
+      _: "너무 시대를 앞서 가다가 환경이 받쳐주지 않아 실패를 거듭하기 쉽습니다.",
+    },
+    10: {
+      초년: "학교운·시험운이 따라주지 않아 학업이 허망해지기 쉽습니다.",
+      _: "계획이 잘 풀리는 듯하다가 허망하게 무너지기 쉽고 직장운이 따라주지 않습니다.",
+    },
+    12: {
+      초년: "대학 진학이 어렵고, 하향·지방대 지원이나 재수·삼수를 해도 목표 대학은 가기가 힘듭니다.",
+      _: "일이 잘 되어 나가는 듯하다가 마지막에 실패를 맛보기 쉽습니다. 사업이든 청혼이든 끝이 안 좋습니다.",
+    },
+    14: {
+      초년: "공부가 잘 나가다가 끝이 안 좋고, 이 나이대에 이별·사고·병고의 고통을 겪기 쉽습니다.",
+      장년: "그 나이대에 이혼·부부불화, 병고·수술(암 포함)을 겪기 쉽습니다.",
+      중년: "그 나이대에 이혼·이별과 고독번뇌를 겪기 쉽습니다.",
+      말년:
+        "평생에 걸쳐 잘 나가다가 끝이 안 좋고 이혼·가정파탄·병고(암)·사고가 따라다니기 쉽습니다. 총운에 14가 든 사례 대부분이 이혼·암 투병·사망으로 이어졌습니다.",
+    },
+    19: {
+      말년: "평생에 걸쳐 믿는 도끼에 발등 찍히듯 배신과 고독이 찾아오고, 부부 사별·사고·감옥·타향살이 같은 파란을 겪기 쉽습니다.",
+      _: "두뇌는 명석해 한때 성공하지만 그 나이대에 배신과 고독이 찾아오고 병고·돈 고통을 겪기 쉽습니다.",
+    },
+    20: {
+      말년: "그릇이 큰 거물이 나오기도 하지만 좋은 주역괘가 없으면 대개 50세 전후로 부도·감옥·큰 욕을 보는 경우가 많고, 암도 많습니다.",
+      _: "그 나이대에 학업이 중단되거나 사업이 끊기기 쉽습니다.",
+    },
+    22: {
+      말년: "한때 크게 성공하거나 거물이 되기도 하지만 끝까지 지키지 못하고 중도에 실패·파산·사고·병고·암·수술·감옥을 겪기 쉽습니다.",
+      _: "그 나이대에 사업·공부·결혼이 중도하차하기 쉽습니다.",
+    },
+    26: {
+      말년: "대부분 단명하고, 여자는 이별·사별로 과부가 많습니다.",
+      _: "그 나이대에 파란이 많아 공부·일상이 안정적으로 이어지기 어렵습니다.",
+    },
+    28: {
+      말년: "대부분 단명하고, 여자는 이별·사별로 과부가 많습니다.",
+      _: "그 나이대에 공부·일도 한때의 성공으로 끝나기 쉽습니다.",
+    },
+  };
+  /** 같은 수리라도 흉으로 작용할 때·눌려 승화할 때 이름이 다르다 (보흘 예시) */
+  const SURI_FACE_LABEL = {
+    14: { bad: "이산고독", good: "지혜재능" },
+    19: { bad: "", good: "봉황고독" },
+  };
+  const SURI_GOOD_FACE = {
+    14: "지혜로워 영웅적 기질을 발휘하고, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 살아 큰 재물운으로 나타나기도 합니다.",
+    19: "두뇌가 명석해 크게 성공하고, 최고의 명예운으로 나타나기도 합니다.",
+  };
+
+  /** "good"=바로 아래 괘가 눌러 승화 · "bad"=흉으로 작용 · ""=흉수리 아님 */
+  function suriFace(ns, g) {
+    if (!ns || !ns.data || !suriBad(ns.data)) return "";
+    const n = Number(ns.suri);
+    if (isMitigateSuriHex(g)) return "good";
+    if (n === 9 && isSuri9GoodHex(g)) return "good";
+    if (n === 20 && isSuri20WealthHex(g)) return "good";
+    return "bad";
+  }
+
+  /** 원형이정 중 원(초년)·정(말년)만 분류 이름, 형(장년)·이(중년)는 본이름 (보흘 지정) */
+  function faceLabel(n, ageKey) {
+    if (ageKey !== "초년" && ageKey !== "말년") return null;
+    return SURI_FACE_LABEL[n] || null;
+  }
+
+  function ageLead(ageKey) {
+    return ageKey === "말년" ? "총운에 들면 " : ageKey + "에 들면 ";
+  }
+
+  /** 흉 쪽 작용 문장 (「이산고독」으로 작용해 …). 자료 없는 수리는 "" */
+  function suriAgeBadText(ns, g, ageKey, opts, noLead) {
+    const n = Number(ns && ns.suri);
+    const spec = SURI_AGE_BAD[n];
+    if (!spec) return "";
+    const body = spec[ageKey] || spec._;
+    if (!body) return "";
+    const lab = faceLabel(n, ageKey);
+    let t = (noLead ? "" : ageLead(ageKey)) +
+      (lab && lab.bad ? "「" + paintRed(lab.bad) + "」으로 작용해 " : "") + body;
+    if (n === 10 && ageKey === "초년") {
+      const cho = opts && opts.choSajuGood;
+      if (cho === true) t += " 다만 초년 사주가 좋아 돌파해 나가기도 합니다.";
+      else if (cho == null) t += " 초년 사주가 좋으면 돌파해 나가기도 합니다.";
+    }
+    if (n === 14 && hexNameStarts(g, "풍수환") && (ageKey === "초년" || ageKey === "장년")) {
+      t +=
+        " 그 아래 " + gweNameHtml(g) + josaIGA(gweNameOf(g)) +
+        " 있어 사업의 변화·이사·이전 같은 환경 변화가 파멸의 방해를 받아 피해를 보는데, 가장 큰 시기는 " +
+        (ageKey === "초년" ? "15세" : "40세(±3세)") + "입니다.";
+    }
+    return t;
+  }
+
+  /** 승화 쪽 작용 문장 (「지혜재능」으로 작용합니다. …) */
+  function suriAgeGoodText(ns, g, ageKey) {
+    const n = Number(ns && ns.suri);
+    const lab = faceLabel(n, ageKey);
+    const hx = gweNameHtml(g) + josaIGA(gweNameOf(g));
+    let t = lab ? "「" + paintBlue(lab.good) + "」으로 작용합니다. " : "";
+    if (n === 9 && isSuri9GoodHex(g)) t += "바로 아래 " + hx + " 들어 아주 좋습니다.";
+    else if (n === 20 && isSuri20WealthHex(g))
+      t += "바로 아래 " + hx + " 있어 대부대귀·부자장수로 봅니다(사주가 보통 이상일 때).";
+    else if (lab && SURI_GOOD_FACE[n]) t += "바로 아래 " + hx + " 눌러 주어 " + SURI_GOOD_FACE[n];
+    else t += "바로 아래 " + hx + " 눌러 주어 그 수리의 단점이 장점으로 승화되니 흉으로 보지 않습니다.";
+    if (ageKey === "말년") t += " 총운이라 이 장점이 평생 이어집니다.";
+    return t;
+  }
+
+  /** 이름표 줄(index-kw5)용: 자리·괘에 따른 수리 작용 문장. 해당 없으면 null */
+  window.koSuriFaceGood = function (num, g) {
+    const n = Number(num);
+    if (!SURI_AGE_BAD[n] && !SURI_FACE_LABEL[n]) return false;
+    return suriFace({ suri: n, data: { type: "taboo" } }, g) === "good";
+  };
+  window.koSuriAgeText = function (num, ageKey, g) {
+    const t = suriAgeTextHtml(num, ageKey, g);
+    return t == null ? null : String(t).replace(/<[^>]+>/g, "");
+  };
+  function suriAgeTextHtml(num, ageKey, g) {
+    try {
+      const d = { type: "", name: "" };
+      const row = NAR().suri[String(num)] || null;
+      const n = Number(num);
+      const ns = { suri: n, data: d };
+      if (SURI_AGE_BAD[n] || SURI_FACE_LABEL[n]) {
+        d.type = "taboo";
+        const face = suriFace(ns, g);
+        if (face === "good") return suriAgeGoodText(ns, g, ageKey);
+        const t = suriAgeBadText(ns, g, ageKey, null);
+        if (t) return t;
+      }
+      const sp = SURI_SPECIAL_NOTES[n];
+      if (n === 16 && ageKey === "말년" && sp && sp.말년) return sp.말년.trim();
+      return row && row[ageKey] ? String(row[ageKey]).trim() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   /** 라이브 Ee.desc → CS hex.core — 장수 축소: 앞 2문장 정도만 (팝업·참고용) */
   function hexOriginalText(ng) {
     let t = "";
@@ -2692,14 +2838,24 @@
           const both = nameArrs.concat(sajuArrs);
           const html = [];
           const plain = [];
-          let has14 = false;
-          both.forEach(function (a) {
+          const ageNotes = [];
+          const seenNum = {};
+          both.forEach(function (a, ai) {
             const s = a[0] && a[0][pe.idx];
             const g = a[1] && a[1][pe.idx];
             if (s && s.data && suriBad(s.data)) {
               const h = suriPhrase(s);
               if (html.indexOf(h) < 0) { html.push(h); plain.push(plainSuriName(s)); }
-              if (Number(s.suri) === 14) has14 = true;
+              const isSaju = ai >= nameArrs.length;
+              const nk = (isSaju ? "s" : "n") + Number(s.suri);
+              if (!seenNum[nk]) {
+                const body = suriAgeBadText(s, g, pe.key, { choSajuGood: choSajuGood }, true);
+                if (body) {
+                  seenNum[nk] = true;
+                  ageNotes.push(" " + (isSaju ? "사주 " : "이름 ") + h + josaEunNeun(plainSuriName(s)) + " " +
+                    pe.key + "에 들어 " + body);
+                }
+              }
             }
             if (g && g.name && gweBad(g)) {
               const h = gweNameHtml(g);
@@ -2714,10 +2870,7 @@
             ? "인데 눌러 주는 기운이 없으니 " + paintRed("고스란히 얻어터지는 모습") + "입니다."
             : josaEuro(plain[plain.length - 1]) + " 막아 주는 괘가 없어 여기도 " +
               paintRed("고스란히 얻어 맞아야 하는 암울한 시기") + "입니다.";
-          if (has14)
-            t += " " + paintRed("14, 이산파멸") +
-              "로 이혼 등 잘 나가다가 끝이 안 좋고 시름시름 아프기도 하고 여러 가지 고통이 수반되는 수입니다.";
-          return t;
+          return t + ageNotes.join("");
         }
         [ORDER[3], ORDER[0], ORDER[1], ORDER[2]].forEach(function (pe) {
           const nt = nameToneAt(pe.idx);
@@ -2852,8 +3005,6 @@
             if (worst && lastT === "흉" && lastBadM)
               txt += " 총운 " + lastBadM + paintRed("까지 흉이라 이 변곡점 하나에 목숨이 위태로울 수도 있답니다.");
             else if (lastT === "흉" && lastBadM) txt += " 총운 " + lastBadM + "까지 겹쳐 시련이 가중됩니다.";
-            else if (lastT === "길" && lastGoodM && !supported)
-              txt += " 총운 " + lastGoodM + josaIGA(lastGoodM.replace(/<[^>]+>/g, "")) + " 흉을 덜어 줍니다.";
           }
           if (badTp && pe.key === "말년") txt += " 총운이라 앞 시기에도 영향을 줍니다.";
           if (tp) tps.push(pe.key);
@@ -3636,67 +3787,39 @@
       }
       return false;
     }
-    function note14InFour(nums, who, gs) {
-      if (!nums || nums.indexOf(14) < 0) return "";
+    /** 수리 네 자리 — 흉수리마다 든 자리·바로 아래 괘로 작용(흉 / 승화)을 나눠 뜻을 쓴다 (보흘 지정) */
+    function noteSuriFaceInFour(sChrono, gChrono, opps, who) {
       const labels = ["초년", "장년", "중년", "말년(총운)"];
-      const hits = [];
-      let mitNote = "";
-      let malBad = false;
+      const keys = ["초년", "장년", "중년", "말년"];
+      const np = malPressHexes([[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []));
+      let out = "";
       for (let i = 0; i < 4; i++) {
-        if (nums[i] !== 14) continue;
-        const g = gs && gs[i];
-        if (isMitigateSuriHex(g)) {
-          const hn = gweNameOf(g);
-          mitNote +=
-            " " +
-            who +
-            " " +
-            labels[i] +
-            "의 " +
-            paintRed("14, 이산파멸") +
-            "은 바로 아래 " +
-            gweNameHtml(g) +
-            josaIGA(hn) +
-            " 눌러 주어 그 수리의 단점이 장점으로 승화되니 흉으로 보지 않습니다.";
+        const s = sChrono[i];
+        const g = gChrono[i];
+        if (!s || !s.data) continue;
+        const n = Number(s.suri);
+        if (!SURI_AGE_BAD[n] && !SURI_FACE_LABEL[n]) continue;
+        const face = suriFace(s, g);
+        if (!face) continue;
+        let t = " " + who + " " + labels[i] + "의 " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " ";
+        if (face === "good") {
+          t += suriAgeGoodText(s, g, keys[i]);
         } else {
-          hits.push(labels[i]);
-          if (i === 3) malBad = true;
+          const body = suriAgeBadText(s, g, keys[i], { choSajuGood: choSajuGood }, true);
+          if (!body) continue;
+          t += body;
+          const op = (opps || []).filter(function (o) { return o[1] && isMitigateSuriHex(o[1][i]); })[0];
+          if (op) {
+            const og = op[1][i];
+            t += " 다만 " + op[0] + "의 " + gweNameHtml(og) + josaIGA(gweNameOf(og)) + " 눌러 줍니다.";
+          } else if (i !== 3 && np.length) {
+            t += " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) +
+              " 지원군이라 발목이 삐끗하는 수준으로 지나갑니다.";
+          }
         }
+        out += t;
       }
-      if (!hits.length) return mitNote;
-      return note14Bad(hits, malBad, who, nums) + mitNote;
-    }
-    function note14Bad(hits, malBad, who, nums) {
-      const where = hits.join("·");
-      if (malBad && hits.length === 1) {
-        return (
-          " " +
-          who +
-          " " +
-          paintRed("말년(총운)에 14, 이산파멸") +
-          "이 있습니다."
-        );
-      }
-      if (nums[3] === 14) {
-        return (
-          " " +
-          who +
-          " " +
-          where +
-          "에 " +
-          paintRed("14, 이산파멸") +
-          "이 있습니다."
-        );
-      }
-      return (
-        " " +
-        who +
-        " " +
-        where +
-        "에 " +
-        paintRed("14, 이산파멸") +
-        "이 내재합니다."
-      );
+      return out;
     }
 
     /** 오행 다음 — 수리 네 자리 한 줄 (보흘·7차) */
@@ -3710,7 +3833,8 @@
         "한글 수리 " +
         formatSuriFour(hg) +
         "(초·장·중·말).";
-      p += note14InFour(hg, "한글", [nmG[1], nmG[2], nmG[3], nmG[0]]);
+      const ch = function (a) { return a ? [a[1], a[2], a[3], a[0]] : null; };
+      p += noteSuriFaceInFour(ch(nmS), ch(nmG), hasHanja ? [["한문(속)", ch(hjG)]] : [], "한글");
       if (hasHanja) {
         const hj = chronoSuriNums(hjS);
         if (
@@ -3722,7 +3846,15 @@
             " 한문 수리 " +
             formatSuriFour(hj) +
             "(초·장·중·말).";
-          p += note14InFour(hj, "한문", [hjG[1], hjG[2], hjG[3], hjG[0]]);
+          p += noteSuriFaceInFour(ch(hjS), ch(hjG), [["한글(겉)", ch(nmG)]], "한문");
+        }
+      }
+      if (hasB) {
+        const bd = chronoSuriNums(bdS);
+        if (!bd.every(function (n) { return n == null; })) {
+          p += " 사주 수리 " + formatSuriFour(bd) + "(초·장·중·말).";
+          p += noteSuriFaceInFour(ch(bdS), ch(bdG),
+            [[hasHanja ? "한글 이름" : "이름", ch(nmG)]].concat(hasHanja ? [["한문 이름", ch(hjG)]] : []), "사주");
         }
       }
       return p;
