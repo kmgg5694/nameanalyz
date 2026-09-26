@@ -2668,6 +2668,19 @@
         let helped = false;
         let sajuSurface = false;
         let nameGoodAny = false;
+        const sajuPressAll = [];
+        if (hasB) {
+          [0, 1, 2, 3].forEach(function (i) {
+            const g = bdG[i];
+            if (isMitigateSuriHex(g) && !sajuPressAll.some(function (x) { return x.name === gweNameOf(g); }))
+              sajuPressAll.push({ name: gweNameOf(g), html: gweNameHtml(g) });
+          });
+        }
+        function malBarelyNote() {
+          if (sajuPressAll.length !== 1) return "";
+          return " 이름 말년(총운)의 흉은 " + marks(nameArrs, 0, true) + "인데 사주의 " + sajuPressAll[0].html +
+            " 하나가 막기가 버겁지만 그래도 " + paintBlue("죽지는 않고 겨우겨우 이어지는 삶") + "으로 보여집니다.";
+        }
         [ORDER[3], ORDER[0], ORDER[1], ORDER[2]].forEach(function (pe) {
           const nt = nameToneAt(pe.idx);
           const st = sajuToneAt(pe.idx);
@@ -2691,16 +2704,20 @@
             nameBadAny = true;
             nameBadBare = true;
             rg = range(pe, nameArrs);
+            const barely = pe.idx === 0 ? malBarelyNote() : "";
             txt = "한글 " + marks([[nmS, nmG]], pe.idx, true) + " × 한문 " + marks([[hjS, hjG]], pe.idx, true) +
-              " — " + paintRed("한글과 한문 이름이 함께 흉이라 위기가 겹친 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
+              " — " + paintRed("한글과 한문 이름이 함께 흉이라 위기가 겹친 변곡점입니다." +
+                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely;
           } else if (nt === "흉" && sajuHasBad) {
             tp = true;
             worst = true;
             nameBadAny = true;
             nameBadBare = true;
             rg = range(pe, both);
+            const barely = pe.idx === 0 ? malBarelyNote() : "";
             txt = "이름 " + marks(nameArrs, pe.idx, true) + " × 사주 " + marks(sajuArrs, pe.idx, true) +
-              " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다. 아직도 살아 있다는게 신기합니다.");
+              " — " + paintRed("이름 흉과 사주 흉이 마주친 최악의 변곡점입니다." +
+                (barely ? "" : " 아직도 살아 있다는게 신기합니다.")) + barely;
           } else if (nt === "흉" || (nt === "길흉혼재" && st !== "흉")) {
             tp = true;
             nameBadAny = true;
@@ -2726,6 +2743,7 @@
               supported = true;
             } else {
               nameBadBare = true;
+              if (pe.idx === 0) txt += malBarelyNote();
             }
           } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
@@ -3604,9 +3622,9 @@
         }
       }
       if (!hits.length) return mitNote;
-      return note14Bad(hits, malBad, who) + mitNote;
+      return note14Bad(hits, malBad, who, nums) + mitNote;
     }
-    function note14Bad(hits, malBad, who) {
+    function note14Bad(hits, malBad, who, nums) {
       const where = hits.join("·");
       if (malBad && hits.length === 1) {
         return (
