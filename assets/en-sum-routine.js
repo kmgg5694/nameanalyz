@@ -1248,6 +1248,17 @@
       return { html: m.join(ko ? "·" : " and "), last: last };
     };
     const SUB_WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"];
+    const blackWeak = (s, g) => {
+      if (!(s && s.data && suriBad(s.data)) || !(g && g.name) || gweGood(g) || gweBad(g) || isMitigate(g)) return "";
+      if (!hexNameStarts(g, "화뢰서합")) return "";
+      if (Number(s.suri) === 27)
+        return ko
+          ? "대인격의 센 고집과 자존심을 화뢰서합의 조리 있는 말솜씨로 풀어 상대를 설득해 내 뜻을 이루는 힘도 있지만, 서합은 독설을 하고 타협할 줄 모르는 기운이라 늘 시비·구설수를 달고 다니게 됩니다."
+          : "The strong will and pride of Great Character can be turned by Biting Through's clear speech into persuading others and getting one's way, but Biting Through also speaks sharply and will not compromise, so quarrels and gossip follow this person all the time.";
+      return ko
+        ? "말은 조리 있게 잘하지만 독설을 하고 타협할 줄 몰라 늘 시비·구설수를 달고 다니는 단점이 더 드러납니다."
+        : "This person speaks clearly and well, but sharp words and refusal to compromise make quarrels and gossip follow them all the time.";
+    };
     const sublimeOne = (who, s, g) => {
       const sn = plainSuriName(s, lang);
       const gn = gweDisplayName(g, lang);
@@ -1351,6 +1362,12 @@
       } else if (skip && !wm.html) {
         return;
       }
+      if (i !== 3) {
+        [[ko ? "이름" : "the name", ns, ng], [ko ? "사주" : "the birth chart", bs, bg]].forEach((w) => {
+          const bw = blackWeak(w[1], w[2]);
+          if (bw) txt += ko ? " " + w[0] + " " + w[1].suri + " " + plainSuriName(w[1], lang) + "·" + gweNameHtml(w[2], lang) + " — " + bw : " In " + w[0] + ", " + w[1].suri + " " + plainSuriName(w[1], lang) + " with " + gweNameHtml(w[2], lang) + ": " + bw;
+        });
+      }
       if (badTp && i < 3) {
         if (worst && lastBad && lastBadM)
           txt += ko
@@ -1403,6 +1420,8 @@
         t += ko
           ? sn + josaRo(sn) + " 시련이 있고, 보통 괘인 " + gh + josa(gn, "이", "가") + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. "
           : sn + " brings hardship, and the ordinary hexagram " + gh + " cannot press it down, so the misfortune shows more. ";
+        const bw = blackWeak(s, g);
+        if (bw) t += bw + " ";
       } else if (sB) {
         t += ko
           ? sn + josaRo(sn) + " 시련이 있지만 주역괘 " + gh + josa(gn, "은", "는") + " 좋은 편입니다. "

@@ -466,7 +466,23 @@
       "여행·이동의 불안정과 고생·걱정이 더 커지고, 역마살을 타고 떠돌며 불안하고 힘든 생활이 되기 쉽습니다.",
     진위뢰:
       "소리만 요란하고 손에 든 것이 없는 외화내빈의 단점이 더 두드러집니다.",
+    화뢰서합:
+      "말은 조리 있게 잘하지만 독설을 하고 타협할 줄 몰라 늘 시비·구설수를 달고 다니는 단점이 더 드러납니다.",
   };
+  /** 보흘 지정: 27 대인격 + 화뢰서합 */
+  const SEOHAP_27 =
+    "대인격의 센 고집과 자존심을 화뢰서합의 조리 있는 말솜씨로 풀어 상대를 설득해 내 뜻을 이루는 힘도 있지만, 서합은 독설을 하고 타협할 줄 모르는 기운이라 늘 시비·구설수를 달고 다니게 됩니다.";
+
+  /** 흉수리 + 검정 보통 괘 — 짧은 해설 (중심·변곡점용) */
+  function blackWeakShort(ns, ng) {
+    if (!hasBadSuriBlackHex(ns, ng) || isMitigateSuriHex(ng)) return "";
+    if (Number(ns.suri) === 27 && hexNameStarts(ng, "화뢰서합")) return SEOHAP_27;
+    const keys = Object.keys(BLACK_HEX_WEAK_UNDER_BAD);
+    for (let i = 0; i < keys.length; i++) {
+      if (hexNameStarts(ng, keys[i])) return BLACK_HEX_WEAK_UNDER_BAD[keys[i]];
+    }
+    return "";
+  }
 
   function badSuriBlackHexNote(ns, ng) {
     if (!hasBadSuriBlackHex(ns, ng)) return "";
@@ -483,6 +499,14 @@
     if (num === 14 && hexNameStarts(ng, "화산려")) {
       return (
         " 같은 시기에 「이산파멸」과 「화산려」가 겹치면, 이산으로 가족과 헤어지고 역마살을 타 더욱 불안하고 힘든 생활을 한다고 보아야 합니다. 검정 보통 괘를 길로 보거나 길·흉이 섞였다고 하면 안 됩니다. 「화산려」의 단점인 여행·이동의 불안정과 고생·걱정이 「이산파멸」 때문에 더 드러납니다."
+      );
+    }
+
+    if (num === 27 && hexNameStarts(ng, "화뢰서합")) {
+      return (
+        " 같은 시기에 「대인격」과 「화뢰서합」이 겹치면, " +
+        SEOHAP_27 +
+        " 검정 보통 괘를 길로 보거나 길·흉이 섞였다고 하면 안 됩니다."
       );
     }
 
@@ -2473,8 +2497,13 @@
           }
           if (sOk && suriBad(s.data) && gOk && gweBad(g))
             return "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 " + noun + "입니다. ";
-          if (hasBadSuriBlackHex(s, g))
-            return sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. ";
+          if (hasBadSuriBlackHex(s, g)) {
+            const w = blackWeakShort(s, g);
+            return (
+              sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) +
+              " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. " + (w ? w + " " : "")
+            );
+          }
           if (sOk && suriBad(s.data))
             return sn + josaEuro(sn) + " 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) + " 좋은 편입니다. ";
           if (gOk && gweBad(g))
@@ -2623,6 +2652,17 @@
             tp = true;
           } else if (skip && !wm.html) {
             return;
+          }
+          if (pe.idx !== 0) {
+            [[hasHanja ? "한글" : "이름", nmS, nmG]]
+              .concat(hasHanja ? [["한문", hjS, hjG]] : [])
+              .concat(hasB ? [["사주", bdS, bdG]] : [])
+              .forEach(function (w) {
+                const s = w[1] && w[1][pe.idx];
+                const g = w[2] && w[2][pe.idx];
+                const bw = blackWeakShort(s, g);
+                if (bw) txt += " " + w[0] + " " + axisHead(s, g) + " — " + bw;
+              });
           }
           if (badTp && pe.key !== "말년") {
             if (worst && lastT === "흉" && lastBadM)
