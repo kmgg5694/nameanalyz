@@ -743,7 +743,7 @@
         paintBlue("재물운") +
         "이니 재물운으로 설명합니다.";
     }
-    lift += " 장점은 더 좋아지고 흉은 지워집니다.";
+    lift += " 그 수리의 단점이 장점으로 승화되어 장점은 더 좋아지고 흉은 지워집니다.";
     if (num === 14) {
       const keys = suriDetailKeywordsList(ns);
       const gone = keys
@@ -2407,11 +2407,12 @@
             Math.max.apply(null, a.map(function (x) { return x[1]; })) + "세";
         }
         const WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "뇌천대장"];
-        function wealthMarks(idx) {
+        function wealthMarks(idx, skipSides) {
           const m = [];
           let last = "";
           const who = [[hasHanja ? "한글" : "이름", nmG]].concat(hasHanja ? [["한문", hjG]] : []).concat(hasB ? [["사주", bdG]] : []);
           who.forEach(function (w) {
+            if (skipSides && skipSides.indexOf(w[0]) >= 0) return;
             const g = w[1] && w[1][idx];
             if (!g || !g.name) return;
             const n = gweNameOf(g);
@@ -2426,6 +2427,30 @@
           if (pe.key === "말년") return "56세 이후";
           const g = AGE_G[pe.key];
           return g[0] + "~" + g[1] + "세";
+        }
+        /** 흉수리 + 눌러 주는 괘(같은 자리) → 수리의 단점이 장점으로 승화 (보흘 지정 · 빠뜨리지 말 것) */
+        function sublimeAt(idx) {
+          const who = [[hasHanja ? "한글" : "이름", nmS, nmG]]
+            .concat(hasHanja ? [["한문", hjS, hjG]] : [])
+            .concat(hasB ? [["사주", bdS, bdG]] : []);
+          const out = [];
+          const sides = [];
+          who.forEach(function (w) {
+            const s = w[1] && w[1][idx];
+            const g = w[2] && w[2][idx];
+            if (!hasBadSuriMitigateHex(s, g)) return;
+            const sn = plainSuriName(s);
+            const gn = gweNameOf(g);
+            sides.push(w[0]);
+            out.push(
+              w[0] + " " + suriPhrase(s) + " 아래 " + gweNameHtml(g) + josaIGA(gn) + " " +
+                sn + josaEuro(sn) + " 인한 고통·재난 등을 " + paintBlue("눌러 주니") +
+                ", 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
+                (isWealthFortuneHex(g) ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") +
+                "고난 끝에 행복이 온답니다."
+            );
+          });
+          return { html: out.join(" "), sides: sides };
         }
         const lastT = nameToneAt(0);
         const lastBadM = marks(nameArrs, 0, true);
@@ -2447,7 +2472,8 @@
           let rg = "";
           let worst = false;
           let skip = false;
-          const wm = wealthMarks(pe.idx);
+          const sub = sublimeAt(pe.idx);
+          const wm = wealthMarks(pe.idx, sub.sides);
           if (nt === "길") nameGoodAny = true;
           const hgBad = toneOf(nmS, nmG, pe.idx) === "흉";
           const hjBad = hasHanja && toneOf(hjS, hjG, pe.idx) === "흉";
@@ -2508,7 +2534,16 @@
               txt += " 주역 " + wm.html + josaEuro(wm.last) + " " + paintBlue("재물운도 함께 들어오는 시기") + "입니다.";
             }
             tp = true;
-          } else if (skip) {
+          }
+          if (sub.html) {
+            if (skip && !wm.html) {
+              rg = rangeG(pe);
+              txt = sub.html;
+            } else {
+              txt += " " + sub.html;
+            }
+            tp = true;
+          } else if (skip && !wm.html) {
             return;
           }
           if (badTp && pe.key !== "말년") {

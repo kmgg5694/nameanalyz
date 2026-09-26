@@ -369,7 +369,7 @@
   }
   function sideBad(nS, nG, idx) {
     return (
-      (nS[idx] && nS[idx].data && suriBad(nS[idx].data)) ||
+      (nS[idx] && nS[idx].data && suriBad(nS[idx].data) && !isMitigate(nG[idx])) ||
       (nG[idx] && gweBad(nG[idx]))
     );
   }
@@ -1247,19 +1247,38 @@
       }
       return { html: m.join(ko ? "·" : " and "), last: last };
     };
+    const SUB_WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"];
+    const sublimeOne = (who, s, g) => {
+      const sn = plainSuriName(s, lang);
+      const gn = gweDisplayName(g, lang);
+      const wealth = SUB_WEALTH.some((x) => hexNameStarts(g, x));
+      return ko
+        ? who + " " + s.suri + " " + sn + " 아래 " + gweNameHtml(g, lang) + josa(gn, "이", "가") + " " + sn + josaRo(sn) +
+            " 인한 고통·재난 등을 " + paintBlue("눌러 주니") + ", 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
+            (wealth ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") + "고난 끝에 행복이 온답니다."
+        : "In " + who + ", " + gweNameHtml(g, lang) + " under " + s.suri + " " + sn + " " + paintBlue("presses down") +
+            " the pain and trouble that " + sn + " brings, so the number's weakness is " + paintBlue("turned into a strength") + ". " +
+            (wealth ? "It changes into even greater " + paintBlue("wealth") + " — " : "") + "happiness comes after hardship.";
+    };
     const lines = [];
     const tpNames = [];
     let nameBadAny = false, helped = false, sajuSurface = false, nameGoodAny = false;
     [3, 0, 1, 2].forEach((i) => {
       const ns = nS[i], ng = nG[i], bs = hasB ? bS[i] : null, bg = hasB ? bG[i] : null;
-      const nSB = !!(ns && ns.data && suriBad(ns.data)), nGB = gweBad(ng);
-      const bSB = !!(bs && bs.data && suriBad(bs.data)), bGB = gweBad(bg);
+      const nMit = !!(ns && ns.data && suriBad(ns.data) && isMitigate(ng));
+      const bMit = !!(bs && bs.data && suriBad(bs.data) && isMitigate(bg));
+      const nSB = !nMit && !!(ns && ns.data && suriBad(ns.data)), nGB = gweBad(ng);
+      const bSB = !bMit && !!(bs && bs.data && suriBad(bs.data)), bGB = gweBad(bg);
+      const subParts = [];
+      if (nMit) subParts.push(sublimeOne(ko ? "이름" : "the name", ns, ng));
+      if (bMit) subParts.push(sublimeOne(ko ? "사주" : "the birth chart", bs, bg));
+      const sub = subParts.join(" ");
       const nameBad = nSB || nGB, birthBad = bSB || bGB;
       const nameGood = !nameBad && !!marks(ns, ng, false);
       const birthGood = !birthBad && !!marks(bs, bg, false);
       const P = ko ? P_KO[i] : P_EN[i];
       let txt = "", tp = false, rg = "", worst = false, skip = false;
-      const wm = wealthMarks(ng, bg);
+      const wm = wealthMarks(nMit ? null : ng, bMit ? null : bg);
       if (nameGood) nameGoodAny = true;
       if (nameBad && birthBad) {
         tp = true;
@@ -1319,7 +1338,16 @@
             : " With " + wm.html + ", " + paintBlue("wealth also flows in during this period") + ".";
         }
         tp = true;
-      } else if (skip) {
+      }
+      if (sub) {
+        if (skip && !wm.html) {
+          rg = range(i, false, true);
+          txt = sub;
+        } else {
+          txt += " " + sub;
+        }
+        tp = true;
+      } else if (skip && !wm.html) {
         return;
       }
       if (badTp && i < 3) {
