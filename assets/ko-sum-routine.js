@@ -1134,7 +1134,7 @@
       _: "일이 잘 되어 나가는 듯하다가 마지막에 실패를 맛보기 쉽습니다. 사업이든 청혼이든 끝이 안 좋습니다.",
     },
     14: {
-      초년: "공부가 잘 나가다가 끝이 안 좋고, 이 나이대에 이별·사고·병고의 고통을 겪기 쉽습니다.",
+      초년: "지혜로워 영웅적 기질을 발휘하지만, 눌러 주는 괘가 없으니 공부가 잘 나가다가 끝이 안 좋고 이 나이대에 이별·사고·병고의 고통을 겪기 쉽습니다.",
       장년: "그 나이대에 이혼·부부불화, 병고·수술(암 포함)을 겪기 쉽습니다.",
       중년: "그 나이대에 이혼·이별과 고독번뇌를 겪기 쉽습니다.",
       말년:
@@ -1161,14 +1161,23 @@
       _: "그 나이대에 공부·일도 한때의 성공으로 끝나기 쉽습니다.",
     },
   };
-  /** 같은 수리라도 흉으로 작용할 때·눌려 승화할 때 이름이 다르다 (보흘 예시) */
+  /**
+   * 분류 이름. 14는 자리로 정해진다(초년 지혜재능 · 말년 이산고독, 보흘 지정).
+   * 19는 눌려 승화할 때 봉황고독.
+   */
   const SURI_FACE_LABEL = {
-    14: { bad: "이산고독", good: "지혜재능" },
+    14: { 초년: "지혜재능", 말년: "이산고독" },
     19: { bad: "", good: "봉황고독" },
   };
   const SURI_GOOD_FACE = {
     14: "지혜로워 영웅적 기질을 발휘하고, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 살아 큰 재물운으로 나타나기도 합니다.",
     19: "두뇌가 명석해 크게 성공하고, 최고의 명예운으로 나타나기도 합니다.",
+  };
+  /** 자리 고정 이름이 눌려 승화할 때 (14 말년 이산고독) */
+  const SURI_POS_GOOD_FACE = {
+    14: {
+      말년: "이산고독의 단점이 장점으로 승화되니, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 사는 힘으로 나타납니다. 총운이라 이 장점이 평생 이어집니다.",
+    },
   };
 
   /** "good"=바로 아래 괘가 눌러 승화 · "bad"=흉으로 작용 · ""=흉수리 아님 */
@@ -1182,9 +1191,12 @@
   }
 
   /** 원형이정 중 원(초년)·정(말년)만 분류 이름, 형(장년)·이(중년)는 본이름 (보흘 지정) */
-  function faceLabel(n, ageKey) {
-    if (ageKey !== "초년" && ageKey !== "말년") return null;
-    return SURI_FACE_LABEL[n] || null;
+  function faceLabel(n, ageKey, face) {
+    if (ageKey !== "초년" && ageKey !== "말년") return "";
+    const L = SURI_FACE_LABEL[n];
+    if (!L) return "";
+    if (L[ageKey]) return L[ageKey];
+    return (face === "good" ? L.good : L.bad) || "";
   }
 
   function ageLead(ageKey) {
@@ -1198,9 +1210,9 @@
     if (!spec) return "";
     const body = spec[ageKey] || spec._;
     if (!body) return "";
-    const lab = faceLabel(n, ageKey);
+    const lab = faceLabel(n, ageKey, "bad");
     let t = (noLead ? "" : ageLead(ageKey)) +
-      (lab && lab.bad ? "「" + paintRed(lab.bad) + "」으로 작용해 " : "") + body;
+      (lab ? "「" + paintRed(lab) + "」으로 작용해 " : "") + body;
     if (n === 10 && ageKey === "초년") {
       const cho = opts && opts.choSajuGood;
       if (cho === true) t += " 다만 초년 사주가 좋아 돌파해 나가기도 합니다.";
@@ -1218,9 +1230,13 @@
   /** 승화 쪽 작용 문장 (「지혜재능」으로 작용합니다. …) */
   function suriAgeGoodText(ns, g, ageKey) {
     const n = Number(ns && ns.suri);
-    const lab = faceLabel(n, ageKey);
+    const lab = faceLabel(n, ageKey, "good");
     const hx = gweNameHtml(g) + josaIGA(gweNameOf(g));
-    let t = lab ? "「" + paintBlue(lab.good) + "」으로 작용합니다. " : "";
+    const posGood = SURI_POS_GOOD_FACE[n] && SURI_POS_GOOD_FACE[n][ageKey];
+    if (posGood) {
+      return "「" + paintBlue(lab) + "」의 수이지만 바로 아래 " + hx + " 눌러 주어 " + posGood;
+    }
+    let t = lab ? "「" + paintBlue(lab) + "」으로 작용합니다. " : "";
     if (n === 9 && isSuri9GoodHex(g)) t += "바로 아래 " + hx + " 들어 아주 좋습니다.";
     else if (n === 20 && isSuri20WealthHex(g))
       t += "바로 아래 " + hx + " 있어 대부대귀·부자장수로 봅니다(사주가 보통 이상일 때).";
