@@ -1248,16 +1248,48 @@
       return { html: m.join(ko ? "·" : " and "), last: last };
     };
     const SUB_WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"];
+    const BLACK_WEAK = {
+      화뢰서합: [
+        "말은 조리 있게 잘하지만 독설을 하고 타협할 줄 몰라 늘 시비·구설수를 달고 다니는 단점이 더 드러납니다.",
+        "This person speaks clearly and well, but sharp words and refusal to compromise make quarrels and gossip follow them all the time.",
+      ],
+      화산려: [
+        "여행·이동의 불안정과 고생·걱정이 더 커지고, 역마살을 타고 객지를 떠돌며 불안하고 힘든 생활이 되기 쉽습니다.",
+        "The unrest and hardship of travel grow; restless wandering far from home makes life anxious and hard.",
+      ],
+      뇌지예: [
+        "치밀하고 꼼꼼한 참모형이라 보좌역은 잘 하지만, 사장·회장감은 못 되는 단점이 더 드러납니다.",
+        "A careful, meticulous adviser type who serves well as a right hand — the weakness of not being CEO or chairman material shows more.",
+      ],
+      수택절: [
+        "절제·통제하지 않으면 건강·재정 등이 무너지는 단점이 더 드러납니다.",
+        "Without restraint and self-control, health and finances collapse — this weakness shows more.",
+      ],
+      뇌풍항: [
+        "한 가지 일에 매몰되어 바쁘기만 하고 주변을 돌아볼 여유가 없는 단점이 더 드러납니다.",
+        "Buried in one task, always busy with no room to look around — this weakness shows more.",
+      ],
+    };
+    const BLACK_TRAIT = {
+      뇌지예: ["참모형으로 치밀하고 꼼꼼하여 보좌역은 잘 하지만 사장·회장감은 아닙니다.", "is the careful, meticulous adviser type — good as a right hand, but not CEO or chairman material."],
+      수택절: ["절제·통제하지 않으면 건강·재정 등이 무너지는 기운입니다.", "means that without restraint and self-control, health and finances collapse."],
+      화산려: ["역마살이 들어 객지에서 고생을 하지만, 영업 파트인 사람은 바쁘게 돌아다니면 재물이 되고 해외로도 진출합니다.", "brings a wandering life with hardship far from home, but for people in sales, busy travel turns into wealth and even overseas expansion."],
+      뇌풍항: ["한 가지 일에 매몰되니 바쁘고 주변을 돌아볼 여유가 없습니다.", "buries one in a single task — always busy, with no room to look around."],
+      화뢰서합: ["말을 잘하는 기운이지만 늘 구설을 달고 다닙니다.", "gives a gift for speech, but gossip follows all the time."],
+    };
+    const isBlack = (g) => !!(g && g.name) && !gweGood(g) && !gweBad(g) && !isMitigate(g);
+    const pick = (map, g) => {
+      const k = Object.keys(map).find((x) => hexNameStarts(g, x));
+      return k ? map[k][ko ? 0 : 1] : "";
+    };
     const blackWeak = (s, g) => {
-      if (!(s && s.data && suriBad(s.data)) || !(g && g.name) || gweGood(g) || gweBad(g) || isMitigate(g)) return "";
-      if (!hexNameStarts(g, "화뢰서합")) return "";
-      if (Number(s.suri) === 27)
+      if (!(s && s.data && suriBad(s.data)) || !isBlack(g)) return "";
+      if (Number(s.suri) === 20 && ["수택절", "수풍정", "지택림", "뇌택귀매"].some((x) => hexNameStarts(g, x))) return "";
+      if (Number(s.suri) === 27 && hexNameStarts(g, "화뢰서합"))
         return ko
           ? "대인격의 센 고집과 자존심을 화뢰서합의 조리 있는 말솜씨로 풀어 상대를 설득해 내 뜻을 이루는 힘도 있지만, 서합은 독설을 하고 타협할 줄 모르는 기운이라 늘 시비·구설수를 달고 다니게 됩니다."
           : "The strong will and pride of Great Character can be turned by Biting Through's clear speech into persuading others and getting one's way, but Biting Through also speaks sharply and will not compromise, so quarrels and gossip follow this person all the time.";
-      return ko
-        ? "말은 조리 있게 잘하지만 독설을 하고 타협할 줄 몰라 늘 시비·구설수를 달고 다니는 단점이 더 드러납니다."
-        : "This person speaks clearly and well, but sharp words and refusal to compromise make quarrels and gossip follow them all the time.";
+      return pick(BLACK_WEAK, g);
     };
     const sublimeOne = (who, s, g) => {
       const sn = plainSuriName(s, lang);
@@ -1442,6 +1474,10 @@
         t += ko
           ? "주역괘 " + gh + josa(gn, "이", "가") + " " + paintBlue("길") + "하여 무난한 편입니다. "
           : "The hexagram " + gh + " is " + paintBlue("favorable") + ", so it is a steady chart. ";
+      }
+      if (!sB && isBlack(g)) {
+        const tr = pick(BLACK_TRAIT, g);
+        if (tr) t += ko ? "주역괘 " + gh + josa(gn, "은", "는") + " " + tr + " " : "The hexagram " + gh + " " + tr + " ";
       }
       axis =
         "<strong>" + (ko ? "사주의 중심" : "Center of the birth chart") + "</strong> — " + t +

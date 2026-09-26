@@ -463,7 +463,13 @@
    */
   const BLACK_HEX_WEAK_UNDER_BAD = {
     화산려:
-      "여행·이동의 불안정과 고생·걱정이 더 커지고, 역마살을 타고 떠돌며 불안하고 힘든 생활이 되기 쉽습니다.",
+      "여행·이동의 불안정과 고생·걱정이 더 커지고, 역마살을 타고 객지를 떠돌며 불안하고 힘든 생활이 되기 쉽습니다.",
+    뇌지예:
+      "치밀하고 꼼꼼한 참모형이라 보좌역은 잘 하지만, 사장·회장감은 못 되는 단점이 더 드러납니다.",
+    수택절:
+      "절제·통제하지 않으면 건강·재정 등이 무너지는 단점이 더 드러납니다.",
+    뇌풍항:
+      "한 가지 일에 매몰되어 바쁘기만 하고 주변을 돌아볼 여유가 없는 단점이 더 드러납니다.",
     진위뢰:
       "소리만 요란하고 손에 든 것이 없는 외화내빈의 단점이 더 두드러집니다.",
     화뢰서합:
@@ -473,9 +479,27 @@
   const SEOHAP_27 =
     "대인격의 센 고집과 자존심을 화뢰서합의 조리 있는 말솜씨로 풀어 상대를 설득해 내 뜻을 이루는 힘도 있지만, 서합은 독설을 하고 타협할 줄 모르는 기운이라 늘 시비·구설수를 달고 다니게 됩니다.";
 
+  /** 검정 보통 괘의 장·단점 — 길괘가 아니라 검정인 이유 (보흘 지정) */
+  const BLACK_HEX_TRAIT = {
+    뇌지예: "참모형으로 치밀하고 꼼꼼하여 보좌역은 잘 하지만 사장·회장감은 아닙니다.",
+    수택절: "절제·통제하지 않으면 건강·재정 등이 무너지는 기운입니다.",
+    화산려: "역마살이 들어 객지에서 고생을 하지만, 영업 파트인 사람은 바쁘게 돌아다니면 재물이 되고 해외로도 진출합니다.",
+    뇌풍항: "한 가지 일에 매몰되니 바쁘고 주변을 돌아볼 여유가 없습니다.",
+    화뢰서합: "말을 잘하는 기운이지만 늘 구설을 달고 다닙니다.",
+  };
+  function blackHexTrait(g) {
+    if (!gweBlack(g)) return "";
+    const keys = Object.keys(BLACK_HEX_TRAIT);
+    for (let i = 0; i < keys.length; i++) {
+      if (hexNameStarts(g, keys[i])) return BLACK_HEX_TRAIT[keys[i]];
+    }
+    return "";
+  }
+
   /** 흉수리 + 검정 보통 괘 — 짧은 해설 (중심·변곡점용) */
   function blackWeakShort(ns, ng) {
     if (!hasBadSuriBlackHex(ns, ng) || isMitigateSuriHex(ng)) return "";
+    if (Number(ns.suri) === 20 && isSuri20WealthHex(ng)) return "";
     if (Number(ns.suri) === 27 && hexNameStarts(ng, "화뢰서합")) return SEOHAP_27;
     const keys = Object.keys(BLACK_HEX_WEAK_UNDER_BAD);
     for (let i = 0; i < keys.length; i++) {
@@ -491,6 +515,8 @@
     const num = ns.suri != null ? Number(ns.suri) : NaN;
     // 14+풍수환은 suriMitigateByHexNote 특례
     if (num === 14 && hexNameStarts(ng, "풍수환")) return "";
+    // 20+수택절 등은 대부대귀 특례
+    if (num === 20 && isSuri20WealthHex(ng)) return "";
 
     const plain = gweNameOf(ng);
     const hexPart = gweNameHtml(ng) + josaIGA(plain);
@@ -2481,6 +2507,15 @@
           return [s && s.data ? suriPhrase(s) : "", g && g.name ? gweNameHtml(g) : ""].filter(Boolean).join("·");
         }
         function axisTone(s, g, noun) {
+          let t = axisToneBase(s, g, noun);
+          const trait = blackHexTrait(g);
+          if (trait && !(s && s.data && suriBad(s.data))) {
+            const gn = gweNameOf(g);
+            t += "주역괘 " + gweNameHtml(g) + josaEunNeun(gn) + " " + trait + " ";
+          }
+          return t;
+        }
+        function axisToneBase(s, g, noun) {
           const sOk = !!(s && s.data);
           const gOk = !!(g && g.name);
           const sn = sOk ? plainSuriName(s) : "";
