@@ -1659,6 +1659,60 @@
     );
   }
 
+  const LIST_WEALTH_HEX = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"];
+  const LIST_WEALTH_SURI = [16, 24, 29, 47, 7, 13, 3, 33, 41, 58, 61, 65, 67, 1, 5, 6, 8, 18];
+  const LIST_AGES = {
+    ko: ["초년", "장년", "중년", "말년"],
+    en: ["Early", "Prime", "Midlife", "Late"],
+  };
+
+  /** 1. 인덕 · 2. 배우자운 · 3. 자녀운 · 4. 재물운(이름 / 사주) — 질병·사고 등 분류표는 두지 않음 */
+  function buildFourList(oh, nS, nG, bS, bG, hasB, lang) {
+    const ko = lang === "ko";
+    const up = oh && oh.lastRep;
+    const me = oh && oh.firstRep;
+    const first = (oh && oh.first) || [];
+    const lastLetter = first.length ? first[first.length - 1] : null;
+    const dn = oh && (oh.middleRep || (lastLetter ? lastLetter.ohang : ""));
+    const ru = up && me ? relUp(up, me) : null;
+    const rd = me && dn ? relDn(me, dn) : null;
+
+    const g = (ru && ru.kind === "gen" ? 1 : 0) + (rd && rd.kind === "gen" ? 1 : 0);
+    const c = (ru && ru.kind === "ctrl" ? 1 : 0) + (rd && rd.kind === "ctrl" ? 1 : 0);
+    const indeok = ko
+      ? (g >= 2 ? "많음" : g === 1 ? "어느 정도" : "부족") + "(상생 " + g + "개 · 상극 " + c + "개)"
+      : (g >= 2 ? "Strong" : g === 1 ? "Moderate" : "Weak") + " (generating " + g + " · controlling " + c + ")";
+    function rel(r, side) {
+      if (!r) return ko ? "해당없음" : "N/A";
+      if (r.kind === "gen") return ko ? "원활(" + side + " 오행 생)" : "Smooth (generating link " + side + ")";
+      if (r.kind === "ctrl") return ko ? "막힘(" + side + " 오행 극)" : "Blocked (controlling link " + side + ")";
+      return ko ? "비화(관심이 있는듯 없는듯)" : "Same element (neither warm nor cold)";
+    }
+    const isW = (ng) => !!(ng && ng.name && LIST_WEALTH_HEX.some((x) => hexNameStarts(ng, x)));
+    function wealthLine(S, G) {
+      const parts = [];
+      for (let i = 0; i < 4; i++) {
+        const got = [];
+        if (isW(G[i])) got.push(gweNameHtml(G[i], lang));
+        if (S[i] && S[i].suri != null && LIST_WEALTH_SURI.indexOf(Number(S[i].suri)) >= 0)
+          got.push(suriPhrase(S[i], lang));
+        if (got.length) parts.push(LIST_AGES[lang][i] + " " + got.join(" · "));
+      }
+      return parts.length ? parts.join(" / ") : ko ? "해당없음" : "None";
+    }
+    const pad = '<div style="padding-left:1em">· ';
+    return (
+      '<div style="font-weight:700;line-height:1.7">' +
+      "<div>1. " + (ko ? "인덕 : " : "Human support : ") + esc(indeok) + "</div>" +
+      "<div>2. " + (ko ? "배우자운 : " : "Spouse luck : ") + esc(rel(ru, ko ? "위쪽" : "above")) + "</div>" +
+      "<div>3. " + (ko ? "자녀운 : " : "Children luck : ") + esc(rel(rd, ko ? "아래쪽" : "below")) + "</div>" +
+      "<div>4. " + (ko ? "재물운" : "Wealth luck") + "</div>" +
+      pad + (ko ? "이름재물운 : " : "Name wealth : ") + wealthLine(nS, nG) + "</div>" +
+      (hasB ? pad + (ko ? "사주재물운 : " : "Birth-chart wealth : ") + wealthLine(bS, bG) + "</div>" : "") +
+      "</div>"
+    );
+  }
+
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
@@ -1674,6 +1728,7 @@
     if (tp) parts.push(tp);
     const wrap = buildWrap(nS, nG, lang);
     if (wrap) parts.push(wrap);
+    parts.push(buildFourList(ctx.ohang, nS, nG, bS, bG, hasB, lang));
     const narr = parts.length
       ? '<div class="en-sum-narr notranslate" translate="no">' +
         parts.join("<br><br>") +
