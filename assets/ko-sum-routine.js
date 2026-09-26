@@ -3908,6 +3908,115 @@
 
     const fortuneMatrixHtml = buildFortuneMatrixHtml();
 
+    /** 오행표 밑 첫 문단 — 전체 분위기·재물운 시기·흉 시기 → 사주가 원하는 삶 → 인덕부터 (보흘 2026-09-26) */
+    function buildPreviewIntro() {
+      const row = MATRIX_ROWS[0];
+      function wealthAges(sides) {
+        const out = [];
+        MATRIX_AGES.forEach(function (a) {
+          const hit = sides.some(function (sd) {
+            return hexMatchesAny(sd[1][a.idx], row.hex) || suriInList(sd[0][a.idx], row.suri);
+          });
+          if (hit) out.push(a.key);
+        });
+        return out;
+      }
+      function badMarks(sd, idx) {
+        const s = sd[0][idx];
+        const g = sd[1][idx];
+        const m = [];
+        if (s && s.data && suriBad(s.data) && !isMitigateSuriHex(g)) m.push(suriPhrase(s));
+        if (g && g.name && gweBad(g)) m.push(gweNameHtml(g));
+        return m;
+      }
+      function malTone(sides) {
+        const ts = sides.map(function (sd) { return sideToneAt(sd[0], sd[1], 0); });
+        if (ts.indexOf("흉") >= 0) return "흉";
+        if (ts.every(function (t) { return t === "길"; })) return "길";
+        return "보통";
+      }
+      const nameSides = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []);
+      const sajuSides = hasB ? [[bdS, bdG]] : [];
+
+      let p = "본격적으로 풀기 전에 전체 분위기부터 짚어 보겠습니다. ";
+      const nt = malTone(nameSides);
+      p += nt === "길"
+        ? "이름의 중심인 말년(총운)이 " + paintBlue("든든하여") + " 전체 분위기가 밝고, "
+        : nt === "흉"
+          ? "이름의 말년(총운)에 " + paintRed("흉") + "이 있어 전체 분위기가 무겁고, "
+          : "이름의 전체 분위기는 무난하고, ";
+      if (hasB) {
+        const st = malTone(sajuSides);
+        p += st === "길"
+          ? "사주의 중심인 말년(총운)도 " + paintBlue("좋은 기운") + "입니다. "
+          : st === "흉"
+            ? "사주의 말년(총운)에는 " + paintRed("시련") + "이 있습니다. "
+            : "사주의 말년(총운)은 평이한 편입니다. ";
+      } else {
+        p = p.replace(/, $/, ". ");
+      }
+
+      const nw = wealthAges(nameSides);
+      const sw = hasB ? wealthAges(sajuSides) : [];
+      if (nw.length || sw.length) {
+        const bits = [];
+        if (nw.length) bits.push((hasB ? "이름 재물운은 " : "재물운은 ") + paintBlue(nw.join("·")));
+        if (sw.length) bits.push("사주 재물운은 " + paintBlue(sw.join("·")));
+        p += bits.join(", ") + "에 들어옵니다. ";
+      } else {
+        p += "뚜렷한 재물운 자리는 보이지 않습니다. ";
+      }
+
+      const badBits = [];
+      let nameBadNonMal = false;
+      MATRIX_AGES.forEach(function (a) {
+        const m = [];
+        nameSides.forEach(function (sd) { m.push.apply(m, badMarks(sd, a.idx)); });
+        if (m.length && a.idx !== 0) nameBadNonMal = true;
+        const sm = [];
+        sajuSides.forEach(function (sd) { sm.push.apply(sm, badMarks(sd, a.idx)); });
+        const who = [];
+        if (m.length) who.push((hasB ? "이름 " : "") + m.join("·"));
+        if (sm.length) who.push("사주 " + sm.join("·"));
+        if (who.length) badBits.push(a.key + "(" + who.join(", ") + ")");
+      });
+      if (badBits.length) {
+        p += paintRed("흉") + "은 " + badBits.join(", ") + "에 있습니다.";
+        const np = malPressHexes(nameSides);
+        if (nameBadNonMal && np.length) {
+          p += " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) + " " +
+            paintBlue("지원군") + "이 되어 줍니다.";
+        }
+      } else {
+        p += "뚜렷한 " + paintRed("흉") + "은 보이지 않습니다.";
+      }
+
+      let q;
+      if (hasB) {
+        const POWER_HEX = ["택풍대과", "택산함"];
+        let power = 0;
+        let wealth = 0;
+        [1, 2, 3, 0].forEach(function (i) {
+          if (hexMatchesAny(bdG[i], POWER_HEX)) power++;
+          if (hexMatchesAny(bdG[i], row.hex)) wealth++;
+        });
+        let want;
+        if (power >= 2) want = paintBlue("출세하고자 하는 욕망이 가득한데");
+        else if (power === 1) want = paintBlue("출세하고자 하는 기운이 있는데");
+        else if (wealth) want = paintBlue("재물을 크게 쌓고자 하는 기운이 뚜렷한데");
+        else if (malTone(sajuSides) === "흉") want = "시련을 이겨 내며 살라 했는데";
+        else want = "무난하게 살라 했는데";
+        q = "사주의 전체적인 기운을 보면 " + want +
+          ", 과연 이름이 사주가 원하는 것을 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
+      } else {
+        q = "이름이 어떤 삶을 그리고 있는지 세밀하게 시기별로 확인해 보겠습니다.";
+      }
+      q += " 이런 기운들을 강력하게 지원하는 " + paintBlue("인덕(상생)이 3개 이상") +
+        "이어야 하는데, 그것부터 설명을 하겠습니다.";
+      return p + "<br><br>" + q;
+    }
+    ageParts.unshift(buildPreviewIntro());
+
     const footnoteHits = collectFootnoteHits(
       nmS,
       nmG,
