@@ -3425,6 +3425,17 @@
     }
 
     /** 사주 전체기운의 축 = 말년 */
+    /** 사주 말년 경고 괘(택천쾌)를 이름 말년의 눌러 주는 괘가 누를 때 (보흘 지정) */
+    function sajuMalWarnPressTail() {
+      if (!hasB || !(bdG[0] && bdG[0].malWarn)) return "";
+      const np = malPressHexes([[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []));
+      if (!np.length) return "";
+      return (
+        " 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) +
+        " 눌러 주고 있기는 하지만 " + paintRed("일단은 조심하셔야 합니다") + "."
+      );
+    }
+
     function buildSajuMalOverall() {
       if (!hasB) return "";
       const marks = sajuBriefMarks(0);
@@ -3445,7 +3456,7 @@
       } else {
         p += ro + " 평이한 편입니다.";
       }
-      if (bdG[0] && bdG[0].malWarn) p += " " + paintRed(bdG[0].malWarn);
+      if (bdG[0] && bdG[0].malWarn) p += " " + paintRed(bdG[0].malWarn) + sajuMalWarnPressTail();
       p +=
         " 말년기운은 인생전반에 영향력을 행사하니, 이 사주가 어떻게 살으라고 했는지의 중심이 여기입니다.";
       return p;
@@ -3940,7 +3951,9 @@
       }
       function malWarn(sides) {
         const g = sides.map(function (sd) { return sd[1][0]; }).filter(function (x) { return x && x.malWarn; })[0];
-        return g ? " " + paintRed(gweNameOf(g) + josaEunNeun(gweNameOf(g)) + " " + g.malWarn) : "";
+        if (!g) return "";
+        return " " + paintRed(gweNameOf(g) + josaEunNeun(gweNameOf(g)) + " " + g.malWarn) +
+          (g === bdG[0] ? sajuMalWarnPressTail() : "");
       }
       const nameSides = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []);
       const sajuSides = hasB ? [[bdS, bdG]] : [];
