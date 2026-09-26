@@ -4012,8 +4012,8 @@
         p += paintRed("흉") + "은 " + badBits.join(", ") + "에 있습니다.";
         const np = malPressHexes(nameSides);
         if (nameBadNonMal && np.length) {
-          p += " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) + " " +
-            paintBlue("지원군") + "이 되어 줍니다.";
+          p += " " + np.map(function (x) { return x.html; }).join(", ") + josaIGA(np[np.length - 1].name) +
+            " 막아 주고 눌러 주니 거의 느끼지 못하고 지나칠 정도입니다.";
         }
       } else {
         p += "뚜렷한 " + paintRed("흉") + "은 보이지 않습니다.";
