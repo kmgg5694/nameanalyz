@@ -529,6 +529,35 @@
     return "";
   }
 
+  /** 흉수리 + 흉괘 아닌 괘: 수리 뜻 → 괘 뜻 → 좋은지 나쁜지 (보흘 지정 · 얼렁뚱땅 금지) */
+  const SURI_DANGER = [14, 19, 20, 22, 26, 27, 28, 46, 70, 74, 79];
+  const SURI_EXTRA_TRAIT = {
+    22: "내성적 성격에 병약하고 무기력하여 매사에 때를 놓치고 중도에서 실패합니다.",
+  };
+  function badSuriHexExplain(ns, ng) {
+    if (!(ns && ns.data && suriBad(ns.data) && ng && ng.name)) return "";
+    const sn = plainSuriName(ns);
+    const gn = gweNameOf(ng);
+    const row = NAR().suri[String(ns.suri)];
+    const sm = String((row && row.narrate) || suriCoreBrief(ns) || "").trim();
+    const extra = SURI_EXTRA_TRAIT[Number(ns.suri)] || "";
+    const gm = hexCoreBrief(ng);
+    let t = paintRed(sn) + josaEunNeun(sn) + " " + sm + (extra ? " " + extra : "") + " ";
+    if (gm) t += gweNameHtml(ng) + josaEunNeun(gn) + " " + gm + " ";
+    if (isMitigateSuriHex(ng)) {
+      t += gweNameHtml(ng) + josaIGA(gn) + " " + sn + "의 흉을 " + paintBlue("눌러 주니") +
+        " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다.";
+      return t;
+    }
+    const w = blackWeakShort(ns, ng);
+    if (w) t += "흉수리 밑이라 " + w + " ";
+    t += SURI_DANGER.indexOf(Number(ns.suri)) >= 0
+      ? paintRed(sn + josaEunNeun(sn) + " 아주 위험한 수리이니 조심하셔야 합니다.")
+      : sn + josaEunNeun(sn) + " " + paintRed("흉수리") + "인데 " + gn + josaIGA(gn) + " 눌러 주지 못하니 " +
+        paintRed("조심하셔야 합니다") + ".";
+    return t;
+  }
+
   function badSuriBlackHexNote(ns, ng) {
     if (!hasBadSuriBlackHex(ns, ng)) return "";
     if (isMitigateSuriHex(ng)) return "";
@@ -2703,24 +2732,15 @@
           const gh = gOk ? gweNameHtml(g) : "";
           if (hasBadSuriMitigateHex(s, g)) {
             return (
-              sn + josaEuro(sn) + " 약간의 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) +
-              " 나쁘지 않은 편이고, 오히려 " + sn + josaEuro(sn) + " 인한 고통·재난 등을 " +
-              paintBlue("눌러 주니") + " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
+              badSuriHexExplain(s, g) + " " +
               (isWealthFortuneHex(g) ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") +
               "고난 끝에 행복이 온답니다. "
             );
           }
           if (sOk && suriBad(s.data) && gOk && gweBad(g))
             return "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 " + noun + "입니다. ";
-          if (hasBadSuriBlackHex(s, g)) {
-            const w = blackWeakShort(s, g);
-            return (
-              sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) +
-              " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. " + (w ? w + " " : "")
-            );
-          }
-          if (sOk && suriBad(s.data))
-            return sn + josaEuro(sn) + " 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) + " 좋은 편입니다. ";
+          if (sOk && suriBad(s.data) && gOk) return badSuriHexExplain(s, g) + " ";
+          if (sOk && suriBad(s.data)) return sn + josaEunNeun(sn) + " " + paintRed("흉수리") + "이니 조심하셔야 합니다. ";
           if (gOk && gweBad(g))
             return "수리는 괜찮지만 주역괘 " + gh + josaIGA(gn) + " " + paintRed("흉") + "하여 시련이 따릅니다. ";
           if (sOk && suriGood(s.data) && gOk && gweGood(g))
@@ -2771,7 +2791,7 @@
               valid
                 .map(function (x) {
                   const tone = axisTone(x[1], x[2], "이름");
-                  return tone ? x[0] + "은 " + tone : "";
+                  return tone ? x[0] + "의 " + tone : "";
                 })
                 .join("");
           }
@@ -3653,6 +3673,11 @@
       if (painCnt >= 2) {
         return " 이 사주의 주역괘에는 무거운 기운이 있어 시련이 겹치기 쉽습니다.";
       }
+      for (let si = 0; si < 4; si++) {
+        if (bdS[si] && bdS[si].data && suriBad(bdS[si].data) && !isMitigateSuriHex(bdG[si]))
+          return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않고 주역괘로 인한 큰 고통은 없지만, 흉수리가 있어 " +
+            paintRed("조심하셔야 하는") + " 사주입니다.";
+      }
       return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
     }
 
@@ -3685,8 +3710,7 @@
         "사주 전체기운의 축인 말년(총운)은 " + marks.join(", ");
       const ro = josaEuro(marks[marks.length - 1]);
       if (sajuSlightTrialHexOk(0)) {
-        p +=
-          "인데 약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다.";
+        p += "인데 " + badSuriHexExplain(bdS[0], bdG[0]);
       } else if (tone === "길") {
         p += ro + " 좋은 기운이 들어 있습니다.";
       } else if (tone === "흉") {
@@ -3727,9 +3751,7 @@
 
         if (sajuSlightTrialHexOk(slot.i)) {
           mid += "인데 ";
-          tail = isLast
-            ? "약간의 시련이 있지만 주역괘는 나쁘지 않은 편입니다."
-            : "약간의 시련이 있지만 주역괘는 나쁘지 않은 편이고, ";
+          tail = badSuriHexExplain(bdS[slot.i], bdG[slot.i]) + (isLast ? "" : " ");
         } else if (tone === "길") {
           mid += josaEuro(mid) + " ";
           if (slot.key === "말년") {
