@@ -1258,8 +1258,8 @@
         "The unrest and hardship of travel grow; restless wandering far from home makes life anxious and hard.",
       ],
       뇌지예: [
-        "치밀하고 꼼꼼한 참모형이라 보좌역은 잘 하지만, 사장·회장감은 못 되는 단점이 더 드러납니다.",
-        "A careful, meticulous adviser type who serves well as a right hand — the weakness of not being CEO or chairman material shows more.",
+        "치밀하고 꼼꼼한 참모형이라 보좌역은 잘 하지만, 사장·회장감은 못 되는 단점이 더 드러납니다. 회장감이 못 되는데 욕심을 부리면 화를 면치 못하는 기운입니다.",
+        "A careful, meticulous adviser type who serves well as a right hand — the weakness of not being CEO or chairman material shows more. Reaching for the top anyway, without that calibre, invites misfortune.",
       ],
       수택절: [
         "절제·통제하지 않으면 건강·재정 등이 무너지는 단점이 더 드러납니다.",
