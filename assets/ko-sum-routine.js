@@ -4094,20 +4094,55 @@
       let q;
       if (hasB) {
         const POWER_HEX = ["택풍대과", "택산함"];
+        const KEY_OF = { 1: "초년", 2: "장년", 3: "중년", 0: "말년" };
+        const KNUM2 = ["", "한", "두", "세", "네"];
+        let yeokma = 0;
+        const powerNames = [];
         let power = 0;
-        let wealth = 0;
+        const wealthHits = [];
         [1, 2, 3, 0].forEach(function (i) {
-          if (hexMatchesAny(bdG[i], POWER_HEX)) power++;
-          if (hexMatchesAny(bdG[i], row.hex)) wealth++;
+          const g = bdG[i];
+          if (hexNameStarts(g, "화산려")) yeokma++;
+          if (hexMatchesAny(g, POWER_HEX)) {
+            power++;
+            if (powerNames.indexOf(gweNameOf(g)) < 0) powerNames.push(gweNameOf(g));
+          }
+          if (hexMatchesAny(g, row.hex)) wealthHits.push({ key: KEY_OF[i], g: g });
         });
-        let want;
-        if (power >= 2) want = paintBlue("출세하고자 하는 욕망이 가득한데");
-        else if (power === 1) want = paintBlue("출세하고자 하는 기운이 있는데");
-        else if (wealth) want = paintBlue("재물을 크게 쌓고자 하는 기운이 뚜렷한데");
-        else if (malTone(sajuSides) === "흉") want = "시련을 이겨 내며 살라 했는데";
-        else want = "무난하게 살라 했는데";
-        q = "사주의 전체적인 기운을 보면 " + want +
-          ", 과연 이름이 사주가 원하는 것을 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
+        const leads = [];
+        if (yeokma >= 2)
+          leads.push(["화산려라는 " + paintBlue("역마살") + "이 " + KNUM2[yeokma] + " 개이니 사방팔방 돌아다니며 하는 일을 하면서 살겠다고 하는데",
+            "화산려라는 " + paintBlue("역마살") + "이 " + KNUM2[yeokma] + " 개이니 사방팔방 돌아다니며 하는 일을 하면서 살겠다고 합니다."]);
+        else if (yeokma === 1)
+          leads.push(["화산려라는 " + paintBlue("역마살") + "이 있으니 여기저기 돌아다니며 하는 일을 하면서 살겠다고 하는데",
+            "화산려라는 " + paintBlue("역마살") + "이 있으니 여기저기 돌아다니며 하는 일을 하면서 살겠다고 합니다."]);
+        if (power) {
+          const pn = powerNames.join("·");
+          const w = power >= 2 ? "권력과 출세하고자 하는 욕망이 가득한데" : "권력과 출세하고자 하는 기운이 있는데";
+          const w2 = power >= 2 ? "권력과 출세하고자 하는 욕망이 가득합니다." : "권력과 출세하고자 하는 기운이 있습니다.";
+          leads.push([pn + josaEuro(powerNames[powerNames.length - 1]) + " " + paintBlue(w),
+            pn + josaEuro(powerNames[powerNames.length - 1]) + " " + paintBlue(w2)]);
+        }
+        let wealthS = "";
+        if (wealthHits.length === 1 && hexNameStarts(wealthHits[0].g, "이위화")) {
+          wealthS = wealthHits[0].key + "에 " + gweNameHtml(wealthHits[0].g) +
+            " 단독으로는 분위기는 좋지만 재물로 이어지기가 힘이 드는 구조네요. 그래도 열심히 노력하면 " +
+            paintBlue("어느 정도의 부를 축적") + "하게 됩니다.";
+        } else if (wealthHits.length) {
+          const last = gweNameOf(wealthHits[wealthHits.length - 1].g);
+          wealthS = wealthHits.map(function (x) { return x.key + " " + gweNameHtml(x.g); }).join("·") +
+            josaEuro(last) + " " + paintBlue("재물을 크게 쌓고자 하는 기운이 뚜렷합니다") + ".";
+        }
+        if (leads.length || wealthS) {
+          const body = leads.map(function (x, k) {
+            return k < leads.length - 1 || wealthS ? x[0] : x[1];
+          });
+          q = "사주를 보면 " + body.join(", ") + (wealthS ? (body.length ? " " : "") + wealthS : "");
+        } else if (malTone(sajuSides) === "흉") {
+          q = "사주를 보면 시련을 이겨 내며 살라 했는데, 과연 이름이 사주를 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
+        } else {
+          q = "사주를 보면 무난하게 살라 했는데, 과연 이름이 사주를 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
+        }
       } else {
         q = "이름이 어떤 삶을 그리고 있는지 세밀하게 시기별로 확인해 보겠습니다.";
       }
