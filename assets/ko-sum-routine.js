@@ -2477,7 +2477,7 @@
           return Math.min.apply(null, a.map(function (x) { return x[0]; })) + "~" +
             Math.max.apply(null, a.map(function (x) { return x[1]; })) + "세";
         }
-        const WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "뇌천대장"];
+        const WEALTH = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"];
         function wealthMarks(idx, skipSides) {
           const m = [];
           let last = "";
@@ -3960,7 +3960,6 @@
         function scan(who, ns, ng) {
           const got = [];
           if (hexMatchesAny(ng, row.hex)) got.push(gweNameHtml(ng));
-          if (suriInList(ns, row.suri)) got.push(suriPhrase(ns));
           if (got.length) {
             bits.push(
               (who ? who + " " : "") +
@@ -4004,7 +4003,7 @@
         const out = [];
         MATRIX_AGES.forEach(function (a) {
           const hit = sides.some(function (sd) {
-            return hexMatchesAny(sd[1][a.idx], row.hex) || suriInList(sd[0][a.idx], row.suri);
+            return hexMatchesAny(sd[1][a.idx], row.hex);
           });
           if (hit) out.push(a.key);
         });
