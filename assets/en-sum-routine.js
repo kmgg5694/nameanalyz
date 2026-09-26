@@ -1338,27 +1338,23 @@
         rg = range(i, nSB, nGB);
         if (hasB && birthGood) {
           txt = ko
-            ? "이름 " + marks(ns, ng, true) + josa(tail(ns, ng, true), "이", "가") + " 좋은 사주(" + marks(bs, bg, false) + ")를 치는 변곡점입니다."
-            : "the name's " + marks(ns, ng, true) + " strikes a good birth chart (" + marks(bs, bg, false) + ") — a turning point.";
+            ? "이름 " + marks(ns, ng, true) + josa(tail(ns, ng, true), "이", "가") + " 사주를 치는 변곡점입니다."
+            : "the name's " + marks(ns, ng, true) + " strikes the birth chart — a turning point.";
         } else {
           txt = ko
             ? "이름 " + marks(ns, ng, true) + " — 이름 흉이 드러나는 변곡점입니다."
             : "the name's " + marks(ns, ng, true) + " — the name's misfortune surfaces here.";
         }
       } else if (birthBad) {
-        if (nameGood) {
+        const presser = isMitigate(ng) ? ng : isMitigate(nG[3]) ? nG[3] : null;
+        if (!nameBad && presser) {
           helped = true;
           rg = range(i, bSB, bGB);
+          const pn = gweNameHtml(presser, lang);
+          const lead = presser === ng ? "" : ko ? "이름 말년(총운)의 " : "the name's Final-stage ";
           txt = ko
-            ? "사주의 흉(" + marks(bs, bg, true) + ")을 이름(" + marks(ns, ng, false) + ")이 눌러 주는 시기입니다."
-            : "the name (" + marks(ns, ng, false) + ") presses down the birth chart's misfortune (" + marks(bs, bg, true) + ").";
-          const pressAny = isMitigate(ng) || isMitigate(bg) || isMitigate(nG[3]) || (hasB && isMitigate(bG[3]));
-          if (bGB && !pressAny) {
-            tp = true;
-            txt += ko
-              ? " 다만 흉괘 " + gweNameHtml(bg, lang) + josa(gweDisplayName(bg, lang), "은", "는") + " 막기가 힘이 들어 변곡점이 됩니다."
-              : " Still, the hexagram " + gweNameHtml(bg, lang) + " is hard to block, so it remains a turning point.";
-          }
+            ? "사주의 흉(" + marks(bs, bg, true) + ")을 " + (lead || "이름의 ") + pn + josa(gweDisplayName(presser, lang), "이", "가") + " 눌러 주는 시기입니다."
+            : (lead || "the name's ") + pn + " presses down the birth chart's misfortune (" + marks(bs, bg, true) + ").";
         } else {
           tp = true;
           sajuSurface = true;

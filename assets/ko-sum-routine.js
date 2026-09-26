@@ -2762,22 +2762,24 @@
             rg = range(pe, nameArrs);
             const nm = marks(nameArrs, pe.idx, true);
             txt = st === "길"
-              ? "이름 " + nm + " — 이름 흉이 좋은 사주(" + marks(sajuArrs, pe.idx, false) + ")를 치는 변곡점입니다."
+              ? "이름 " + nm + " — 이름 흉이 사주를 치는 변곡점입니다."
               : "이름 " + nm + " — 이름 흉이 드러나는 변곡점입니다.";
             let propped = false;
             if (hasHanja) {
-              const hgT = toneOf(nmS, nmG, pe.idx);
-              const hjT = toneOf(hjS, hjG, pe.idx);
-              if ((hgT === "흉" || hgT === "길흉혼재") && hjT === "길") {
+              const hg = nmG[pe.idx];
+              const hj = hjG[pe.idx];
+              const hgHas = !!marks([[nmS, nmG]], pe.idx, true);
+              const hjHas = !!marks([[hjS, hjG]], pe.idx, true);
+              if (hgHas && !hjHas && isMitigateSuriHex(hj)) {
                 propped = true;
-                txt += " 다만 한문(속)의 " + marks([[hjS, hjG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
-              } else if ((hjT === "흉" || hjT === "길흉혼재") && hgT === "길") {
+                txt += " 다만 한문(속)의 " + gweNameHtml(hj) + josaIGA(gweNameOf(hj)) + " 눌러 줍니다.";
+              } else if (hjHas && !hgHas && isMitigateSuriHex(hg)) {
                 propped = true;
-                txt += " 다만 한글(겉)의 " + marks([[nmS, nmG]], pe.idx, false) + " 기운이 일부 받쳐 줍니다.";
+                txt += " 다만 한글(겉)의 " + gweNameHtml(hg) + josaIGA(gweNameOf(hg)) + " 눌러 줍니다.";
               }
             }
             if (pe.idx !== 0 && nameMalPress.length) {
-              txt += malSupportNote(propped ? "받쳐 주는 기운이 다 막지 못한 흉도 " : "이 흉도 ");
+              txt += malSupportNote(propped ? "다 막지 못한 흉도 " : "막아 주는 괘가 없는 이 흉도 ");
               supported = true;
             } else {
               nameBadBare = true;
@@ -2787,17 +2789,17 @@
           } else if ((st === "흉" || st === "길흉혼재") && (anyBad(sajuArrs, pe.idx, false) || anyBad(sajuArrs, pe.idx, true))) {
             rg = range(pe, sajuArrs);
             const sm = marks(sajuArrs, pe.idx, true);
-            if (nt === "길" || nt === "길흉혼재") {
+            const namePressHere = [];
+            nameArrs.forEach(function (a) {
+              const g = a[1] && a[1][pe.idx];
+              if (isMitigateSuriHex(g) && !namePressHere.some(function (x) { return x.name === gweNameOf(g); }))
+                namePressHere.push({ name: gweNameOf(g), html: gweNameHtml(g) });
+            });
+            if ((nt === "길" || nt === "길흉혼재") && (namePressHere.length || nameMalPress.length)) {
               helped = true;
-              txt = "사주의 흉(" + sm + ")을 이름(" + marks(nameArrs, pe.idx, false) + ")이 " +
-                paintBlue("눌러 주는 시기") + "입니다.";
-              const pressHere = nameArrs.concat(sajuArrs).some(function (a) {
-                return isMitigateSuriHex(a[1] && a[1][pe.idx]);
-              });
-              if (anyBad(sajuArrs, pe.idx, true) && !pressHere && !nameMalPress.length && !sajuMalPress.length) {
-                tp = true;
-                txt += " 다만 사주의 흉괘는 막기가 힘이 들어 변곡점이 됩니다.";
-              }
+              const pr = namePressHere.length ? namePressHere : nameMalPress;
+              txt = "사주의 흉(" + sm + ")을 " + (namePressHere.length ? "이름의 " : "이름 말년(총운)의 ") +
+                pressHtml(pr) + josaIGA(pr[pr.length - 1].name) + " " + paintBlue("눌러 주는 시기") + "입니다.";
             } else {
               tp = true;
               sajuSurface = true;
