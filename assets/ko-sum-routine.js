@@ -86,6 +86,9 @@
     let kind = "neutral";
     if (gweBad(g)) kind = "bad";
     else if (gweGood(g)) kind = "goodHex";
+    if (kind === "bad" && g.redN > 0 && g.redN < nm.length) {
+      return paintName(nm.slice(0, g.redN), "bad") + paintName(nm.slice(g.redN), "neutral");
+    }
     return paintName(nm, kind);
   }
 
