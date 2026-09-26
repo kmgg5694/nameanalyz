@@ -2575,9 +2575,18 @@
           const s = bdS[0];
           const g = bdG[0];
           if (!(s && s.data) && !(g && g.name)) return "";
+          let tone = axisTone(s, g, "사주");
+          const np = malPressHexes(nameArrs);
+          if (np.length && g && g.name && gweBad(g) && !(s && s.data && suriBad(s.data))) {
+            const gn = gweNameOf(g);
+            tone =
+              "주역괘 " + gweNameHtml(g) + josaIGA(gn) + " " + paintRed("흉") + "이지만 이름 말년의 " +
+              np.map(function (x) { return x.html; }).join(", ") + josaIGA(np[np.length - 1].name) +
+              " " + paintBlue("눌러 주니까") + " 거의 느끼지 않을 만큼의 흉이라고 보시면 됩니다. ";
+          }
           return (
             "<strong>사주의 중심</strong> — 사주 전체 기운의 축인 말년(총운)은 " + axisHead(s, g) + "입니다. " +
-            axisTone(s, g, "사주") +
+            tone +
             "말년 기운은 인생 전반에 영향력을 행사하니, 이 사주가 어떻게 살라고 했는지의 중심이 여기입니다."
           );
         }
@@ -2724,10 +2733,6 @@
               helped = true;
               txt = "사주의 흉(" + sm + ")을 이름(" + marks(nameArrs, pe.idx, false) + ")이 " +
                 paintBlue("눌러 주는 시기") + "입니다.";
-              if (anyBad(sajuArrs, pe.idx, true)) {
-                tp = true;
-                txt += " 다만 사주의 흉괘는 막기가 힘이 들어 변곡점이 됩니다.";
-              }
             } else {
               tp = true;
               sajuSurface = true;
