@@ -3694,6 +3694,21 @@
         uniq.push(tags[ti]);
       }
 
+      const np = malPressHexes([[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []));
+      if (np.length) {
+        const sp = hasB ? malPressHexes([[bdS, bdG]]) : [];
+        const last = np[np.length - 1].name;
+        return (
+          "이름 속에 " + uniq.join(", ") + " 기운이 살짝 비치기는 하지만, 이름 말년(총운)의 " +
+          pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
+          "이 되어 주니 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
+          (sp.length
+            ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
+              " 있으니 살짝 스크래치만 남기고 사라집니다."
+            : "") +
+          " 크게 걱정하지 않으셔도 됩니다. 자세한 자리는 위 네 자리 수리와 밑줄 친 곳을 보시면 됩니다."
+        );
+      }
       let lead = "이름 속에는 ";
       if (has14) {
         lead =
