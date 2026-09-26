@@ -2453,45 +2453,80 @@
           return { html: out.join(" "), sides: sides };
         }
         /** 사주 말년(총운) = 사주 전체 기운의 축 — 이 사주가 어떻게 살라고 했는지의 중심 (보흘 지정) */
-        function sajuAxisHtml() {
-          if (!hasB) return "";
-          const s = bdS[0];
-          const g = bdG[0];
+        function axisHead(s, g) {
+          return [s && s.data ? suriPhrase(s) : "", g && g.name ? gweNameHtml(g) : ""].filter(Boolean).join("·");
+        }
+        function axisTone(s, g, noun) {
           const sOk = !!(s && s.data);
           const gOk = !!(g && g.name);
-          if (!sOk && !gOk) return "";
           const sn = sOk ? plainSuriName(s) : "";
           const gn = gOk ? gweNameOf(g) : "";
           const gh = gOk ? gweNameHtml(g) : "";
-          let t =
-            "사주 전체 기운의 축인 말년(총운)은 " +
-            [sOk ? suriPhrase(s) : "", gh].filter(Boolean).join("·") +
-            "입니다. ";
           if (hasBadSuriMitigateHex(s, g)) {
-            t +=
+            return (
               sn + josaEuro(sn) + " 약간의 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) +
               " 나쁘지 않은 편이고, 오히려 " + sn + josaEuro(sn) + " 인한 고통·재난 등을 " +
               paintBlue("눌러 주니") + " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다. " +
               (isWealthFortuneHex(g) ? "더 큰 " + paintBlue("재물운") + "으로 변화가 일어나니 " : "") +
-              "고난 끝에 행복이 온답니다. ";
-          } else if (sOk && suriBad(s.data) && gOk && gweBad(g)) {
-            t += "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 사주입니다. ";
-          } else if (hasBadSuriBlackHex(s, g)) {
-            t += sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. ";
-          } else if (sOk && suriBad(s.data)) {
-            t += sn + josaEuro(sn) + " 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) + " 좋은 편입니다. ";
-          } else if (gOk && gweBad(g)) {
-            t += "수리는 괜찮지만 주역괘 " + gh + josaIGA(gn) + " " + paintRed("흉") + "하여 시련이 따릅니다. ";
-          } else if (sOk && suriGood(s.data) && gOk && gweGood(g)) {
-            t += "수리와 주역괘가 모두 " + paintBlue("길") + "하여 든든한 사주입니다. ";
-          } else if (sOk && suriGood(s.data)) {
-            t += "수리가 " + paintBlue("길") + "하여 무난한 편입니다. ";
-          } else if (gOk && gweGood(g)) {
-            t += "주역괘 " + gh + josaIGA(gn) + " " + paintBlue("길") + "하여 무난한 편입니다. ";
+              "고난 끝에 행복이 온답니다. "
+            );
+          }
+          if (sOk && suriBad(s.data) && gOk && gweBad(g))
+            return "수리와 주역괘가 모두 " + paintRed("흉") + "하여 평생 시련이 따르기 쉬운 " + noun + "입니다. ";
+          if (hasBadSuriBlackHex(s, g))
+            return sn + josaEuro(sn) + " 시련이 있고, 보통 괘인 " + gh + josaIGA(gn) + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. ";
+          if (sOk && suriBad(s.data))
+            return sn + josaEuro(sn) + " 시련이 있지만 주역괘 " + gh + josaEunNeun(gn) + " 좋은 편입니다. ";
+          if (gOk && gweBad(g))
+            return "수리는 괜찮지만 주역괘 " + gh + josaIGA(gn) + " " + paintRed("흉") + "하여 시련이 따릅니다. ";
+          if (sOk && suriGood(s.data) && gOk && gweGood(g))
+            return "수리와 주역괘가 모두 " + paintBlue("길") + "하여 든든한 " + noun + "입니다. ";
+          if (sOk && suriGood(s.data)) return "수리가 " + paintBlue("길") + "하여 무난한 편입니다. ";
+          if (gOk && gweGood(g)) return "주역괘 " + gh + josaIGA(gn) + " " + paintBlue("길") + "하여 무난한 편입니다. ";
+          return "";
+        }
+        function sajuAxisHtml() {
+          if (!hasB) return "";
+          const s = bdS[0];
+          const g = bdG[0];
+          if (!(s && s.data) && !(g && g.name)) return "";
+          return (
+            "<strong>사주의 중심</strong> — 사주 전체 기운의 축인 말년(총운)은 " + axisHead(s, g) + "입니다. " +
+            axisTone(s, g, "사주") +
+            "말년 기운은 인생 전반에 영향력을 행사하니, 이 사주가 어떻게 살라고 했는지의 중심이 여기입니다."
+          );
+        }
+        /** 한글·한문 이름 말년(총운) = 이름 전체 기운의 축 (보흘 지정) */
+        function nameAxisHtml() {
+          const sides = [[hasHanja ? "한글" : "이름", nmS[0], nmG[0]]];
+          if (hasHanja) sides.push(["한문", hjS[0], hjG[0]]);
+          const valid = sides.filter(function (x) {
+            return (x[1] && x[1].data) || (x[2] && x[2].name);
+          });
+          if (!valid.length) return "";
+          const same =
+            valid.length === 2 &&
+            axisHead(valid[0][1], valid[0][2]) === axisHead(valid[1][1], valid[1][2]);
+          let t = "<strong>이름의 중심</strong> — 이름 전체 기운의 축인 말년(총운)은 ";
+          if (same || valid.length === 1) {
+            t +=
+              (same ? "한글·한문 모두 " : "") + axisHead(valid[0][1], valid[0][2]) + "입니다. " +
+              axisTone(valid[0][1], valid[0][2], "이름");
+          } else {
+            t +=
+              valid.map(function (x) { return x[0] + " " + axisHead(x[1], x[2]); }).join(", ") + "입니다. " +
+              valid
+                .map(function (x) {
+                  const tone = axisTone(x[1], x[2], "이름");
+                  return tone ? x[0] + "은 " + tone : "";
+                })
+                .join("");
           }
           return (
-            "<strong>사주의 중심</strong> — " + t +
-            "말년 기운은 인생 전반에 영향력을 행사하니, 이 사주가 어떻게 살라고 했는지의 중심이 여기입니다."
+            t +
+            (hasB
+              ? "이름의 말년 기운도 인생 전반에 영향력을 행사하니, 이 중심이 사주의 중심을 도와 주는지 치는지가 좋은 이름·나쁜 이름을 가릅니다."
+              : "이름의 말년 기운은 인생 전반에 영향력을 행사합니다.")
           );
         }
         const lastT = nameToneAt(0);
@@ -2608,7 +2643,7 @@
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
         else if (nameGoodAny) verdict = paintBlue("이름과 사주가 함께 편안하니 좋은 이름을 가졌네요.");
         else verdict = "이름과 사주에 큰 흉이 없어 무난한 이름입니다.";
-        const axis = sajuAxisHtml();
+        const axis = [sajuAxisHtml(), nameAxisHtml()].filter(Boolean).join("<br><br>");
         return (axis ? axis + "<br><br>" : "") + "<strong>변곡점</strong> — " +
           (hasB
             ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. "
