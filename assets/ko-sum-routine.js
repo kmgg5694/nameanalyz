@@ -2652,7 +2652,8 @@
           const last = nameMalPress[nameMalPress.length - 1].name;
           return " 여기에 말년(총운)의 " + pressHtml(nameMalPress) + josaIGA(last) +
             " 한 번 더 눌러 주니 " + paintRed(s.suri + ", " + plainSuriName(s)) + "의 흉은 " +
-            paintBlue("작동하지 않습니다") + "." +
+            paintBlue("거의 느껴지지 않을 만큼 오니까 염려하지 않으셔도 됩니다") + "." +
+            " 다만 주역괘의 흉은 눌러 주어도 약간의 흔적은 반드시 남기고 간다는 게 특징입니다." +
             (sajuMalPress.length
               ? " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sajuMalPress[sajuMalPress.length - 1].name) +
                 " 있어 남는 흉이 있어도 살짝 스크래치 정도입니다."
@@ -2733,6 +2734,13 @@
               helped = true;
               txt = "사주의 흉(" + sm + ")을 이름(" + marks(nameArrs, pe.idx, false) + ")이 " +
                 paintBlue("눌러 주는 시기") + "입니다.";
+              const pressHere = nameArrs.concat(sajuArrs).some(function (a) {
+                return isMitigateSuriHex(a[1] && a[1][pe.idx]);
+              });
+              if (anyBad(sajuArrs, pe.idx, true) && !pressHere && !nameMalPress.length && !sajuMalPress.length) {
+                tp = true;
+                txt += " 다만 사주의 흉괘는 막기가 힘이 들어 변곡점이 됩니다.";
+              }
             } else {
               tp = true;
               sajuSurface = true;

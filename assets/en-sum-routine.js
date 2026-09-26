@@ -1352,6 +1352,13 @@
           txt = ko
             ? "사주의 흉(" + marks(bs, bg, true) + ")을 이름(" + marks(ns, ng, false) + ")이 눌러 주는 시기입니다."
             : "the name (" + marks(ns, ng, false) + ") presses down the birth chart's misfortune (" + marks(bs, bg, true) + ").";
+          const pressAny = isMitigate(ng) || isMitigate(bg) || isMitigate(nG[3]) || (hasB && isMitigate(bG[3]));
+          if (bGB && !pressAny) {
+            tp = true;
+            txt += ko
+              ? " 다만 흉괘 " + gweNameHtml(bg, lang) + josa(gweDisplayName(bg, lang), "은", "는") + " 막기가 힘이 들어 변곡점이 됩니다."
+              : " Still, the hexagram " + gweNameHtml(bg, lang) + " is hard to block, so it remains a turning point.";
+          }
         } else {
           tp = true;
           sajuSurface = true;
