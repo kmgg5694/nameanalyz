@@ -4257,28 +4257,29 @@
       const nameSides = [[nmS, nmG]].concat(hasHanja ? [[hjS, hjG]] : []);
       const sajuSides = hasB ? [[bdS, bdG]] : [];
 
-      let p = "본격적으로 풀기 전에 전체 분위기부터 짚어 보겠습니다. ";
-      const nt = malTone(nameSides);
-      p += nt === "길"
-        ? "이름의 중심인 말년(총운)이 " + paintBlue("든든하여") + " 전체 분위기가 밝고, "
-        : nt === "흉"
-          ? "이름의 말년(총운)에 " + paintRed("흉") + "이 있어 전체 분위기가 무겁고, "
-          : nt === "혼재"
-            ? "이름의 말년(총운)에는 " + paintBlue("길") + "·" + paintRed("흉") + "이 섞여 있고, "
-            : "이름의 전체 분위기는 무난하고, ";
-      if (hasB) {
-        const st = malTone(sajuSides);
-        p += st === "길"
-          ? "사주의 중심인 말년(총운)도 " + paintBlue("좋은 기운") + "입니다."
-          : st === "흉"
-            ? "사주의 말년(총운)에는 " + paintRed("시련") + "이 있습니다."
-            : st === "혼재"
-              ? "사주의 말년(총운)에는 " + paintBlue("길") + "·" + paintRed("흉") + "이 섞여 있습니다."
-              : "사주의 말년(총운)은 평이한 편입니다.";
-      } else {
-        p = p.replace(/, $/, ".");
+      function countRed(sides) {
+        let n = 0;
+        MATRIX_AGES.forEach(function (a) {
+          sides.forEach(function (sd) { n += badMarks(sd, a.idx).length; });
+        });
+        return n;
       }
-      p += malWarn(nameSides.concat(sajuSides)) + " ";
+      const nameR = countRed(nameSides);
+      const sajuR = countRed(sajuSides);
+      let p;
+      if (hasB && nameR > sajuR) {
+        p = "이름과 사주의 전체적인 기운은 이름에 흉인 빨간색이 탄생일보다 많으니 일단은 좋은 이름은 아니라고 보입니다. ";
+      } else if (hasB && sajuR > nameR) {
+        p = "이름과 사주의 전체적인 기운은 탄생일에 흉인 빨간색이 이름보다 많으니 일단은 이름이 사주보다 나은 편으로 보입니다. ";
+      } else if (hasB && nameR) {
+        p = "이름과 사주의 전체적인 기운은 이름과 탄생일에 흉인 빨간색이 비슷하니 일단은 좋은 이름이라고 보기는 어렵습니다. ";
+      } else if (nameR) {
+        p = "이름의 전체적인 기운은 흉인 빨간색이 있어 일단은 좋은 이름은 아니라고 보입니다. ";
+      } else {
+        p = "이름과 사주의 전체적인 기운은 흉인 빨간색이 뚜렷하지 않아 일단은 무난한 이름으로 보입니다. ";
+      }
+      const mw = malWarn(nameSides.concat(sajuSides));
+      if (mw) p += mw + " ";
 
       const nw = wealthAges(nameSides);
       const sw = hasB ? wealthAges(sajuSides) : [];
