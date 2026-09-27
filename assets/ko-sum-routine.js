@@ -495,6 +495,12 @@
       "소리만 요란하고 손에 든 것이 없는 외화내빈의 단점이 더 두드러집니다.",
     화뢰서합:
       "말은 조리 있게 잘하지만 독설을 하고 타협할 줄 몰라 늘 시비·구설수를 달고 다니는 단점이 더 드러납니다.",
+    풍지관:
+      "처음은 좋은 듯하나 평지에 풍파가 일어 만사가 허망하게 끝납니다.",
+  };
+  /** 검정 괘 + 좋은 수리 — 좋은 쪽으로 작용하는 면 (보흘 지정) */
+  const BLACK_HEX_GOOD_FACE = {
+    풍지관: "덕망이 뻗쳐 윗사람이 높은 자리를 주고, 관운·승진·시험·결혼이 따르는 쪽입니다.",
   };
   /** 보흘 지정: 27 대인격 + 화뢰서합 */
   const SEOHAP_27 =
@@ -508,6 +514,15 @@
     뇌풍항: "한 가지 일에 매몰되니 바쁘고 주변을 돌아볼 여유가 없습니다.",
     화뢰서합: "말을 잘하는 기운이지만 늘 구설을 달고 다닙니다.",
   };
+  function blackHexGoodFace(g) {
+    if (!gweBlack(g)) return "";
+    const keys = Object.keys(BLACK_HEX_GOOD_FACE);
+    for (let i = 0; i < keys.length; i++) {
+      if (hexNameStarts(g, keys[i])) return BLACK_HEX_GOOD_FACE[keys[i]];
+    }
+    return "";
+  }
+
   function blackHexTrait(g) {
     if (!gweBlack(g)) return "";
     const keys = Object.keys(BLACK_HEX_TRAIT);
@@ -543,14 +558,20 @@
     const extra = SURI_EXTRA_TRAIT[Number(ns.suri)] || "";
     const gm = hexCoreBrief(ng);
     let t = paintRed(sn) + josaEunNeun(sn) + " " + sm + (extra ? " " + extra : "") + " ";
-    if (gm) t += gweNameHtml(ng) + josaEunNeun(gn) + " " + gm + " ";
     if (isMitigateSuriHex(ng)) {
+      if (gm) t += gweNameHtml(ng) + josaEunNeun(gn) + " " + gm + " ";
       t += gweNameHtml(ng) + josaIGA(gn) + " " + sn + "의 흉을 " + paintBlue("눌러 주니") +
         " 그 수리의 단점이 " + paintBlue("장점으로 승화") + "됩니다.";
       return t;
     }
-    const w = blackWeakShort(ns, ng);
-    if (w) t += "흉수리 밑이라 " + w + " ";
+    if (gweBlack(ng)) {
+      t += gweNameHtml(ng) + josaEunNeun(gn) +
+        " 검정 괘라 길과 흉이 함께 들어 있습니다. 흉수리와 동행하니 단점이 부각되어 안 좋은 쪽으로 작용합니다. ";
+      const w = blackWeakShort(ns, ng);
+      if (w) t += w + " ";
+    } else if (gm) {
+      t += gweNameHtml(ng) + josaEunNeun(gn) + " " + gm + " ";
+    }
     t += SURI_DANGER.indexOf(Number(ns.suri)) >= 0
       ? paintRed(sn + josaEunNeun(sn) + " 아주 위험한 수리이니 조심하셔야 합니다.")
       : sn + josaEunNeun(sn) + " " + paintRed("흉수리") + "인데 " + gn + josaIGA(gn) + " 눌러 주지 못하니 " +
@@ -2718,7 +2739,7 @@
         function axisTone(s, g, noun) {
           let t = axisToneBase(s, g, noun);
           const trait = blackHexTrait(g);
-          if (trait && !(s && s.data && suriBad(s.data))) {
+          if (trait && !(s && s.data && (suriBad(s.data) || suriGood(s.data)))) {
             const gn = gweNameOf(g);
             t += "주역괘 " + gweNameHtml(g) + josaEunNeun(gn) + " " + trait + " ";
           }
@@ -2745,7 +2766,16 @@
             return "수리는 괜찮지만 주역괘 " + gh + josaIGA(gn) + " " + paintRed("흉") + "하여 시련이 따릅니다. ";
           if (sOk && suriGood(s.data) && gOk && gweGood(g))
             return "수리와 주역괘가 모두 " + paintBlue("길") + "하여 든든한 " + noun + "입니다. ";
-          if (sOk && suriGood(s.data)) return "수리가 " + paintBlue("길") + "하여 무난한 편입니다. ";
+          if (sOk && suriGood(s.data)) {
+            let r = "수리가 " + paintBlue("길") + "하여 무난한 편입니다. ";
+            if (gOk && gweBlack(g)) {
+              r += "주역괘 " + gh + josaEunNeun(gn) +
+                " 검정 괘라 길과 흉이 함께 들어 있지만, 좋은 수리와 동행하니 " + paintBlue("좋은 시기") + "입니다. ";
+              const gf = blackHexGoodFace(g);
+              if (gf) r += gf + " ";
+            }
+            return r;
+          }
           if (gOk && gweGood(g)) return "주역괘 " + gh + josaIGA(gn) + " " + paintBlue("길") + "하여 무난한 편입니다. ";
           return "";
         }
@@ -3675,7 +3705,7 @@
       }
       for (let si = 0; si < 4; si++) {
         if (bdS[si] && bdS[si].data && suriBad(bdS[si].data) && !isMitigateSuriHex(bdG[si]))
-          return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않고 주역괘로 인한 큰 고통은 없지만, 흉수리가 있어 " +
+          return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않습니다. 다만 흉수리가 있어 " +
             paintRed("조심하셔야 하는") + " 사주입니다.";
       }
       return " 이 사주의 주역괘는 큰 재물운은 뚜렷하지 않지만 큰 고통이 없는 무난한 사주입니다.";
@@ -3726,6 +3756,28 @@
       return p;
     }
 
+    /** 시기 전체 흐름을 먼저 본 뒤 해설 (보흘 지정). 이름·사주 흉수리가 겹치면, 특히 중도좌절이 둘이면 그 나이대가 고비. */
+    function periodFlowLead(idx, ageKey) {
+      if (!hasB || !(bdS[idx] && bdS[idx].data && suriBad(bdS[idx].data))) return "";
+      const nameBits = [];
+      function pushSide(who, s, g) {
+        if (!(s && s.data && suriBad(s.data))) return;
+        nameBits.push(who + " " + suriPhrase(s) + (g && g.name ? "·" + gweNameHtml(g) : ""));
+      }
+      pushSide(hasHanja ? "한글" : "이름", nmS[idx], nmG[idx]);
+      if (hasHanja && hjS[idx] && Number(hjS[idx].suri) !== Number(nmS[idx] && nmS[idx].suri))
+        pushSide("한문", hjS[idx], hjG[idx]);
+      if (!nameBits.length) return "";
+      const band = { 초년: "1~23세", 장년: "24~40세", 중년: "41~55세", 말년: "56세 이후" }[ageKey] || "";
+      const sajuBit = suriPhrase(bdS[idx]) + (bdG[idx] && bdG[idx].name ? "·" + gweNameHtml(bdG[idx]) : "");
+      let t = ageKey + (band ? "(" + band + ")" : "") + "의 전체 흐름은 " + nameBits.join(", ") +
+        "과 사주 " + sajuBit + "이 겹친 " + paintRed("흉") + "의 흐름입니다. ";
+      const name22 = (nmS[idx] && Number(nmS[idx].suri) === 22) || (hasHanja && hjS[idx] && Number(hjS[idx].suri) === 22);
+      if (name22 && Number(bdS[idx].suri) === 22)
+        t += paintRed("중도좌절") + "이 둘이니 말 그대로 중도에서 좌절하는 시기이고, 이 나이대가 고비입니다. ";
+      return t;
+    }
+
     /** 시기별 한 줄 (사주 말년은 … 초년 … 무난한 사주) — 이름비교·개명 뒤에 둠 */
     function buildSajuPeriodLine() {
       if (!hasB) return "";
@@ -3767,6 +3819,11 @@
               ? "좋은 기운이 들어 있습니다."
               : "좋은 기운이고, ";
           }
+          if (gweBlack(bdG[slot.i])) {
+            const gf = blackHexGoodFace(bdG[slot.i]);
+            tail += " 주역괘는 검정 괘라 길과 흉이 함께 들어 있지만, 좋은 수리와 동행하니 " +
+              paintBlue("좋은 시기") + "입니다." + (gf ? " " + gf : "") + (isLast ? "" : " ");
+          }
         } else if (tone === "길흉혼재") {
           mid += josaEuro(mid) + " ";
           tail = isLast ? "길·흉이 섞여 있습니다." : "길·흉이 섞여 있고, ";
@@ -3779,7 +3836,7 @@
           mid += josaEuro(mid) + " ";
           tail = isLast ? "평이한 편입니다." : "평이한 편이고, ";
         }
-        overviewBits.push(label + mid + tail);
+        overviewBits.push(periodFlowLead(slot.i, slot.key) + label + mid + tail);
       });
       return overviewBits.join("") + sajuWealthPainClose();
     }

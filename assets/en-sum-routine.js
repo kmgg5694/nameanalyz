@@ -1269,6 +1269,10 @@
         "한 가지 일에 매몰되어 바쁘기만 하고 주변을 돌아볼 여유가 없는 단점이 더 드러납니다.",
         "Buried in one task, always busy with no room to look around — this weakness shows more.",
       ],
+      풍지관: [
+        "처음은 좋은 듯하나 평지에 풍파가 일어 만사가 허망하게 끝납니다.",
+        "It starts well, then trouble rises on level ground and everything ends in vain.",
+      ],
     };
     const BLACK_TRAIT = {
       뇌지예: ["참모형으로 치밀하고 꼼꼼하여 보좌역은 잘 하지만 사장·회장감은 아닙니다.", "is the careful, meticulous adviser type — good as a right hand, but not CEO or chairman material."],
@@ -1276,6 +1280,7 @@
       화산려: ["역마살이 들어 객지에서 고생을 하지만, 영업 파트인 사람은 바쁘게 돌아다니면 재물이 되고 해외로도 진출합니다.", "brings a wandering life with hardship far from home, but for people in sales, busy travel turns into wealth and even overseas expansion."],
       뇌풍항: ["한 가지 일에 매몰되니 바쁘고 주변을 돌아볼 여유가 없습니다.", "buries one in a single task — always busy, with no room to look around."],
       화뢰서합: ["말을 잘하는 기운이지만 늘 구설을 달고 다닙니다.", "gives a gift for speech, but gossip follows all the time."],
+      풍지관: ["덕망이 뻗쳐 윗사람이 높은 자리를 주고, 관운·승진·시험·결혼이 따르는 쪽입니다.", "reputation reaches far, a superior offers a high post, and promotion, exams and marriage tend to follow."],
     };
     const isBlack = (g) => !!(g && g.name) && !gweGood(g) && !gweBad(g) && !isMitigate(g);
     const pick = (map, g) => {
@@ -1367,6 +1372,14 @@
         skip = true;
       }
       const badTp = tp;
+      if (nSB && bSB && ns && Number(ns.suri) === 22 && bs && Number(bs.suri) === 22) {
+        const band = ko
+          ? ["1~23세", "24~40세", "41~55세", "56세 이후"][i]
+          : ["ages 1–23", "ages 24–40", "ages 41–55", "age 56 and after"][i];
+        txt += ko
+          ? " 이 시기의 전체 흐름은 이름과 사주에 " + paintRed("중도좌절") + "이 겹친 흉의 흐름입니다. 중도좌절이 둘이니 말 그대로 중도에서 좌절하는 시기이고, " + band + "가 고비입니다."
+          : " The flow of this period is " + paintRed("Midway Collapse") + " on both the name and the birth chart. Two of them mean the collapse happens literally, and " + band + " is the crisis.";
+      }
       if (wm.html) {
         if (skip) {
           rg = range(i, false, true);
@@ -1447,8 +1460,10 @@
           : "Both number and hexagram are " + paintRed("unfavorable") + ", so hardship tends to follow all through life. ";
       } else if (sB && gOk && !gG) {
         t += ko
-          ? sn + josaRo(sn) + " 시련이 있고, 보통 괘인 " + gh + josa(gn, "이", "가") + " 눌러 주지 못해 그 흉이 더 드러나기 쉽습니다. "
-          : sn + " brings hardship, and the ordinary hexagram " + gh + " cannot press it down, so the misfortune shows more. ";
+          ? sn + josaRo(sn) + " 시련이 있고, 주역괘 " + gh + josa(gn, "은", "는") +
+            " 검정 괘라 길과 흉이 함께 들어 있습니다. 흉수리와 동행하니 단점이 부각되어 안 좋은 쪽으로 작용합니다. "
+          : sn + " brings hardship. The hexagram " + gh +
+            " is a black hexagram, so good and bad sit together; beside an unfavorable number the weakness shows and it acts on the bad side. ";
         const bw = blackWeak(s, g);
         if (bw) t += bw + " ";
       } else if (sB) {
@@ -1473,8 +1488,11 @@
           : "The hexagram " + gh + " is " + paintBlue("favorable") + ", so it is a steady chart. ";
       }
       if (!sB && isBlack(g)) {
+        t += ko
+          ? "주역괘 " + gh + josa(gn, "은", "는") + " 검정 괘라 길과 흉이 함께 들어 있지만, 좋은 수리와 동행하니 " + paintBlue("좋은 시기") + "입니다. "
+          : "The hexagram " + gh + " is a black hexagram, so good and bad sit together, but beside a favorable number this is a " + paintBlue("good period") + ". ";
         const tr = pick(BLACK_TRAIT, g);
-        if (tr) t += ko ? "주역괘 " + gh + josa(gn, "은", "는") + " " + tr + " " : "The hexagram " + gh + " " + tr + " ";
+        if (tr) t += ko ? tr + " " : tr + " ";
       }
       axis =
         "<strong>" + (ko ? "사주의 중심" : "Center of the birth chart") + "</strong> — " + t +
