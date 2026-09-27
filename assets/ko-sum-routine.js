@@ -4265,18 +4265,69 @@
         return n;
       }
       const nameR = countRed(nameSides);
-      const sajuR = countRed(sajuSides);
-      let p;
-      if (hasB && nameR > sajuR) {
-        p = "이름과 사주의 전체적인 기운은 이름에 흉인 빨간색이 탄생일보다 많으니 일단은 좋은 이름은 아니라고 보입니다. ";
-      } else if (hasB && sajuR > nameR) {
-        p = "이름과 사주의 전체적인 기운은 탄생일에 흉인 빨간색이 이름보다 많으니 일단은 이름이 사주보다 나은 편으로 보입니다. ";
-      } else if (hasB && nameR) {
-        p = "이름과 사주의 전체적인 기운은 이름과 탄생일에 흉인 빨간색이 비슷하니 일단은 좋은 이름이라고 보기는 어렵습니다. ";
-      } else if (nameR) {
-        p = "이름의 전체적인 기운은 흉인 빨간색이 있어 일단은 좋은 이름은 아니라고 보입니다. ";
+      const allSides = nameSides.concat(sajuSides);
+      function countBlueWealth(sides) {
+        let n = 0;
+        MATRIX_AGES.forEach(function (a) {
+          sides.forEach(function (sd) {
+            if (isWealthFortuneHex(sd[1][a.idx])) n++;
+          });
+        });
+        return n;
+      }
+      function pressOn(sides, idx) {
+        return sides.some(function (sd) { return isMitigateSuriHex(sd[1][idx]); });
+      }
+      const nameMalPressOn = pressOn(nameSides, 0);
+      let blocked = 0;
+      let openRed = 0;
+      nameSides.forEach(function (sd, si) {
+        MATRIX_AGES.forEach(function (a) {
+          const n = badMarks(sd, a.idx).length;
+          if (!n) return;
+          const other = nameSides.filter(function (_, i) { return i !== si; });
+          const covered =
+            pressOn(other, a.idx) ||
+            (a.idx !== 0 && nameMalPressOn) ||
+            pressOn(sajuSides, a.idx);
+          if (covered) blocked += n;
+          else openRed += n;
+        });
+      });
+      const blueW = countBlueWealth(allSides);
+      const allBlocked = nameR > 0 && openRed === 0;
+      const overflow = blueW >= 4 && blueW > nameR;
+      let powerN = 0;
+      if (hasB) {
+        [0, 1, 2, 3].forEach(function (i) {
+          if (hexMatchesAny(bdG[i], ["택풍대과", "택산함"])) powerN++;
+        });
+      }
+      let p = (hasB ? "이름과 탄생일 전체를 살펴보면 " : "이름 전체를 살펴보면 ");
+      if (!nameR) {
+        p += "이름에 " + paintRed("빨간색") + "은 없고, " + paintBlue("청색 재물운") + "이 " + blueW + "개입니다. ";
       } else {
-        p = "이름과 사주의 전체적인 기운은 흉인 빨간색이 뚜렷하지 않아 일단은 무난한 이름으로 보입니다. ";
+        p += "이름에 " + paintRed("빨간색이 " + nameR + "개") + ", " +
+          paintBlue("청색 재물운이 " + blueW + "개") + "이고 ";
+        if (allBlocked) {
+          p += "이름의 " + paintRed("빨간색") + " 기운을 " + paintBlue("청색") + "의 기운으로 전부 막아 주고 있네요. ";
+        } else if (blocked) {
+          p += "이름의 " + paintRed("빨간색") + " 기운을 " + paintBlue("청색") + "의 기운이 일부는 막아 주지만 전부 막아주지는 못하고 있네요. ";
+        } else {
+          p += "막아 주는 " + paintBlue("청색") + " 기운이 그 빨간색까지는 막아 주지 못하고 있네요. ";
+        }
+      }
+      if ((allBlocked || !nameR) && overflow) {
+        p += "그리고 재물운이 넘쳐 나니 " + paintBlue("최고로 좋은 이름") + " 입니다. ";
+        if (powerN) {
+          p += "사주의 출세욕은 이름기운을 타고 " + paintBlue("승승장구 일취월장") + " 하도록 되어 있네요. ";
+        }
+      } else if (allBlocked && blueW) {
+        p += "막아 주는 청색이 있고 재물운도 있어 좋은 이름입니다. ";
+      } else if (!nameR && blueW) {
+        p += "재물운이 있어 좋은 쪽으로 읽힙니다. ";
+      } else if (nameR && openRed) {
+        p += "막아 주지 못한 " + paintRed("빨간색") + "이 남아 있습니다. ";
       }
       p += "이름이 저혼자 날고 띠고 난동을 부려도 사주를 건들이지 않으면 내가 사주의 길흉이나 주어진 복에 따라 사는건 어쩔수가 없는데 " +
         "\"" + paintBlue("날마다 부자로 잘살게 해주세요") + ",\" 하는 기도문이 되면 좋은 것이고, " +
