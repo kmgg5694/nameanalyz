@@ -1358,6 +1358,12 @@
     }
     const boost = hexSeqWealthBoostNote(ng, prevNg, ageKey);
     if (boost) body = (body || "") + boost;
+    if (isHwagtaekGyu(ng) && ageKey === "초년") {
+      body += " " + paintBlue("초년에 들면 재물운이 되기도 한다.");
+    }
+    if (isHwagtaekGyu(ng) && (ageKey === "말년" || ageKey === "총운")) {
+      body += " " + paintRed("말년에 들면 약물중독 및 노름, 수집등의 중독증. 허리, 기관지 조심해야 한다.");
+    }
     return body;
   }
 
@@ -4183,7 +4189,7 @@
         const bits = [];
         function scan(who, ns, ng) {
           const got = [];
-          if (hexMatchesAny(ng, row.hex)) got.push(gweNameHtml(ng));
+          if (hexMatchesAny(ng, row.hex) || (a.key === "초년" && isHwagtaekGyu(ng))) got.push(gweNameHtml(ng));
           if (got.length) {
             bits.push(
               (who ? who + " " : "") +
@@ -4236,7 +4242,8 @@
         MATRIX_AGES.forEach(function (a) {
           if (lineHasBakjung(a.idx)) return;
           const hit = sides.some(function (sd) {
-            return hexMatchesAny(sd[1][a.idx], row.hex);
+            const g = sd[1][a.idx];
+            return hexMatchesAny(g, row.hex) || (a.key === "초년" && isHwagtaekGyu(g));
           });
           if (hit) out.push(a.key);
         });
@@ -4280,7 +4287,7 @@
         MATRIX_AGES.forEach(function (a) {
           if (lineHasBakjung(a.idx)) return;
           sides.forEach(function (sd) {
-            if (isWealthFortuneHex(sd[1][a.idx])) n++;
+            if (isWealthFortuneHex(sd[1][a.idx]) || (a.key === "초년" && isHwagtaekGyu(sd[1][a.idx]))) n++;
           });
         });
         return n;
