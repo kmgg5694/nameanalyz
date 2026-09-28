@@ -4072,29 +4072,122 @@
       );
     }
 
-    // —— ①오행 → ②수리4자리 → ③사주말년(전체기운) → ④이름비교·개명 → ⑤사주시기별 → ⑥위험·주기도문·밑줄 ——
-    if (ohangNarr) ageParts.push(ohangNarr);
-    const suriFour = buildSuriFourBlock();
-    if (suriFour) ageParts.push(suriFour);
-    if (hasB) {
-      const sajuIntro = buildSajuIntro();
-      if (sajuIntro) ageParts.push(sajuIntro);
-      const sajuMal = buildSajuMalOverall();
-      if (sajuMal) ageParts.push(sajuMal);
-      ageParts.push(
-        "이름이 사주를 도와주는지 고통을 주는지를 살펴 보겠습니다."
-      );
-      const nameParts = buildNameHelpsHurtsParts();
-      if (nameParts.malRename) ageParts.push(nameParts.malRename);
-      const sajuPeriods = buildSajuPeriodLine();
-      if (sajuPeriods) ageParts.push(sajuPeriods);
-      if (nameParts.rest) ageParts.push(nameParts.rest);
-      const turnList = buildNameVsBirthCompare(true);
-      if (turnList) ageParts.push(turnList);
-    } else {
-      const turnList = buildNameVsBirthCompare(true);
-      if (turnList) ageParts.push(turnList);
+    function firstSent(raw) {
+      const s = String(raw || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      if (!s) return "";
+      const m = s.match(/^(.+?[.。])/);
+      return (m ? m[1] : s).trim();
     }
+    /** 해설 표준: 그 수리·괘에 적힌 뜻 한 문장. 긴 나열·「무거운 기운」으로 바꾸지 않는다. */
+    function shortSuriFact(s, g, ageKey) {
+      if (!s || s.suri == null || !s.data) return "";
+      if (suriBad(s.data) && isMitigateSuriHex(g)) {
+        const good = suriAgeGoodText(s, g, ageKey);
+        if (good) return String(good).replace(/<[^>]+>/g, "");
+      }
+      const row = (NAR().suri || {})[String(s.suri)] || {};
+      return firstSent(row[ageKey] || row.narrate || "");
+    }
+    function factPiece(who, s, g, ageKey) {
+      const bits = [];
+      if (s && s.data && s.suri != null) {
+        const fact = shortSuriFact(s, g, ageKey);
+        if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
+      }
+      if (g && g.name) {
+        const hx = firstSent(hexCoreBrief(g));
+        if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
+      }
+      return bits;
+    }
+    function buildSampleNarrate() {
+      const order = [
+        { key: "말년", idx: 0 },
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+      ];
+      function countSide(sArr, gArr) {
+        let n = 0;
+        order.forEach(function (a) {
+          const s = sArr && sArr[a.idx];
+          const g = gArr && gArr[a.idx];
+          if (s && s.data && suriBad(s.data) && !isMitigateSuriHex(g)) n++;
+          if (g && g.name && gweBad(g)) n++;
+        });
+        return n;
+      }
+      const nameR = countSide(nmS, nmG) + (hasHanja ? countSide(hjS, hjG) : 0);
+      const sajuR = hasB ? countSide(bdS, bdG) : 0;
+      const blocks = [];
+      let head = hasB
+        ? "이 이름과 사주를 보니 이름에 " + paintRed("흉이 " + nameR + "개") + "이고, 탄생일에 " + paintRed("흉도 " + sajuR + "개") + " 들었네요."
+        : "이 이름을 보니 " + paintRed("흉이 " + nameR + "개") + "입니다.";
+      head += " 말년기운은 좋든 나쁘든 초년, 장년, 중년에 간섭을 하다가 자기 나이대에 본격적으로 작용하니까 이 이름을 대표하는 기운이라고 보면 됩니다.";
+      blocks.push(head);
+      const malName = factPiece(hasHanja ? "한글" : "이름", nmS[0], nmG[0], "말년")
+        .concat(hasHanja ? factPiece("한문", hjS[0], hjG[0], "말년") : []);
+      const malSaju = hasB ? factPiece("사주", bdS[0], bdG[0], "말년") : [];
+      let mal = "이름 말년에는 " + (malName.length ? malName.join(" ") : "그 자리에 적은 수리·괘가 없습니다.");
+      if (hasB) mal += " 탄생일 말년은 " + (malSaju.length ? malSaju.join(" ") : "그 자리에 적은 수리·괘가 없습니다.");
+      const nameMalBad =
+        (nmS[0] && nmS[0].data && suriBad(nmS[0].data) && !isMitigateSuriHex(nmG[0])) ||
+        (nmG[0] && gweBad(nmG[0])) ||
+        (hasHanja && hjS[0] && hjS[0].data && suriBad(hjS[0].data) && !isMitigateSuriHex(hjG[0])) ||
+        (hasHanja && hjG[0] && gweBad(hjG[0]));
+      const sajuMalBad = hasB && ((bdS[0] && bdS[0].data && suriBad(bdS[0].data)) || (bdG[0] && gweBad(bdG[0])));
+      if (nameMalBad && sajuMalBad) mal += " 이 자체로도 힘이 드는데 이름의 기운까지 보태 주니 위태롭습니다.";
+      if (hexNameStarts(nmG[0], "뇌택귀매") || (hasHanja && hexNameStarts(hjG[0], "뇌택귀매"))) {
+        mal += " 이름 말년에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다.";
+      }
+      blocks.push(mal);
+      function redsAt(sArr, gArr, idx) {
+        let n = 0;
+        const s = sArr && sArr[idx];
+        const g = gArr && gArr[idx];
+        if (s && s.data && suriBad(s.data) && !isMitigateSuriHex(g)) n++;
+        if (g && g.name && gweBad(g)) n++;
+        return n;
+      }
+      const nameByAge = order.map(function (a) {
+        return a.key + " " + (redsAt(nmS, nmG, a.idx) + (hasHanja ? redsAt(hjS, hjG, a.idx) : 0)) + "개";
+      });
+      let overview = "시기별로 보면 이름은 " + nameByAge.join(", ");
+      if (hasB) {
+        const sajuByAge = order.map(function (a) {
+          return a.key + " " + redsAt(bdS, bdG, a.idx) + "개";
+        });
+        overview += "이고, 탄생일은 " + sajuByAge.join(", ");
+      }
+      overview += "입니다.";
+      blocks.push(overview);
+      [{ key: "초년", idx: 1 }, { key: "장년", idx: 2 }, { key: "중년", idx: 3 }].forEach(function (a) {
+        const sajuBits = hasB ? factPiece("사주", bdS[a.idx], bdG[a.idx], a.key) : [];
+        const nameBits = factPiece(hasHanja ? "한글" : "이름", nmS[a.idx], nmG[a.idx], a.key)
+          .concat(hasHanja ? factPiece("한문", hjS[a.idx], hjG[a.idx], a.key) : []);
+        let t = "다음 " + a.key + "의 삶을 살펴 보겠습니다. ";
+        if (sajuBits.length) t += "탄생일 " + a.key + "은 " + sajuBits.join(" ");
+        if (nameBits.length) t += " 이름 " + a.key + "에는 " + nameBits.join(" ") + " 이름이 불릴 때마다 그 기운을 강요합니다.";
+        const nameBad =
+          (nmS[a.idx] && nmS[a.idx].data && suriBad(nmS[a.idx].data) && !isMitigateSuriHex(nmG[a.idx])) ||
+          (nmG[a.idx] && gweBad(nmG[a.idx])) ||
+          (hasHanja && ((hjS[a.idx] && hjS[a.idx].data && suriBad(hjS[a.idx].data) && !isMitigateSuriHex(hjG[a.idx])) || (hjG[a.idx] && gweBad(hjG[a.idx]))));
+        const sajuBad = hasB && ((bdS[a.idx] && bdS[a.idx].data && suriBad(bdS[a.idx].data)) || (bdG[a.idx] && gweBad(bdG[a.idx])));
+        if (nameBad && hasB && !sajuBad) t += " " + a.key + "의 삶은 이름 기운이 말아 먹습니다.";
+        else if (nameBad && sajuBad) t += " 사주 " + a.key + "도 힘든데 이름이 더 강요하니 힘이 듭니다.";
+        blocks.push(t);
+      });
+      if (hasB && nameR > 0 && sajuR > 0) {
+        blocks.push("사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다.");
+      }
+      return blocks.join("<br><br>");
+    }
+
+    if (ohangNarr) ageParts.push(ohangNarr);
+    const sampleNarr = buildSampleNarrate();
+    if (sampleNarr) ageParts.push(sampleNarr);
+    const turnList = buildNameVsBirthCompare(true);
+    if (turnList) ageParts.push(turnList);
     const hazard = buildNameHazardBrief();
     if (hazard) ageParts.push(hazard);
     if (hasB) {
@@ -4528,7 +4621,7 @@
       }
       return (p ? p + (q ? "<br><br>" : "") : "") + q;
     }
-    ageParts.unshift(buildPreviewIntro());
+    buildPreviewIntro();
 
     const footnoteHits = collectFootnoteHits(
       nmS,
