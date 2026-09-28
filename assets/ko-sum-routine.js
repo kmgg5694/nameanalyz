@@ -4310,7 +4310,18 @@
         p += "이름에 " + paintRed("빨간색이 " + nameR + "개") + ", " +
           paintBlue("청색 재물운이 " + blueW + "개") + "입니다. ";
       }
-      p += "갯수보다 초년·장년·중년·말년 줄을 나란히 보면, 그 줄의 이름 통합 기운이 사주를 치는지 도와 주는지를 알 수 있습니다. ";
+      function toneOf(f) {
+        if (f.reds > 0 && f.help) return "길흉";
+        if (f.reds > 0) return "흉";
+        if (f.help) return "길";
+        return "평";
+      }
+      function toneHtml(t) {
+        if (t === "흉") return paintRed("흉");
+        if (t === "길") return paintBlue("길");
+        if (t === "길흉") return paintRed("흉") + "·" + paintBlue("길");
+        return "평";
+      }
       function eulReul(word) {
         const ch = String(word || "").replace(/[^가-힣]/g, "").slice(-1);
         if (!ch) return "을";
@@ -4383,62 +4394,59 @@
         });
         return t;
       }
-      MATRIX_AGES.forEach(function (a) {
-        const nf = foldFlags(nameSides, a.idx);
-        const sf = hasB ? foldFlags(sajuSides, a.idx) : { reds: 0, help: false };
-        const nameHard = nf.reds > 0 && !nf.help;
-        const nameMix = nf.reds > 0 && nf.help;
-        const nameHelp = nf.help && !nf.reds;
-        const sajuHard = sf.reds > 0 && !sf.help;
-        const sajuHelp = sf.help && !sf.reds;
-        const onlyRed = nameHard && (!hasB || sajuHard);
-        if (!hasB) {
-          if (onlyRed) p += a.key + "은 이름 통합 기운이 " + paintRed("빨간색") + "이라 힘든 시기입니다. ";
-          else if (nameHelp) p += a.key + "은 이름 통합 기운이 " + paintBlue("청색") + "으로 열려 있습니다. ";
-          else if (nameMix) p += a.key + "은 이름에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있습니다. ";
-          return;
-        }
-        const shortFall = pressShortfallText(a);
-        if (shortFall) { p += shortFall; return; }
-        if (onlyRed) {
-          p += a.key + "은 이름과 사주가 " + paintRed("빨간색") + "뿐이니 ";
-          if (a.key === "초년") p += "초년 30년은 힘들게 살았다고 보고 넘어갑니다. ";
-          else p += "힘들게 지나간 시기입니다. ";
-          p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데다가 이름 통합 기운이 더 힘들게 하고 있네요. ";
-          return;
-        }
-        if (nameHard && sajuHelp) {
-          p += a.key + "은 사주는 " + paintBlue("길") + "인데 이름 통합 기운이 치고 있네요. ";
-          return;
-        }
-        if (nameHard) {
-          p += a.key + "은 이름 통합 기운이 " + paintRed("흉") + "이라 사주를 치고 있네요. ";
-          return;
-        }
-        if (nameHelp && sajuHard) {
-          p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데 이름 통합 기운이 도와 주고 있네요. ";
-          return;
-        }
-        if (nameHelp) {
-          p += a.key + "은 이름 통합 기운이 사주를 도와 주고 있네요. ";
-          return;
-        }
-        if (nameMix && sajuHard) {
-          p += a.key + "은 이름에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있습니다. 사주 " + a.key + "은 " + paintRed("흉") + "인데 그 줄의 청색이 일부를 눌러 주지만 다 막지는 못하고, 이름 통합 기운이 사주를 치고 있네요. ";
-          return;
-        }
-        if (nameMix && sajuHelp) {
-          p += a.key + "은 사주는 " + paintBlue("길") + "인데 이름의 " + paintRed("빨간색") + "이 치고, " + paintBlue("청색") + "이 눌러 주고 있네요. ";
-          return;
-        }
-        if (nameMix) {
-          p += a.key + "은 이름과 사주에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있어, 이름 통합 기운이 사주를 일부는 도와 주고 일부는 치고 있네요. ";
-          return;
-        }
-        if (sajuHard) {
-          p += "사주 " + a.key + "은 " + paintRed("흉") + "인데 이름 통합 기운이 더 보태지는 않습니다. ";
-        }
+      const lineRows = MATRIX_AGES.map(function (a) {
+        return {
+          a: a,
+          nameT: toneOf(foldFlags(nameSides, a.idx)),
+          sajuT: hasB ? toneOf(foldFlags(sajuSides, a.idx)) : "",
+        };
       });
+      p += "이름 줄을 보면 " + lineRows.map(function (r) {
+        return r.a.key + "은 " + toneHtml(r.nameT);
+      }).join(", ") + "입니다. ";
+      if (hasB) {
+        p += "같은 줄의 사주와 견주면 ";
+        lineRows.forEach(function (r) {
+          const a = r.a;
+          p += a.key + "은 이름 " + toneHtml(r.nameT) + ", 사주 " + toneHtml(r.sajuT) + "이라 ";
+          const shortFall = pressShortfallText(a);
+          if (shortFall) { p += shortFall; return; }
+          if (r.nameT === "흉" && r.sajuT === "흉") {
+            if (a.key === "초년") p += "초년 30년은 힘들게 살았다고 보고 넘어갑니다. ";
+            p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데다가 이름 통합 기운이 더 힘들게 하고 있네요. ";
+            return;
+          }
+          if (r.nameT === "흉" && r.sajuT === "길") {
+            p += "사주는 " + paintBlue("길") + "인데 이름 통합 기운이 치고 있네요. ";
+            return;
+          }
+          if (r.nameT === "길" && r.sajuT === "흉") {
+            p += "사주는 " + paintRed("흉") + "인데 이름 통합 기운이 도와 주고 있네요. ";
+            return;
+          }
+          if (r.nameT === "길") {
+            p += "이름 통합 기운이 사주를 도와 주고 있네요. ";
+            return;
+          }
+          if (r.nameT === "길흉" && r.sajuT === "흉") {
+            p += "사주는 " + paintRed("흉") + "인데 이름의 청색이 일부를 눌러 주지만 다 막지는 못하고 이름 통합 기운이 사주를 치고 있네요. ";
+            return;
+          }
+          if (r.nameT === "길흉" && r.sajuT === "길") {
+            p += "사주는 " + paintBlue("길") + "인데 이름의 " + paintRed("빨간색") + "이 치고 " + paintBlue("청색") + "이 눌러 주고 있네요. ";
+            return;
+          }
+          if (r.nameT === "흉") {
+            p += "이름 통합 기운이 사주를 치고 있네요. ";
+            return;
+          }
+          if (r.sajuT === "흉") {
+            p += "사주는 " + paintRed("흉") + "인데 이름 통합 기운이 더 보태지는 않습니다. ";
+            return;
+          }
+          p += "이름 통합 기운이 사주를 크게 치지 않습니다. ";
+        });
+      }
       p += "이름이 저혼자 날고 띠고 난동을 부려도 사주를 건들이지 않으면 내가 사주의 길흉이나 주어진 복에 따라 사는건 어쩔수가 없는데 " +
         "이름의 기도빨이 워낙 강하다 보니 자연스럽게 사주를 간섭하게 됩니다. " +
         "\"" + paintBlue("날마다 부자로 잘살게 해주세요") + ",\" 하는 기도문이 되면 좋은 것이고, " +
