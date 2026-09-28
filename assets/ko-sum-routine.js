@@ -1884,6 +1884,7 @@
     const hasB = !!ctx.hasB;
 
     const ageParts = [];
+    let frontLead = "";
     const compareParts = [];
     /** 이름 흉괘가 사주 시기를 치는 목록: [{ag, ng, bg, who}] */
     const hitList = [];
@@ -4296,6 +4297,7 @@
         return n;
       }
       const nameR = countRed(nameSides);
+      const sajuR = hasB ? countRed(sajuSides) : 0;
       const allSides = nameSides.concat(sajuSides);
       function countBlueWealth(sides) {
         let n = 0;
@@ -4325,13 +4327,16 @@
         });
         return { reds: reds, help: help };
       }
-      let p = (hasB ? "이름과 탄생일 전체를 살펴보면 " : "이름 전체를 살펴보면 ");
-      if (!nameR) {
-        p += "이름에 " + paintRed("빨간색") + "은 없고, " + paintBlue("청색 재물운") + "이 " + blueW + "개입니다. ";
-      } else {
-        p += "이름에 " + paintRed("빨간색이 " + nameR + "개") + ", " +
-          paintBlue("청색 재물운이 " + blueW + "개") + "입니다. ";
+      let lead = hasB
+        ? "이 이름과 사주를 보니 이름에 " + paintRed("흉이 " + nameR + "개") + "이고, 탄생일에 " + paintRed("흉도 " + sajuR + "개") + " 들었네요. "
+        : "이 이름을 보니 " + paintRed("흉이 " + nameR + "개") + "입니다. ";
+      lead += paintBlue("청색 재물운") + "은 " + blueW + "개입니다. ";
+      const malGwi = nameSides.some(function (sd) { return hexNameStarts(sd[1][0], "뇌택귀매"); });
+      if (malGwi) {
+        lead += "이름 말년에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다. ";
       }
+      frontLead = lead;
+      let p = "";
       function toneOf(f) {
         if (f.reds > 0 && f.help) return "길흉";
         if (f.reds > 0) return "흉";
@@ -4562,7 +4567,7 @@
       }
       q += " 이런 기운들을 강력하게 지원하는 " + paintBlue("인덕(상생)이 3개 이상") +
         "이어야 하는데, 그것부터 설명을 하겠습니다.";
-      return p + "<br><br>" + q;
+      return (p ? p + "<br><br>" : "") + q;
     }
     ageParts.unshift(buildPreviewIntro());
 
@@ -4665,6 +4670,7 @@
     }
 
     return {
+      front: frontLead,
       ageText:
         '<div class="ko-sum-narr">' + ageParts.join("<br><br>") + "</div>",
       conclusion:
