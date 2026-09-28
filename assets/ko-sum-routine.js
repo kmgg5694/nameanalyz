@@ -1263,6 +1263,14 @@
     const lab = faceLabel(n, ageKey, "bad");
     let t = (noLead ? "" : ageLead(ageKey)) +
       (lab ? "「" + paintRed(lab) + "」으로 작용해 " : "") + body;
+    const stamp = n === 10
+      ? "꿈이 너무 커서 중도좌절하고, 마치 손에 물을 쥐려는 것처럼 모든 것이 허망하게 끝나는 게 문제입니다."
+      : n === 12
+        ? "바람 부는 날 마당 쓸기와 같아서, 하는 일마다 헛일만 합니다. 공부든 사업이든 모두 그렇습니다."
+        : n === 19
+          ? "믿는 도끼에 발등 찍히니 조심해야 합니다."
+          : "";
+    if (stamp && t.indexOf(stamp.slice(0, 8)) < 0) t += " " + stamp;
     if (n === 10 && ageKey === "초년") {
       const cho = opts && opts.choSajuGood;
       if (cho === true) t += " 다만 초년 사주가 좋아 돌파해 나가기도 합니다.";
@@ -1305,6 +1313,16 @@
   window.koSuriAgeText = function (num, ageKey, g) {
     const t = suriAgeTextHtml(num, ageKey, g);
     return t == null ? null : String(t).replace(/<[^>]+>/g, "");
+  };
+  /** 요약보기 밑줄. 화택규 원문은 상단 64괘에 두고, 여기에는 그 자리 해설만. */
+  window.koHexTip = function (g, ageKey) {
+    if (!g) return "";
+    const n = String(g.name || "").replace(/\s+/g, "");
+    if (n.indexOf("화택규") < 0) return g.desc || "";
+    let t = "눈흘길 「규」라 시기·질투가 있고, 서로 상반되어 쟁론을 벌이기 쉽습니다. 천추원한 백골혼으로 불의의 사고에 뼈를 크게 다칩니다. 목·허리 등 디스크·관절이 모두 포함되고, 기관지도 조심해야 합니다.";
+    if (ageKey === "초년") t += " 초년에 들면 재물운이 되기도 한다.";
+    if (ageKey === "말년") t += " 말년에 들면 평생 노름이나 약물중독에 빠져 살 수도 있다. 노름을 좋아해도 따는 일은 별로 없다.";
+    return t;
   };
   function suriAgeTextHtml(num, ageKey, g) {
     try {
@@ -1349,20 +1367,17 @@
 
   /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게. prevNg=시간순 직전 괘 */
   function hexBodyForNarrate(ng, prevNg, ageKey) {
+    const brief = hexCoreBrief(ng);
+    let body = brief ? " " + esc(brief) : "";
     const special = hexSpecialNote(ng);
-    let body = "";
-    if (special) body = special;
-    else {
-      const brief = hexCoreBrief(ng);
-      if (brief) body = " " + esc(brief);
-    }
+    if (special && body.indexOf("관절") < 0) body += special;
     const boost = hexSeqWealthBoostNote(ng, prevNg, ageKey);
     if (boost) body = (body || "") + boost;
-    if (isHwagtaekGyu(ng) && ageKey === "초년") {
+    if (isHwagtaekGyu(ng) && ageKey === "초년" && body.indexOf("재물운이 되기도") < 0) {
       body += " " + paintBlue("초년에 들면 재물운이 되기도 한다.");
     }
-    if (isHwagtaekGyu(ng) && (ageKey === "말년" || ageKey === "총운")) {
-      body += " " + paintRed("말년에 들면 약물중독 및 노름, 수집등의 중독증. 허리, 기관지 조심해야 한다.");
+    if (isHwagtaekGyu(ng) && (ageKey === "말년" || ageKey === "총운") && body.indexOf("약물중독") < 0) {
+      body += " " + paintRed("말년에 들면 평생 노름이나 약물중독에 빠져 살 수도 있다. 노름을 좋아해도 따는 일은 별로 없다.");
     }
     return body;
   }
