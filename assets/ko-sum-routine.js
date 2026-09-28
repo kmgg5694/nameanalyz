@@ -4135,8 +4135,54 @@
         (nmG[0] && gweBad(nmG[0])) ||
         (hasHanja && hjS[0] && hjS[0].data && suriBad(hjS[0].data) && !isMitigateSuriHex(hjG[0])) ||
         (hasHanja && hjG[0] && gweBad(hjG[0]));
-      const sajuMalBad = hasB && ((bdS[0] && bdS[0].data && suriBad(bdS[0].data)) || (bdG[0] && gweBad(bdG[0])));
+      function sajuBadNames(idx) {
+        const out = [];
+        const s = bdS[idx];
+        const g = bdG[idx];
+        if (s && s.data && suriBad(s.data)) {
+          const nm = plainSuriName(s);
+          if (nm) out.push(nm);
+        }
+        if (g && gweBad(g)) {
+          const nm = gweNameOf(g);
+          if (nm) out.push(nm);
+        }
+        return out;
+      }
+      function pressNamesAt(idx) {
+        const out = [];
+        function add(g) {
+          if (!isMitigateSuriHex(g)) return;
+          const n = gweNameOf(g);
+          if (n && out.indexOf(n) < 0) out.push(n);
+        }
+        add(nmG[idx]);
+        if (hasHanja) add(hjG[idx]);
+        return out;
+      }
+      function joinPress(names) {
+        const painted = names.map(function (n) { return paintBlue(n); });
+        return painted.join(", ") + josaIGA(names[names.length - 1]);
+      }
+      function sajuPressLine(idx, key) {
+        if (!hasB) return "";
+        const bad = sajuBadNames(idx);
+        if (!bad.length) return "";
+        const here = pressNamesAt(idx);
+        const malPress = idx === 0 ? [] : pressNamesAt(0);
+        const badTxt = bad.map(function (n) { return paintRed(n); }).join(", ");
+        const bits = [];
+        if (here.length) {
+          bits.push("사주 " + key + "의 흉(" + badTxt + ")을 이 시기 이름의 " + joinPress(here) + " 눌러 줍니다.");
+        }
+        if (malPress.length) {
+          bits.push("사주 " + key + "의 흉(" + badTxt + ")을 이름 말년의 " + joinPress(malPress) + " 눌러 줍니다.");
+        }
+        return bits.length ? " " + bits.join(" ") : "";
+      }
+      const sajuMalBad = hasB && sajuBadNames(0).length > 0;
       if (nameMalBad && sajuMalBad) mal += " 이 자체로도 힘이 드는데 이름의 기운까지 보태 주니 위태롭습니다.";
+      mal += sajuPressLine(0, "말년");
       if (hexNameStarts(nmG[0], "뇌택귀매") || (hasHanja && hexNameStarts(hjG[0], "뇌택귀매"))) {
         mal += " 이름 말년에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다.";
       }
@@ -4175,9 +4221,46 @@
         const sajuBad = hasB && ((bdS[a.idx] && bdS[a.idx].data && suriBad(bdS[a.idx].data)) || (bdG[a.idx] && gweBad(bdG[a.idx])));
         if (nameBad && hasB && !sajuBad) t += " " + a.key + "의 삶은 이름 기운이 말아 먹습니다.";
         else if (nameBad && sajuBad) t += " 사주 " + a.key + "도 힘든데 이름이 더 강요하니 힘이 듭니다.";
+        t += sajuPressLine(a.idx, a.key);
         blocks.push(t);
       });
-      if (hasB && nameR > 0 && sajuR > 0) {
+      function pressNames(gArr) {
+        const names = [];
+        order.forEach(function (a) {
+          const g = gArr && gArr[a.idx];
+          if (!isMitigateSuriHex(g)) return;
+          const n = gweNameOf(g);
+          if (names.indexOf(n) < 0) names.push(n);
+        });
+        return names;
+      }
+      function gwiCount(gArr) {
+        let n = 0;
+        order.forEach(function (a) {
+          if (hexNameStarts(gArr && gArr[a.idx], "뇌택귀매")) n++;
+        });
+        return n;
+      }
+      const presses = pressNames(nmG).concat(hasHanja ? pressNames(hjG) : []);
+      const pressUniq = [];
+      presses.forEach(function (n) { if (pressUniq.indexOf(n) < 0) pressUniq.push(n); });
+      const gwiN = gwiCount(nmG) + (hasHanja ? gwiCount(hjG) : 0);
+      if (pressUniq.length && hasB && sajuR > 0) {
+        blocks.push(
+          "사주에 흉이 있는데 이름에 " +
+          pressUniq.map(function (n) { return paintBlue(n); }).join(", ") +
+          " 눌러 주는 기운이 있으니 좋은 이름입니다."
+        );
+      } else if (!pressUniq.length && gwiN > 0 && nameR > 0) {
+        let t = "이 이름에는 막아 주는 기운은 없고 달랑 " +
+          (gwiN === 1 ? "하나 " : "") +
+          paintBlue("뇌택귀매") +
+          "가 있는데 흉으로 포위되어 제 기능을 발휘하지 못하는 게 아쉽습니다.";
+        if (hasB && sajuR > 0) {
+          t += " 사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다.";
+        }
+        blocks.push(t);
+      } else if (hasB && nameR > 0 && sajuR > 0) {
         blocks.push("사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다.");
       }
       return blocks.join("<br><br>");
