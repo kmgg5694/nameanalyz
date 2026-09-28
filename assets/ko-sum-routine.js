@@ -4330,11 +4330,28 @@
       let lead = hasB
         ? "이 이름과 사주를 보니 이름에 " + paintRed("흉이 " + nameR + "개") + "이고, 탄생일에 " + paintRed("흉도 " + sajuR + "개") + " 들었네요. "
         : "이 이름을 보니 " + paintRed("흉이 " + nameR + "개") + "입니다. ";
-      lead += paintBlue("청색 재물운") + "은 " + blueW + "개입니다. ";
-      const malGwi = nameSides.some(function (sd) { return hexNameStarts(sd[1][0], "뇌택귀매"); });
-      if (malGwi) {
-        lead += "이름 말년에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다. ";
+      lead += paintBlue("청색 재물운") + "은 " + blueW + "개입니다.";
+      function redsAt(sides, idx) {
+        let n = 0;
+        sides.forEach(function (sd) { n += badMarks(sd, idx).length; });
+        return n;
       }
+      const frontAges = [
+        { key: "말년", idx: 0 },
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+      ];
+      lead += "<br><br>" + frontAges.map(function (a) {
+        const nr = redsAt(nameSides, a.idx);
+        let b = a.key + "은 이름에 " + paintRed("흉이 " + nr + "개");
+        if (hasB) b += "이고, 탄생일에 " + paintRed("흉이 " + redsAt(sajuSides, a.idx) + "개") + " 들었습니다.";
+        else b += "입니다.";
+        if (nameSides.some(function (sd) { return hexNameStarts(sd[1][a.idx], "뇌택귀매"); })) {
+          b += " 이름 " + a.key + "에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다.";
+        }
+        return b;
+      }).join("<br><br>");
       frontLead = lead;
       let p = "";
       function toneOf(f) {
@@ -4421,59 +4438,6 @@
         });
         return t;
       }
-      const lineRows = MATRIX_AGES.map(function (a) {
-        return {
-          a: a,
-          nameT: toneOf(foldFlags(nameSides, a.idx)),
-          sajuT: hasB ? toneOf(foldFlags(sajuSides, a.idx)) : "",
-        };
-      });
-      p += "이름 줄을 보면 " + lineRows.map(function (r) {
-        return r.a.key + "은 " + toneHtml(r.nameT);
-      }).join(", ") + "입니다. ";
-      if (hasB) {
-        p += "같은 줄의 사주와 견주면 ";
-        lineRows.forEach(function (r) {
-          const a = r.a;
-          p += a.key + "은 이름 " + toneHtml(r.nameT) + ", 사주 " + toneHtml(r.sajuT) + "이라 ";
-          const shortFall = pressShortfallText(a);
-          if (shortFall) { p += shortFall; return; }
-          if (r.nameT === "흉" && r.sajuT === "흉") {
-            if (a.key === "초년") p += "초년 30년은 힘들게 살았다고 보고 넘어갑니다. ";
-            p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데다가 이름 통합 기운이 더 힘들게 하고 있네요. ";
-            return;
-          }
-          if (r.nameT === "흉" && r.sajuT === "길") {
-            p += "사주는 " + paintBlue("길") + "인데 이름 통합 기운이 치고 있네요. ";
-            return;
-          }
-          if (r.nameT === "길" && r.sajuT === "흉") {
-            p += "사주는 " + paintRed("흉") + "인데 이름 통합 기운이 도와 주고 있네요. ";
-            return;
-          }
-          if (r.nameT === "길") {
-            p += "이름 통합 기운이 사주를 도와 주고 있네요. ";
-            return;
-          }
-          if (r.nameT === "길흉" && r.sajuT === "흉") {
-            p += "사주는 " + paintRed("흉") + "인데 이름의 청색이 일부를 눌러 주지만 다 막지는 못하고 이름 통합 기운이 사주를 치고 있네요. ";
-            return;
-          }
-          if (r.nameT === "길흉" && r.sajuT === "길") {
-            p += "사주는 " + paintBlue("길") + "인데 이름의 " + paintRed("빨간색") + "이 치고 " + paintBlue("청색") + "이 눌러 주고 있네요. ";
-            return;
-          }
-          if (r.nameT === "흉") {
-            p += "이름 통합 기운이 사주를 치고 있네요. ";
-            return;
-          }
-          if (r.sajuT === "흉") {
-            p += "사주는 " + paintRed("흉") + "인데 이름 통합 기운이 더 보태지는 않습니다. ";
-            return;
-          }
-          p += "이름 통합 기운이 사주를 크게 치지 않습니다. ";
-        });
-      }
       p += "이름이 저혼자 날고 띠고 난동을 부려도 사주를 건들이지 않으면 내가 사주의 길흉이나 주어진 복에 따라 사는건 어쩔수가 없는데 " +
         "이름의 기도빨이 워낙 강하다 보니 자연스럽게 사주를 간섭하게 됩니다. " +
         "\"" + paintBlue("날마다 부자로 잘살게 해주세요") + ",\" 하는 기도문이 되면 좋은 것이고, " +
@@ -4557,17 +4521,13 @@
             return k < leads.length - 1 || wealthS ? x[0] : x[1];
           });
           q = "사주를 보면 " + body.join(", ") + (wealthS ? (body.length ? " " : "") + wealthS : "");
-        } else if (malTone(sajuSides) === "흉") {
-          q = "사주를 보면 시련을 이겨 내며 살라 했는데, 과연 이름이 사주를 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
         } else {
-          q = "사주를 보면 무난하게 살라 했는데, 과연 이름이 사주를 도와 주는지 세밀하게 시기별로 확인해 보겠습니다.";
+          q = "";
         }
       } else {
-        q = "이름이 어떤 삶을 그리고 있는지 세밀하게 시기별로 확인해 보겠습니다.";
+        q = "";
       }
-      q += " 이런 기운들을 강력하게 지원하는 " + paintBlue("인덕(상생)이 3개 이상") +
-        "이어야 하는데, 그것부터 설명을 하겠습니다.";
-      return (p ? p + "<br><br>" : "") + q;
+      return (p ? p + (q ? "<br><br>" : "") : "") + q;
     }
     ageParts.unshift(buildPreviewIntro());
 
