@@ -1728,6 +1728,155 @@
     );
   }
 
+  const EN_SURI_FACT = {
+    10: "The dream is too big, so it collapses halfway, and everything ends empty, like trying to hold water in the hand.",
+    12: "Succeeds for a time on a parent's luck, then fails halfway, and every effort is wasted.",
+    14: "Divorce, marital discord and illness.",
+    19: "The trusted axe cuts one's own foot.",
+    20: "The end of things: a hundred matters are blocked, and business may stop or a prison term may follow.",
+    22: "Succeeds for a time, then fails halfway, and every effort is wasted.",
+    26: "Separation, bereavement, no children, and hardship far from home.",
+    27: "Looks outstanding and goes well for a time, then collapses midway from stubborn pride.",
+    30: "Clever enough to succeed for a time, then success and failure alternate and it ends empty.",
+    32: "An unexpected chance brings sudden success.",
+    34: "Disaster follows disaster: separation, no children, and in a severe case disability.",
+    36: "A hero's fortune: chivalry is strong, but success is immediately followed by failure, and helping others becomes unpaid sacrifice.",
+    41: "Foresight makes this person a respected leader, with wealth and fame.",
+    44: "Loses every fight. Empty dreams invite fraud and ruin. Dropping greed can turn it favorable; greed makes it bad.",
+    46: "After midlife a sudden disaster brings loneliness and a short life.",
+    52: "Breaks through hard problems. Plans succeed, even speculative ones, and this person becomes known as wealthy.",
+    54: "Hardship and adversity sit inside this number. As a rule half a life goes well, and the later years ruin the family.",
+    60: "Hopes for salary and rank, but loses them all — like waiting under a tree for a persimmon to fall.",
+  };
+  const EN_HEX_FACT = {
+    수뢰둔: "Things succeed only when the time comes; rushing fails. One gets stuck, like feet in mud, and worries over money or housing.",
+    감위수: "Hardship, disaster and illness pile up, like a small boat in an angry sea.",
+    화뢰서합: "The advantage is clear, well-ordered speech. The disadvantage is sharp words and a refusal to compromise, so quarrels and gossip follow.",
+    화천대유: "The image of great wealth — a very wealthy person.",
+  };
+  function slotMisfortune(s, g) {
+    let n = 0;
+    if (s && s.data && suriBad(s.data) && !(g && isMitigate(g))) n++;
+    if (g && g.name && gweBad(g)) n++;
+    return n;
+  }
+  function sideMisfortune(sArr, gArr) {
+    let n = 0;
+    for (let i = 0; i < 4; i++) n += slotMisfortune(sArr[i], gArr[i]);
+    return n;
+  }
+  function hexFactEn(g) {
+    const name = gweNameOf(g);
+    const keys = Object.keys(EN_HEX_FACT);
+    for (let i = 0; i < keys.length; i++) {
+      if (name.indexOf(keys[i]) === 0) return EN_HEX_FACT[keys[i]];
+    }
+    const t = ((window.NA_NARR_EN || {}).hex || {})[String(g && g.id)];
+    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
+    if (!parts.length) return "";
+    const black = g && g.name && !gweGood(g) && !gweBad(g);
+    return black ? parts.slice(0, 2).join(" ") : parts[0];
+  }
+  function suriFactEn(s, g) {
+    const n = Number(s && s.suri);
+    if (s && s.data && suriBad(s.data) && g && isMitigate(g)) {
+      return "This number is unfavorable, but " + gweDisplayName(g, "en") + " presses it down, so the weakness turns into a strength" +
+        (["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"].some((x) => hexNameStarts(g, x)) ? " and into greater wealth" : "") + ".";
+    }
+    if (EN_SURI_FACT[n]) return EN_SURI_FACT[n];
+    const t = ((window.NA_NARR_EN || {}).suri || {})[String(n)];
+    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
+    return parts[0] || "";
+  }
+  /** 한글 해설과 같은 순서: 흉 개수 → 말년 → 시기별 개수 → 초년·장년·중년 */
+  function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
+    const ko = lang === "ko";
+    const order = [3, 0, 1, 2];
+    const ageEn = ["the early years", "the prime years", "midlife", "the later years"];
+    const ageKo = ["초년", "장년", "중년", "말년"];
+    const nameN = sideMisfortune(nS, nG);
+    const birthN = hasB ? sideMisfortune(bS, bG) : 0;
+    const namePress = [];
+    for (let i = 0; i < 4; i++) {
+      if (nG[i] && isMitigate(nG[i])) {
+        const h = gweDisplayName(nG[i], lang);
+        if (namePress.indexOf(h) < 0) namePress.push(h);
+      }
+    }
+    function piece(who, s, g) {
+      const bits = [];
+      if (s && s.data && s.suri != null) {
+        const fact = ko ? "" : suriFactEn(s, g);
+        if (fact) bits.push(who + " " + suriPhrase(s, lang) + " — " + esc(fact));
+        else bits.push(who + " " + suriPhrase(s, lang));
+      }
+      if (g && g.name) {
+        let hx = ko ? "" : hexFactEn(g);
+        const black = !gweGood(g) && !gweBad(g);
+        const wealth20 = Number(s && s.suri) === 20 && ["수택절", "수풍정", "지택림", "뇌택귀매"].some((x) => hexNameStarts(g, x));
+        if (!ko && hx && s && s.data && suriBad(s.data) && black && !isMitigate(g) && !wealth20) {
+          hx += " With " + plainSuriName(s, lang) + " above it, that disadvantage grows.";
+        }
+        if (hx) bits.push(gweNameHtml(g, lang) + " — " + esc(hx).replace(/&lt;span/g, "<span").replace(/&lt;\/span&gt;/g, "</span>"));
+        else bits.push(gweNameHtml(g, lang));
+      }
+      return bits.join(" ");
+    }
+    const blocks = [];
+    blocks.push(
+      ko
+        ? "이 이름과 탄생일을 보니 이름에 흉이 " + nameN + "개이고, 탄생일에 흉이 " + birthN + "개 들었습니다. 말년 기운은 좋든 나쁘든 초년, 장년, 중년에 간섭을 하다가 자기 나이대에 본격적으로 작용하니까 이 이름을 대표하는 기운이라고 보면 됩니다."
+        : "Looking at this name and this birth date, the name holds " + nameN + " misfortunes, and the birth date holds " + birthN + ". Later-years energy, good or bad, interferes with the early, prime and midlife years, then acts in full in its own age, so it is the energy that stands for this name."
+    );
+    const lateWho = ko ? "이름 말년" : "In the later years the name's";
+    const lateBirth = ko ? "탄생일 말년" : "In the later years the birth date's";
+    let late = piece(lateWho, nS[3], nG[3]);
+    if (hasB) late += " " + piece(lateBirth, bS[3], bG[3]);
+    const lateNameBad = slotMisfortune(nS[3], nG[3]) > 0;
+    const lateBirthBad = hasB && slotMisfortune(bS[3], bG[3]) > 0;
+    if (lateNameBad && lateBirthBad) {
+      late += ko ? " 이름의 기운까지 보태 주니 위태롭습니다." : " With the name's energy added on, it is precarious.";
+    } else if (lateNameBad && hasB && !lateBirthBad) {
+      late += ko ? " 그 나이대는 이름 기운이 말아 먹습니다." : " That age is swallowed by the name.";
+    }
+    blocks.push(late);
+    const cnt = (arrS, arrG) => order.map((i) => slotMisfortune(arrS[i], arrG[i])).join(", ");
+    blocks.push(
+      ko
+        ? "시기별로 이름은 말년 " + slotMisfortune(nS[3], nG[3]) + "개, 초년 " + slotMisfortune(nS[0], nG[0]) + "개, 장년 " + slotMisfortune(nS[1], nG[1]) + "개, 중년 " + slotMisfortune(nS[2], nG[2]) + "개이고, 탄생일은 말년 " + (hasB ? slotMisfortune(bS[3], bG[3]) : 0) + "개, 초년 " + (hasB ? slotMisfortune(bS[0], bG[0]) : 0) + "개, 장년 " + (hasB ? slotMisfortune(bS[1], bG[1]) : 0) + "개, 중년 " + (hasB ? slotMisfortune(bS[2], bG[2]) : 0) + "개입니다."
+        : "By period, the name has " + slotMisfortune(nS[3], nG[3]) + " in the later years, " + slotMisfortune(nS[0], nG[0]) + " in the early years, " + slotMisfortune(nS[1], nG[1]) + " in the prime years and " + slotMisfortune(nS[2], nG[2]) + " in midlife" +
+          (hasB
+            ? ", and the birth date has " + slotMisfortune(bS[3], bG[3]) + " in the later years, " + slotMisfortune(bS[0], bG[0]) + " in the early years, " + slotMisfortune(bS[1], bG[1]) + " in the prime years and " + slotMisfortune(bS[2], bG[2]) + " in midlife."
+            : ".")
+    );
+    [0, 1, 2].forEach((i) => {
+      const label = ko ? ageKo[i] : ageEn[i];
+      let p = ko ? "다음 " + label + "의 삶을 살펴 보겠습니다. " : "Next we look at " + label + ". ";
+      if (hasB) p += piece(ko ? "탄생일 " + label : "The birth date in " + label + ":", bS[i], bG[i]) + " ";
+      p += piece(ko ? "이름 " + label : "The name in " + label + ":", nS[i], nG[i]);
+      p += ko ? " 이름이 불릴 때마다 그 기운을 강요합니다." : " Every time the name is called, it forces this energy.";
+      const nb = slotMisfortune(nS[i], nG[i]) > 0;
+      const bb = hasB && slotMisfortune(bS[i], bG[i]) > 0;
+      if (nb && bb) p += ko ? " 사주도 힘든데 이름이 더 강요하니 힘이 듭니다." : " The birth chart is already hard, and the name forces it further.";
+      else if (nb && hasB && !bb) p += ko ? " 그 나이대는 이름 기운이 말아 먹습니다." : " That age is swallowed by the name.";
+      blocks.push(p);
+    });
+    if (hasB && birthN && namePress.length) {
+      blocks.push(
+        ko
+          ? "사주에 흉이 있는데 이름에 " + namePress.join(", ") + " 눌러 주는 기운이 있으니 좋은 이름입니다."
+          : "The birth date has misfortune, and the name has " + namePress.join(", ") + " pressing it, so this is a good name."
+      );
+    } else if (nameN && birthN) {
+      blocks.push(
+        ko
+          ? "사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다."
+          : "If the birth chart is bad, the name at least should be good for life to be easier. This name is that harsh, and the birth date has misfortune too, so this is the worst."
+      );
+    }
+    return blocks.map((t) => '<p style="margin:0 0 0.7rem">' + t + "</p>").join("");
+  }
+
   window.enSumRoutine = function enSumRoutine(ctx) {
     ctx = ctx || {};
     const nS = ctx.nS || [];
@@ -1739,6 +1888,8 @@
     const parts = [];
     const oh = buildOhang(ctx.ohang, lang);
     if (oh) parts.push(oh);
+    const period = buildPeriodReading(nS, nG, bS, bG, hasB, lang);
+    if (period) parts.push(period);
     const tp = buildTurningPoints(nS, nG, bS, bG, hasB, lang);
     if (tp) parts.push(tp);
     const wrap = buildWrap(nS, nG, lang);
