@@ -4072,21 +4072,101 @@
       );
     }
 
-    function firstSent(raw) {
+    /** 보흘이 적어 준 핵심. 앞구절·키워드 나열로 바꾸지 않는다. */
+    const SURI_CORE = {
+      10: "꿈이 너무 커서 중도좌절하고, 마치 손에 물을 쥐려는 것처럼 모든 것이 허망하게 끝나는 게 문제입니다.",
+      12: "한때 부모의 덕으로 성공하기도 하지만 중도에 실패하고, 하는 일마다 헛짓거리입니다.",
+      14: "이혼, 부부불화, 질병으로 고생하는 기운입니다.",
+      19: "믿는 도끼에 발등 찍히니 조심해야 합니다.",
+      20: "사물의 종말을 고하는 불운의 수로, 백가지 일이 막히고 잘못하면 사업 중단이나 감옥도 가는 기운입니다.",
+      26: "부부이별, 사별, 무자식으로 객지에서 고생하는 기운입니다.",
+      30: "꾀가 많아 한때 성공하기도 하지만 성공과 실패가 교차하여 허무합니다.",
+      32: "뜻밖의 찬스로 일약 성공하는 기운입니다.",
+      34: "재앙이 연속으로 닥쳐 부부이별, 무자식, 심하면 불구자가 되는 기운입니다.",
+      46: "중년 이후 난데없이 닥친 재난으로 고독, 단명하는 기운입니다.",
+      54: "대개 반생은 길운이나 말년은 패가망신하는 기운입니다.",
+    };
+    const HEX_CORE = {
+      감위수: "수난, 재난, 병난으로 고생하는 괘입니다.",
+    };
+    function splitSent(raw) {
       const s = String(raw || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      if (!s) return "";
-      const m = s.match(/^(.+?[.。])/);
-      return (m ? m[1] : s).trim();
+      if (!s) return [];
+      const out = [];
+      let buf = "";
+      for (let i = 0; i < s.length; i++) {
+        buf += s.charAt(i);
+        const ch = s.charAt(i);
+        if (ch === "." || ch === "。") {
+          if (buf.trim()) out.push(buf.trim());
+          buf = "";
+        }
+      }
+      if (buf.trim()) out.push(buf.trim());
+      return out;
     }
-    /** 해설 표준: 그 수리·괘에 적힌 뜻 한 문장. 긴 나열·「무거운 기운」으로 바꾸지 않는다. */
+    function isFrontOnly(s) {
+      if (s.length < 22) return true;
+      if (/기운입니다\.?$/.test(s) && (s.indexOf("·") >= 0 || s.length < 42)) return true;
+      return false;
+    }
+    /** 앞구절·상징은 건너뛰고, 그 수리·괘가 오면 일어나는 변화 문장을 고른다. */
+    function changeScore(s) {
+      const keys = ["성공", "실패", "이혼", "재물", "재산", "권력", "재력", "권세", "감옥", "부도", "단명", "패가", "허무", "허망", "고생", "질병", "병고", "중단", "정상", "행운", "흩어", "곤란", "중도", "사별", "불구", "고독", "막히", "병난", "수난", "재난", "이별", "파산", "수술", "사고", "부귀", "장수", "추대", "보증"];
+      let n = 0;
+      for (let i = 0; i < keys.length; i++) if (s.indexOf(keys[i]) >= 0) n++;
+      return n;
+    }
+    function featureText(raw) {
+      let parts = splitSent(raw);
+      if (parts.length >= 2 && isFrontOnly(parts[0])) parts = parts.slice(1);
+      if (!parts.length) return "";
+      let best = parts[0];
+      let bestScore = changeScore(best);
+      const limit = Math.min(parts.length, 4);
+      for (let i = 1; i < limit; i++) {
+        const sc = changeScore(parts[i]);
+        if (sc > bestScore) {
+          best = parts[i];
+          bestScore = sc;
+        }
+      }
+      if (bestScore > 0) return best;
+      return parts.slice(0, 2).join(" ");
+    }
     function shortSuriFact(s, g, ageKey) {
       if (!s || s.suri == null || !s.data) return "";
       if (suriBad(s.data) && isMitigateSuriHex(g)) {
         const good = suriAgeGoodText(s, g, ageKey);
         if (good) return String(good).replace(/<[^>]+>/g, "");
       }
-      const row = (NAR().suri || {})[String(s.suri)] || {};
-      return firstSent(row[ageKey] || row.narrate || "");
+      const n = Number(s.suri);
+      const row = (NAR().suri || {})[String(n)] || {};
+      if (SURI_CORE[n]) {
+        let t = SURI_CORE[n];
+        if (n === 54 && ageKey !== "말년") t = featureText(row.narrate) || t;
+        if (n === 12 && ageKey === "초년") {
+          t = "대학 진학이 어렵고, 하향·지방대나 재수·삼수를 해도 목표 대학은 가기 힘듭니다. " + t;
+        }
+        if (n === 20 && ageKey === "말년") {
+          t += " 말년에는 50세 전후로 부도·감옥·큰 욕을 보는 경우가 많습니다.";
+        }
+        if (n === 10 && ageKey === "초년") {
+          t += " 학교·시험·직장운이 따라주지 않습니다. 초년 사주가 좋으면 돌파해 나가기도 합니다.";
+        }
+        return t;
+      }
+      const ageBit = row[ageKey] ? featureText(row[ageKey]) : "";
+      if (ageBit) return ageBit;
+      return featureText(row.narrate || "");
+    }
+    function shortHexFact(g) {
+      const name = gweNameOf(g).replace(/\s+/g, "");
+      const keys = Object.keys(HEX_CORE);
+      for (let i = 0; i < keys.length; i++) {
+        if (name.indexOf(keys[i]) === 0) return HEX_CORE[keys[i]];
+      }
+      return featureText(hexCoreBrief(g));
     }
     function factPiece(who, s, g, ageKey) {
       const bits = [];
@@ -4095,7 +4175,7 @@
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        const hx = firstSent(hexCoreBrief(g));
+        const hx = shortHexFact(g);
         if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
