@@ -4275,60 +4275,86 @@
         });
         return n;
       }
-      function pressOn(sides, idx) {
-        return sides.some(function (sd) { return isMitigateSuriHex(sd[1][idx]); });
-      }
-      const nameMalPressOn = pressOn(nameSides, 0);
-      let blocked = 0;
-      let openRed = 0;
-      nameSides.forEach(function (sd, si) {
-        MATRIX_AGES.forEach(function (a) {
-          const n = badMarks(sd, a.idx).length;
-          if (!n) return;
-          const other = nameSides.filter(function (_, i) { return i !== si; });
-          const covered =
-            pressOn(other, a.idx) ||
-            (a.idx !== 0 && nameMalPressOn) ||
-            pressOn(sajuSides, a.idx);
-          if (covered) blocked += n;
-          else openRed += n;
-        });
-      });
       const blueW = countBlueWealth(allSides);
-      const allBlocked = nameR > 0 && openRed === 0;
-      const overflow = blueW >= 4 && blueW > nameR;
-      let powerN = 0;
-      if (hasB) {
-        [0, 1, 2, 3].forEach(function (i) {
-          if (hexMatchesAny(bdG[i], ["택풍대과", "택산함"])) powerN++;
+      function lineFlags(sd, idx) {
+        const tone = sideToneAt(sd[0], sd[1], idx);
+        return {
+          reds: badMarks(sd, idx).length,
+          help: tone === "길" || isMitigateSuriHex(sd[1][idx]),
+        };
+      }
+      function foldFlags(sides, idx) {
+        let reds = 0;
+        let help = false;
+        sides.forEach(function (sd) {
+          const f = lineFlags(sd, idx);
+          reds += f.reds;
+          if (f.help) help = true;
         });
+        return { reds: reds, help: help };
       }
       let p = (hasB ? "이름과 탄생일 전체를 살펴보면 " : "이름 전체를 살펴보면 ");
       if (!nameR) {
         p += "이름에 " + paintRed("빨간색") + "은 없고, " + paintBlue("청색 재물운") + "이 " + blueW + "개입니다. ";
       } else {
         p += "이름에 " + paintRed("빨간색이 " + nameR + "개") + ", " +
-          paintBlue("청색 재물운이 " + blueW + "개") + "이고 ";
-        if (allBlocked) {
-          p += "이름의 " + paintRed("빨간색") + " 기운을 " + paintBlue("청색") + "의 기운으로 전부 막아 주고 있네요. ";
-        } else if (blocked) {
-          p += "이름의 " + paintRed("빨간색") + " 기운을 " + paintBlue("청색") + "의 기운이 일부는 막아 주지만 전부 막아주지는 못하고 있네요. ";
-        } else {
-          p += "막아 주는 " + paintBlue("청색") + " 기운이 그 빨간색까지는 막아 주지 못하고 있네요. ";
-        }
+          paintBlue("청색 재물운이 " + blueW + "개") + "입니다. ";
       }
-      if ((allBlocked || !nameR) && overflow) {
-        p += "그리고 재물운이 넘쳐 나니 " + paintBlue("최고로 좋은 이름") + " 입니다. ";
-        if (powerN) {
-          p += "사주의 출세욕은 이름기운을 타고 " + paintBlue("승승장구 일취월장") + " 하도록 되어 있네요. ";
+      p += "갯수보다 초년·장년·중년·말년 줄을 나란히 보면, 그 줄의 이름 통합 기운이 사주를 치는지 도와 주는지를 알 수 있습니다. ";
+      MATRIX_AGES.forEach(function (a) {
+        const nf = foldFlags(nameSides, a.idx);
+        const sf = hasB ? foldFlags(sajuSides, a.idx) : { reds: 0, help: false };
+        const nameHard = nf.reds > 0 && !nf.help;
+        const nameMix = nf.reds > 0 && nf.help;
+        const nameHelp = nf.help && !nf.reds;
+        const sajuHard = sf.reds > 0 && !sf.help;
+        const sajuHelp = sf.help && !sf.reds;
+        const onlyRed = nameHard && (!hasB || sajuHard);
+        if (!hasB) {
+          if (onlyRed) p += a.key + "은 이름 통합 기운이 " + paintRed("빨간색") + "이라 힘든 시기입니다. ";
+          else if (nameHelp) p += a.key + "은 이름 통합 기운이 " + paintBlue("청색") + "으로 열려 있습니다. ";
+          else if (nameMix) p += a.key + "은 이름에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있습니다. ";
+          return;
         }
-      } else if (allBlocked && blueW) {
-        p += "막아 주는 청색이 있고 재물운도 있어 좋은 이름입니다. ";
-      } else if (!nameR && blueW) {
-        p += "재물운이 있어 좋은 쪽으로 읽힙니다. ";
-      } else if (nameR && openRed) {
-        p += "막아 주지 못한 " + paintRed("빨간색") + "이 남아 있습니다. ";
-      }
+        if (onlyRed) {
+          p += a.key + "은 이름과 사주가 " + paintRed("빨간색") + "뿐이니 ";
+          if (a.key === "초년") p += "초년 30년은 힘들게 살았다고 보고 넘어갑니다. ";
+          else p += "힘들게 지나간 시기입니다. ";
+          p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데다가 이름 통합 기운이 더 힘들게 하고 있네요. ";
+          return;
+        }
+        if (nameHard && sajuHelp) {
+          p += a.key + "은 사주는 " + paintBlue("길") + "인데 이름 통합 기운이 치고 있네요. ";
+          return;
+        }
+        if (nameHard) {
+          p += a.key + "은 이름 통합 기운이 " + paintRed("흉") + "이라 사주를 치고 있네요. ";
+          return;
+        }
+        if (nameHelp && sajuHard) {
+          p += "사주 " + a.key + "을 보면 " + paintRed("흉") + "으로 힘든데 이름 통합 기운이 도와 주고 있네요. ";
+          return;
+        }
+        if (nameHelp) {
+          p += a.key + "은 이름 통합 기운이 사주를 도와 주고 있네요. ";
+          return;
+        }
+        if (nameMix && sajuHard) {
+          p += a.key + "은 이름에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있습니다. 사주 " + a.key + "은 " + paintRed("흉") + "인데 그 줄의 청색이 일부를 눌러 주지만 다 막지는 못하고, 이름 통합 기운이 사주를 치고 있네요. ";
+          return;
+        }
+        if (nameMix && sajuHelp) {
+          p += a.key + "은 사주는 " + paintBlue("길") + "인데 이름의 " + paintRed("빨간색") + "이 치고, " + paintBlue("청색") + "이 눌러 주고 있네요. ";
+          return;
+        }
+        if (nameMix) {
+          p += a.key + "은 이름과 사주에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있어, 이름 통합 기운이 사주를 일부는 도와 주고 일부는 치고 있네요. ";
+          return;
+        }
+        if (sajuHard) {
+          p += "사주 " + a.key + "은 " + paintRed("흉") + "인데 이름 통합 기운이 더 보태지는 않습니다. ";
+        }
+      });
       p += "이름이 저혼자 날고 띠고 난동을 부려도 사주를 건들이지 않으면 내가 사주의 길흉이나 주어진 복에 따라 사는건 어쩔수가 없는데 " +
         "이름의 기도빨이 워낙 강하다 보니 자연스럽게 사주를 간섭하게 됩니다. " +
         "\"" + paintBlue("날마다 부자로 잘살게 해주세요") + ",\" 하는 기도문이 되면 좋은 것이고, " +
@@ -4349,11 +4375,9 @@
       }
 
       const badBits = [];
-      let nameBadNonMal = false;
       MATRIX_AGES.forEach(function (a) {
         const m = [];
         nameSides.forEach(function (sd) { m.push.apply(m, badMarks(sd, a.idx)); });
-        if (m.length && a.idx !== 0) nameBadNonMal = true;
         const sm = [];
         sajuSides.forEach(function (sd) { sm.push.apply(sm, badMarks(sd, a.idx)); });
         const who = [];
@@ -4363,11 +4387,6 @@
       });
       if (badBits.length) {
         p += paintRed("흉") + "은 " + badBits.join(", ") + "에 있습니다.";
-        const np = malPressHexes(nameSides);
-        if (nameBadNonMal && np.length) {
-          p += " " + np.map(function (x) { return x.html; }).join(", ") + josaIGA(np[np.length - 1].name) +
-            " 막아 주고 눌러 주니 거의 느끼지 못하고 지나칠 정도입니다.";
-        }
       } else {
         p += "뚜렷한 " + paintRed("흉") + "은 보이지 않습니다.";
       }
