@@ -4108,6 +4108,7 @@
     function isFrontOnly(s) {
       if (s.length < 22) return true;
       if (/기운입니다\.?$/.test(s) && (s.indexOf("·") >= 0 || s.length < 42)) return true;
+      if (/대길운이다\.?$/.test(s) && s.indexOf(",") >= 0 && s.length < 48) return true;
       return false;
     }
     /** 앞구절·상징은 건너뛰고, 그 수리·괘가 오면 일어나는 변화 문장을 고른다. */
@@ -4119,7 +4120,7 @@
     }
     function featureText(raw) {
       let parts = splitSent(raw);
-      if (parts.length >= 2 && isFrontOnly(parts[0])) parts = parts.slice(1);
+      while (parts.length >= 2 && isFrontOnly(parts[0])) parts = parts.slice(1);
       if (!parts.length) return "";
       let best = parts[0];
       let bestScore = changeScore(best);
@@ -4131,8 +4132,29 @@
           bestScore = sc;
         }
       }
-      if (bestScore > 0) return best;
-      return parts.slice(0, 2).join(" ");
+      if (bestScore > 0) return resultClause(best);
+      const left = parts.filter(function (p) { return !isSymbolLead(p); });
+      const use = left.length ? left : parts;
+      return resultClause(use.slice(0, 2).join(" "));
+    }
+    function isSymbolLead(s) {
+      return /상징|의미로|형국|어미새|얼음물|하늘에 뇌/.test(s) && changeScore(s) === 0;
+    }
+    /** 상징으로 시작하는 문장은 걷어 내고, 그 수리·괘가 오면 생기는 변화만 남긴다. */
+    function resultClause(s) {
+      const bits = String(s || "").split(/[,，]/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 6; });
+      if (bits.length < 2) return s;
+      const headSymbol = /상징|의미로|형국|어미새|얼음|하늘에|상으로/.test(bits[0]);
+      if (!headSymbol && changeScore(s) > 0) return s;
+      for (let i = 0; i < bits.length; i++) {
+        if (changeScore(bits[i]) > 0) {
+          let out = bits.slice(i).join(", ");
+          const at = out.indexOf("모든 일이");
+          if (at > 6 && /봄철|새싹|상징|의미/.test(out.slice(0, at))) return out.slice(at);
+          return out;
+        }
+      }
+      return s;
     }
     function shortSuriFact(s, g, ageKey) {
       if (!s || s.suri == null || !s.data) return "";
