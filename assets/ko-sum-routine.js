@@ -4223,9 +4223,18 @@
     /** 오행표 밑 첫 문단 — 전체 분위기·재물운 시기·흉 시기 → 사주가 원하는 삶 → 인덕부터 (보흘 2026-09-26) */
     function buildPreviewIntro() {
       const row = MATRIX_ROWS[0];
+      function lineHasBakjung(idx) {
+        const nums = [];
+        nameSides.forEach(function (sd) {
+          const s = sd[0][idx];
+          if (s && s.suri != null) nums.push(Number(s.suri));
+        });
+        return nums.indexOf(12) >= 0 && nums.indexOf(22) >= 0;
+      }
       function wealthAges(sides) {
         const out = [];
         MATRIX_AGES.forEach(function (a) {
+          if (lineHasBakjung(a.idx)) return;
           const hit = sides.some(function (sd) {
             return hexMatchesAny(sd[1][a.idx], row.hex);
           });
@@ -4269,6 +4278,7 @@
       function countBlueWealth(sides) {
         let n = 0;
         MATRIX_AGES.forEach(function (a) {
+          if (lineHasBakjung(a.idx)) return;
           sides.forEach(function (sd) {
             if (isWealthFortuneHex(sd[1][a.idx])) n++;
           });
@@ -4301,6 +4311,78 @@
           paintBlue("청색 재물운이 " + blueW + "개") + "입니다. ";
       }
       p += "갯수보다 초년·장년·중년·말년 줄을 나란히 보면, 그 줄의 이름 통합 기운이 사주를 치는지 도와 주는지를 알 수 있습니다. ";
+      function eulReul(word) {
+        const ch = String(word || "").replace(/[^가-힣]/g, "").slice(-1);
+        if (!ch) return "을";
+        const code = ch.charCodeAt(0) - 0xac00;
+        if (code < 0 || code > 11171) return "을";
+        return code % 28 === 0 ? "를" : "을";
+      }
+      function wealthLeakNote(idx) {
+        if (!lineHasBakjung(idx)) return "";
+        const names = [];
+        nameSides.forEach(function (sd) {
+          const g = sd[1][idx];
+          if (!g || !g.name) return;
+          if (hexNameStarts(g, "수풍정") || hexNameStarts(g, "뇌택귀매") || isWealthFortuneHex(g)) {
+            const n = gweNameOf(g);
+            if (names.indexOf(n) < 0) names.push(n);
+          }
+        });
+        if (!names.length) return "";
+        return names.map(function (n) { return paintBlue(n); }).join(", ") +
+          josaEunNeun(names[names.length - 1]) + " 재물인데, " +
+          paintRed("박약박복") + "하고 " + paintRed("중도하차") +
+          " 기운이 있으면 재물 노릇을 할 수가 없습니다. 오히려 " +
+          paintRed("재물이 빠져나갑니다") + ". 그저 밥이나 먹고 사는 정도입니다. ";
+      }
+      function pressShortfallText(a) {
+        const idx = a.idx;
+        const presses = [];
+        const badSuri = [];
+        nameSides.forEach(function (sd) {
+          const s = sd[0][idx];
+          const g = sd[1][idx];
+          if (isMitigateSuriHex(g)) presses.push(g);
+          if (s && s.data && suriBad(s.data)) badSuri.push({ s: s, g: g });
+        });
+        const sajuHex = [];
+        sajuSides.forEach(function (sd) {
+          const g = sd[1][idx];
+          if (g && g.name && gweBad(g)) sajuHex.push(g);
+        });
+        const load = badSuri.length + sajuHex.length;
+        if (!presses.length || presses.length >= load || !badSuri.length) return "";
+        const labels = badSuri.map(function (x) { return plainSuriName(x.s); }).concat(
+          sajuHex.map(function (g) { return gweNameOf(g); })
+        );
+        const last = labels[labels.length - 1];
+        let t = paintBlue(gweNameOf(presses[0]));
+        t += presses.length === 1 ? " 하나로는 " : " 들로는 ";
+        t += labels.map(function (nm) { return paintRed(nm); }).join(", ") + eulReul(last) + " 다 막지 못합니다. ";
+        badSuri.forEach(function (x) {
+          const sn = plainSuriName(x.s);
+          const body = suriAgeBadText(x.s, x.g, a.key, null, true);
+          const extra = SURI_EXTRA_TRAIT[Number(x.s.suri)] || "";
+          t += paintRed(sn) + josaEunNeun(sn) + " " + body + (extra ? " " + extra : "") + " ";
+        });
+        t += wealthLeakNote(idx);
+        sajuHex.forEach(function (g) {
+          const gn = gweNameOf(g);
+          t += "사주에 " + paintRed(gn) + "도 힘든데 이름에서 더욱 힘이 들게 하네요. ";
+          if (hexNameStarts(g, "택수곤")) {
+            if (lineHasBakjung(idx)) {
+              t += "업친 데 덮친 격으로 사주에는 " + paintRed(gn) + "이 들어 그 숟가락마저 뺏어가는 형국이네요. ";
+            }
+            t += paintRed(gn) + "은 주변에 인맥이 끊어져 나가고, 논바닥에 물이 없으니 배도 고픈 기운으로 힘이 드는데 이름의 나쁜 기운이 보태어져 더 강하게 눌러 주니 아주 힘이 드는 시기입니다. ";
+          } else {
+            const gm = hexCoreBrief(g);
+            if (gm) t += paintRed(gn) + josaEunNeun(gn) + " " + gm + " ";
+            t += "이름의 나쁜 기운이 보태어져 더 강하게 눌러 주니 아주 힘이 드는 시기입니다. ";
+          }
+        });
+        return t;
+      }
       MATRIX_AGES.forEach(function (a) {
         const nf = foldFlags(nameSides, a.idx);
         const sf = hasB ? foldFlags(sajuSides, a.idx) : { reds: 0, help: false };
@@ -4316,6 +4398,8 @@
           else if (nameMix) p += a.key + "은 이름에 " + paintRed("빨간색") + "과 " + paintBlue("청색") + "이 같이 있습니다. ";
           return;
         }
+        const shortFall = pressShortfallText(a);
+        if (shortFall) { p += shortFall; return; }
         if (onlyRed) {
           p += a.key + "은 이름과 사주가 " + paintRed("빨간색") + "뿐이니 ";
           if (a.key === "초년") p += "초년 30년은 힘들게 살았다고 보고 넘어갑니다. ";
