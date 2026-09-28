@@ -3104,8 +3104,7 @@
           verdict = "이름이 나쁘지는 않지만 사주의 흉을 막아 주지 못하니, 사주를 눌러 주는 이름으로 개명을 생각해 보셔야 합니다.";
         else if (nameGoodAny) verdict = paintBlue("이름과 사주가 함께 편안하니 좋은 이름을 가졌네요.");
         else verdict = "이름과 사주에 큰 흉이 없어 무난한 이름입니다.";
-        const axis = [sajuAxisHtml(), nameAxisHtml()].filter(Boolean).join("<br><br>");
-        return (axis ? axis + "<br><br>" : "") + "<strong>변곡점</strong> — " +
+        return "<strong>변곡점</strong> — " +
           (hasB
             ? "이름과 탄생일을 시기별로 견주면 삶의 변곡점이 드러납니다. "
             : hasHanja
