@@ -1760,42 +1760,98 @@
     if (g && g.name && gweBad(g)) n++;
     return n;
   }
-  function sideMisfortune(sArr, gArr) {
-    let n = 0;
-    for (let i = 0; i < 4; i++) n += slotMisfortune(sArr[i], gArr[i]);
-    return n;
+  /**
+   * 수리 나이(1–23·24–40·41–55·56+)와 괘 나이(1–30·31–50·51–55·56+)가 겹치면,
+   * 흉괘는 장년(24–40)에 닿을 때 장년에 한 번만 센다. 같은 괘가 뒤 칸에 또 있어도 다시 세지 않는다.
+   * hexes: { j: 표 칸, band: 세는 나이대, g }
+   */
+  function misfortunePlan(sArr, gArr) {
+    const S = [
+      [1, 23],
+      [24, 40],
+      [41, 55],
+      [56, 200],
+    ];
+    const H = [
+      [1, 30],
+      [31, 50],
+      [51, 55],
+      [56, 200],
+    ];
+    const counts = [0, 0, 0, 0];
+    const hexes = [];
+    const seen = {};
+    function overlaps(a, b) {
+      return a[0] <= b[1] && b[0] <= a[1];
+    }
+    for (let i = 0; i < 4; i++) {
+      const s = sArr[i];
+      const g = gArr[i];
+      if (s && s.data && suriBad(s.data) && !(g && isMitigate(g))) counts[i]++;
+    }
+    for (let j = 0; j < 4; j++) {
+      const g = gArr[j];
+      if (!(g && g.name && gweBad(g))) continue;
+      const nm = gweNameOf(g);
+      if (seen[nm]) continue;
+      seen[nm] = 1;
+      const touch = [];
+      for (let i = 0; i < 4; i++) if (overlaps(H[j], S[i])) touch.push(i);
+      const band = touch.indexOf(1) >= 0 ? 1 : touch.length ? touch[0] : j;
+      counts[band]++;
+      hexes.push({ j: j, band: band, g: g });
+    }
+    return { counts: counts, hexes: hexes };
   }
-  function hexFactEn(g) {
+  function periodMisfortuneCounts(sArr, gArr) {
+    return misfortunePlan(sArr, gArr).counts;
+  }
+  function sideMisfortune(sArr, gArr) {
+    return periodMisfortuneCounts(sArr, gArr).reduce(function (a, b) { return a + b; }, 0);
+  }
+  function clipSentences(t, n) {
+    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
+    return parts.slice(0, n).join(" ");
+  }
+  function curatedHexFact(g) {
     const name = gweNameOf(g);
     const keys = Object.keys(EN_HEX_FACT);
     for (let i = 0; i < keys.length; i++) {
       if (name.indexOf(keys[i]) === 0) return EN_HEX_FACT[keys[i]];
     }
-    const t = ((window.NA_NARR_EN || {}).hex || {})[String(g && g.id)];
-    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
-    if (!parts.length) return "";
-    const black = g && g.name && !gweGood(g) && !gweBad(g);
-    return black ? parts.slice(0, 2).join(" ") : parts[0];
+    return "";
   }
-  function suriFactEn(s, g) {
+  function hexFactEn(g) {
+    const black = g && g.name && !gweGood(g) && !gweBad(g);
+    const curated = curatedHexFact(g);
+    if (black && curated) return curated;
+    const narr = ((window.NA_NARR_EN || {}).hex || {})[String(g && g.id)];
+    if (narr) return clipSentences(narr, 2);
+    return curated;
+  }
+  function suriFactEn(s, g, ageIdx) {
     const n = Number(s && s.suri);
     if (s && s.data && suriBad(s.data) && g && isMitigate(g)) {
       return "This number is unfavorable, but " + gweDisplayName(g, "en") + " presses it down, so the weakness turns into a strength" +
         (["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"].some((x) => hexNameStarts(g, x)) ? " and into greater wealth" : "") + ".";
     }
-    if (EN_SURI_FACT[n]) return EN_SURI_FACT[n];
-    const t = ((window.NA_NARR_EN || {}).suri || {})[String(n)];
-    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
-    return parts[0] || "";
+    const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : "";
+    const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)];
+    if (ageKey && ageMap && ageMap[ageKey]) return clipSentences(ageMap[ageKey], 2);
+    const full = ((window.NA_NARR_EN || {}).suri || {})[String(n)];
+    if (full) return clipSentences(full, 2);
+    return EN_SURI_FACT[n] || "";
   }
   /** 한글 해설과 같은 순서: 흉 개수 → 말년 → 시기별 개수 → 초년·장년·중년 */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
     const ko = lang === "ko";
-    const order = [3, 0, 1, 2];
     const ageEn = ["the early years", "the prime years", "midlife", "the later years"];
     const ageKo = ["초년", "장년", "중년", "말년"];
-    const nameN = sideMisfortune(nS, nG);
-    const birthN = hasB ? sideMisfortune(bS, bG) : 0;
+    const namePlan = misfortunePlan(nS, nG);
+    const nameC = namePlan.counts;
+    const birthC = hasB ? periodMisfortuneCounts(bS, bG) : [0, 0, 0, 0];
+    const nameN = nameC[0] + nameC[1] + nameC[2] + nameC[3];
+    const birthN = birthC[0] + birthC[1] + birthC[2] + birthC[3];
     const namePress = [];
     for (let i = 0; i < 4; i++) {
       if (nG[i] && isMitigate(nG[i])) {
@@ -1803,11 +1859,21 @@
         if (namePress.indexOf(h) < 0) namePress.push(h);
       }
     }
-    function piece(who, s, g) {
+    function readingOf(nameHtml, fact) {
+      const parts = String(fact || "").trim().split(/(?<=[.!?])\s+/).filter(Boolean);
+      if (!parts.length) return nameHtml;
+      const first = parts[0];
+      const rest = parts.slice(1).join(" ");
+      let head;
+      if (first.indexOf("This number is unfavorable") === 0) head = nameHtml + ". " + esc(first);
+      else head = nameHtml + " means " + esc(first.charAt(0).toLowerCase() + first.slice(1));
+      return head + (rest ? " " + esc(rest) : "");
+    }
+    function piece(who, s, g, ageIdx) {
       const bits = [];
       if (s && s.data && s.suri != null) {
-        const fact = ko ? "" : suriFactEn(s, g);
-        if (fact) bits.push(who + " " + suriPhrase(s, lang) + " — " + esc(fact));
+        const fact = ko ? "" : suriFactEn(s, g, ageIdx);
+        if (fact) bits.push(readingOf(who + " " + suriPhrase(s, lang), fact));
         else bits.push(who + " " + suriPhrase(s, lang));
       }
       if (g && g.name) {
@@ -1817,7 +1883,7 @@
         if (!ko && hx && s && s.data && suriBad(s.data) && black && !isMitigate(g) && !wealth20) {
           hx += " With " + plainSuriName(s, lang) + " above it, that disadvantage grows.";
         }
-        if (hx) bits.push(gweNameHtml(g, lang) + " — " + esc(hx).replace(/&lt;span/g, "<span").replace(/&lt;\/span&gt;/g, "</span>"));
+        if (hx) bits.push(readingOf(gweNameHtml(g, lang), hx));
         else bits.push(gweNameHtml(g, lang));
       }
       return bits.join(" ");
@@ -1828,10 +1894,21 @@
         ? "이 이름과 탄생일을 보니 이름에 흉이 " + nameN + "개이고, 탄생일에 흉이 " + birthN + "개 들었습니다. 말년 기운은 좋든 나쁘든 초년, 장년, 중년에 간섭을 하다가 자기 나이대에 본격적으로 작용하니까 이 이름을 대표하는 기운이라고 보면 됩니다."
         : "Looking at this name and this birth date, the name holds " + nameN + " misfortunes, and the birth date holds " + birthN + ". Later-years energy, good or bad, interferes with the early, prime and midlife years, then acts in full in its own age, so it is the energy that stands for this name."
     );
-    const lateWho = ko ? "이름 말년" : "In the later years the name's";
-    const lateBirth = ko ? "탄생일 말년" : "In the later years the birth date's";
-    let late = piece(lateWho, nS[3], nG[3]);
-    if (hasB) late += " " + piece(lateBirth, bS[3], bG[3]);
+    function sameHexNote(i) {
+      if (!(nG[i] && nG[i].name && gweBad(nG[i]))) return "";
+      const nm = gweNameOf(nG[i]);
+      const placed = namePlan.hexes.filter(function (h) { return gweNameOf(h.g) === nm; })[0];
+      if (!placed || placed.j === i) return "";
+      const hn = gweDisplayName(nG[i], lang);
+      return ko
+        ? " 같은 " + hn + "이라 " + ageKo[placed.band] + "에 이미 세었습니다."
+        : " " + hn + " was already counted in " + ageEn[placed.band] + ".";
+    }
+    const lateWho = ko ? "이름 말년" : "In the later years the name has";
+    const lateBirth = ko ? "탄생일 말년" : "In the later years the birth date has";
+    let late = piece(lateWho, nS[3], nG[3], 3);
+    late += sameHexNote(3);
+    if (hasB) late += " " + piece(lateBirth, bS[3], bG[3], 3);
     const lateNameBad = slotMisfortune(nS[3], nG[3]) > 0;
     const lateBirthBad = hasB && slotMisfortune(bS[3], bG[3]) > 0;
     if (lateNameBad && lateBirthBad) {
@@ -1840,20 +1917,32 @@
       late += ko ? " 그 나이대는 이름 기운이 말아 먹습니다." : " That age is swallowed by the name.";
     }
     blocks.push(late);
-    const cnt = (arrS, arrG) => order.map((i) => slotMisfortune(arrS[i], arrG[i])).join(", ");
     blocks.push(
       ko
-        ? "시기별로 이름은 말년 " + slotMisfortune(nS[3], nG[3]) + "개, 초년 " + slotMisfortune(nS[0], nG[0]) + "개, 장년 " + slotMisfortune(nS[1], nG[1]) + "개, 중년 " + slotMisfortune(nS[2], nG[2]) + "개이고, 탄생일은 말년 " + (hasB ? slotMisfortune(bS[3], bG[3]) : 0) + "개, 초년 " + (hasB ? slotMisfortune(bS[0], bG[0]) : 0) + "개, 장년 " + (hasB ? slotMisfortune(bS[1], bG[1]) : 0) + "개, 중년 " + (hasB ? slotMisfortune(bS[2], bG[2]) : 0) + "개입니다."
-        : "By period, the name has " + slotMisfortune(nS[3], nG[3]) + " in the later years, " + slotMisfortune(nS[0], nG[0]) + " in the early years, " + slotMisfortune(nS[1], nG[1]) + " in the prime years and " + slotMisfortune(nS[2], nG[2]) + " in midlife" +
+        ? "시기별로 이름은 초년 " + nameC[0] + "개, 장년 " + nameC[1] + "개, 중년 " + nameC[2] + "개, 말년 " + nameC[3] + "개이고, 탄생일은 초년 " + birthC[0] + "개, 장년 " + birthC[1] + "개, 중년 " + birthC[2] + "개, 말년 " + birthC[3] + "개입니다."
+        : "By period, the name has " + nameC[0] + " in the early years, " + nameC[1] + " in the prime years, " + nameC[2] + " in midlife and " + nameC[3] + " in the later years" +
           (hasB
-            ? ", and the birth date has " + slotMisfortune(bS[3], bG[3]) + " in the later years, " + slotMisfortune(bS[0], bG[0]) + " in the early years, " + slotMisfortune(bS[1], bG[1]) + " in the prime years and " + slotMisfortune(bS[2], bG[2]) + " in midlife."
+            ? ", and the birth date has " + birthC[0] + " in the early years, " + birthC[1] + " in the prime years, " + birthC[2] + " in midlife and " + birthC[3] + " in the later years."
             : ".")
     );
     [0, 1, 2].forEach((i) => {
       const label = ko ? ageKo[i] : ageEn[i];
       let p = ko ? "다음 " + label + "의 삶을 살펴 보겠습니다. " : "Next we look at " + label + ". ";
-      if (hasB) p += piece(ko ? "탄생일 " + label : "The birth date in " + label + ":", bS[i], bG[i]) + " ";
-      p += piece(ko ? "이름 " + label : "The name in " + label + ":", nS[i], nG[i]);
+      if (hasB) p += piece(ko ? "탄생일 " + label : "The birth date in " + label + " has", bS[i], bG[i], i) + " ";
+      p += piece(ko ? "이름 " + label : "The name in " + label + " has", nS[i], nG[i], i);
+      p += sameHexNote(i);
+      namePlan.hexes.forEach(function (h) {
+        const hn = gweDisplayName(h.g, lang);
+        if (h.j === i && h.band !== i) {
+          p += ko
+            ? " " + hn + "은 장년 나이까지 이어지니 " + ageKo[h.band] + "에 셉니다. 이 시기의 흉으로 다시 세지 않습니다."
+            : " " + hn + " runs on into " + ageEn[h.band] + ", so it is counted there, not as another misfortune in " + label + ".";
+        } else if (h.band === i && h.j !== i) {
+          p += ko
+            ? " " + hn + "이 이 나이대까지 남아 있어 여기에도 셉니다."
+            : " " + hn + " still reaches " + label + ", so it is counted here as well.";
+        }
+      });
       p += ko ? " 이름이 불릴 때마다 그 기운을 강요합니다." : " Every time the name is called, it forces this energy.";
       const nb = slotMisfortune(nS[i], nG[i]) > 0;
       const bb = hasB && slotMisfortune(bS[i], bG[i]) > 0;
