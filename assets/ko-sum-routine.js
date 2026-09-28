@@ -4182,7 +4182,24 @@
       if (ageBit) return ageBit;
       return featureText(row.narrate || "");
     }
+    function keepBothSides(raw) {
+      let parts = splitSent(raw);
+      while (parts.length >= 2 && /기운입니다\.?$/.test(parts[0]) && parts[0].indexOf("·") >= 0) {
+        parts = parts.slice(1);
+      }
+      return parts.slice(0, 2).join(" ");
+    }
+    function blackHexFact(g) {
+      if (hexNameStarts(g, "뇌수해")) {
+        return "얼음이 녹으면 모든 일이 풀려 적극적으로 나아가면 행운을 얻는 장점이 있고, 얼음물이 녹으려면 시간이 많이 걸리는 단점이 있습니다.";
+      }
+      return keepBothSides(hexCoreBrief(g));
+    }
     function shortHexFact(g) {
+      if (gweBlack(g)) {
+        const both = blackHexFact(g);
+        if (both) return both;
+      }
       const name = gweNameOf(g).replace(/\s+/g, "");
       const keys = Object.keys(HEX_CORE);
       for (let i = 0; i < keys.length; i++) {
@@ -4197,7 +4214,11 @@
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        const hx = shortHexFact(g);
+        let hx = shortHexFact(g);
+        if (hx && s && hasBadSuriBlackHex(s, g) && !(Number(s.suri) === 20 && isSuri20WealthHex(g))) {
+          const sn = plainSuriName(s);
+          hx += " 위에 " + paintRed(sn) + josaIGA(sn) + " 있어 그 단점이 더욱 커집니다.";
+        }
         if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
