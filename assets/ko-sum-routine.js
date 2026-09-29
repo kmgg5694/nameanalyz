@@ -927,21 +927,11 @@
     return (s + " " + d).replace(/\s+/g, " ").trim();
   }
 
-  /** 핵심요약 core/short를 구술용으로 짧게 (한두 마디) */
-  function briefCoreText(raw, maxLen) {
-    let t = String(raw || "").trim();
-    if (!t) return "";
-    t = t
-      .replace(/^(길수|흉수|중성|길괘|흉괘)\s*[—–\-]\s*/, "")
+  /** 요약·원문 글은 길이와 상관없이 그대로 둔다. */
+  function briefCoreText(raw) {
+    return String(raw || "")
+      .replace(/^(길수|흉수|중성|길괘|흉괘|평수|주의)\s*[—–\-]\s*/, "")
       .trim();
-    const lim = maxLen || 70;
-    if (t.length <= lim) return t;
-    const cut = t.slice(0, lim + 30);
-    const m = cut.match(/^[\s\S]{20,90}?[.。!?！？]/);
-    if (m) return m[0].trim();
-    const m2 = cut.match(/^[\s\S]{20,90}?[，,;；]/);
-    if (m2) return m2[0].replace(/[，,;；]\s*$/, "").trim() + ".";
-    return cut.slice(0, lim).replace(/\s+\S*$/, "") + "…";
   }
 
   /** 소비자용 구술: narrate + 해당 나이대만. 초년/총운(말년)이 다르면 해당 칸만 붙인다. */
@@ -1153,16 +1143,12 @@
    * 14 키워드는 특례와 함께 필수.
    */
   function suriBodyWithDetail(ns, ageKey, opts) {
-    const special = suriSpecialNote(ns, ageKey || "", opts || null);
-    if (special) {
-      let t = special;
-      // 14 이산파멸 구체 키워드는 특례 해설의 일부
-      if (ns && Number(ns.suri) === 14) t += suriDetailKeywordsNote(ns);
-      return t;
-    }
     const brief = suriCoreBrief(ns, ageKey || "");
-    if (brief) return " " + esc(brief);
-    return "";
+    let t = brief ? " " + esc(brief) : "";
+    const special = suriSpecialNote(ns, ageKey || "", opts || null);
+    if (special) t += special;
+    if (ns && Number(ns.suri) === 14) t += suriDetailKeywordsNote(ns);
+    return t;
   }
 
   /**
@@ -1357,12 +1343,7 @@
           .trim();
       }
     }
-    if (!t) return "";
-    if (t.length <= 180) return t;
-    const cut = t.slice(0, 220);
-    const m = cut.match(/^[\s\S]{50,200}?[.。!?！？]/);
-    if (m) return m[0].trim();
-    return cut.replace(/\s+\S*$/, "") + "…";
+    return t;
   }
 
   /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게. prevNg=시간순 직전 괘 */
@@ -4119,23 +4100,7 @@
       return n;
     }
     function featureText(raw) {
-      let parts = splitSent(raw);
-      while (parts.length >= 2 && isFrontOnly(parts[0])) parts = parts.slice(1);
-      if (!parts.length) return "";
-      let best = parts[0];
-      let bestScore = changeScore(best);
-      const limit = Math.min(parts.length, 4);
-      for (let i = 1; i < limit; i++) {
-        const sc = changeScore(parts[i]);
-        if (sc > bestScore) {
-          best = parts[i];
-          bestScore = sc;
-        }
-      }
-      if (bestScore > 0) return resultClause(best);
-      const left = parts.filter(function (p) { return !isSymbolLead(p); });
-      const use = left.length ? left : parts;
-      return resultClause(use.slice(0, 2).join(" "));
+      return String(raw || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     }
     function isSymbolLead(s) {
       return /상징|의미로|형국|어미새|얼음물|하늘에 뇌/.test(s) && changeScore(s) === 0;
@@ -4165,11 +4130,7 @@
       return t;
     }
     function keepBothSides(raw) {
-      let parts = splitSent(raw);
-      while (parts.length >= 2 && /기운입니다\.?$/.test(parts[0]) && parts[0].indexOf("·") >= 0) {
-        parts = parts.slice(1);
-      }
-      return parts.slice(0, 2).join(" ");
+      return String(raw || "").replace(/\s+/g, " ").trim();
     }
     /** 검정 괘 장·단점. 요약 narrate가 빠뜨린 쪽은 원본 Ee.desc에서 집었다. */
     const BLACK_HEX_BOTH = {

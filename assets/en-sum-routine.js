@@ -732,7 +732,15 @@
         : ak && (((window.NA_NARR_EN || {}).suriAge || {})[key] || {})[ak];
       return extra ? head + " " + String(extra).trim() : head;
     }
-    if (ko) return (d && (d.desc || d.shortDesc)) || "";
+    if (ko) {
+      const row = ((window.__NARRATE__ || {}).suri || {})[key] || {};
+      let tKo = String(row.narrate || "").trim();
+      if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
+      const extra = ak && row[ak] ? String(row[ak]).trim() : "";
+      if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
+      if (tKo) return tKo;
+      return (d && (d.desc || d.shortDesc)) || "";
+    }
     const E = window.NA_NARR_EN || {};
     const t = (E.suri || {})[key];
     if (t) {
@@ -748,7 +756,11 @@
         ? "앞의 " + CARD_KO[same] + "과 같은 괘입니다."
         : "Same hexagram as " + CARD_EN[same] + " above.";
     const key = String(g.id);
-    if (ko) return g.desc || "";
+    if (ko) {
+      const row = ((window.__NARRATE__ || {}).hex || {})[key];
+      if (row && row.narrate) return String(row.narrate).trim();
+      return g.desc || "";
+    }
     const t = ((window.NA_NARR_EN || {}).hex || {})[key];
     return t || (pen && pen.descEn) || g.desc || "";
   };
@@ -1815,9 +1827,8 @@
   function sideMisfortune(sArr, gArr) {
     return periodMisfortuneCounts(sArr, gArr).reduce(function (a, b) { return a + b; }, 0);
   }
-  function clipSentences(t, n) {
-    const parts = String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
-    return parts.slice(0, n).join(" ");
+  function clipSentences(t) {
+    return String(t || "").trim();
   }
   function curatedHexFact(g) {
     const name = gweNameOf(g);
@@ -1828,29 +1839,23 @@
     return "";
   }
   function hexFactEn(g) {
-    const black = g && g.name && !gweGood(g) && !gweBad(g);
-    const curated = curatedHexFact(g);
-    if (black && curated) return curated;
     const narr = ((window.NA_NARR_EN || {}).hex || {})[String(g && g.id)];
-    if (narr) return clipSentences(narr, 2);
-    return curated;
+    if (narr) return String(narr).trim();
+    return curatedHexFact(g);
   }
   function suriFactEn(s, g, ageIdx) {
     const n = Number(s && s.suri);
-    if (s && s.data && suriBad(s.data) && g && isMitigate(g)) {
-      return "This number is unfavorable, but " + gweDisplayName(g, "en") + " presses it down, so the weakness turns into a strength" +
-        (["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"].some((x) => hexNameStarts(g, x)) ? " and into greater wealth" : "") + ".";
-    }
     const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : "";
     const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)];
-    if (ageKey && ageMap && ageMap[ageKey]) return clipSentences(ageMap[ageKey], 2);
-    const full = ((window.NA_NARR_EN || {}).suri || {})[String(n)];
-    if (full) return clipSentences(full, 2);
+    const full = String(((window.NA_NARR_EN || {}).suri || {})[String(n)] || "").trim();
+    const ageBit = ageKey && ageMap && ageMap[ageKey] ? String(ageMap[ageKey]).trim() : "";
+    let t = full;
+    if (ageBit && t.indexOf(ageBit) < 0) t = t ? t + " " + ageBit : ageBit;
+    if (t) return t;
     return EN_SURI_FACT[n] || "";
   }
-  function clipKo(t, n) {
-    const parts = String(t || "").split(/(?<=[.。!?])\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
-    return parts.slice(0, n).join(" ");
+  function clipKo(t) {
+    return String(t || "").trim();
   }
   function narrSuriRow(n) {
     return ((window.__NARRATE__ || {}).suri || {})[String(n)] || {};
@@ -1911,27 +1916,18 @@
   }
   function suriFactKo(s, g, ageIdx) {
     const n = Number(s && s.suri);
-    if (s && s.data && suriBad(s.data) && g && isMitigate(g)) {
-      const gn = gweDisplayName(g, "ko");
-      const wealth = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"].some(function (x) { return hexNameStarts(g, x); });
-      return "이 수리는 흉이지만 " + gn + josa(gn, "이", "가") + " 눌러 주니 단점이 장점으로 승화" + (wealth ? "하고 더 큰 재물운이 됩니다." : "합니다.");
-    }
     const row = narrSuriRow(n);
     const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : "";
-    if (ageKey && row[ageKey]) return clipKo(row[ageKey], 2);
-    if (row.narrate) return clipKo(row.narrate, 2);
-    return "";
+    let t = String(row.narrate || "").trim();
+    if (n === 23) t = t.replace("남자는 ", "");
+    const ageBit = ageKey && row[ageKey] ? String(row[ageKey]).trim() : "";
+    if (ageBit && t.indexOf(ageBit) < 0) t = t ? t + " " + ageBit : ageBit;
+    return t;
   }
   function hexFactKo(g) {
     if (!g || !g.name) return "";
-    const black = !gweGood(g) && !gweBad(g);
-    if (black) {
-      const both = koHexBoth(g);
-      if (both) return both;
-    }
     const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
-    if (row && row.narrate) return clipKo(row.narrate, 2);
-    return "";
+    return row && row.narrate ? String(row.narrate).trim() : "";
   }
   function narrSuriEn(s) {
     const n = Number(s && s.suri);
