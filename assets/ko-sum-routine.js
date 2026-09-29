@@ -4156,31 +4156,13 @@
       }
       return s;
     }
-    function shortSuriFact(s, g, ageKey) {
+    /** 수리 원문. 요약·발췌 금지. 일흥중천(23)만 첫머리 「남자는」을 뺀다. */
+    function shortSuriFact(s) {
       if (!s || s.suri == null || !s.data) return "";
-      if (suriBad(s.data) && isMitigateSuriHex(g)) {
-        const good = suriAgeGoodText(s, g, ageKey);
-        if (good) return String(good).replace(/<[^>]+>/g, "");
-      }
-      const n = Number(s.suri);
-      const row = (NAR().suri || {})[String(n)] || {};
-      if (SURI_CORE[n]) {
-        let t = SURI_CORE[n];
-        if (n === 54 && ageKey !== "말년") t = featureText(row.narrate) || t;
-        if (n === 12 && ageKey === "초년") {
-          t = "대학 진학이 어렵고, 하향·지방대나 재수·삼수를 해도 목표 대학은 가기 힘듭니다. " + t;
-        }
-        if (n === 20 && ageKey === "말년") {
-          t += " 말년에는 50세 전후로 부도·감옥·큰 욕을 보는 경우가 많습니다.";
-        }
-        if (n === 10 && ageKey === "초년") {
-          t += " 학교·시험·직장운이 따라주지 않습니다. 초년 사주가 좋으면 돌파해 나가기도 합니다.";
-        }
-        return t;
-      }
-      const ageBit = row[ageKey] ? featureText(row[ageKey]) : "";
-      if (ageBit) return ageBit;
-      return featureText(row.narrate || "");
+      const d = s.data;
+      let t = String((d.shortDesc ? d.shortDesc + " " : "") + (d.desc || "")).replace(/\s+/g, " ").trim();
+      if (Number(s.suri) === 23) t = t.replace("남자는 ", "");
+      return t;
     }
     function keepBothSides(raw) {
       let parts = splitSent(raw);
@@ -4239,30 +4221,19 @@
       }
       return keepBothSides(raw);
     }
+    /** 주역 원문(Ee.desc). 요약·발췌 금지. */
     function shortHexFact(g) {
-      if (gweBlack(g)) {
-        const both = blackHexFact(g);
-        if (both) return both;
-      }
-      const name = gweNameOf(g).replace(/\s+/g, "");
-      const keys = Object.keys(HEX_CORE);
-      for (let i = 0; i < keys.length; i++) {
-        if (name.indexOf(keys[i]) === 0) return HEX_CORE[keys[i]];
-      }
-      return featureText(hexCoreBrief(g));
+      if (!g || !g.desc) return "";
+      return String(g.desc).replace(/\s+/g, " ").trim();
     }
-    function factPiece(who, s, g, ageKey) {
+    function factPiece(who, s, g) {
       const bits = [];
       if (s && s.data && s.suri != null) {
-        const fact = shortSuriFact(s, g, ageKey);
+        const fact = shortSuriFact(s);
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        let hx = shortHexFact(g);
-        if (hx && s && hasBadSuriBlackHex(s, g) && !(Number(s.suri) === 20 && isSuri20WealthHex(g))) {
-          const sn = plainSuriName(s);
-          hx += " 위에 " + paintRed(sn) + josaIGA(sn) + " 있어 그 단점이 더욱 커집니다.";
-        }
+        const hx = shortHexFact(g);
         if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
@@ -4276,10 +4247,10 @@
       ];
       const blocks = [];
       ages.forEach(function (a) {
-        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx], a.key);
+        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx]);
         blocks.push(hg.length ? hg.join(" ") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
         if (hasHanja) {
-          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx], a.key);
+          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx]);
           blocks.push(hj.length ? hj.join(" ") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
         }
       });
