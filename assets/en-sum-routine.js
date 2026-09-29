@@ -730,39 +730,52 @@
       const extra = ko
         ? ak && (((window.__NARRATE__ || {}).suri || {})[key] || {})[ak]
         : ak && (((window.NA_NARR_EN || {}).suriAge || {})[key] || {})[ak];
-      return extra ? head + " " + String(extra).trim() : head;
+      const rest = window.naSuriSum(n, d, en, ko, label, -1);
+      return (extra ? head + " " + String(extra).trim() : head) + (rest ? " " + rest : "");
     }
     if (ko) {
-      const row = ((window.__NARRATE__ || {}).suri || {})[key] || {};
-      let tKo = String(row.narrate || "").trim();
+      const x = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key] || {};
+      let tKo = String(x.body || "").trim();
+      if (!tKo) tKo = String(x.core || "").replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, "").trim();
       if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
+      const row = ((window.__NARRATE__ || {}).suri || {})[key] || {};
       const extra = ak && row[ak] ? String(row[ak]).trim() : "";
       if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
-      if (tKo) return tKo;
-      return (d && (d.desc || d.shortDesc)) || "";
+      if (!tKo) tKo = String(row.narrate || "").trim();
+      return tKo || (d && (d.desc || d.shortDesc)) || "";
     }
+    const parts = [];
+    if (en && en.shortDescEn) parts.push(String(en.shortDescEn).trim());
+    if (en && en.descEn) parts.push(String(en.descEn).trim());
+    let fullEn = parts.join(" ").replace(/\s+/g, " ").trim();
     const E = window.NA_NARR_EN || {};
-    const t = (E.suri || {})[key];
-    if (t) {
-      const age = ((E.suriAge || {})[key] || {})[ak];
-      return age ? t + " " + age : t;
-    }
-    return (en && (en.shortDescEn || en.descEn)) || (d && d.shortDesc) || "";
+    const t = String((E.suri || {})[key] || "").trim();
+    if (t.length > fullEn.length) fullEn = t;
+    const age = ((E.suriAge || {})[key] || {})[ak];
+    if (age && fullEn.indexOf(String(age).trim()) < 0) fullEn = fullEn ? fullEn + " " + String(age).trim() : String(age).trim();
+    return fullEn || (d && d.shortDesc) || "";
   };
   window.naHexSum = function (g, pen, ko, same) {
     if (!g) return "";
-    if (same >= 0)
-      return ko
+    if (same >= 0) {
+      const head = ko
         ? "앞의 " + CARD_KO[same] + "과 같은 괘입니다."
         : "Same hexagram as " + CARD_EN[same] + " above.";
+      const rest = window.naHexSum(g, pen, ko, -1);
+      return head + (rest ? " " + rest : "");
+    }
     const key = String(g.id);
     if (ko) {
+      const x = ((window.__CORE_SUMMARIES__ || {}).hex || {})[key];
+      if (x && x.core) return String(x.core).replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "").trim();
       const row = ((window.__NARRATE__ || {}).hex || {})[key];
       if (row && row.narrate) return String(row.narrate).trim();
       return g.desc || "";
     }
-    const t = ((window.NA_NARR_EN || {}).hex || {})[key];
-    return t || (pen && pen.descEn) || g.desc || "";
+    const narr = String(((window.NA_NARR_EN || {}).hex || {})[key] || "").trim();
+    const desc = pen && pen.descEn ? String(pen.descEn).trim() : "";
+    if (desc.length >= narr.length && desc) return desc;
+    return narr || desc || g.desc || "";
   };
   /** 세로 오행 흐름도 화살표: top=위 칸 오행, bot=아래 칸 오행, meTop=나가 위 칸인지 */
   window.naOhLink = function (top, bot, meTop, ko) {
@@ -1929,17 +1942,32 @@
     const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
     return row && row.narrate ? String(row.narrate).trim() : "";
   }
-  function narrSuriEn(s) {
+  function narrSuriEn(s, ageKey) {
     const n = Number(s && s.suri);
+    const d = s && s.data;
+    const parts = [];
+    if (d && d.shortDescEn) parts.push(String(d.shortDescEn).trim());
+    if (d && d.descEn) parts.push(String(d.descEn).trim());
+    let fullEn = parts.join(" ").replace(/\s+/g, " ").trim();
     const E = (window.NA_NARR_EN || {}).suri || {};
     let t = String(E[n] || E[String(n)] || "").trim();
-    if (n === 23) t = t.replace("For a man, ", "");
-    return t;
+    if (n === 23) {
+      fullEn = fullEn.replace(/^For a man,\s*/i, "");
+      t = t.replace("For a man, ", "");
+    }
+    if (t.length > fullEn.length) fullEn = t;
+    const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)] || {};
+    const bit = ageKey && ageMap[ageKey] ? String(ageMap[ageKey]).trim() : "";
+    if (bit && fullEn.indexOf(bit) < 0) fullEn = fullEn ? fullEn + " " + bit : bit;
+    return fullEn;
   }
   function narrHexEn(g) {
     if (!g || g.id == null) return "";
+    const desc = g.descEn ? String(g.descEn).trim() : "";
     const H = (window.NA_NARR_EN || {}).hex || {};
-    return String(H[g.id] || H[String(g.id)] || "").trim();
+    const narr = String(H[g.id] || H[String(g.id)] || "").trim();
+    if (desc.length > narr.length) return desc;
+    return narr || desc;
   }
   /** 요약본만. 순서: 말년 → 초년 → 장년 → 중년. 수리 요약 다음 주역 요약. */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
@@ -1957,21 +1985,31 @@
       const bits = [];
       if (s && s.data && s.suri != null) {
         if (ko) {
-          const row = narrSuriRow(s.suri);
-          let fact = String(row.narrate || "").trim();
+          const key = String(s.suri);
+          const x = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key] || {};
+          let fact = String(x.body || "").trim();
+          if (!fact) fact = String(x.core || "").replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, "").trim();
           if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
+          const row = narrSuriRow(s.suri);
+          const extra = row[a.key] ? String(row[a.key]).trim() : "";
+          if (extra && fact.indexOf(extra) < 0) fact = fact ? fact + " " + extra : extra;
+          if (!fact) fact = String(row.narrate || "").trim();
           const nm = plainSuriName(s, "ko");
           bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
-          const fact = narrSuriEn(s);
+          const fact = narrSuriEn(s, a.key);
           const label = a.en + " " + suriPhrase(s, "en");
           bits.push(fact ? label + " means " + esc(fact) : label);
         }
       }
       if (g && g.name) {
         if (ko) {
-          const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
-          const hx = String(row.narrate || "").trim();
+          const x = ((window.__CORE_SUMMARIES__ || {}).hex || {})[String(g.id)];
+          let hx = x && x.core ? String(x.core).replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "").trim() : "";
+          if (!hx) {
+            const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
+            hx = String(row.narrate || "").trim();
+          }
           const gn = gweNameOf(g);
           bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
         } else {

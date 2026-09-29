@@ -934,69 +934,43 @@
       .trim();
   }
 
-  /** 소비자용 구술: narrate + 해당 나이대만. 초년/총운(말년)이 다르면 해당 칸만 붙인다. */
+  /** 요약 기록 전체. body가 있으면 그 글자 전부, 없으면 core 전부. */
+  function fullSuriSummary(num, ageKey) {
+    const n = Number(num);
+    const x = (CS().suri || {})[String(n)] || {};
+    let t = String(x.body || "").trim();
+    if (!t) t = briefCoreText(x.core || x.desc || "");
+    if (n === 23) t = t.replace("남자는 ", "");
+    const row = (NAR().suri || {})[String(n)] || {};
+    const ak = ageKey === "총운" ? "말년" : ageKey;
+    if (ak && row[ak]) {
+      const extra = String(row[ak]).trim();
+      if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
+    }
+    if (!t) t = String(row.narrate || "").trim();
+    return t;
+  }
+  function fullHexSummary(g) {
+    if (!g) return "";
+    const x = g.id != null ? (CS().hex || {})[String(g.id)] : null;
+    let t = x && x.core ? briefCoreText(x.core) : "";
+    if (!t && g.desc) t = String(g.desc).trim();
+    if (!t && g.id != null) {
+      const row = (NAR().hex || {})[String(g.id)];
+      if (row && row.narrate) t = String(row.narrate).trim();
+    }
+    return t;
+  }
   function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
-    const n = NAR().suri[String(ns.suri)];
-    if (n) {
-      let t = String(n.narrate || "").trim();
-      // 총운 = 말년
-      const ak = ageKey === "총운" ? "말년" : ageKey;
-      if (ak && n[ak]) {
-        const extra = String(n[ak]).trim();
-        if (extra) t = t ? t + " " + extra : extra;
-      }
-      if (t) return t;
-    }
-    const x = CS().suri[String(ns.suri)];
-    if (x && x.core) return briefCoreText(x.core, 140);
-    const d = ns.data;
-    if (d) {
-      const s = String(d.shortDesc || "").trim();
-      if (s) return briefCoreText(s, 140);
-    }
-    if (x && x.shortDesc) return briefCoreText(x.shortDesc, 140);
-    return "";
+    return fullSuriSummary(ns.suri, ageKey);
   }
-
   function hexCoreBrief(ng) {
-    if (!ng) return "";
-    const byId = ng.id != null ? NAR().hex[String(ng.id)] : null;
-    if (byId && byId.narrate) return String(byId.narrate).trim();
-    // name fallback
-    const hexMap = NAR().hex || {};
-    const keys = Object.keys(hexMap);
-    const want = gweNameOf(ng);
-    for (let i = 0; i < keys.length; i++) {
-      const row = hexMap[keys[i]];
-      if (row && row.name && want && (want === row.name || want.indexOf(row.name) === 0) && row.narrate) {
-        return String(row.narrate).trim();
-      }
-    }
-    const x = ng.id != null ? CS().hex[String(ng.id)] : null;
-    if (x && x.core) return briefCoreText(x.core, 140);
-    if (ng.desc) return briefCoreText(ng.desc, 140);
-    if (ng.shortDesc) return briefCoreText(ng.shortDesc, 140);
-    return "";
+    return fullHexSummary(ng);
   }
-
-  /** 라이브 d6 — 장수 축소: shortDesc 우선(desc 중복 병합 안 함) */
   function suriOriginalText(ns) {
-    const d = ns && ns.data;
-    if (d) {
-      const s = String(d.shortDesc || "").trim();
-      if (s) return s;
-      const full = String(d.desc || "").trim();
-      if (full) return full;
-    }
-    const x = ns && CS().suri[String(ns.suri)];
-    if (x) {
-      const s = String(x.shortDesc || "").trim();
-      if (s) return s;
-      if (x.body) return String(x.body);
-      return String(x.desc || "").trim();
-    }
-    return "";
+    if (!ns || ns.suri == null) return "";
+    return fullSuriSummary(ns.suri, "");
   }
 
   /** 보흘 지정: 수리별 구체 기운 키워드 (목록에 있는 것만) */
@@ -1300,14 +1274,15 @@
     const t = suriAgeTextHtml(num, ageKey, g);
     return t == null ? null : String(t).replace(/<[^>]+>/g, "");
   };
-  /** 요약보기 밑줄. 화택규 원문은 상단 64괘에 두고, 여기에는 그 자리 해설만. */
+  /** 요약보기 밑줄. 요약 전체 뒤에 화택규 자리 문장을 붙인다. */
   window.koHexTip = function (g, ageKey) {
     if (!g) return "";
+    let t = fullHexSummary(g) || String(g.desc || "");
     const n = String(g.name || "").replace(/\s+/g, "");
-    if (n.indexOf("화택규") < 0) return g.desc || "";
-    let t = "눈흘길 「규」라 시기·질투가 있고, 서로 상반되어 쟁론을 벌이기 쉽습니다. 천추원한 백골혼으로 불의의 사고에 뼈를 크게 다칩니다. 목·허리 등 디스크·관절이 모두 포함되고, 기관지도 조심해야 합니다.";
-    if (ageKey === "초년") t += " 초년에 들면 재물운이 되기도 한다.";
-    if (ageKey === "말년") t += " 말년에 들면 평생 노름이나 약물중독에 빠져 살 수도 있다. 노름을 좋아해도 따는 일은 별로 없다.";
+    if (n.indexOf("화택규") < 0) return t;
+    if (t.indexOf("관절") < 0) t += " 눈흘길 「규」라 시기·질투가 있고, 서로 상반되어 쟁론을 벌이기 쉽습니다. 천추원한 백골혼으로 불의의 사고에 뼈를 크게 다칩니다. 목·허리 등 디스크·관절이 모두 포함되고, 기관지도 조심해야 합니다.";
+    if (ageKey === "초년" && t.indexOf("재물운이 되기도") < 0) t += " 초년에 들면 재물운이 되기도 한다.";
+    if (ageKey === "말년" && t.indexOf("약물중독") < 0) t += " 말년에 들면 평생 노름이나 약물중독에 빠져 살 수도 있다. 노름을 좋아해도 따는 일은 별로 없다.";
     return t;
   };
   function suriAgeTextHtml(num, ageKey, g) {
@@ -4121,13 +4096,10 @@
       }
       return s;
     }
-    /** 어제 요약본(narrate) 전체. 원문 d6는 넣지 않는다. 일흥중천(23)만 「남자는」을 뺀다. */
-    function shortSuriFact(s) {
+    /** 요약 기록 전체. 일흥중천(23)만 「남자는」을 뺀다. */
+    function shortSuriFact(s, ageKey) {
       if (!s || s.suri == null) return "";
-      const row = (NAR().suri || {})[String(s.suri)] || {};
-      let t = String(row.narrate || "").trim();
-      if (Number(s.suri) === 23) t = t.replace("남자는 ", "");
-      return t;
+      return fullSuriSummary(s.suri, ageKey || "");
     }
     function keepBothSides(raw) {
       return String(raw || "").replace(/\s+/g, " ").trim();
@@ -4182,16 +4154,13 @@
       }
       return keepBothSides(raw);
     }
-    /** 어제 요약본(narrate) 전체. 원문 Ee.desc는 넣지 않는다. */
     function shortHexFact(g) {
-      if (!g || g.id == null) return "";
-      const row = (NAR().hex || {})[String(g.id)] || {};
-      return String(row.narrate || "").trim();
+      return fullHexSummary(g);
     }
-    function factPiece(who, s, g) {
+    function factPiece(who, s, g, ageKey) {
       const bits = [];
       if (s && s.data && s.suri != null) {
-        const fact = shortSuriFact(s);
+        const fact = shortSuriFact(s, ageKey);
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
@@ -4209,10 +4178,10 @@
       ];
       const blocks = [];
       ages.forEach(function (a) {
-        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx]);
+        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx], a.key);
         blocks.push(hg.length ? hg.join(" ") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
         if (hasHanja) {
-          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx]);
+          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx], a.key);
           blocks.push(hj.length ? hj.join(" ") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
         }
       });
