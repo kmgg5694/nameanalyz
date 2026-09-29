@@ -4156,11 +4156,11 @@
       }
       return s;
     }
-    /** 수리 원문. 요약·발췌 금지. 일흥중천(23)만 첫머리 「남자는」을 뺀다. */
+    /** 어제 요약본(narrate) 전체. 원문 d6는 넣지 않는다. 일흥중천(23)만 「남자는」을 뺀다. */
     function shortSuriFact(s) {
-      if (!s || s.suri == null || !s.data) return "";
-      const d = s.data;
-      let t = String((d.shortDesc ? d.shortDesc + " " : "") + (d.desc || "")).replace(/\s+/g, " ").trim();
+      if (!s || s.suri == null) return "";
+      const row = (NAR().suri || {})[String(s.suri)] || {};
+      let t = String(row.narrate || "").trim();
       if (Number(s.suri) === 23) t = t.replace("남자는 ", "");
       return t;
     }
@@ -4221,10 +4221,11 @@
       }
       return keepBothSides(raw);
     }
-    /** 주역 원문(Ee.desc). 요약·발췌 금지. */
+    /** 어제 요약본(narrate) 전체. 원문 Ee.desc는 넣지 않는다. */
     function shortHexFact(g) {
-      if (!g || !g.desc) return "";
-      return String(g.desc).replace(/\s+/g, " ").trim();
+      if (!g || g.id == null) return "";
+      const row = (NAR().hex || {})[String(g.id)] || {};
+      return String(row.narrate || "").trim();
     }
     function factPiece(who, s, g) {
       const bits = [];

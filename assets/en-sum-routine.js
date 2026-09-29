@@ -1493,6 +1493,12 @@
           : "The hexagram " + gh + " is a black hexagram, so good and bad sit together, but beside a favorable number this is a " + paintBlue("good period") + ". ";
         const tr = pick(BLACK_TRAIT, g);
         if (tr) t += ko ? tr + " " : tr + " ";
+        if (ko) {
+          const sf = sOk ? suriFactKo(s, g, 3) : "";
+          const hf = gOk ? hexFactKo(g) : "";
+          if (sf) t += sn + josa(sn, "은", "는") + " " + sf + " ";
+          if (hf) t += gn + josa(gn, "은", "는") + " " + hf + " ";
+        }
       }
       axis =
         "<strong>" + (ko ? "사주의 중심" : "Center of the birth chart") + "</strong> — " + t +
@@ -1842,128 +1848,145 @@
     if (full) return clipSentences(full, 2);
     return EN_SURI_FACT[n] || "";
   }
-  /** 한글 해설과 같은 순서: 흉 개수 → 말년 → 시기별 개수 → 초년·장년·중년 */
+  function clipKo(t, n) {
+    const parts = String(t || "").split(/(?<=[.。!?])\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
+    return parts.slice(0, n).join(" ");
+  }
+  function narrSuriRow(n) {
+    return ((window.__NARRATE__ || {}).suri || {})[String(n)] || {};
+  }
+  function narrHexByName(name) {
+    const hex = (window.__NARRATE__ || {}).hex || {};
+    const keys = Object.keys(hex);
+    const nm = String(name || "").replace(/\s+/g, "");
+    for (let i = 0; i < keys.length; i++) {
+      const row = hex[keys[i]];
+      const rn = row && row.name ? String(row.name).replace(/\s+/g, "") : "";
+      if (rn && (rn === nm || rn.indexOf(nm) === 0 || nm.indexOf(rn) === 0)) return row;
+    }
+    return null;
+  }
+  /** 검정 괘는 원본에 있는 장점·단점을 함께 말한다. */
+  const KO_HEX_BOTH = {
+    건위천: "귀인이 얻으면 크게 성공하는 장점이 있고, 보통 사람은 위력에 압도당해 흉운을 면하기 어렵고 직장 적응이 힘든 단점이 있습니다.",
+    천택리: "선후배의 도움으로 출세하지만 2인자로 만족해야 합니다. 무리하게 앞서려고 하면 화를 당합니다.",
+    천화동인: "강직하고 총명해 협동이 필요한 사업을 직접 이끌면 대길한 장점이 있습니다.",
+    천뢰무망: "분수를 지키고 순진하게 나가면 혜택을 받는 장점이 있고, 무리하게 벌리거나 고집을 부리면 현명하지 못한 단점이 있습니다.",
+    택천쾌: "방해물을 밀어내고 전진하는 장점이 있고, 자칫 아집으로 고립되거나 자기가 던진 칼에 자기가 당하는 단점이 있습니다.",
+    태위택: "말을 잘해 방송·가수에 좋은 장점이 있고, 겉보기에는 행복한 듯하지만 내면으로는 고민이 많고 남과 트러블이 끊이지 않는 단점이 있습니다.",
+    택화혁: "개혁과 변화로 전업·이전을 통해 발전하는 장점이 있고, 불화와 불신이 생겨 뒤집어지고 신중하지 못하면 변화가 잦은 단점이 있습니다.",
+    택뢰수: "바라는 일마다 크게 통하고 어려운 일도 피해 가는 장점이 있고, 실력은 있어도 1인자는 아니라 주제 넘는 일은 삼가야 하는 단점이 있습니다.",
+    택풍대과: "이른 나이에 큰 자리에 올라 승진·명예에 유리한 장점이 있고, 힘이 너무 강해 안하무인이 되는 단점이 있습니다.",
+    택산함: "사람을 포용하고 팀으로 나가면 기쁜 일이 많은 장점이 있고, 자기 분수를 넘어 바라면 안 되는 단점이 있습니다.",
+    화뢰서합: "말을 조리 있게 잘하고 가르치는 일·노래에 좋은 장점이 있고, 독설과 시비·구설에 오르며 중간에 방해자가 있는 단점이 있습니다.",
+    화산려: "사업이나 무역에는 오히려 좋은 장점이 있고, 자리는 늘 옮겨 여행길처럼 불안정하고 고생과 걱정이 따르는 단점이 있습니다.",
+    화지진: "사업이 날로 번창하고 갈수록 광명이 커지는 장점이 있고, 자칫 겉은 화려하나 속은 텅 비는 단점이 있습니다.",
+    뇌화풍: "성대하고 풍부함을 이루는 장점이 있고, 겉은 화려하나 내면은 곤란하고 남모르는 고민을 끄는 단점이 있습니다.",
+    진위뢰: "우뢰가 거듭되어 위세가 대단하고 처음은 좋은 장점이 있고, 소리는 크나 형체는 없어 끝이 나쁘고 손에 든 것이 없는 단점이 있습니다.",
+    뇌풍항: "이성에게 매력적인 장점이 있고, 일이 벌어지면 벗어나기 힘들고 내연으로 고민하며 변화를 싫어하는 단점이 있습니다.",
+    뇌수해: "얼음이 녹으면 모든 일이 풀려 적극적으로 나아가면 행운을 얻는 장점이 있고, 얼음물이 녹으려면 시간이 많이 걸리는 단점이 있습니다.",
+    뇌지예: "빈틈없는 계획과 결단으로 크게 성공하는 장점이 있고, 더디고 꼼꼼해 자칫 향락에 빠져 도취되는 단점이 있습니다.",
+    풍택중부: "안락하고 작은 성공은 여러 번 있는 장점이 있고, 날 수는 없으며 큰 일은 곧잘 실패하고 재주만 믿고 나서면 낭패인 단점이 있습니다.",
+    풍뢰익: "적극적으로 나가면 남의 도움으로 크게 번창하는 장점이 있고, 뜻밖의 재난으로 몸과 마음이 괴로운 단점이 있습니다.",
+    손위풍: "하나를 던지면 세 개를 건져 번영하는 장점이 있고, 의심과 고집이 강해 진퇴양난에 빠지는 단점이 있습니다.",
+    풍산점: "한 걸음씩 쌓이며 성장하는 장점이 있고, 큰 성공은 못 하고 진척이 너무 느려 시간을 빼앗기면 손실이며 한번 그르치면 크게 후회하는 단점이 있습니다.",
+    풍지관: "윗사람이 높은 자리로 초빙하는 장점이 있고, 처음은 좋으나 평지에 풍파가 일어 만사가 허망하게 끝나는 단점이 있습니다.",
+    수천수: "참고 기다리면 귀인의 도움으로 성공하는 장점이 있고, 서두르면 결혼도 안 되고 곤란만 있는 단점이 있습니다.",
+    수택절: "절도를 지키면 안정되는 장점이 있고, 분수에 넘치거나 단번에 매듭지으려 하면 곤경에 빠지는 단점이 있습니다.",
+    수지비: "타인의 도움으로 순조롭게 뜻을 이루는 장점이 있고, 혼자 독단으로 나가면 성과가 줄어드는 단점이 있습니다.",
+    산택손: "나중에는 성취하고 길이 되는 장점이 있고, 처음에는 손실과 고생이 있고 서두르면 안 되는 단점이 있습니다.",
+    산화비: "승진·시험·재물·성공 모든 면에 강한 장점이 있습니다.",
+    산뢰이: "이름을 크게 떨치고 배우고 가르치는 장점이 있고, 잘 나가는 듯해도 손에 쥔 것은 없고 실속이 없어 지나치면 실패로 끝나는 단점이 있습니다.",
+    지천태: "만사가 형통하고 귀인에게는 큰 길이며 장사로 크게 버는 장점이 있고, 범인은 무사안일로 헛일을 벌려 고생하거나 색난·재난을 당하고 반복되면 나태해지는 단점이 있습니다.",
+    지택림: "많은 사람이 따르고 바라는 일이 성취되는 장점이 있고, 급하게 나가면 후일을 기약해야 하는 단점이 있습니다.",
+    지뢰복: "모두 던지고 새로 시작하면 원하는 일이 이루어지는 장점이 있고, 과거를 붙잡거나 서두르면 안 되는 단점이 있습니다.",
+    지풍승: "바닥에서도 한번 몸을 일으켜 정상에 오르는 장점이 있습니다.",
+    지수사: "계획이 치밀해 법조·경찰·공무에 맞는 장점이 있고, 산사태·홍수처럼 인명과 재산에 피해가 크고 시비가 잦으며 싸우면 이기기 힘든 단점이 있습니다.",
+  };
+  function koHexBoth(g) {
+    const name = gweNameOf(g);
+    const keys = Object.keys(KO_HEX_BOTH);
+    for (let i = 0; i < keys.length; i++) if (name.indexOf(keys[i]) === 0) return KO_HEX_BOTH[keys[i]];
+    return "";
+  }
+  function suriFactKo(s, g, ageIdx) {
+    const n = Number(s && s.suri);
+    if (s && s.data && suriBad(s.data) && g && isMitigate(g)) {
+      const gn = gweDisplayName(g, "ko");
+      const wealth = ["화천대유", "화수미제", "수풍정", "산천대축", "이위화", "뇌천대장"].some(function (x) { return hexNameStarts(g, x); });
+      return "이 수리는 흉이지만 " + gn + josa(gn, "이", "가") + " 눌러 주니 단점이 장점으로 승화" + (wealth ? "하고 더 큰 재물운이 됩니다." : "합니다.");
+    }
+    const row = narrSuriRow(n);
+    const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : "";
+    if (ageKey && row[ageKey]) return clipKo(row[ageKey], 2);
+    if (row.narrate) return clipKo(row.narrate, 2);
+    return "";
+  }
+  function hexFactKo(g) {
+    if (!g || !g.name) return "";
+    const black = !gweGood(g) && !gweBad(g);
+    if (black) {
+      const both = koHexBoth(g);
+      if (both) return both;
+    }
+    const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
+    if (row && row.narrate) return clipKo(row.narrate, 2);
+    return "";
+  }
+  function narrSuriEn(s) {
+    const n = Number(s && s.suri);
+    const E = (window.NA_NARR_EN || {}).suri || {};
+    let t = String(E[n] || E[String(n)] || "").trim();
+    if (n === 23) t = t.replace("For a man, ", "");
+    return t;
+  }
+  function narrHexEn(g) {
+    if (!g || g.id == null) return "";
+    const H = (window.NA_NARR_EN || {}).hex || {};
+    return String(H[g.id] || H[String(g.id)] || "").trim();
+  }
+  /** 요약본만. 순서: 말년 → 초년 → 장년 → 중년. 수리 요약 다음 주역 요약. */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
     const ko = lang === "ko";
-    const ageEn = ["the early years", "the prime years", "midlife", "the later years"];
-    const ageKo = ["초년", "장년", "중년", "말년"];
-    const namePlan = misfortunePlan(nS, nG);
-    const nameC = namePlan.counts;
-    const birthC = hasB ? periodMisfortuneCounts(bS, bG) : [0, 0, 0, 0];
-    const nameN = nameC[0] + nameC[1] + nameC[2] + nameC[3];
-    const birthN = birthC[0] + birthC[1] + birthC[2] + birthC[3];
-    const namePress = [];
-    for (let i = 0; i < 4; i++) {
-      if (nG[i] && isMitigate(nG[i])) {
-        const h = gweDisplayName(nG[i], lang);
-        if (namePress.indexOf(h) < 0) namePress.push(h);
-      }
-    }
-    function readingOf(nameHtml, fact) {
-      const parts = String(fact || "").trim().split(/(?<=[.!?])\s+/).filter(Boolean);
-      if (!parts.length) return nameHtml;
-      const first = parts[0];
-      const rest = parts.slice(1).join(" ");
-      let head;
-      if (first.indexOf("This number is unfavorable") === 0) head = nameHtml + ". " + esc(first);
-      else head = nameHtml + " means " + esc(first.charAt(0).toLowerCase() + first.slice(1));
-      return head + (rest ? " " + esc(rest) : "");
-    }
-    function piece(who, s, g, ageIdx) {
+    const ages = [
+      { key: "말년", en: "Later years", idx: 3 },
+      { key: "초년", en: "Early years", idx: 0 },
+      { key: "장년", en: "Prime years", idx: 1 },
+      { key: "중년", en: "Midlife", idx: 2 },
+    ];
+    const blocks = [];
+    ages.forEach(function (a) {
+      const s = nS[a.idx];
+      const g = nG[a.idx];
       const bits = [];
       if (s && s.data && s.suri != null) {
-        const fact = ko ? "" : suriFactEn(s, g, ageIdx);
-        if (fact) bits.push(readingOf(who + " " + suriPhrase(s, lang), fact));
-        else bits.push(who + " " + suriPhrase(s, lang));
+        if (ko) {
+          const row = narrSuriRow(s.suri);
+          let fact = String(row.narrate || "").trim();
+          if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
+          const nm = plainSuriName(s, "ko");
+          bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
+        } else {
+          const fact = narrSuriEn(s);
+          const label = a.en + " " + suriPhrase(s, "en");
+          bits.push(fact ? label + " means " + esc(fact) : label);
+        }
       }
       if (g && g.name) {
-        let hx = ko ? "" : hexFactEn(g);
-        const black = !gweGood(g) && !gweBad(g);
-        const wealth20 = Number(s && s.suri) === 20 && ["수택절", "수풍정", "지택림", "뇌택귀매"].some((x) => hexNameStarts(g, x));
-        if (!ko && hx && s && s.data && suriBad(s.data) && black && !isMitigate(g) && !wealth20) {
-          hx += " With " + plainSuriName(s, lang) + " above it, that disadvantage grows.";
+        if (ko) {
+          const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
+          const hx = String(row.narrate || "").trim();
+          const gn = gweNameOf(g);
+          bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
+        } else {
+          const hx = narrHexEn(g);
+          const label = gweNameHtml(g, "en");
+          bits.push(hx ? label + " means " + esc(hx) : label);
         }
-        if (hx) bits.push(readingOf(gweNameHtml(g, lang), hx));
-        else bits.push(gweNameHtml(g, lang));
       }
-      return bits.join(" ");
-    }
-    const blocks = [];
-    blocks.push(
-      ko
-        ? "이 이름과 탄생일을 보니 이름에 흉이 " + nameN + "개이고, 탄생일에 흉이 " + birthN + "개 들었습니다. 말년 기운은 좋든 나쁘든 초년, 장년, 중년에 간섭을 하다가 자기 나이대에 본격적으로 작용하니까 이 이름을 대표하는 기운이라고 보면 됩니다."
-        : "Looking at this name and this birth date, the name holds " + nameN + " misfortunes, and the birth date holds " + birthN + ". Later-years energy, good or bad, interferes with the early, prime and midlife years, then acts in full in its own age, so it is the energy that stands for this name."
-    );
-    function sameHexNote(i) {
-      if (!(nG[i] && nG[i].name && gweBad(nG[i]))) return "";
-      const nm = gweNameOf(nG[i]);
-      const placed = namePlan.hexes.filter(function (h) { return gweNameOf(h.g) === nm; })[0];
-      if (!placed || placed.j === i) return "";
-      const hn = gweDisplayName(nG[i], lang);
-      return ko
-        ? " 같은 " + hn + "이라 " + ageKo[placed.band] + "에 이미 세었습니다."
-        : " " + hn + " was already counted in " + ageEn[placed.band] + ".";
-    }
-    const lateWho = ko ? "이름 말년" : "In the later years the name has";
-    const lateBirth = ko ? "탄생일 말년" : "In the later years the birth date has";
-    let late = piece(lateWho, nS[3], nG[3], 3);
-    late += sameHexNote(3);
-    if (hasB) late += " " + piece(lateBirth, bS[3], bG[3], 3);
-    const lateNameBad = slotMisfortune(nS[3], nG[3]) > 0;
-    const lateBirthBad = hasB && slotMisfortune(bS[3], bG[3]) > 0;
-    if (lateNameBad && lateBirthBad) {
-      late += ko ? " 이름의 기운까지 보태 주니 위태롭습니다." : " With the name's energy added on, it is precarious.";
-    } else if (lateNameBad && hasB && !lateBirthBad) {
-      late += ko ? " 그 나이대는 이름 기운이 말아 먹습니다." : " That age is swallowed by the name.";
-    }
-    blocks.push(late);
-    blocks.push(
-      ko
-        ? "시기별로 이름은 초년 " + nameC[0] + "개, 장년 " + nameC[1] + "개, 중년 " + nameC[2] + "개, 말년 " + nameC[3] + "개이고, 탄생일은 초년 " + birthC[0] + "개, 장년 " + birthC[1] + "개, 중년 " + birthC[2] + "개, 말년 " + birthC[3] + "개입니다."
-        : "By period, the name has " + nameC[0] + " in the early years, " + nameC[1] + " in the prime years, " + nameC[2] + " in midlife and " + nameC[3] + " in the later years" +
-          (hasB
-            ? ", and the birth date has " + birthC[0] + " in the early years, " + birthC[1] + " in the prime years, " + birthC[2] + " in midlife and " + birthC[3] + " in the later years."
-            : ".")
-    );
-    [0, 1, 2].forEach((i) => {
-      const label = ko ? ageKo[i] : ageEn[i];
-      let p = ko ? "다음 " + label + "의 삶을 살펴 보겠습니다. " : "Next we look at " + label + ". ";
-      if (hasB) p += piece(ko ? "탄생일 " + label : "The birth date in " + label + " has", bS[i], bG[i], i) + " ";
-      p += piece(ko ? "이름 " + label : "The name in " + label + " has", nS[i], nG[i], i);
-      p += sameHexNote(i);
-      namePlan.hexes.forEach(function (h) {
-        const hn = gweDisplayName(h.g, lang);
-        if (h.j === i && h.band !== i) {
-          p += ko
-            ? " " + hn + "은 장년 나이까지 이어지니 " + ageKo[h.band] + "에 셉니다. 이 시기의 흉으로 다시 세지 않습니다."
-            : " " + hn + " runs on into " + ageEn[h.band] + ", so it is counted there, not as another misfortune in " + label + ".";
-        } else if (h.band === i && h.j !== i) {
-          p += ko
-            ? " " + hn + "이 이 나이대까지 남아 있어 여기에도 셉니다."
-            : " " + hn + " still reaches " + label + ", so it is counted here as well.";
-        }
-      });
-      p += ko ? " 이름이 불릴 때마다 그 기운을 강요합니다." : " Every time the name is called, it forces this energy.";
-      const nb = slotMisfortune(nS[i], nG[i]) > 0;
-      const bb = hasB && slotMisfortune(bS[i], bG[i]) > 0;
-      if (nb && bb) p += ko ? " 사주도 힘든데 이름이 더 강요하니 힘이 듭니다." : " The birth chart is already hard, and the name forces it further.";
-      else if (nb && hasB && !bb) p += ko ? " 그 나이대는 이름 기운이 말아 먹습니다." : " That age is swallowed by the name.";
-      blocks.push(p);
+      blocks.push(bits.join("<br>") || (ko ? a.key + "에는 요약이 없습니다." : a.en + " has no summary."));
     });
-    if (hasB && birthN && namePress.length) {
-      blocks.push(
-        ko
-          ? "사주에 흉이 있는데 이름에 " + namePress.join(", ") + " 눌러 주는 기운이 있으니 좋은 이름입니다."
-          : "The birth date has misfortune, and the name has " + namePress.join(", ") + " pressing it, so this is a good name."
-      );
-    } else if (nameN && birthN) {
-      blocks.push(
-        ko
-          ? "사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다."
-          : "If the birth chart is bad, the name at least should be good for life to be easier. This name is that harsh, and the birth date has misfortune too, so this is the worst."
-      );
-    }
-    return blocks.map((t) => '<p style="margin:0 0 0.7rem">' + t + "</p>").join("");
+    return blocks.map(function (t) { return '<p style="margin:0 0 0.7rem">' + t + "</p>"; }).join("");
   }
 
   window.enSumRoutine = function enSumRoutine(ctx) {
