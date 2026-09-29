@@ -97,7 +97,7 @@
       78: { 초년: "With natural talent, some success comes easily in the early years.", 말년: "After midlife fortune declines, troubles come easily, and money problems and conflicts with people arise easily." },
     },
     hex: {
-      1: "The most noble, supreme hexagram in the world: a person of stature who gets it can succeed greatly, but an ordinary person is overwhelmed by its power and can hardly escape bad fortune. In the early years, this person comes first in school or has a boss's temperament.",
+      1: "The most noble, supreme hexagram in the world: a person of stature who gets it can succeed greatly, but an ordinary person is overwhelmed by its power and can hardly escape bad fortune. It is hard to endure other people's orders, interference and control, so adapting to a workplace is difficult. In the early years, this person comes first in school or has a boss's temperament.",
       2: "With help from seniors and juniors, there is a chance to rise in the world. But greed to get ahead of others brings disaster.",
       3: "The energy of a leader with a hero's bearing and great leadership. Upright and bright, favored by superiors and followed by juniors — very auspicious for businesses that need cooperation.",
       4: "Thunder falling from heaven: rather than forcing things, it is wise to know one's place and follow the natural order. Letting go of stubbornness and acting sincerely brings benefits.",
