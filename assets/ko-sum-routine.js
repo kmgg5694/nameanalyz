@@ -4268,176 +4268,27 @@
       return bits;
     }
     function buildSampleNarrate() {
-      const order = [
+      const ages = [
         { key: "말년", idx: 0 },
         { key: "초년", idx: 1 },
         { key: "장년", idx: 2 },
         { key: "중년", idx: 3 },
       ];
-      function countSide(sArr, gArr) {
-        let n = 0;
-        order.forEach(function (a) {
-          const s = sArr && sArr[a.idx];
-          const g = gArr && gArr[a.idx];
-          if (s && s.data && suriBad(s.data) && !isMitigateSuriHex(g)) n++;
-          if (g && g.name && gweBad(g)) n++;
-        });
-        return n;
-      }
-      const nameR = countSide(nmS, nmG) + (hasHanja ? countSide(hjS, hjG) : 0);
-      const sajuR = hasB ? countSide(bdS, bdG) : 0;
       const blocks = [];
-      let head = hasB
-        ? "이 이름과 사주를 보니 이름에 " + paintRed("흉이 " + nameR + "개") + "이고, 탄생일에 " + paintRed("흉도 " + sajuR + "개") + " 들었네요."
-        : "이 이름을 보니 " + paintRed("흉이 " + nameR + "개") + "입니다.";
-      head += " 말년기운은 좋든 나쁘든 초년, 장년, 중년에 간섭을 하다가 자기 나이대에 본격적으로 작용하니까 이 이름을 대표하는 기운이라고 보면 됩니다.";
-      blocks.push(head);
-      const malName = factPiece(hasHanja ? "한글" : "이름", nmS[0], nmG[0], "말년")
-        .concat(hasHanja ? factPiece("한문", hjS[0], hjG[0], "말년") : []);
-      const malSaju = hasB ? factPiece("사주", bdS[0], bdG[0], "말년") : [];
-      let mal = "이름 말년에는 " + (malName.length ? malName.join(" ") : "그 자리에 적은 수리·괘가 없습니다.");
-      if (hasB) mal += " 탄생일 말년은 " + (malSaju.length ? malSaju.join(" ") : "그 자리에 적은 수리·괘가 없습니다.");
-      const nameMalBad =
-        (nmS[0] && nmS[0].data && suriBad(nmS[0].data) && !isMitigateSuriHex(nmG[0])) ||
-        (nmG[0] && gweBad(nmG[0])) ||
-        (hasHanja && hjS[0] && hjS[0].data && suriBad(hjS[0].data) && !isMitigateSuriHex(hjG[0])) ||
-        (hasHanja && hjG[0] && gweBad(hjG[0]));
-      function sajuBadNames(idx) {
-        const out = [];
-        const s = bdS[idx];
-        const g = bdG[idx];
-        if (s && s.data && suriBad(s.data)) {
-          const nm = plainSuriName(s);
-          if (nm) out.push(nm);
+      ages.forEach(function (a) {
+        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx], a.key);
+        blocks.push(hg.length ? hg.join(" ") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
+        if (hasHanja) {
+          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx], a.key);
+          blocks.push(hj.length ? hj.join(" ") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
         }
-        if (g && gweBad(g)) {
-          const nm = gweNameOf(g);
-          if (nm) out.push(nm);
-        }
-        return out;
-      }
-      function pressNamesAt(idx) {
-        const out = [];
-        function add(g) {
-          if (!isMitigateSuriHex(g)) return;
-          const n = gweNameOf(g);
-          if (n && out.indexOf(n) < 0) out.push(n);
-        }
-        add(nmG[idx]);
-        if (hasHanja) add(hjG[idx]);
-        return out;
-      }
-      function joinPress(names) {
-        const painted = names.map(function (n) { return paintBlue(n); });
-        return painted.join(", ") + josaIGA(names[names.length - 1]);
-      }
-      function sajuPressLine(idx, key) {
-        if (!hasB) return "";
-        const bad = sajuBadNames(idx);
-        if (!bad.length) return "";
-        const here = pressNamesAt(idx);
-        const malPress = idx === 0 ? [] : pressNamesAt(0);
-        const badTxt = bad.map(function (n) { return paintRed(n); }).join(", ");
-        const bits = [];
-        if (here.length) {
-          bits.push("사주 " + key + "의 흉(" + badTxt + ")을 이 시기 이름의 " + joinPress(here) + " 눌러 줍니다.");
-        }
-        if (malPress.length) {
-          bits.push("사주 " + key + "의 흉(" + badTxt + ")을 이름 말년의 " + joinPress(malPress) + " 눌러 줍니다.");
-        }
-        return bits.length ? " " + bits.join(" ") : "";
-      }
-      const sajuMalBad = hasB && sajuBadNames(0).length > 0;
-      if (nameMalBad && sajuMalBad) mal += " 이 자체로도 힘이 드는데 이름의 기운까지 보태 주니 위태롭습니다.";
-      mal += sajuPressLine(0, "말년");
-      if (hexNameStarts(nmG[0], "뇌택귀매") || (hasHanja && hexNameStarts(hjG[0], "뇌택귀매"))) {
-        mal += " 이름 말년에 " + paintBlue("뇌택귀매") + "가 들어 금메달을 따거나 재혼의 기운이 비치지만 흉이 너무 많아서 이루어질지는 모르겠습니다.";
-      }
-      blocks.push(mal);
-      function redsAt(sArr, gArr, idx) {
-        let n = 0;
-        const s = sArr && sArr[idx];
-        const g = gArr && gArr[idx];
-        if (s && s.data && suriBad(s.data) && !isMitigateSuriHex(g)) n++;
-        if (g && g.name && gweBad(g)) n++;
-        return n;
-      }
-      const nameByAge = order.map(function (a) {
-        return a.key + " " + (redsAt(nmS, nmG, a.idx) + (hasHanja ? redsAt(hjS, hjG, a.idx) : 0)) + "개";
       });
-      let overview = "시기별로 보면 이름은 " + nameByAge.join(", ");
-      if (hasB) {
-        const sajuByAge = order.map(function (a) {
-          return a.key + " " + redsAt(bdS, bdG, a.idx) + "개";
-        });
-        overview += "이고, 탄생일은 " + sajuByAge.join(", ");
-      }
-      overview += "입니다.";
-      blocks.push(overview);
-      [{ key: "초년", idx: 1 }, { key: "장년", idx: 2 }, { key: "중년", idx: 3 }].forEach(function (a) {
-        const sajuBits = hasB ? factPiece("사주", bdS[a.idx], bdG[a.idx], a.key) : [];
-        const nameBits = factPiece(hasHanja ? "한글" : "이름", nmS[a.idx], nmG[a.idx], a.key)
-          .concat(hasHanja ? factPiece("한문", hjS[a.idx], hjG[a.idx], a.key) : []);
-        let t = "다음 " + a.key + "의 삶을 살펴 보겠습니다. ";
-        if (sajuBits.length) t += "탄생일 " + a.key + "은 " + sajuBits.join(" ");
-        if (nameBits.length) t += " 이름 " + a.key + "에는 " + nameBits.join(" ") + " 이름이 불릴 때마다 그 기운을 강요합니다.";
-        const nameBad =
-          (nmS[a.idx] && nmS[a.idx].data && suriBad(nmS[a.idx].data) && !isMitigateSuriHex(nmG[a.idx])) ||
-          (nmG[a.idx] && gweBad(nmG[a.idx])) ||
-          (hasHanja && ((hjS[a.idx] && hjS[a.idx].data && suriBad(hjS[a.idx].data) && !isMitigateSuriHex(hjG[a.idx])) || (hjG[a.idx] && gweBad(hjG[a.idx]))));
-        const sajuBad = hasB && ((bdS[a.idx] && bdS[a.idx].data && suriBad(bdS[a.idx].data)) || (bdG[a.idx] && gweBad(bdG[a.idx])));
-        if (nameBad && hasB && !sajuBad) t += " " + a.key + "의 삶은 이름 기운이 말아 먹습니다.";
-        else if (nameBad && sajuBad) t += " 사주 " + a.key + "도 힘든데 이름이 더 강요하니 힘이 듭니다.";
-        t += sajuPressLine(a.idx, a.key);
-        blocks.push(t);
-      });
-      function pressNames(gArr) {
-        const names = [];
-        order.forEach(function (a) {
-          const g = gArr && gArr[a.idx];
-          if (!isMitigateSuriHex(g)) return;
-          const n = gweNameOf(g);
-          if (names.indexOf(n) < 0) names.push(n);
-        });
-        return names;
-      }
-      function gwiCount(gArr) {
-        let n = 0;
-        order.forEach(function (a) {
-          if (hexNameStarts(gArr && gArr[a.idx], "뇌택귀매")) n++;
-        });
-        return n;
-      }
-      const presses = pressNames(nmG).concat(hasHanja ? pressNames(hjG) : []);
-      const pressUniq = [];
-      presses.forEach(function (n) { if (pressUniq.indexOf(n) < 0) pressUniq.push(n); });
-      const gwiN = gwiCount(nmG) + (hasHanja ? gwiCount(hjG) : 0);
-      if (pressUniq.length && hasB && sajuR > 0) {
-        blocks.push(
-          "사주에 흉이 있는데 이름에 " +
-          pressUniq.map(function (n) { return paintBlue(n); }).join(", ") +
-          " 눌러 주는 기운이 있으니 좋은 이름입니다."
-        );
-      } else if (!pressUniq.length && gwiN > 0 && nameR > 0) {
-        let t = "이 이름에는 막아 주는 기운은 없고 달랑 " +
-          (gwiN === 1 ? "하나 " : "") +
-          paintBlue("뇌택귀매") +
-          "가 있는데 흉으로 포위되어 제 기능을 발휘하지 못하는 게 아쉽습니다.";
-        if (hasB && sajuR > 0) {
-          t += " 사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다.";
-        }
-        blocks.push(t);
-      } else if (hasB && nameR > 0 && sajuR > 0) {
-        blocks.push("사주가 나쁘면 이름이라도 좋아야 살기가 편한데 이름이 저리 험악하고 사주마저 험악하다면 최악입니다.");
-      }
       return blocks.join("<br><br>");
     }
 
     if (ohangNarr) ageParts.push(ohangNarr);
     const sampleNarr = buildSampleNarrate();
     if (sampleNarr) ageParts.push(sampleNarr);
-    const turnList = buildNameVsBirthCompare(true);
-    if (turnList) ageParts.push(turnList);
     const hazard = buildNameHazardBrief();
     if (hazard) ageParts.push(hazard);
     if (hasB) {
