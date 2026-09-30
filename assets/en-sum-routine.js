@@ -1997,6 +1997,36 @@
       }
       blocks.push(bits.join("<br>") || (ko ? a.key + "에는 요약이 없습니다." : a.en + " has no summary."));
     });
+    if (hasB) {
+      ages.forEach(function (a) {
+        const s = bS[a.idx];
+        const g = bG[a.idx];
+        const bits = [];
+        if (s && s.data && s.suri != null) {
+          if (ko) {
+            const fact = window.koSuriNarrate ? window.koSuriNarrate(s.suri, a.key) : "";
+            const nm = plainSuriName(s, "ko");
+            bits.push(a.key + " 사주에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
+          } else {
+            const fact = narrSuriEn(s, a.key);
+            const label = a.en + " birth chart " + suriPhrase(s, "en");
+            bits.push(fact ? label + " means " + esc(fact) : label);
+          }
+        }
+        if (g && g.name) {
+          if (ko) {
+            const hx = window.koHexNarrate ? window.koHexNarrate(g, a.key) : "";
+            const gn = gweNameOf(g);
+            bits.push("주역괘" + gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
+          } else {
+            const hx = narrHexEn(g);
+            const label = "Hexagram " + gweNameHtml(g, "en");
+            bits.push(hx ? label + " means " + esc(hx) : label);
+          }
+        }
+        if (bits.length) blocks.push(bits.join("<br>"));
+      });
+    }
     return blocks.map(function (t) { return '<p style="margin:0 0 0.7rem">' + t + "</p>"; }).join("");
   }
 

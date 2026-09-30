@@ -4302,10 +4302,27 @@
       });
       return blocks.join("<br><br>");
     }
+    function buildSajuNarrate() {
+      if (!hasB) return "";
+      const ages = [
+        { key: "말년", idx: 0 },
+        { key: "초년", idx: 1 },
+        { key: "장년", idx: 2 },
+        { key: "중년", idx: 3 },
+      ];
+      const blocks = [];
+      ages.forEach(function (a) {
+        const bits = factPiece(a.key + " 사주", bdS[a.idx], bdG[a.idx], a.key);
+        blocks.push(bits.length ? bits.join("<br>") : a.key + " 사주에는 그 자리에 적은 수리·괘가 없습니다.");
+      });
+      return blocks.join("<br><br>");
+    }
 
     if (ohangNarr) ageParts.push(ohangNarr);
     const sampleNarr = buildSampleNarrate();
     if (sampleNarr) ageParts.push(sampleNarr);
+    const sajuNarr = buildSajuNarrate();
+    if (sajuNarr) ageParts.push(sajuNarr);
     const hazard = buildNameHazardBrief();
     if (hazard) ageParts.push(hazard);
     if (hasB) {
