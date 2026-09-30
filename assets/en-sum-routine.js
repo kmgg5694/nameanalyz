@@ -731,7 +731,7 @@
         : "Same number as " + CARD_EN[same] + " above.";
       const extra = ko
         ? ak && (((window.__NARRATE__ || {}).suri || {})[key] || {})[ak]
-        : ak && (((window.NA_NARR_EN || {}).suriAge || {})[key] || {})[ak];
+        : "";
       const rest = window.naSuriSum(n, d, en, ko, label, -1);
       return (extra ? head + " " + String(extra).trim() : head) + (rest ? " " + rest : "");
     }
@@ -744,12 +744,7 @@
       if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
       return tKo;
     }
-    const E = window.NA_NARR_EN || {};
-    let fullEn = String((E.suri || {})[key] || "").trim();
-    if (Number(n) === 23) fullEn = fullEn.replace(/^For a man,\s*/i, "");
-    const age = ((E.suriAge || {})[key] || {})[ak];
-    if (age && fullEn.indexOf(String(age).trim()) < 0) fullEn = fullEn ? fullEn + " " + String(age).trim() : String(age).trim();
-    return fullEn;
+    return narrSuriEn({ suri: n }, ak);
   };
   window.naHexSum = function (g, pen, ko, same) {
     if (!g) return "";
@@ -1934,20 +1929,144 @@
     const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
     return row && row.narrate ? String(row.narrate).trim() : "";
   }
+  const EN_AGE_MARKS = [
+    ["When it falls on a young child's early years", "초년"],
+    ["When Lake over Wind, Great Excess is in the early years", "초년"],
+    ["When it falls in the early years", "초년"],
+    ["When it comes in the early years", "초년"],
+    ["Early-years All Things in Vain", "초년"],
+    ["When it falls in the overall destiny", "말년"],
+    ["When it is in the overall destiny", "말년"],
+    ["When it is present in the overall destiny", "말년"],
+    ["When it falls in the later years", "말년"],
+  ];
+  function enAgeMarksIn(text) {
+    const hits = [];
+    EN_AGE_MARKS.forEach(function (m) {
+      let from = 0;
+      while (true) {
+        const i = text.indexOf(m[0], from);
+        if (i < 0) break;
+        hits.push({ i: i, len: m[0].length, age: m[1] });
+        from = i + m[0].length;
+      }
+    });
+    hits.sort(function (a, b) { return a.i - b.i; });
+    const out = [];
+    let end = -1;
+    hits.forEach(function (h) {
+      if (h.i < end) return;
+      out.push(h);
+      end = h.i + h.len;
+    });
+    return out;
+  }
+  function splitAgeNarrateEn(text) {
+    const raw = String(text || "");
+    const hits = enAgeMarksIn(raw).map(function (h) {
+      let j = h.i - 1;
+      let spaces = 0;
+      while (j >= 0 && /\s/.test(raw[j])) {
+        spaces++;
+        j--;
+      }
+      h.para = spaces >= 6;
+      return h;
+    });
+    const flat = raw.replace(/\s+/g, " ").trim();
+    if (!hits.length) return { lead: flat, 초년: "", 말년: "", 초년Para: false, 말년Para: false };
+    let lead = "";
+    const bag = { 초년: [], 말년: [] };
+    const para = { 초년: false, 말년: false };
+    let cursor = 0;
+    for (let i = 0; i < hits.length; i++) {
+      const h = hits[i];
+      if (h.i < cursor) continue;
+      lead += raw.slice(cursor, h.i);
+      let stop = raw.length;
+      if (h.para) {
+        for (let k = i + 1; k < hits.length; k++) {
+          if (hits[k].para) {
+            stop = hits[k].i;
+            break;
+          }
+        }
+        para[h.age] = true;
+      } else {
+        const rest = raw.slice(h.i);
+        const m = rest.match(/^[^.]*[.]?/);
+        stop = h.i + (m ? m[0].length : rest.length);
+      }
+      bag[h.age].push(raw.slice(h.i, stop).replace(/\s+/g, " ").trim());
+      cursor = stop;
+    }
+    lead += raw.slice(cursor);
+    return {
+      lead: lead.replace(/\s+/g, " ").replace(/[,\s]+$/g, "").trim(),
+      초년: bag.초년.join(" ").trim(),
+      말년: bag.말년.join(" ").trim(),
+      초년Para: para.초년,
+      말년Para: para.말년,
+    };
+  }
+  function pickAgeNarrateEn(narrate, ageKey, earlyField, lateField) {
+    const ak = ageKey === "총운" ? "말년" : ageKey || "";
+    const base = splitAgeNarrateEn(narrate);
+    if (!ak) return [base.lead, base.초년, base.말년].filter(Boolean).join(" ");
+    if (ak === "말년") {
+      if (lateField) {
+        const sp = splitAgeNarrateEn(lateField);
+        const bit = [sp.lead, sp.초년, sp.말년].filter(Boolean).join(" ");
+        if (bit) return bit;
+      }
+      let late = base.말년;
+      let latePara = base.말년Para;
+      if (earlyField) {
+        const sp = splitAgeNarrateEn(earlyField);
+        if (sp.말년) {
+          late = sp.말년;
+          latePara = true;
+        }
+      }
+      if (latePara && late) return late;
+      if (late) return (base.lead ? base.lead + " " : "") + late;
+      return base.lead;
+    }
+    if (ak === "초년") {
+      if (earlyField) {
+        const sp = splitAgeNarrateEn(earlyField);
+        const bit = [sp.lead, sp.초년].filter(Boolean).join(" ");
+        if (bit) return bit;
+      }
+      if (base.초년Para && base.초년) return base.초년;
+      if (base.초년) return (base.lead ? base.lead + " " : "") + base.초년;
+      return base.lead;
+    }
+    return base.lead;
+  }
   function narrSuriEn(s, ageKey) {
     const n = Number(s && s.suri);
     const E = (window.NA_NARR_EN || {}).suri || {};
     let fullEn = String(E[n] || E[String(n)] || "").trim();
     if (n === 23) fullEn = fullEn.replace(/^For a man,\s*/i, "");
     const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)] || {};
-    const bit = ageKey && ageMap[ageKey] ? String(ageMap[ageKey]).trim() : "";
-    if (bit && fullEn.indexOf(bit) < 0) fullEn = fullEn ? fullEn + " " + bit : bit;
-    return fullEn;
+    if (!ageKey) {
+      let t = fullEn.replace(/\s+/g, " ").trim();
+      ["초년", "말년"].forEach(function (k) {
+        const extra = ageMap[k] ? String(ageMap[k]).replace(/\s+/g, " ").trim() : "";
+        if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
+      });
+      return t;
+    }
+    return pickAgeNarrateEn(fullEn, ageKey, ageMap["초년"], ageMap["말년"]);
   }
-  function narrHexEn(g) {
+  function narrHexEn(g, ageKey) {
     if (!g || g.id == null) return "";
     const H = (window.NA_NARR_EN || {}).hex || {};
-    return String(H[g.id] || H[String(g.id)] || "").trim();
+    const t = String(H[g.id] || H[String(g.id)] || "").trim();
+    if (!t) return "";
+    if (!ageKey) return t.replace(/\s+/g, " ").trim();
+    return pickAgeNarrateEn(t, ageKey, "", "");
   }
   /** 요약본만. 순서: 말년 → 초년 → 장년 → 중년. 수리 요약 다음 주역 요약. */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
@@ -1980,7 +2099,8 @@
           bits.push(show + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
           const fact = narrSuriEn(s, a.key);
-          const label = a.en + " " + suriPhrase(s, "en");
+          const show = a.key === "말년" ? "Later years (overall destiny)" : a.en;
+          const label = show + " " + suriPhrase(s, "en");
           bits.push(fact ? label + " means " + esc(fact) : label);
         }
       }
@@ -1991,8 +2111,8 @@
           const gn = gweNameOf(g);
           bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
         } else {
-          const hx = narrHexEn(g);
-          const label = gweNameHtml(g, "en");
+          const hx = narrHexEn(g, a.key);
+          const label = "Hexagram " + gweNameHtml(g, "en");
           bits.push(hx ? label + " means " + esc(hx) : label);
         }
       }
@@ -2011,7 +2131,8 @@
             bits.push(show + " 사주에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
           } else {
             const fact = narrSuriEn(s, a.key);
-            const label = a.en + " birth chart " + suriPhrase(s, "en");
+            const show = a.key === "말년" ? "Later years (overall destiny)" : a.en;
+            const label = show + " birth chart " + suriPhrase(s, "en");
             bits.push(fact ? label + " means " + esc(fact) : label);
           }
         }
@@ -2021,7 +2142,7 @@
             const gn = gweNameOf(g);
             bits.push("주역괘 " + gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
           } else {
-            const hx = narrHexEn(g);
+            const hx = narrHexEn(g, a.key);
             const label = "Hexagram " + gweNameHtml(g, "en");
             bits.push(hx ? label + " means " + esc(hx) : label);
           }
@@ -2045,10 +2166,12 @@
     if (oh) parts.push(oh);
     const period = buildPeriodReading(nS, nG, bS, bG, hasB, lang);
     if (period) parts.push(period);
-    const tp = buildTurningPoints(nS, nG, bS, bG, hasB, lang);
-    if (tp) parts.push(tp);
-    const wrap = buildWrap(nS, nG, lang);
-    if (wrap) parts.push(wrap);
+    if (lang === "ko") {
+      const tp = buildTurningPoints(nS, nG, bS, bG, hasB, lang);
+      if (tp) parts.push(tp);
+      const wrap = buildWrap(nS, nG, lang);
+      if (wrap) parts.push(wrap);
+    }
     parts.push(buildFourList(ctx.ohang, nS, nG, bS, bG, hasB, lang));
     const narr = parts.length
       ? '<div class="en-sum-narr notranslate" translate="no">' +
