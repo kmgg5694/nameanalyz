@@ -67,9 +67,9 @@
   }
 
   /** 인쇄: `{num}, {name}` 색칠 */
-  function suriPhrase(ns) {
+  function suriPhrase(ns, ageKey) {
     if (!ns || ns.suri == null || !ns.data) return "";
-    const nm = plainSuriName(ns);
+    const nm = faceName(ns.suri, ageKey) || plainSuriName(ns);
     const head = nm ? ns.suri + ", " + nm : String(ns.suri);
     return paintName(head, suriKind(ns));
   }
@@ -1215,8 +1215,17 @@
    */
   const SURI_FACE_LABEL = {
     14: { 초년: "지혜재능", 말년: "이산고독" },
-    19: { bad: "", good: "봉황고독" },
+    19: { 초년: "지혜고독", 말년: "봉황고독" },
+    24: { 말년: "성실권위" },
+    27: { 말년: "대인좌절" },
   };
+  function faceName(num, ageKey) {
+    const ak = ageKey === "총운" ? "말년" : ageKey;
+    if (ak !== "초년" && ak !== "말년") return "";
+    const L = SURI_FACE_LABEL[Number(num)];
+    return (L && L[ak]) || "";
+  }
+  window.koFaceName = faceName;
   const SURI_GOOD_FACE = {
     14: "지혜로워 영웅적 기질을 발휘하고, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 살아 큰 재물운으로 나타나기도 합니다.",
     19: "두뇌가 명석해 크게 성공하고, 최고의 명예운으로 나타나기도 합니다.",
@@ -4192,7 +4201,8 @@
       const bits = [];
       if (s && s.data && s.suri != null) {
         const fact = shortSuriFact(s, ageKey);
-        if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
+        const shown = faceName(s.suri, ageKey) || plainSuriName(s);
+        if (fact) bits.push(who + " " + suriPhrase(s, ageKey) + josaEunNeun(shown) + " " + fact);
       }
       if (g && g.name) {
         const hx = shortHexFact(g, ageKey);

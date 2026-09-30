@@ -79,6 +79,18 @@
     return false;
   }
 
+  function faceName(num, ageKey) {
+    const ak = ageKey === "총운" ? "말년" : ageKey;
+    const L = {
+      14: { 초년: "지혜재능", 말년: "이산고독" },
+      19: { 초년: "지혜고독", 말년: "봉황고독" },
+      24: { 말년: "성실권위" },
+      27: { 말년: "대인좌절" },
+    };
+    const hit = L[Number(num)];
+    if (ak !== "초년" && ak !== "말년") return "";
+    return (hit && hit[ak]) || "";
+  }
   function suriPhrase(ns, lang) {
     if (!ns || ns.suri == null || !ns.data) return "";
     const nm = plainSuriName(ns, lang);
@@ -2009,8 +2021,10 @@
           const extra = row[a.key] ? String(row[a.key]).trim() : "";
           if (extra && fact.indexOf(extra) < 0) fact = fact ? fact + " " + extra : extra;
           fact = applyAgeClause(fact, a.key);
-          const nm = plainSuriName(s, "ko");
-          bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
+          const alt = faceName(s.suri, a.key);
+          const shown = alt ? Object.assign({}, s, { data: Object.assign({}, s.data, { name: alt }) }) : s;
+          const nm = alt || plainSuriName(s, "ko");
+          bits.push(a.key + " 이름에는 " + suriPhrase(shown, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
           const fact = narrSuriEn(s, a.key);
           const label = a.en + " " + suriPhrase(s, "en");
