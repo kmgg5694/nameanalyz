@@ -2937,10 +2937,10 @@
           let t =
             " " + lead + "말년(총운)의 " + pressHtml(nameMalPress) +
             (josaIGA(last) === "이" ? "이라는 " : "라는 ") + paintBlue("지원군") +
-            "이 도와주니, 삐끗 하듯 미미한 정도라고 보시면 됩니다.";
+            "이 도와주니, 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝납니다.";
           if (sajuMalPress.length) {
             const sl = sajuMalPress[sajuMalPress.length - 1].name;
-            t += " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sl) +
+            t += " 사주 말년(총운)에도 " + pressHtml(sajuMalPress) + josaIGA(sl) +
               " 있으니 그런 흉은 " + paintBlue("살짝 스크래치만 남기고 사라집니다") + ".";
           }
           return t;
@@ -2957,7 +2957,7 @@
             paintBlue("거의 느껴지지 않을 만큼 오니까 염려하지 않으셔도 됩니다") + "." +
             " 다만 주역괘의 흉은 눌러 주어도 약간의 흔적은 반드시 남기고 간다는 게 특징입니다." +
             (sajuMalPress.length
-              ? " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sajuMalPress[sajuMalPress.length - 1].name) +
+              ? " 사주 말년(총운)에도 " + pressHtml(sajuMalPress) + josaIGA(sajuMalPress[sajuMalPress.length - 1].name) +
                 " 있어 남는 흉이 있어도 살짝 스크래치 정도입니다."
               : "");
         }
@@ -3998,7 +3998,7 @@
             t += " 다만 " + op[0] + "의 " + gweNameHtml(og) + josaIGA(gweNameOf(og)) + " 눌러 줍니다.";
           } else if (i !== 3 && np.length) {
             t += " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) +
-              " 지원군이라 삐끗 하듯 미미한 정도라고 보시면 됩니다.";
+              " 지원군이라 발목이 삐끗하는 수준으로 지나갑니다.";
           }
         }
         out += t;
@@ -4106,9 +4106,9 @@
         return (
           "이름 속에 " + uniq.join(", ") + " 기운이 살짝 비치기는 하지만, 이름 말년(총운)의 " +
           pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
-          "이 되어 주니 삐끗 하듯 미미한 정도라고 보시면 됩니다." +
+          "이 되어 주니 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
           (sp.length
-            ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
+            ? " 사주 말년(총운)에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
               " 있으니 살짝 스크래치만 남기고 사라집니다."
             : "") +
           " 크게 걱정하지 않으셔도 됩니다. 자세한 자리는 위 네 자리 수리와 밑줄 친 곳을 보시면 됩니다."
@@ -4135,9 +4135,9 @@
       const last = np[np.length - 1].name;
       return (
         " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
-        "이 되어 주니, 삐끗 하듯 미미한 정도라고 보시면 됩니다." +
+        "이 되어 주니, 이런 흉은 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
         (sp.length
-          ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
+          ? " 사주 말년(총운)에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
             " 있으니 살짝 스크래치만 남기고 사라집니다."
           : "")
       );
@@ -4284,6 +4284,9 @@
       }
       return bits;
     }
+    function ageShow(key) {
+      return key === "말년" ? "말년(총운)" : key;
+    }
     function buildSampleNarrate() {
       const ages = [
         { key: "말년", idx: 0 },
@@ -4293,11 +4296,12 @@
       ];
       const blocks = [];
       ages.forEach(function (a) {
-        const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx], a.key);
-        blocks.push(hg.length ? hg.join("<br>") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
+        const show = ageShow(a.key);
+        const hg = factPiece(show + " 한글", nmS[a.idx], nmG[a.idx], a.key);
+        blocks.push(hg.length ? hg.join("<br>") : show + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
         if (hasHanja) {
-          const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx], a.key);
-          blocks.push(hj.length ? hj.join("<br>") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
+          const hj = factPiece(show + " 한문", hjS[a.idx], hjG[a.idx], a.key);
+          blocks.push(hj.length ? hj.join("<br>") : show + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
         }
       });
       return blocks.join("<br><br>");
@@ -4312,8 +4316,9 @@
       ];
       const blocks = [];
       ages.forEach(function (a) {
-        const bits = factPiece(a.key + " 사주", bdS[a.idx], bdG[a.idx], a.key);
-        blocks.push(bits.length ? bits.join("<br>") : a.key + " 사주에는 그 자리에 적은 수리·괘가 없습니다.");
+        const show = ageShow(a.key);
+        const bits = factPiece(show + " 사주", bdS[a.idx], bdG[a.idx], a.key);
+        blocks.push(bits.length ? bits.join("<br>") : show + " 사주에는 그 자리에 적은 수리·괘가 없습니다.");
       });
       return blocks.join("<br><br>");
     }

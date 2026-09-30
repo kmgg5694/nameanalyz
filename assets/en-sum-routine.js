@@ -1975,8 +1975,9 @@
                 if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
                 return t;
               })();
+          const show = a.key === "말년" ? "말년(총운)" : a.key;
           const nm = plainSuriName(s, "ko");
-          bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
+          bits.push(show + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
           const fact = narrSuriEn(s, a.key);
           const label = a.en + " " + suriPhrase(s, "en");
@@ -1995,7 +1996,7 @@
           bits.push(hx ? label + " means " + esc(hx) : label);
         }
       }
-      blocks.push(bits.join("<br>") || (ko ? a.key + "에는 요약이 없습니다." : a.en + " has no summary."));
+      blocks.push(bits.join("<br>") || (ko ? (a.key === "말년" ? "말년(총운)" : a.key) + "에는 요약이 없습니다." : a.en + " has no summary."));
     });
     if (hasB) {
       ages.forEach(function (a) {
@@ -2005,8 +2006,9 @@
         if (s && s.data && s.suri != null) {
           if (ko) {
             const fact = window.koSuriNarrate ? window.koSuriNarrate(s.suri, a.key) : "";
+            const show = a.key === "말년" ? "말년(총운)" : a.key;
             const nm = plainSuriName(s, "ko");
-            bits.push(a.key + " 사주에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
+            bits.push(show + " 사주에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
           } else {
             const fact = narrSuriEn(s, a.key);
             const label = a.en + " birth chart " + suriPhrase(s, "en");
