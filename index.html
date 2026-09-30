@@ -8,9 +8,9 @@
       /* PC·브라우저에 남은 서비스워커/캐시 비움 — 새로고침만으로 최신 반영 */
       (function () {
         try {
-          if (sessionStorage.getItem("na_sw_purged_20260930intro")) return;
+          if (sessionStorage.getItem("na_sw_purged_20261001intro")) return;
           if (!("serviceWorker" in navigator)) return;
-          sessionStorage.setItem("na_sw_purged_20260930intro", "1");
+          sessionStorage.setItem("na_sw_purged_20261001intro", "1");
           var jobs = [];
           jobs.push(
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -26,7 +26,7 @@
           }
           Promise.all(jobs).then(function () {
             var u = new URL(location.href);
-            u.searchParams.set("v", "20260930intro");
+            u.searchParams.set("v", "20261001intro");
             location.replace(u.pathname + u.search + u.hash);
           });
         } catch (e) {}
@@ -245,18 +245,7 @@
 
 /* 이름 바로 아래 탄생일 — 화면·인쇄 모두 강제 표시 */
 
-/* 풀이 결과가 뜨면 소개영상 숨김 → 이름·탄생일이 첫 화면 */
-body:has(#result-full-capture) .intro-sec,
-body:has(#result-full-capture) #introPlayerWrap,
-body:has(#result-full-capture) #introVideo,
-body:has(#result-full-capture) .intro-mute,
-body:has(#result-full-capture) .intro-mute-btn {
-  display: none !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
+/* 소개영상은 풀이 결과가 나와도 맨 위에 그대로 둔다. */
 .birth-under-name {
   display: block !important;
   visibility: visible !important;
@@ -672,17 +661,7 @@ Error generating stack: `+l.message+`
     <script src="./pwa-install.js?v=20260924y"></script>
 
 <script>
-(function(){
-  function go(){
-    var el = document.querySelector('.birth-under-name') || document.querySelector('[data-loc="client/src/pages/Home.tsx:772"]');
-    if (el) try { el.scrollIntoView({block:'start', behavior:'instant'}); } catch(e) { el.scrollIntoView(true); }
-  }
-  var obs = new MutationObserver(function(){
-    if (document.querySelector('#result-full-capture')) { go(); }
-  });
-  obs.observe(document.documentElement, {childList:true, subtree:true});
-  document.addEventListener('DOMContentLoaded', go);
-})();
+/* 풀이가 나와도 맨 위 소개영상으로 내려가지 않는다. */
 </script>
 
 </body>
