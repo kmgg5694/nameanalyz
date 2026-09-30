@@ -2019,7 +2019,7 @@
           if (ko) {
             const hx = window.koHexNarrate ? window.koHexNarrate(g, a.key) : "";
             const gn = gweNameOf(g);
-            bits.push("주역괘" + gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
+            bits.push("주역괘 " + gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
           } else {
             const hx = narrHexEn(g);
             const label = "Hexagram " + gweNameHtml(g, "en");

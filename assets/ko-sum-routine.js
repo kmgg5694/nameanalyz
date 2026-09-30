@@ -4280,7 +4280,7 @@
       }
       if (g && g.name) {
         const hx = shortHexFact(g, ageKey);
-        if (hx) bits.push("주역괘" + gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
+        if (hx) bits.push("주역괘 " + gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
     }
