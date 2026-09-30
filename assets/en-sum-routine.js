@@ -734,26 +734,19 @@
       return (extra ? head + " " + String(extra).trim() : head) + (rest ? " " + rest : "");
     }
     if (ko) {
-      const x = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key] || {};
-      let tKo = String(x.body || "").trim();
-      if (!tKo) tKo = String(x.core || "").replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, "").trim();
-      if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
       const row = ((window.__NARRATE__ || {}).suri || {})[key] || {};
+      let tKo = String(row.narrate || "").trim();
+      if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
       const extra = ak && row[ak] ? String(row[ak]).trim() : "";
       if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
-      if (!tKo) tKo = String(row.narrate || "").trim();
-      return tKo || (d && (d.desc || d.shortDesc)) || "";
+      return tKo;
     }
-    const parts = [];
-    if (en && en.shortDescEn) parts.push(String(en.shortDescEn).trim());
-    if (en && en.descEn) parts.push(String(en.descEn).trim());
-    let fullEn = parts.join(" ").replace(/\s+/g, " ").trim();
     const E = window.NA_NARR_EN || {};
-    const t = String((E.suri || {})[key] || "").trim();
-    if (t.length > fullEn.length) fullEn = t;
+    let fullEn = String((E.suri || {})[key] || "").trim();
+    if (Number(n) === 23) fullEn = fullEn.replace(/^For a man,\s*/i, "");
     const age = ((E.suriAge || {})[key] || {})[ak];
     if (age && fullEn.indexOf(String(age).trim()) < 0) fullEn = fullEn ? fullEn + " " + String(age).trim() : String(age).trim();
-    return fullEn || (d && d.shortDesc) || "";
+    return fullEn;
   };
   window.naHexSum = function (g, pen, ko, same) {
     if (!g) return "";
@@ -766,16 +759,10 @@
     }
     const key = String(g.id);
     if (ko) {
-      const x = ((window.__CORE_SUMMARIES__ || {}).hex || {})[key];
-      if (x && x.core) return String(x.core).replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "").trim();
       const row = ((window.__NARRATE__ || {}).hex || {})[key];
-      if (row && row.narrate) return String(row.narrate).trim();
-      return g.desc || "";
+      return row && row.narrate ? String(row.narrate).trim() : "";
     }
-    const narr = String(((window.NA_NARR_EN || {}).hex || {})[key] || "").trim();
-    const desc = pen && pen.descEn ? String(pen.descEn).trim() : "";
-    if (desc.length >= narr.length && desc) return desc;
-    return narr || desc || g.desc || "";
+    return String(((window.NA_NARR_EN || {}).hex || {})[key] || "").trim();
   };
   /** 세로 오행 흐름도 화살표: top=위 칸 오행, bot=아래 칸 오행, meTop=나가 위 칸인지 */
   window.naOhLink = function (top, bot, meTop, ko) {
@@ -1944,18 +1931,9 @@
   }
   function narrSuriEn(s, ageKey) {
     const n = Number(s && s.suri);
-    const d = s && s.data;
-    const parts = [];
-    if (d && d.shortDescEn) parts.push(String(d.shortDescEn).trim());
-    if (d && d.descEn) parts.push(String(d.descEn).trim());
-    let fullEn = parts.join(" ").replace(/\s+/g, " ").trim();
     const E = (window.NA_NARR_EN || {}).suri || {};
-    let t = String(E[n] || E[String(n)] || "").trim();
-    if (n === 23) {
-      fullEn = fullEn.replace(/^For a man,\s*/i, "");
-      t = t.replace("For a man, ", "");
-    }
-    if (t.length > fullEn.length) fullEn = t;
+    let fullEn = String(E[n] || E[String(n)] || "").trim();
+    if (n === 23) fullEn = fullEn.replace(/^For a man,\s*/i, "");
     const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)] || {};
     const bit = ageKey && ageMap[ageKey] ? String(ageMap[ageKey]).trim() : "";
     if (bit && fullEn.indexOf(bit) < 0) fullEn = fullEn ? fullEn + " " + bit : bit;
@@ -1963,11 +1941,8 @@
   }
   function narrHexEn(g) {
     if (!g || g.id == null) return "";
-    const desc = g.descEn ? String(g.descEn).trim() : "";
     const H = (window.NA_NARR_EN || {}).hex || {};
-    const narr = String(H[g.id] || H[String(g.id)] || "").trim();
-    if (desc.length > narr.length) return desc;
-    return narr || desc;
+    return String(H[g.id] || H[String(g.id)] || "").trim();
   }
   /** 요약본만. 순서: 말년 → 초년 → 장년 → 중년. 수리 요약 다음 주역 요약. */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
@@ -1985,15 +1960,11 @@
       const bits = [];
       if (s && s.data && s.suri != null) {
         if (ko) {
-          const key = String(s.suri);
-          const x = ((window.__CORE_SUMMARIES__ || {}).suri || {})[key] || {};
-          let fact = String(x.body || "").trim();
-          if (!fact) fact = String(x.core || "").replace(/^(길수|흉수|평수|주의)\s*[—–-]\s*/, "").trim();
-          if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
           const row = narrSuriRow(s.suri);
+          let fact = String(row.narrate || "").trim();
+          if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
           const extra = row[a.key] ? String(row[a.key]).trim() : "";
           if (extra && fact.indexOf(extra) < 0) fact = fact ? fact + " " + extra : extra;
-          if (!fact) fact = String(row.narrate || "").trim();
           const nm = plainSuriName(s, "ko");
           bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
@@ -2004,12 +1975,8 @@
       }
       if (g && g.name) {
         if (ko) {
-          const x = ((window.__CORE_SUMMARIES__ || {}).hex || {})[String(g.id)];
-          let hx = x && x.core ? String(x.core).replace(/^(길괘|흉괘|중성)\s*[—–-]\s*/, "").trim() : "";
-          if (!hx) {
-            const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
-            hx = String(row.narrate || "").trim();
-          }
+          const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
+          const hx = String(row.narrate || "").trim();
           const gn = gweNameOf(g);
           bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
         } else {

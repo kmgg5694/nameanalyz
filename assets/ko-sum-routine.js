@@ -934,32 +934,23 @@
       .trim();
   }
 
-  /** 요약 기록 전체. body가 있으면 그 글자 전부, 없으면 core 전부. */
+  /** 어제 요약본 narrate 전체. 원본 body·core·desc는 쓰지 않는다. */
   function fullSuriSummary(num, ageKey) {
     const n = Number(num);
-    const x = (CS().suri || {})[String(n)] || {};
-    let t = String(x.body || "").trim();
-    if (!t) t = briefCoreText(x.core || x.desc || "");
-    if (n === 23) t = t.replace("남자는 ", "");
     const row = (NAR().suri || {})[String(n)] || {};
+    let t = String(row.narrate || "").trim();
+    if (n === 23) t = t.replace("남자는 ", "");
     const ak = ageKey === "총운" ? "말년" : ageKey;
     if (ak && row[ak]) {
       const extra = String(row[ak]).trim();
       if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
     }
-    if (!t) t = String(row.narrate || "").trim();
     return t;
   }
   function fullHexSummary(g) {
-    if (!g) return "";
-    const x = g.id != null ? (CS().hex || {})[String(g.id)] : null;
-    let t = x && x.core ? briefCoreText(x.core) : "";
-    if (!t && g.desc) t = String(g.desc).trim();
-    if (!t && g.id != null) {
-      const row = (NAR().hex || {})[String(g.id)];
-      if (row && row.narrate) t = String(row.narrate).trim();
-    }
-    return t;
+    if (!g || g.id == null) return "";
+    const row = (NAR().hex || {})[String(g.id)];
+    return row && row.narrate ? String(row.narrate).trim() : "";
   }
   function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
@@ -1274,16 +1265,9 @@
     const t = suriAgeTextHtml(num, ageKey, g);
     return t == null ? null : String(t).replace(/<[^>]+>/g, "");
   };
-  /** 요약보기 밑줄. 요약 전체 뒤에 화택규 자리 문장을 붙인다. */
-  window.koHexTip = function (g, ageKey) {
-    if (!g) return "";
-    let t = fullHexSummary(g) || String(g.desc || "");
-    const n = String(g.name || "").replace(/\s+/g, "");
-    if (n.indexOf("화택규") < 0) return t;
-    if (t.indexOf("관절") < 0) t += " 눈흘길 「규」라 시기·질투가 있고, 서로 상반되어 쟁론을 벌이기 쉽습니다. 천추원한 백골혼으로 불의의 사고에 뼈를 크게 다칩니다. 목·허리 등 디스크·관절이 모두 포함되고, 기관지도 조심해야 합니다.";
-    if (ageKey === "초년" && t.indexOf("재물운이 되기도") < 0) t += " 초년에 들면 재물운이 되기도 한다.";
-    if (ageKey === "말년" && t.indexOf("약물중독") < 0) t += " 말년에 들면 평생 노름이나 약물중독에 빠져 살 수도 있다. 노름을 좋아해도 따는 일은 별로 없다.";
-    return t;
+  /** 요약보기 밑줄. 어제 요약본만. */
+  window.koHexTip = function (g) {
+    return fullHexSummary(g);
   };
   function suriAgeTextHtml(num, ageKey, g) {
     try {

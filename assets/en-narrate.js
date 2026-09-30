@@ -104,7 +104,7 @@
       5: "The energy of feeding many people. The destiny of a queen bee; a woman succeeds in social life.",
       6: "Water after drought; 'Song' means lawsuit — a hexagram of gossip and legal trouble. So think deeply about everything, cultivate compromise and work for peace.",
       7: "So hard mentally, materially and physically, with so much stress, that one wants to run away and hide deep in the mountains. A time heading toward decline.",
-      8: "A negative hexagram of blockage: heaven's energy does not come down and earth's energy does not go up. Blocked and not flowing — stifling. So one must wait out the time. Heaven's energy and earth's energy are blocked, and the energy of the people around is cut off one by one — a very stifling period. Little by little that surrounding energy is shut off, and the person sinks into a very tight situation mentally, physically and financially. There are cases of illness in childhood for no clear reason (leukemia, incurable disease, divorce, childhood cancer, blood cancer and long hospitalization), trouble entering university, and blockage in romance, marriage talks, work, business and much of real life. Some also become credit delinquents or go bankrupt.",
+      8: "A negative hexagram of blockage: heaven's energy does not come down and earth's energy does not go up. Blocked and not flowing — stifling.",
       9: "It means driving out the petty person in the higher seat. A state of pushing aside obstacles and advancing, but one may become isolated through obstinacy.",
       10: "Eloquent, and many are gourmets. Hwa Roe Seo Hap carries the same energy.",
       11: "'Hyeok' means reform. Full of drive and passion.",
