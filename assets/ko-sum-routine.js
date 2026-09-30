@@ -67,9 +67,9 @@
   }
 
   /** 인쇄: `{num}, {name}` 색칠 */
-  function suriPhrase(ns, ageKey) {
+  function suriPhrase(ns) {
     if (!ns || ns.suri == null || !ns.data) return "";
-    const nm = faceName(ns.suri, ageKey) || plainSuriName(ns);
+    const nm = plainSuriName(ns);
     const head = nm ? ns.suri + ", " + nm : String(ns.suri);
     return paintName(head, suriKind(ns));
   }
@@ -934,52 +934,6 @@
       .trim();
   }
 
-  /** 「초년에 들면」「말년에 들면」「총운에 들면」은 그 나이대에만 붙인다. */
-  function ageMarkAt(s) {
-    const pats = [
-      ["초년", /초년에 들면|초년에는|초년은|초년에 오면|어린아이 초년에 들면/],
-      ["말년", /말년에 들면|총운에 들면|말년에는|말년은/],
-    ];
-    let best = null;
-    for (let i = 0; i < pats.length; i++) {
-      const m = pats[i][1].exec(s);
-      if (m && (best == null || m.index < best.index)) best = { key: pats[i][0], index: m.index };
-    }
-    return best;
-  }
-  function applyAgeClause(text, ageKey) {
-    const ak = ageKey === "총운" ? "말년" : String(ageKey || "");
-    const raw = String(text || "").trim();
-    if (!raw) return "";
-    const bits = [];
-    let buf = "";
-    for (let i = 0; i < raw.length; i++) {
-      buf += raw[i];
-      const ch = raw[i];
-      if (ch === "." || ch === "。" || ch === "!" || ch === "?" || ch === "！") {
-        bits.push(buf);
-        buf = "";
-      }
-    }
-    if (buf.trim()) bits.push(buf);
-    const out = [];
-    bits.forEach(function (bit) {
-      const s = bit.trim();
-      if (!s) return;
-      const mark = ageMarkAt(s);
-      if (!mark) {
-        out.push(s);
-        return;
-      }
-      const head = s.slice(0, mark.index).replace(/[,，]\s*$/, "").trim();
-      const tail = s.slice(mark.index).trim();
-      if (head) out.push(head);
-      if (!ak || mark.key === ak) out.push(tail);
-    });
-    return out.join(" ").replace(/\s+/g, " ").trim();
-  }
-  window.koAgeClause = applyAgeClause;
-
   /** 어제 요약본 narrate 전체. 원본 body·core·desc는 쓰지 않는다. */
   function fullSuriSummary(num, ageKey) {
     const n = Number(num);
@@ -991,13 +945,12 @@
       const extra = String(row[ak]).trim();
       if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
     }
-    return applyAgeClause(t, ak);
+    return t;
   }
-  function fullHexSummary(g, ageKey) {
+  function fullHexSummary(g) {
     if (!g || g.id == null) return "";
     const row = (NAR().hex || {})[String(g.id)];
-    const t = row && row.narrate ? String(row.narrate).trim() : "";
-    return applyAgeClause(t, ageKey);
+    return row && row.narrate ? String(row.narrate).trim() : "";
   }
   function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
@@ -1215,17 +1168,8 @@
    */
   const SURI_FACE_LABEL = {
     14: { 초년: "지혜재능", 말년: "이산고독" },
-    19: { 초년: "지혜고독", 말년: "봉황고독" },
-    24: { 말년: "성실권위" },
-    27: { 말년: "대인좌절" },
+    19: { bad: "", good: "봉황고독" },
   };
-  function faceName(num, ageKey) {
-    const ak = ageKey === "총운" ? "말년" : ageKey;
-    if (ak !== "초년" && ak !== "말년") return "";
-    const L = SURI_FACE_LABEL[Number(num)];
-    return (L && L[ak]) || "";
-  }
-  window.koFaceName = faceName;
   const SURI_GOOD_FACE = {
     14: "지혜로워 영웅적 기질을 발휘하고, 위기 앞에서도 독종 소리를 들을 만큼 치열하게 살아 큰 재물운으로 나타나기도 합니다.",
     19: "두뇌가 명석해 크게 성공하고, 최고의 명예운으로 나타나기도 합니다.",
@@ -1322,8 +1266,8 @@
     return t == null ? null : String(t).replace(/<[^>]+>/g, "");
   };
   /** 요약보기 밑줄. 어제 요약본만. */
-  window.koHexTip = function (g, ageKey) {
-    return fullHexSummary(g, ageKey);
+  window.koHexTip = function (g) {
+    return fullHexSummary(g);
   };
   function suriAgeTextHtml(num, ageKey, g) {
     try {
@@ -4194,18 +4138,17 @@
       }
       return keepBothSides(raw);
     }
-    function shortHexFact(g, ageKey) {
-      return fullHexSummary(g, ageKey);
+    function shortHexFact(g) {
+      return fullHexSummary(g);
     }
     function factPiece(who, s, g, ageKey) {
       const bits = [];
       if (s && s.data && s.suri != null) {
         const fact = shortSuriFact(s, ageKey);
-        const shown = faceName(s.suri, ageKey) || plainSuriName(s);
-        if (fact) bits.push(who + " " + suriPhrase(s, ageKey) + josaEunNeun(shown) + " " + fact);
+        if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        const hx = shortHexFact(g, ageKey);
+        const hx = shortHexFact(g);
         if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
