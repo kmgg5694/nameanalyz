@@ -934,6 +934,52 @@
       .trim();
   }
 
+  /** 「초년에 들면」「말년에 들면」「총운에 들면」은 그 나이대에만 붙인다. */
+  function ageMarkAt(s) {
+    const pats = [
+      ["초년", /초년에 들면|초년에는|초년은|초년에 오면|어린아이 초년에 들면/],
+      ["말년", /말년에 들면|총운에 들면|말년에는|말년은/],
+    ];
+    let best = null;
+    for (let i = 0; i < pats.length; i++) {
+      const m = pats[i][1].exec(s);
+      if (m && (best == null || m.index < best.index)) best = { key: pats[i][0], index: m.index };
+    }
+    return best;
+  }
+  function applyAgeClause(text, ageKey) {
+    const ak = ageKey === "총운" ? "말년" : String(ageKey || "");
+    const raw = String(text || "").trim();
+    if (!raw) return "";
+    const bits = [];
+    let buf = "";
+    for (let i = 0; i < raw.length; i++) {
+      buf += raw[i];
+      const ch = raw[i];
+      if (ch === "." || ch === "。" || ch === "!" || ch === "?" || ch === "！") {
+        bits.push(buf);
+        buf = "";
+      }
+    }
+    if (buf.trim()) bits.push(buf);
+    const out = [];
+    bits.forEach(function (bit) {
+      const s = bit.trim();
+      if (!s) return;
+      const mark = ageMarkAt(s);
+      if (!mark) {
+        out.push(s);
+        return;
+      }
+      const head = s.slice(0, mark.index).replace(/[,，]\s*$/, "").trim();
+      const tail = s.slice(mark.index).trim();
+      if (head) out.push(head);
+      if (!ak || mark.key === ak) out.push(tail);
+    });
+    return out.join(" ").replace(/\s+/g, " ").trim();
+  }
+  window.koAgeClause = applyAgeClause;
+
   /** 어제 요약본 narrate 전체. 원본 body·core·desc는 쓰지 않는다. */
   function fullSuriSummary(num, ageKey) {
     const n = Number(num);
@@ -945,12 +991,13 @@
       const extra = String(row[ak]).trim();
       if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
     }
-    return t;
+    return applyAgeClause(t, ak);
   }
-  function fullHexSummary(g) {
+  function fullHexSummary(g, ageKey) {
     if (!g || g.id == null) return "";
     const row = (NAR().hex || {})[String(g.id)];
-    return row && row.narrate ? String(row.narrate).trim() : "";
+    const t = row && row.narrate ? String(row.narrate).trim() : "";
+    return applyAgeClause(t, ageKey);
   }
   function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
@@ -1266,8 +1313,8 @@
     return t == null ? null : String(t).replace(/<[^>]+>/g, "");
   };
   /** 요약보기 밑줄. 어제 요약본만. */
-  window.koHexTip = function (g) {
-    return fullHexSummary(g);
+  window.koHexTip = function (g, ageKey) {
+    return fullHexSummary(g, ageKey);
   };
   function suriAgeTextHtml(num, ageKey, g) {
     try {
@@ -4138,8 +4185,8 @@
       }
       return keepBothSides(raw);
     }
-    function shortHexFact(g) {
-      return fullHexSummary(g);
+    function shortHexFact(g, ageKey) {
+      return fullHexSummary(g, ageKey);
     }
     function factPiece(who, s, g, ageKey) {
       const bits = [];
@@ -4148,7 +4195,7 @@
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        const hx = shortHexFact(g);
+        const hx = shortHexFact(g, ageKey);
         if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;

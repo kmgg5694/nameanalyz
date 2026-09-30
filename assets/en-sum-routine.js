@@ -739,14 +739,14 @@
       if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
       const extra = ak && row[ak] ? String(row[ak]).trim() : "";
       if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
-      return tKo;
+      return applyAgeClause(tKo, ak);
     }
     const E = window.NA_NARR_EN || {};
     let fullEn = String((E.suri || {})[key] || "").trim();
     if (Number(n) === 23) fullEn = fullEn.replace(/^For a man,\s*/i, "");
     const age = ((E.suriAge || {})[key] || {})[ak];
     if (age && fullEn.indexOf(String(age).trim()) < 0) fullEn = fullEn ? fullEn + " " + String(age).trim() : String(age).trim();
-    return fullEn;
+    return applyAgeClause(fullEn, ak);
   };
   window.naHexSum = function (g, pen, ko, same) {
     if (!g) return "";
@@ -1929,6 +1929,49 @@
     const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
     return row && row.narrate ? String(row.narrate).trim() : "";
   }
+  function applyAgeClause(text, ageKey) {
+    const ak = ageKey === "총운" || ageKey === "말년" || ageKey === "Later years" ? "말년" : ageKey === "초년" || ageKey === "Early years" ? "초년" : String(ageKey || "");
+    const raw = String(text || "").trim();
+    if (!raw) return "";
+    const bits = [];
+    let buf = "";
+    for (let i = 0; i < raw.length; i++) {
+      buf += raw[i];
+      const ch = raw[i];
+      if (ch === "." || ch === "。" || ch === "!" || ch === "?" || ch === "！") {
+        bits.push(buf);
+        buf = "";
+      }
+    }
+    if (buf.trim()) bits.push(buf);
+    function markAt(s) {
+      const pats = [
+        ["초년", /초년에 들면|초년에는|초년은|초년에 오면|어린아이 초년에 들면|in the early years/i],
+        ["말년", /말년에 들면|총운에 들면|말년에는|말년은|in the later years/i],
+      ];
+      let best = null;
+      for (let i = 0; i < pats.length; i++) {
+        const m = pats[i][1].exec(s);
+        if (m && (best == null || m.index < best.index)) best = { key: pats[i][0], index: m.index };
+      }
+      return best;
+    }
+    const out = [];
+    bits.forEach(function (bit) {
+      const s = bit.trim();
+      if (!s) return;
+      const mark = markAt(s);
+      if (!mark) {
+        out.push(s);
+        return;
+      }
+      const head = s.slice(0, mark.index).replace(/[,，]\s*$/, "").trim();
+      const tail = s.slice(mark.index).trim();
+      if (head) out.push(head);
+      if (!ak || mark.key === ak) out.push(tail);
+    });
+    return out.join(" ").replace(/\s+/g, " ").trim();
+  }
   function narrSuriEn(s, ageKey) {
     const n = Number(s && s.suri);
     const E = (window.NA_NARR_EN || {}).suri || {};
@@ -1937,12 +1980,12 @@
     const ageMap = ((window.NA_NARR_EN || {}).suriAge || {})[String(n)] || {};
     const bit = ageKey && ageMap[ageKey] ? String(ageMap[ageKey]).trim() : "";
     if (bit && fullEn.indexOf(bit) < 0) fullEn = fullEn ? fullEn + " " + bit : bit;
-    return fullEn;
+    return applyAgeClause(fullEn, ageKey);
   }
-  function narrHexEn(g) {
+  function narrHexEn(g, ageKey) {
     if (!g || g.id == null) return "";
     const H = (window.NA_NARR_EN || {}).hex || {};
-    return String(H[g.id] || H[String(g.id)] || "").trim();
+    return applyAgeClause(String(H[g.id] || H[String(g.id)] || "").trim(), ageKey);
   }
   /** 요약본만. 순서: 말년 → 초년 → 장년 → 중년. 수리 요약 다음 주역 요약. */
   function buildPeriodReading(nS, nG, bS, bG, hasB, lang) {
@@ -1965,6 +2008,7 @@
           if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
           const extra = row[a.key] ? String(row[a.key]).trim() : "";
           if (extra && fact.indexOf(extra) < 0) fact = fact ? fact + " " + extra : extra;
+          fact = applyAgeClause(fact, a.key);
           const nm = plainSuriName(s, "ko");
           bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
@@ -1976,11 +2020,11 @@
       if (g && g.name) {
         if (ko) {
           const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
-          const hx = String(row.narrate || "").trim();
+          const hx = applyAgeClause(String(row.narrate || "").trim(), a.key);
           const gn = gweNameOf(g);
           bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
         } else {
-          const hx = narrHexEn(g);
+          const hx = narrHexEn(g, a.key);
           const label = gweNameHtml(g, "en");
           bits.push(hx ? label + " means " + esc(hx) : label);
         }
