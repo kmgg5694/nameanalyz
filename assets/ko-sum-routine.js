@@ -2937,7 +2937,7 @@
           let t =
             " " + lead + "말년(총운)의 " + pressHtml(nameMalPress) +
             (josaIGA(last) === "이" ? "이라는 " : "라는 ") + paintBlue("지원군") +
-            "이 도와주니, 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝납니다.";
+            "이 도와주니, 삐끗 하듯 미미한 정도라고 보시면 됩니다.";
           if (sajuMalPress.length) {
             const sl = sajuMalPress[sajuMalPress.length - 1].name;
             t += " 사주 말년에도 " + pressHtml(sajuMalPress) + josaIGA(sl) +
@@ -3998,7 +3998,7 @@
             t += " 다만 " + op[0] + "의 " + gweNameHtml(og) + josaIGA(gweNameOf(og)) + " 눌러 줍니다.";
           } else if (i !== 3 && np.length) {
             t += " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(np[np.length - 1].name) +
-              " 지원군이라 발목이 삐끗하는 수준으로 지나갑니다.";
+              " 지원군이라 삐끗 하듯 미미한 정도라고 보시면 됩니다.";
           }
         }
         out += t;
@@ -4106,7 +4106,7 @@
         return (
           "이름 속에 " + uniq.join(", ") + " 기운이 살짝 비치기는 하지만, 이름 말년(총운)의 " +
           pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
-          "이 되어 주니 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
+          "이 되어 주니 삐끗 하듯 미미한 정도라고 보시면 됩니다." +
           (sp.length
             ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
               " 있으니 살짝 스크래치만 남기고 사라집니다."
@@ -4135,7 +4135,7 @@
       const last = np[np.length - 1].name;
       return (
         " 다만 이름 말년(총운)의 " + pressHtml(np) + josaIGA(last) + " " + paintBlue("지원군") +
-        "이 되어 주니, 이런 흉은 달리기 하다가 발목이 삐끗하는 수준의 부상 정도로 끝나기 쉽습니다." +
+        "이 되어 주니, 삐끗 하듯 미미한 정도라고 보시면 됩니다." +
         (sp.length
           ? " 사주 말년에도 " + pressHtml(sp) + josaIGA(sp[sp.length - 1].name) +
             " 있으니 살짝 스크래치만 남기고 사라집니다."
