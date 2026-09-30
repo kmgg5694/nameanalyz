@@ -700,6 +700,8 @@
   function ageKeyOf(label) {
     const s = String(label || "");
     if (s.indexOf("초년") >= 0) return "초년";
+    if (s.indexOf("장년") >= 0) return "장년";
+    if (s.indexOf("중년") >= 0) return "중년";
     if (s.indexOf("말년") >= 0 || s.indexOf("총운") >= 0) return "말년";
     return "";
   }
@@ -737,6 +739,7 @@
       const row = ((window.__NARRATE__ || {}).suri || {})[key] || {};
       let tKo = String(row.narrate || "").trim();
       if (Number(n) === 23) tKo = tKo.replace("남자는 ", "");
+      if (window.koSuriNarrate) return window.koSuriNarrate(n, ak);
       const extra = ak && row[ak] ? String(row[ak]).trim() : "";
       if (extra && tKo.indexOf(extra) < 0) tKo = tKo ? tKo + " " + extra : extra;
       return tKo;
@@ -1917,7 +1920,8 @@
   function suriFactKo(s, g, ageIdx) {
     const n = Number(s && s.suri);
     const row = narrSuriRow(n);
-    const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : "";
+    const ageKey = ageIdx === 0 ? "초년" : ageIdx === 3 ? "말년" : ageIdx === 1 ? "장년" : ageIdx === 2 ? "중년" : "";
+    if (window.koSuriNarrate) return window.koSuriNarrate(n, ageKey);
     let t = String(row.narrate || "").trim();
     if (n === 23) t = t.replace("남자는 ", "");
     const ageBit = ageKey && row[ageKey] ? String(row[ageKey]).trim() : "";
@@ -1926,6 +1930,7 @@
   }
   function hexFactKo(g) {
     if (!g || !g.name) return "";
+    if (window.koHexNarrate) return window.koHexNarrate(g, "말년");
     const row = narrHexByName(gweNameOf(g)) || ((window.__NARRATE__ || {}).hex || {})[String(g.id)];
     return row && row.narrate ? String(row.narrate).trim() : "";
   }
@@ -1961,10 +1966,15 @@
       if (s && s.data && s.suri != null) {
         if (ko) {
           const row = narrSuriRow(s.suri);
-          let fact = String(row.narrate || "").trim();
-          if (Number(s.suri) === 23) fact = fact.replace("남자는 ", "");
-          const extra = row[a.key] ? String(row[a.key]).trim() : "";
-          if (extra && fact.indexOf(extra) < 0) fact = fact ? fact + " " + extra : extra;
+          const fact = window.koSuriNarrate
+            ? window.koSuriNarrate(s.suri, a.key)
+            : (function () {
+                let t = String(row.narrate || "").trim();
+                if (Number(s.suri) === 23) t = t.replace("남자는 ", "");
+                const extra = row[a.key] ? String(row[a.key]).trim() : "";
+                if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
+                return t;
+              })();
           const nm = plainSuriName(s, "ko");
           bits.push(a.key + " 이름에는 " + suriPhrase(s, "ko") + josa(nm, "은", "는") + (fact ? " " + fact : ""));
         } else {
@@ -1976,7 +1986,7 @@
       if (g && g.name) {
         if (ko) {
           const row = ((window.__NARRATE__ || {}).hex || {})[String(g.id)] || {};
-          const hx = String(row.narrate || "").trim();
+          const hx = window.koHexNarrate ? window.koHexNarrate(g, a.key) : String(row.narrate || "").trim();
           const gn = gweNameOf(g);
           bits.push(gweNameHtml(g, "ko") + josa(gn, "은", "는") + (hx ? " " + hx : ""));
         } else {

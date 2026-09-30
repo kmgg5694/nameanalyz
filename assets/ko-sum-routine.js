@@ -934,6 +934,125 @@
       .trim();
   }
 
+  /**
+   * 앞에 빈칸이 길게 뜬 「초년에 들면」「총운에 들면」은 그 나이대 글이다.
+   * 그 나이대에 들었으면 앞 서술은 빼고 그 글만 낸다. 한 문장 안에 붙은 짧은 조건은 그 나이대에만 보탠다.
+   */
+  const AGE_MARKS = [
+    ["어린아이 초년에 들면", "초년"],
+    ["초년에 택풍대과 있으면", "초년"],
+    ["초년에 들면", "초년"],
+    ["초년에 오면", "초년"],
+    ["초년 만사허망은", "초년"],
+    ["총운에 들면", "말년"],
+    ["총운에 있으면", "말년"],
+    ["총운에 있을시", "말년"],
+    ["말년에 들면", "말년"],
+  ];
+  function ageMarksIn(text) {
+    const hits = [];
+    AGE_MARKS.forEach(function (m) {
+      let from = 0;
+      while (true) {
+        const i = text.indexOf(m[0], from);
+        if (i < 0) break;
+        hits.push({ i: i, len: m[0].length, age: m[1] });
+        from = i + m[0].length;
+      }
+    });
+    hits.sort(function (a, b) { return a.i - b.i; });
+    const out = [];
+    let end = -1;
+    hits.forEach(function (h) {
+      if (h.i < end) return;
+      out.push(h);
+      end = h.i + h.len;
+    });
+    return out;
+  }
+  function splitAgeNarrate(text) {
+    const raw = String(text || "");
+    const hits = ageMarksIn(raw).map(function (h) {
+      let j = h.i - 1;
+      let spaces = 0;
+      while (j >= 0 && /\s/.test(raw[j])) {
+        spaces++;
+        j--;
+      }
+      h.para = spaces >= 6;
+      return h;
+    });
+    const flat = raw.replace(/\s+/g, " ").trim();
+    if (!hits.length) return { lead: flat, 초년: "", 말년: "", 초년Para: false, 말년Para: false };
+    let lead = "";
+    const bag = { 초년: [], 말년: [] };
+    const para = { 초년: false, 말년: false };
+    let cursor = 0;
+    for (let i = 0; i < hits.length; i++) {
+      const h = hits[i];
+      if (h.i < cursor) continue;
+      lead += raw.slice(cursor, h.i);
+      let stop = raw.length;
+      if (h.para) {
+        for (let k = i + 1; k < hits.length; k++) {
+          if (hits[k].para) {
+            stop = hits[k].i;
+            break;
+          }
+        }
+        para[h.age] = true;
+      } else {
+        const rest = raw.slice(h.i);
+        const m = rest.match(/^[^.。]*[.。]?/);
+        stop = h.i + (m ? m[0].length : rest.length);
+      }
+      bag[h.age].push(raw.slice(h.i, stop).replace(/\s+/g, " ").trim());
+      cursor = stop;
+    }
+    lead += raw.slice(cursor);
+    return {
+      lead: lead.replace(/\s+/g, " ").replace(/[,\s]+$/g, "").trim(),
+      초년: bag.초년.join(" ").trim(),
+      말년: bag.말년.join(" ").trim(),
+      초년Para: para.초년,
+      말년Para: para.말년,
+    };
+  }
+  function pickAgeNarrate(narrate, ageKey, earlyField, lateField) {
+    const ak = ageKey === "총운" ? "말년" : ageKey || "";
+    const base = splitAgeNarrate(narrate);
+    if (!ak) return base.lead;
+    if (ak === "말년") {
+      if (lateField) {
+        const sp = splitAgeNarrate(lateField);
+        const bit = [sp.lead, sp.초년, sp.말년].filter(Boolean).join(" ");
+        if (bit) return bit;
+      }
+      let late = base.말년;
+      let latePara = base.말년Para;
+      if (earlyField) {
+        const sp = splitAgeNarrate(earlyField);
+        if (sp.말년) {
+          late = sp.말년;
+          latePara = true;
+        }
+      }
+      if (latePara && late) return late;
+      if (late) return (base.lead ? base.lead + " " : "") + late;
+      return base.lead;
+    }
+    if (ak === "초년") {
+      if (earlyField) {
+        const sp = splitAgeNarrate(earlyField);
+        const bit = [sp.lead, sp.초년].filter(Boolean).join(" ");
+        if (bit) return bit;
+      }
+      if (base.초년Para && base.초년) return base.초년;
+      if (base.초년) return (base.lead ? base.lead + " " : "") + base.초년;
+      return base.lead;
+    }
+    return base.lead;
+  }
   /** 어제 요약본 narrate 전체. 원본 body·core·desc는 쓰지 않는다. */
   function fullSuriSummary(num, ageKey) {
     const n = Number(num);
@@ -941,24 +1060,36 @@
     let t = String(row.narrate || "").trim();
     if (n === 23) t = t.replace("남자는 ", "");
     const ak = ageKey === "총운" ? "말년" : ageKey;
-    if (ak && row[ak]) {
-      const extra = String(row[ak]).trim();
-      if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
+    if (!ak) {
+      ["초년", "말년"].forEach(function (k) {
+        const extra = row[k] ? String(row[k]).trim() : "";
+        if (extra && t.indexOf(extra) < 0) t = t ? t + " " + extra : extra;
+      });
+      return t.replace(/\s+/g, " ").trim();
     }
-    return t;
+    const picked = pickAgeNarrate(t, ak, row.초년, row.말년);
+    if ((ak === "장년" || ak === "중년") && row[ak]) {
+      const extra = String(row[ak]).trim();
+      if (extra && picked.indexOf(extra) < 0) return picked ? picked + " " + extra : extra;
+    }
+    return picked;
   }
-  function fullHexSummary(g) {
+  function fullHexSummary(g, ageKey) {
     if (!g || g.id == null) return "";
     const row = (NAR().hex || {})[String(g.id)];
-    return row && row.narrate ? String(row.narrate).trim() : "";
+    const t = row && row.narrate ? String(row.narrate).trim() : "";
+    if (!t || !ageKey) return t;
+    return pickAgeNarrate(t, ageKey, "", "");
   }
   function suriCoreBrief(ns, ageKey) {
     if (!ns || ns.suri == null) return "";
     return fullSuriSummary(ns.suri, ageKey);
   }
-  function hexCoreBrief(ng) {
-    return fullHexSummary(ng);
+  function hexCoreBrief(ng, ageKey) {
+    return fullHexSummary(ng, ageKey);
   }
+  window.koSuriNarrate = fullSuriSummary;
+  window.koHexNarrate = fullHexSummary;
   function suriOriginalText(ns) {
     if (!ns || ns.suri == null) return "";
     return fullSuriSummary(ns.suri, "");
@@ -1307,7 +1438,7 @@
 
   /** 구술용 주역: 특례 있으면 특례만, 없으면 핵심만 짧게. prevNg=시간순 직전 괘 */
   function hexBodyForNarrate(ng, prevNg, ageKey) {
-    const brief = hexCoreBrief(ng);
+    const brief = hexCoreBrief(ng, ageKey);
     let body = brief ? " " + esc(brief) : "";
     const special = hexSpecialNote(ng);
     if (special && body.indexOf("관절") < 0) body += special;
@@ -4138,8 +4269,8 @@
       }
       return keepBothSides(raw);
     }
-    function shortHexFact(g) {
-      return fullHexSummary(g);
+    function shortHexFact(g, ageKey) {
+      return fullHexSummary(g, ageKey);
     }
     function factPiece(who, s, g, ageKey) {
       const bits = [];
@@ -4148,8 +4279,8 @@
         if (fact) bits.push(who + " " + suriPhrase(s) + josaEunNeun(plainSuriName(s)) + " " + fact);
       }
       if (g && g.name) {
-        const hx = shortHexFact(g);
-        if (hx) bits.push(gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
+        const hx = shortHexFact(g, ageKey);
+        if (hx) bits.push("주역괘" + gweNameHtml(g) + josaEunNeun(gweNameOf(g)) + " " + hx);
       }
       return bits;
     }
@@ -4163,10 +4294,10 @@
       const blocks = [];
       ages.forEach(function (a) {
         const hg = factPiece(a.key + " 한글", nmS[a.idx], nmG[a.idx], a.key);
-        blocks.push(hg.length ? hg.join(" ") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
+        blocks.push(hg.length ? hg.join("<br>") : a.key + " 한글에는 그 자리에 적은 수리·괘가 없습니다.");
         if (hasHanja) {
           const hj = factPiece(a.key + " 한문", hjS[a.idx], hjG[a.idx], a.key);
-          blocks.push(hj.length ? hj.join(" ") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
+          blocks.push(hj.length ? hj.join("<br>") : a.key + " 한문에는 그 자리에 적은 수리·괘가 없습니다.");
         }
       });
       return blocks.join("<br><br>");
@@ -4510,7 +4641,7 @@
             }
             t += paintRed(gn) + "은 주변에 인맥이 끊어져 나가고, 논바닥에 물이 없으니 배도 고픈 기운으로 힘이 드는데 이름의 나쁜 기운이 보태어져 더 강하게 눌러 주니 아주 힘이 드는 시기입니다. ";
           } else {
-            const gm = hexCoreBrief(g);
+            const gm = hexCoreBrief(g, a.key);
             if (gm) t += paintRed(gn) + josaEunNeun(gn) + " " + gm + " ";
             t += "이름의 나쁜 기운이 보태어져 더 강하게 눌러 주니 아주 힘이 드는 시기입니다. ";
           }
