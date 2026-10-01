@@ -51,6 +51,12 @@
       wrap.innerHTML = "";
       wrap.appendChild(v);
     }
+    /* 소리 켜기 버튼 연결 */
+    if (typeof window.bindIntroUnmute === "function") {
+      try {
+        window.bindIntroUnmute(wrap, v);
+      } catch (e) {}
+    }
     return v;
   }
 
