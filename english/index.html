@@ -45,7 +45,7 @@
           } catch (e) {}
           return {};
         }
-        var d = "../data/core-summaries/", v = "?v=20260930sum23";
+        var d = "../data/core-summaries/", v = "?v=20261001fix1";
         window.__CORE_SUMMARIES__ = { suri: g(d + "suri-core-by-num.json" + v), hex: g(d + "hex-core-by-id.json" + v) };
         window.__NARRATE__ = { suri: g(d + "suri-narrate-by-num.json" + v), hex: g(d + "hex-narrate-by-id.json" + v) };
       })();
@@ -53,7 +53,7 @@
     <script src="../assets/ko-sum-routine.js?v=20260930sum21"></script>
     <script src="../assets/en-narrate.js?v=20260930sum24"></script>
     <script src="../assets/en-sum-routine.js?v=20260930sum24"></script>
-    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20260929en67"></script>
+    <script type="module" crossorigin src="../assets/index-eTNXNndF.js?v=20261001fix1"></script>
     <link rel="stylesheet" crossorigin href="../assets/index-bsqWv9Bg.css">
     <style>
       html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
@@ -394,13 +394,16 @@ Error generating stack: `+l.message+`
           cap.setAttribute("aria-hidden", "true");
           wrap.appendChild(cap);
         }
-        cap.innerHTML = '<span class="intro-caption-text">Try a name reading. You\'ll have fun.</span>';
+        var isKo = document.documentElement.getAttribute("data-na-lang") === "ko";
+        cap.innerHTML = '<span class="intro-caption-text">' + (isKo ? "이름풀이 해 보세요. 재미있습니다." : "Try a name reading. You'll have fun.") + '</span>';
         var muteBtn = bar.querySelector(".intro-mute");
         function sync() {
           muteBtn.setAttribute("data-muted", v.muted ? "1" : "0");
-          muteBtn.setAttribute("aria-label", v.muted ? "Sound on" : "Mute");
+          var ko = document.documentElement.getAttribute("data-na-lang") === "ko";
+          var onTxt = ko ? "소리 켜기" : "Sound on", offTxt = ko ? "소리 끄기" : "Mute";
+          muteBtn.setAttribute("aria-label", v.muted ? onTxt : offTxt);
           var lab = muteBtn.querySelector(".mute-label");
-          if (lab) lab.textContent = v.muted ? "Sound on" : "Mute";
+          if (lab) lab.textContent = v.muted ? onTxt : offTxt;
         }
         if (!muteBtn.getAttribute("data-wired")) {
           muteBtn.setAttribute("data-wired", "1");
