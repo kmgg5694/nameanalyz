@@ -1,6 +1,23 @@
 <!doctype html>
 <html lang="ko">
   <head>
+  <!-- Google Analytics 4 (허브와 같은 측정 ID) -->
+  <script>
+    window.GA_MEASUREMENT_ID = "G-G76ZRYRJQH";
+    (function () {
+      var id = window.GA_MEASUREMENT_ID;
+      if (!id || /X{4,}/.test(id)) return;
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", id);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
