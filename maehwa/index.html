@@ -1224,16 +1224,16 @@ const EASY_W={1:'귀인',2:'변화',3:'갈등',4:'안정',5:'과감',6:'명예',
 function easyTags(a){const T=[];if(a.br.hapPa)T.push(['합파','b']);else a.br.t.forEach(t=>{t=t.replace('(同)','');T.push([t,(t.includes('합'))?'g':'b']);});
  if(a.st.v<0)T.push(['천간극','b']);else if(a.st.t==='比和')T.push(['천간비화','n']);else T.push(['천간생','g']);
  return T.map(([t,c])=>'<span class="etg '+c+'">'+t+'</span>').join('');}
-function easyGrid(B,mode){const rn={life:['1행','2행','3행','4행'],year:['음력 1~3월 (봄)','음력 4~6월 (여름)','음력 7~9월 (가을)','음력 10~12월 (겨울)'],day:['새벽~아침','낮','오후~저녁','밤']};
+function easyGrid(B,mode){const rn={life:['1행','2행','3행','4행'],year:['음력 1~3월 (봄)','음력 4~6월 (여름)','음력 7~9월 (가을)','음력 10~12월 (겨울)'],day:['새벽~아침 (03:30~09:29)','낮 (09:30~15:29)','오후~저녁 (15:30~21:29)','밤 (21:30~03:29)']};
  const R=rn[mode==='month'?'year':mode==='hour'?'day':mode];
  let h='<section class="card"><h2>12칸 포국도 — 기본수 '+B.base+' · 주도수 '+B.lead+' ('+B.base+B.lead+'번)</h2><div class="egrid">';
  B.cells.forEach((a,i)=>{if(i%3===0)h+='<div class="erow">'+R[i/3]+'</div>';const s=cellScore(B,i),L=lightOf(s);
-  const lab=mode==='life'?a.ranges.filter(r=>r[0]<=99).map(r=>r[0]===r[1]?r[0]:r[0]+'~'+r[1]).join(', ')+'세':(mode==='year'||mode==='month')?(i+1)+'월':ZHI[(i+2)%12]+'時';
+  const lab=mode==='life'?a.ranges.filter(r=>r[0]<=99).map(r=>r[0]===r[1]?r[0]:r[0]+'~'+r[1]).join(', ')+'세':(mode==='year'||mode==='month')?(i+1)+'월':bTime((i+2)%12).replace('~','<br>~')+'<small style="display:block;font-weight:400;color:var(--sub);font-size:11px">'+toHangul(ZHI[(i+2)%12])+'시</small>';
   h+='<button type="button" class="ecell '+L+(a.cur?' cur':'')+'" data-i="'+i+'"><div class="el">'+lab+'</div><div class="eg"><span class="hj">'+gz(a.gzI)+'</span> <small>'+toHangul(gz(a.gzI))+'</small></div><div class="en">'+a.num+'<small>'+EASY_W[a.num]+'</small></div><div class="ets">'+easyTags(a)+'</div><span class="lt '+L+'"></span></button>';});
  h+='</div><div class="hint">'+lt(1)+'좋음 '+lt(0)+'보통 '+lt(-1)+'조심 · <span class="etg g">합·생</span> 맞는 기운 <span class="etg b">충·형·파·해·원진·극</span> 부딪치는 기운 · 일주 '+gz(ST.P.saju.dIdx)+'('+toHangul(gz(ST.P.saju.dIdx))+') 기준<br>칸을 누르면 그 칸의 풀이가 나옵니다. 금색 테두리가 지금입니다.</div></section>';
  return h;}
 function easyCell(B,mode,i){const a=B.cells[i],R=B.rows[Math.floor(i/3)],sc=cellScore(B,i),rel=relPlain(a.gzI);
- const lab=mode==='life'?a.label+' 대운':(mode==='year'||mode==='month')?'음력 '+(i+1)+'월':ZHI[(i+2)%12]+'時 ('+bTime((i+2)%12)+')';
+ const lab=mode==='life'?a.label+' 대운':(mode==='year'||mode==='month')?'음력 '+(i+1)+'월':bTime((i+2)%12)+' ('+toHangul(ZHI[(i+2)%12])+'시)';
  let h='<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div><div class="ets" style="margin:4px 0 8px">'+easyTags(a)+'</div>'+numBlock(a.num,sc)+'<div class="eb"><div class="et">궁합: 이 칸 '+gzK(a.gzI)+' ↔ 나 '+gzK(ST.P.saju.dIdx)+'</div>'+rel.html+'</div><div class="eb"><div class="et">원조 풀이 (이 줄 '+R.trip+')</div>'+rowTexts(R)+'</div>';
  openM(lab+' · '+gzK(a.gzI),h);applyLang($('mB'));}
 function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.y,q.m,q.d);
@@ -1272,9 +1272,9 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
    body+='<section class="card"><h2>이날의 주된 기운</h2>'+numBlock(D.lead,gradeS(D.grade))+'</section>';
    const tn=['새벽~아침 (03:30~09:29)','낮 (09:30~15:29)','오후~저녁 (15:30~21:29)','밤 (21:30~03:29)'];
    body+='<section class="card"><h2>시간대별 풀이</h2>'+D.rows.map((R,r)=>'<div class="qrt">'+lt(R.g)+'<b>'+tn[r]+'</b> · '+LT_WORD[lightOf(R.g)]+rowTexts(R)+'</div>').join('')+'</section>';
-   body+='<section class="card"><h2>두 시간마다 신호등</h2><div class="mgrid">'+D.cells.map((c,i)=>{const b=(i+2)%12;const st=(23*60+30+b*120)%1440;return '<button type="button" class="hbtn" data-t="'+st+'">'+ZHI[b]+'時'+lt(cellScore(D,i))+'<small>'+bTime(b)+'</small></button>';}).join('')+'</div><div class="hint">누르면 그 시간의 시운으로 넘어갑니다.</div></section>';}
+   body+='<section class="card"><h2>두 시간마다 신호등</h2><div class="mgrid">'+D.cells.map((c,i)=>{const b=(i+2)%12;const st=(23*60+30+b*120)%1440;return '<button type="button" class="hbtn" data-t="'+st+'">'+bTime(b).replace('~','<br>~')+lt(cellScore(D,i))+'<small>'+toHangul(ZHI[b])+'시</small></button>';}).join('')+'</div><div class="hint">누르면 그 시간의 시운으로 넘어갑니다.</div></section>';}
   else{const i=(cb-2+12)%12,a=D.cells[i],R=D.rows[Math.floor(i/3)];const hr=relPlain(a.gzI);const sc=cellScore(D,i);const hs=sgn(sc)+sgn(hr.sc);
-   title=q.y+'.'+q.m+'.'+q.d+' '+gzK(a.gzI)+'시 ('+bTime(cb)+')';
+   title=q.y+'.'+q.m+'.'+q.d+' '+bTime(cb)+' ('+gzK(a.gzI)+'시)';
    body+='<section class="card"><h2>이 시간 총평</h2><div class="sbig">'+lt(hs)+LT_WORD[lightOf(hs)]+'</div><div class="eb"><div class="et">이 시간('+gzK(a.gzI)+')과 나의 궁합</div>'+hr.html+'</div><div class="hint">그날 전체는 '+LT_EMO[lightOf(s)]+' '+LT_WORD[lightOf(s)]+'입니다.</div></section>';
    body+='<section class="card"><h2>이 시간의 기운</h2>'+numBlock(a.num,sc)+'</section>';
    body+='<section class="card"><h2>원조 풀이 — 이 시간대</h2><div class="stxt">'+rowTexts(R)+'</div></section>';}}
