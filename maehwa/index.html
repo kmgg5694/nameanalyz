@@ -942,7 +942,7 @@ function run(){$('err').textContent='';
  const qv=$('qD').value;if(!qv){$('err').textContent='조회 기준일을 선택하세요.';return;}const [qy,qm,qd]=qv.split('-').map(Number);
  if(!solarToLunar(qy,qm,qd)){$('err').textContent='조회 기준일은 1900~2050년 사이여야 합니다.';return;}
  const qt=($('qT').value||'12:00').split(':').map(Number);
- ST.P=P;ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';if('speechSynthesis' in window)$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
+ ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';if('speechSynthesis' in window)$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
 function setQ(sol){ST.q=sol;$('qD').value=sol.y+'-'+String(sol.m).padStart(2,'0')+'-'+String(sol.d).padStart(2,'0');render();}
 const elc=i=>'el'+i;
 function stemH(s){return '<span class="'+elc(STEM_EL[s])+'">'+GAN[s]+'</span>';}
@@ -1312,7 +1312,8 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
 
 document.querySelectorAll('#vsw button').forEach(b=>b.onclick=()=>setView(b.dataset.v));setView(VIEW);
 const APP_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';
-function doShare(){const txt=ST.shareTxt||'매화역수 운세';const url=/^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;
+function syncResult(){try{const f=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);if(ST.lastForm!==f){run();return true;}}catch(e){}return false;}
+function doShare(){syncResult();const txt=ST.shareTxt||'매화역수 운세';const url=/^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;
  const full=txt+(url?'\n\n👉 내 운세도 무료로 보기\n'+url:'');
  const done=()=>alert('운세 내용을 복사했습니다.\n카카오톡 대화방에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.');
  if(navigator.share){navigator.share({title:'매화역수 운세',text:full}).catch(e=>{if(!e||e.name!=='AbortError')copyText(full,done,'운세 내용 복사');});return;}
@@ -1326,7 +1327,7 @@ function copyText(t,done,title){if(execCopy(t)){done();return;}
  let fin=false;const fail=()=>{if(!fin){fin=true;manualCopy(t,title);}};
  if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){const tm=setTimeout(fail,1200);navigator.clipboard.writeText(t).then(()=>{if(!fin){fin=true;clearTimeout(tm);done();}},()=>{clearTimeout(tm);fail();});}else fail();}
 function fallbackCopy(t,cb){copyText(t,cb);}
-function doPrint(){const c=cForm();const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤달)':'음력';const n=new Date();
+function doPrint(){syncResult();const c=cForm();const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤달)':'음력';const n=new Date();
  $('printHead').innerHTML='<b style="font-size:18px">'+esc(c.name||'본인')+'</b> · '+(c.sex==='M'?'남':'여')+' · '+cal+' '+c.y+'.'+c.m+'.'+c.d+' '+(c.t||'시각 모름')+'<br><small>출력일 '+n.getFullYear()+'.'+(n.getMonth()+1)+'.'+n.getDate()+' · 풍백테크 매화역수 · 상담 010-5694-7817</small>';
  document.querySelectorAll('#simple details,#out details').forEach(d=>{d.dataset.wasOpen=d.open?'1':'';d.open=true;});
  window.print();}
@@ -1372,7 +1373,7 @@ function ttsStop(){TTS_ON=false;TTS_Q=[];try{speechSynthesis.cancel();}catch(e){
 function ttsNext(){if(!TTS_ON)return;const t=TTS_Q.shift();if(t==null){ttsStop();return;}
  const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=TTS_RATE;const v=ttsVoice();if(v)u.voice=v;
  u.onend=ttsNext;u.onerror=ttsNext;speechSynthesis.speak(u);}
-function ttsStart(){if(!('speechSynthesis' in window)){alert('이 기기는 소리로 듣기를 지원하지 않습니다.');return;}
+function ttsStart(){if(typeof syncResult==='function')syncResult();if(!('speechSynthesis' in window)){alert('이 기기는 소리로 듣기를 지원하지 않습니다.');return;}
  let root;if(VIEW==='easy')root=$('simple');else{root=document.createElement('div');['bar','big','rows'].forEach(id=>{const e=$(id);if(e)root.appendChild(e.cloneNode(true));});}
  const nm=($('iName').value.trim()||'');TTS_Q=[(nm?nm+'님의 ':'')+'매화역수 풀이를 읽어 드리겠습니다.'].concat(ttsChunks(root));TTS_Q.push('풍백테크 상담 전화는 공일공, 오육구사, 칠팔일칠 입니다.');
  TTS_ON=true;speechSynthesis.cancel();const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');setTimeout(ttsNext,150);}
