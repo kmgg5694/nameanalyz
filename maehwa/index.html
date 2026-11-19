@@ -236,7 +236,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 <section class="card" id="inputCard">
  <h2>생년월일시 입력</h2>
  <div class="form">
-  <label>이름<input id="iName" placeholder="홍길동" autocomplete="off"></label>
+  <label>이름<input id="iName" placeholder="이름을 넣으세요" autocomplete="off"></label>
   <label>성별<select id="iSex"><option value="M">남자</option><option value="F">여자</option></select></label>
   <label>달력<select id="iCal"><option value="solar">양력</option><option value="lunar">음력(평달)</option><option value="leap">음력(윤달)</option></select></label>
   <label style="grid-column:span 2">생년월일<div class="row3"><select id="iY"></select><select id="iM"></select><select id="iD"></select></div></label>
@@ -1314,7 +1314,7 @@ document.querySelectorAll('#vsw button').forEach(b=>b.onclick=()=>setView(b.data
 const APP_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';
 function syncResult(){try{const f=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);if(ST.lastForm!==f){run();return true;}}catch(e){}return false;}
 function doShare(){syncResult();const txt=ST.shareTxt||'매화역수 운세';const url=/^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;
- const full=txt+(url?'\n\n👉 내 운세도 무료로 보기\n'+url:'');
+ const pl=personLink(url);const full=txt+(url?'\n\n👉 '+(($('iName').value.trim()||'')?$('iName').value.trim()+'님 운세 자세히 보기':'자세히 보기')+'\n'+pl+'\n\n🌸 내 운세도 무료로 보기\n'+url:'');
  const done=()=>alert('운세 내용을 복사했습니다.\n카카오톡 대화방에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.');
  if(navigator.share){navigator.share({title:'매화역수 운세',text:full}).catch(e=>{if(!e||e.name!=='AbortError')copyText(full,done,'운세 내용 복사');});return;}
  copyText(full,done,'운세 내용 복사');}
@@ -1333,6 +1333,14 @@ function doPrint(){syncResult();const c=cForm();const cal=c.cal==='solar'?'양�
  window.print();}
 window.addEventListener('afterprint',()=>document.querySelectorAll('#simple details,#out details').forEach(d=>{d.open=d.dataset.wasOpen==='1';}));
 $('shareBtn').onclick=doShare;
+/* ===== 사람 정보가 담긴 링크 ===== */
+function personLink(base){if(!base)return '';const c=cForm();const p=new URLSearchParams();p.set('n',c.name||'');p.set('s',c.sex);p.set('c',c.cal);p.set('b',c.y+'-'+c.m+'-'+c.d);if(c.t)p.set('t',c.t);if(typeof ES!=='undefined'&&ES.mode)p.set('v',ES.mode);return base+'?'+p.toString();}
+(function(){try{const p=new URLSearchParams(location.search);if(!p.get('b'))return;const b=p.get('b').split('-').map(Number);if(b.length!==3||!b[0])return;
+ $('iName').value=p.get('n')||'';if(p.get('s'))$('iSex').value=p.get('s');if(p.get('c'))$('iCal').value=p.get('c');$('iY').value=b[0];$('iM').value=b[1];$('iD').value=b[2];
+ const t=p.get('t');$('iTU').checked=!t;$('iT').disabled=!t;if(t)$('iT').value=t;
+ if(p.get('v')&&typeof ES!=='undefined'&&['life','year','month','day','hour'].includes(p.get('v')))ES.mode=p.get('v');
+ setTimeout(()=>{run();},50);}catch(e){}})();
+
 function appUrl(){return /^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;}
 function doCopyUrl(){const url=appUrl();if(!url){alert('아직 인터넷 주소가 없는 파일입니다.');return;}
  const done=()=>alert('주소를 복사했습니다.\n카톡·문자·블로그에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.\n\n'+url);
