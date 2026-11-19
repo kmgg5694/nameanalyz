@@ -207,6 +207,8 @@ body:not(.easy) .easy-only{display:none!important}
 .fchip .fn{font-size:17px;font-weight:800;color:var(--navy);padding:10px 6px 10px 16px;min-height:46px}
 .fchip .fx{font-size:16px;color:#b3261e;padding:10px 14px 10px 8px}
 .fempty{font-size:15px;color:var(--sub);line-height:1.6}
+.cpy{background:#fff;color:#1e2a4a;border:2px solid #1e2a4a!important}
+.actbar{flex-wrap:wrap}.actbar button{min-width:0;white-space:nowrap}#shareBtn{flex:1 1 100%}#printBtn,#copyBtn{flex:1 1 40%}
 footer{text-align:center;font-size:13px;color:var(--sub);padding:18px 10px 30px}
 details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 @media(max-width:560px){
@@ -251,7 +253,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 </section>
 
 <div id="printHead" class="print-only card"></div>
-<div id="actBar" class="card actbar" style="display:none"><button class="kakao" id="shareBtn" type="button">💬 카톡으로 보내기</button><button class="prt" id="printBtn" type="button">🖨️ 인쇄하기</button></div>
+<div id="actBar" class="card actbar" style="display:none"><button class="kakao" id="shareBtn" type="button">💬 카톡으로 보내기</button><button class="prt" id="printBtn" type="button">🖨️ 인쇄하기</button><button class="cpy" id="copyBtn" type="button">🔗 주소 복사</button></div>
 <div id="ttsBar" class="card ttsbar" style="display:none"><button type="button" id="ttsBtn">🔊 소리로 듣기</button><div class="ttsr"><span>빠르기</span><button type="button" data-r="0.8">느리게</button><button type="button" data-r="1" class="on">보통</button><button type="button" data-r="1.2">빠르게</button></div></div>
 <div id="simple" style="display:none"></div>
 </main>
@@ -1322,6 +1324,12 @@ function doPrint(){const c=cForm();const cal=c.cal==='solar'?'양력':c.cal==='l
  window.print();}
 window.addEventListener('afterprint',()=>document.querySelectorAll('#simple details,#out details').forEach(d=>{d.open=d.dataset.wasOpen==='1';}));
 $('shareBtn').onclick=doShare;
+function appUrl(){return /^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;}
+function doCopyUrl(){const url=appUrl();if(!url){alert('아직 인터넷 주소가 없는 파일입니다.');return;}
+ const done=()=>alert('주소를 복사했습니다.\n카톡·문자·블로그에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.\n\n'+url);
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>fallbackCopy(url,done));else fallbackCopy(url,done);}
+$('copyBtn').onclick=doCopyUrl;if(!appUrl())$('copyBtn').style.display='none';
+
 /* ===== 일반용: 우리 가족 저장 ===== */
 const FAM_KEY='mh_family_v1',FAM_MAX=5;
 function famGet(){try{return JSON.parse(localStorage.getItem(FAM_KEY)||'[]');}catch(e){return [];}}
