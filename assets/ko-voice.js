@@ -1,7 +1,7 @@
 /* 이름풀이 결과 소리로 듣기 (휴대폰 내장 음성, 무료) — 풍백테크 */
 (function () {
   "use strict";
-  if (!("speechSynthesis" in window)) return;
+  var HAS = !!window.speechSynthesis;
   var RATE = 1, ON = false, Q = [];
   try { RATE = +localStorage.getItem("na_tts_rate") || 1; } catch (e) {}
   var RATES = [[0.8, "느리게"], [1, "보통"], [1.2, "빠르게"]];
@@ -82,16 +82,34 @@
     L.push("자세한 이름풀이와 작명 의뢰는 공일공, 오육구사, 칠팔일칠 로 연락 주세요.");
     return L;
   }
-  function stop() { ON = false; Q = []; try { speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 소리로 듣기"; btn.classList.remove("on"); }
+  function inApp() { return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent); }
+  function openExternal() {
+    var url = location.href;
+    if (/KAKAOTALK/i.test(navigator.userAgent)) { location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(url); return; }
+    if (/Android/i.test(navigator.userAgent)) { location.href = "intent://" + url.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end"; return; }
+    alert("오른쪽 위 메뉴에서 [Safari로 열기] 또는 [다른 브라우저로 열기]를 눌러 주세요.");
+  }
+  function help() {
+    var msg = (inApp() || !HAS ? "카톡·네이버 같은 앱 안에서 열린 화면에서는 휴대폰 음성 기능이 막혀 있습니다.\n크롬(또는 삼성 인터넷)으로 열면 소리가 나옵니다.\n\n[확인]을 누르면 크롬으로 엽니다.\n\n" : "") +
+      "그래도 소리가 안 나면:\n① 휴대폰 볼륨(소리) 버튼을 올려 주세요(무음·진동이면 안 납니다).\n② [설정] → [일반] → [텍스트 음성 변환(TTS)]에서 언어를 한국어, 엔진을 삼성 또는 구글로 맞춰 주세요.";
+    if (inApp() || !HAS) { if (confirm(msg)) openExternal(); } else alert(msg);
+  }
+  var OK = false;
+  function stop() { ON = false; Q = []; try { if (HAS) speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 소리로 듣기"; btn.classList.remove("on"); }
   function next() {
     if (!ON) return; var t = Q.shift(); if (t == null) { stop(); return; }
-    var u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = RATE; var v = voice(); if (v) u.voice = v;
-    u.onend = next; u.onerror = next; speechSynthesis.speak(u);
+    var u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = RATE; u.volume = 1; var v = voice(); if (v) u.voice = v;
+    u.onstart = function () { OK = true; }; u.onend = next;
+    u.onerror = function (e) { if (e && !OK && /not-allowed|synthesis-unavailable|audio-hardware/.test(e.error || "")) { stop(); help(); return; } next(); };
+    try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u);
   }
   function start() {
-    Q = collect(); if (!Q.length) return;
+    if (!HAS) { help(); return; }
+    Q = collect(); if (!Q.length) return; OK = false;
     try { var iv = document.getElementById("introVideo"); if (iv) iv.muted = true; } catch (e) {}
-    ON = true; speechSynthesis.cancel(); btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); setTimeout(next, 150);
+    ON = true; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
+    btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); next();
+    setTimeout(function () { if (ON && !OK && !speechSynthesis.speaking) { stop(); help(); } }, 4000);
   }
   btn.onclick = function () { ON ? stop() : start(); };
   rb.onclick = function () {
@@ -99,7 +117,7 @@
     RATE = RATES[(i + 1) % RATES.length][0]; try { localStorage.setItem("na_tts_rate", RATE); } catch (e) {}
     rb.textContent = "빠르기: " + rateLabel(); if (ON) { stop(); start(); }
   };
-  speechSynthesis.getVoices();
+  try { if (HAS) speechSynthesis.getVoices(); } catch (e) {}
   // 결과 화면이 보일 때만 버튼 표시, 결과가 바뀌면 읽기 멈춤
   var last = null;
   setInterval(function () {
@@ -109,5 +127,5 @@
     if (ON && (!vis || (last !== null && sig !== last))) stop();
     last = sig;
   }, 700);
-  window.addEventListener("beforeunload", function () { try { speechSynthesis.cancel(); } catch (e) {} });
+  window.addEventListener("beforeunload", function () { try { if (HAS) speechSynthesis.cancel(); } catch (e) {} });
 })();

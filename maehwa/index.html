@@ -942,7 +942,7 @@ function run(){$('err').textContent='';
  const qv=$('qD').value;if(!qv){$('err').textContent='조회 기준일을 선택하세요.';return;}const [qy,qm,qd]=qv.split('-').map(Number);
  if(!solarToLunar(qy,qm,qd)){$('err').textContent='조회 기준일은 1900~2050년 사이여야 합니다.';return;}
  const qt=($('qT').value||'12:00').split(':').map(Number);
- ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';if('speechSynthesis' in window)$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
+ ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
 function setQ(sol){ST.q=sol;$('qD').value=sol.y+'-'+String(sol.m).padStart(2,'0')+'-'+String(sol.d).padStart(2,'0');render();}
 const elc=i=>'el'+i;
 function stemH(s){return '<span class="'+elc(STEM_EL[s])+'">'+GAN[s]+'</span>';}
@@ -1379,15 +1379,26 @@ function ttsChunks(root){const C=root.cloneNode(true);
  const res=[];uniq.forEach(t=>t.split(/(?<=[.!?。])\s+|\n+/).forEach(x=>{x=x.trim();if(x)res.push(x);}));return res;}
 function ttsStop(){TTS_ON=false;TTS_Q=[];try{speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');if(b){b.textContent='🔊 소리로 듣기';b.classList.remove('on');}}
 function ttsNext(){if(!TTS_ON)return;const t=TTS_Q.shift();if(t==null){ttsStop();return;}
- const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=TTS_RATE;const v=ttsVoice();if(v)u.voice=v;
- u.onend=ttsNext;u.onerror=ttsNext;speechSynthesis.speak(u);}
-function ttsStart(){if(typeof syncResult==='function')syncResult();if(!('speechSynthesis' in window)){alert('이 기기는 소리로 듣기를 지원하지 않습니다.');return;}
+ const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=TTS_RATE;u.volume=1;const v=ttsVoice();if(v)u.voice=v;
+ u.onstart=()=>{TTS_OK=true;};u.onend=ttsNext;u.onerror=e=>{if(e&&(e.error==='not-allowed'||e.error==='synthesis-unavailable'||e.error==='audio-hardware')&&!TTS_OK){ttsStop();ttsHelp(e.error);return;}ttsNext();};
+ try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}
+let TTS_OK=false;
+function inApp(){return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent);}
+function openExternal(){const url=location.href;if(/KAKAOTALK/i.test(navigator.userAgent)){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(url);return;}
+ if(/Android/i.test(navigator.userAgent)){location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';return;}
+ alert('오른쪽 위 메뉴에서 [Safari로 열기] 또는 [다른 브라우저로 열기]를 눌러 주세요.');}
+function ttsHelp(why){const app=inApp()||!(!!window.speechSynthesis);
+ openM('🔊 소리로 듣기가 안 될 때',(app?'<div class="stxt"><b>카톡·네이버 같은 앱 안에서 열린 화면</b>에서는 휴대폰 음성 기능이 막혀 있습니다.<br><b>크롬(또는 삼성 인터넷)</b>으로 열면 소리가 나옵니다.</div><button class="btn" id="extBtn" type="button" style="width:100%;margin-top:10px;font-size:18px">🌐 크롬으로 열기</button><div class="hint">버튼이 안 되면: 오른쪽 위 ⋮ (또는 ···) → [다른 브라우저로 열기]</div>':'')+
+ '<div class="eb"><div class="et">그래도 소리가 안 나면</div><div>① 휴대폰 옆 <b>볼륨(소리) 버튼</b>을 위로 올려 주세요. (무음·진동이면 소리가 안 납니다)</div><div>② 휴대폰 [설정] → [일반] → <b>[텍스트 음성 변환(TTS)]</b>에서 <b>언어를 한국어</b>로, 엔진을 <b>삼성 또는 구글</b>로 맞춰 주세요.</div><div>③ 화면을 새로고침한 뒤 다시 눌러 주세요.</div></div>');
+ const x=$('extBtn');if(x)x.onclick=openExternal;}
+function ttsStart(){if(typeof syncResult==='function')syncResult();if(!(!!window.speechSynthesis)){ttsHelp('none');return;}TTS_OK=false;
  let root;if(VIEW==='easy')root=$('simple');else{root=document.createElement('div');['bar','big','rows'].forEach(id=>{const e=$(id);if(e)root.appendChild(e.cloneNode(true));});}
  const nm=($('iName').value.trim()||'');TTS_Q=[(nm?nm+'님의 ':'')+'매화역수 풀이를 읽어 드리겠습니다.'].concat(ttsChunks(root));TTS_Q.push('풍백테크 상담 전화는 공일공, 오육구사, 칠팔일칠 입니다.');
- TTS_ON=true;speechSynthesis.cancel();const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');setTimeout(ttsNext,150);}
+ TTS_ON=true;try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');ttsNext();
+ setTimeout(()=>{if(TTS_ON&&!TTS_OK&&!speechSynthesis.speaking){ttsStop();ttsHelp('silent');}},4000);}
 $('ttsBtn').onclick=()=>TTS_ON?ttsStop():ttsStart();
 document.querySelectorAll('.ttsr button').forEach(b=>{b.classList.toggle('on',+b.dataset.r===TTS_RATE);b.onclick=()=>{TTS_RATE=+b.dataset.r;try{localStorage.setItem('mh_rate',TTS_RATE);}catch(e){}document.querySelectorAll('.ttsr button').forEach(x=>x.classList.toggle('on',x===b));if(TTS_ON){ttsStop();ttsStart();}};});
-if('speechSynthesis' in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}
+if(!!window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}
 window.addEventListener('beforeunload',()=>{try{speechSynthesis.cancel();}catch(e){}});
 
 
