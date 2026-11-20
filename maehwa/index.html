@@ -224,6 +224,25 @@ body:not(.easy) .easy-only{display:none!important}
 .fqb{font-family:inherit;font-size:17px;font-weight:800;border:2px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);padding:8px 16px;min-height:44px;cursor:pointer}
 .fqb.on{background:var(--navy);color:#fff}
 @media print{.fquick{display:none!important}}
+#famCard,#clientCard,#fSave,#cSave{display:none!important}
+.plbar,.plsort,.plmode{display:flex;gap:5px;margin:4px 0}
+.plbar button,.plsort button,.plmode button{flex:1;font-family:inherit;font-size:15px;font-weight:800;border:2px solid #3b4a7a;border-radius:10px;background:#eef0f7;color:#1e2a4a;min-height:40px;cursor:pointer;padding:0 4px;white-space:nowrap}
+.plbar button.on,.plsort button.on,.plmode button.on{background:#1e2a4a;color:#fff}
+.plmode button[data-m="del"].on{background:#b3261e;border-color:#b3261e}
+.plmode button[data-m="edit"].on{background:#7a5a12;border-color:#7a5a12}
+#plGrpSel,#plSearch{width:100%;font-size:17px;padding:8px 10px;border:2px solid #3b4a7a;border-radius:10px;margin:4px 0;font-family:inherit}
+.pllist{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:4px}
+.pli{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #eee;cursor:pointer}
+.pli:last-child{border-bottom:0}.pli:active{background:#f5f1e4}
+.pli.cur{background:#fff8e6}
+.plw{flex:1;min-width:0}.plw b{font-size:18px;color:var(--navy)}
+.plw .pl1{font-size:14px;font-weight:700;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plw .pl2{font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plarr{flex:none;width:36px;height:36px;border-radius:50%;background:#1e2a4a;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.plarr.e{background:#7a5a12;font-size:16px}.plarr.d{background:#b3261e;font-size:16px}
+.plhint{font-size:14px;font-weight:700;color:#7a5a12;min-height:0;margin:2px 0}
+.pltoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1e2a4a;color:#fff;font-size:16px;font-weight:700;padding:12px 18px;border-radius:12px;z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:90%;text-align:center}
+@media print{#plCard{display:none!important}}
 footer{text-align:center;font-size:13px;color:var(--sub);padding:18px 10px 30px}
 details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 @media(max-width:560px){
@@ -248,6 +267,17 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 </header>
 <main>
 <section class="card easy-only" id="famCard"><h2>👨‍👩‍👧 저장 목록 <small id="famCount" style="font-size:14px;color:var(--sub);font-weight:400"></small></h2><input id="famSearch" placeholder="🔍 이름 찾기" autocomplete="off" style="display:none;width:100%;margin-bottom:6px;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><div id="famList"></div><div class="fbk"><button type="button" id="famExp">📤 백업 저장</button><button type="button" id="famImp">📥 백업 불러오기</button><input type="file" id="famFile" accept=".json,application/json" style="display:none"></div></section>
+<section class="card" id="plCard">
+ <h2>📋 저장 목록 <small id="plCount" style="font-size:14px;color:var(--sub);font-weight:400"></small></h2>
+ <div class="plbar"><button type="button" id="plAll" class="on">전체</button><button type="button" id="plGrpBtn">그룹 ▾</button><button type="button" id="plSrchBtn">🔍 검색</button></div>
+ <select id="plGrpSel" style="display:none"></select>
+ <input id="plSearch" style="display:none" placeholder="이름·그룹·메모로 찾기" autocomplete="off">
+ <div class="plsort"><button type="button" data-s="name">이름순</button><button type="button" data-s="namer">이름역순</button><button type="button" data-s="saved">저장순</button><button type="button" data-s="recent">최근순</button></div>
+ <div id="plList" class="pllist"></div>
+ <div class="plmode"><button type="button" data-m="sel" class="on">선택모드</button><button type="button" data-m="edit">수정모드</button><button type="button" data-m="del">삭제모드</button></div>
+ <div id="plHint" class="plhint"></div>
+ <div class="fbk"><button type="button" id="plExp">📤 백업 저장</button><button type="button" id="plImp">📥 백업 불러오기</button><input type="file" id="plFile" accept=".json,application/json" style="display:none"></div>
+</section>
 <section class="card" id="inputCard">
  <h2>생년월일시 입력</h2>
  <div class="form">
@@ -257,12 +287,13 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
   <label style="grid-column:span 2">생년월일<div class="row3"><select id="iY"></select><select id="iM"></select><select id="iD"></select></div></label>
   <label>태어난 시각<input id="iT" type="time" value="12:00"></label>
   <label class="chk"><input type="checkbox" id="iTU"> 시각 모름</label>
+  <label style="grid-column:1/-1">그룹 <small style="color:var(--sub);font-weight:400">(선택 · 예: 가족, 손님, 친구)</small><input id="iGrp" list="grpList" placeholder="그룹 없음" autocomplete="off"><datalist id="grpList"></datalist></label>
   <label class="pro-only" style="grid-column:1/-1">상담 메모<input id="iMemo" placeholder="예: 11/19 전화 상담 · 이직 문의" autocomplete="off"></label>
  </div>
  <div class="form" style="margin-top:10px">
   <label class="pro-only">조회 기준일(양력)<input id="qD" type="date"></label>
   <label class="pro-only">조회 시각<input id="qT" type="time"></label>
-  <div style="grid-column:1/-1;display:flex;gap:8px"><button class="btn" id="go" style="flex:2">운세 보기</button><button class="btn easy-only" id="fSave" type="button" style="flex:1;background:#7a5a12;white-space:nowrap">💾 저장</button><button class="btn pro-only" id="cSave" type="button" style="flex:1;background:#7a5a12;white-space:nowrap">명부 저장</button></div>
+  <div style="grid-column:1/-1;display:flex;gap:8px"><button class="btn" id="go" style="flex:2">운세 보기</button><button class="btn" id="plSave" type="button" style="flex:1;background:#7a5a12;white-space:nowrap">💾 저장</button><button class="btn easy-only" id="fSave" type="button" style="flex:1;background:#7a5a12;white-space:nowrap">💾 저장</button><button class="btn pro-only" id="cSave" type="button" style="flex:1;background:#7a5a12;white-space:nowrap">명부 저장</button></div>
  </div>
  <div id="err" class="err"></div>
 </section>
@@ -958,7 +989,7 @@ function run(){$('err').textContent='';
  const qv=$('qD').value;if(!qv){$('err').textContent='조회 기준일을 선택하세요.';return;}const [qy,qm,qd]=qv.split('-').map(Number);
  if(!solarToLunar(qy,qm,qd)){$('err').textContent='조회 기준일은 1900~2050년 사이여야 합니다.';return;}
  const qt=($('qT').value||'12:00').split(':').map(Number);
- ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
+ ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);setTimeout(()=>{if(typeof plRender==='function')plRender();},0);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
 function setQ(sol){ST.q=sol;$('qD').value=sol.y+'-'+String(sol.m).padStart(2,'0')+'-'+String(sol.d).padStart(2,'0');render();}
 const elc=i=>'el'+i;
 function stemH(s){return '<span class="'+elc(STEM_EL[s])+'">'+GAN[s]+'</span>';}
@@ -1315,7 +1346,7 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
  if(ng.length)SH.push('','⚠️ 조심할 점'),ng.forEach(x=>SH.push('  ✔ '+x));
  SH.push('','📞 자세한 상담: 풍백테크 010-5694-7817');ST.shareTxt=SH.join('\n');
  h+='<section class="card cta">더 자세한 풀이와 상담은<br><a href="tel:01056947817">📞 풍백테크 010-5694-7817</a></section>';
- if(typeof ttsStop==='function'&&TTS_ON)ttsStop();if(typeof famQuick==='function')famQuick();$('simple').innerHTML=h;applyLang($('simple'));
+ if(typeof ttsStop==='function'&&TTS_ON)ttsStop();if(typeof plRender==='function')plRender();$('simple').innerHTML=h;applyLang($('simple'));
  const S=$('simple');
  S.querySelectorAll('.ecell').forEach(b=>b.onclick=()=>easyCell(GB,ES.mode,+b.dataset.i));
  S.querySelectorAll('.etab').forEach(b=>b.onclick=()=>{ES.mode=b.dataset.k;renderSimple();});
@@ -1366,7 +1397,6 @@ $('copyBtn').onclick=doCopyUrl;if(!appUrl())$('copyBtn').style.display='none';
 
 /* ===== 일반용: 우리 가족 저장 ===== */
 const FAM_KEY='mh_family_v1';
-function famGet(){try{return JSON.parse(localStorage.getItem(FAM_KEY)||'[]');}catch(e){return [];}}
 function famPut(a){try{localStorage.setItem(FAM_KEY,JSON.stringify(a));}catch(e){}}
 function famLabel(c){const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤)':'음력';return (c.sex==='F'?'여':'남')+' · '+cal+' '+c.y+'.'+c.m+'.'+c.d+(c.t?' '+c.t:' 시각 모름');}
 function famRender(){const L=famGet(),el=$('famList');if(!el)return;$('famCount').textContent=L.length?'('+L.length+'명)':'';
@@ -1390,11 +1420,66 @@ function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 �
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
  a.push(c);famPut(a);famRender();alert(c.name+' 님을 저장했습니다.\n다음부터는 위의 이름만 누르면 됩니다.');}
-function famFill(c){$('iName').value=c.name;$('iSex').value=c.sex;$('iCal').value=c.cal;$('iY').value=c.y;$('iM').value=c.m;$('iD').value=c.d;$('iTU').checked=!c.t;$('iT').disabled=!c.t;if(c.t)$('iT').value=c.t;}
+function famFill(c){if($('iGrp'))$('iGrp').value=c.group||'';$('iName').value=c.name;$('iSex').value=c.sex;$('iCal').value=c.cal;$('iY').value=c.y;$('iM').value=c.m;$('iD').value=c.d;$('iTU').checked=!c.t;$('iT').disabled=!c.t;if(c.t)$('iT').value=c.t;}
 function famMatch(){const v=$('iName').value.trim();if(!v)return;const c=famGet().find(x=>x.name===v);if(!c)return;const cur=cForm();if(cur.y===c.y&&cur.m===c.m&&cur.d===c.d&&cur.cal===c.cal&&cur.sex===c.sex&&cur.t===c.t)return;
  famFill(c);let n=$('famHint');if(!n){n=document.createElement('div');n.id='famHint';n.style.cssText='font-size:15px;font-weight:800;color:#16753e;margin-top:4px';$('iName').insertAdjacentElement('afterend',n);}
  n.textContent='✔ 저장된 '+c.name+' 님 생년월일을 불러왔습니다';clearTimeout(n._t);n._t=setTimeout(()=>{n.textContent='';},4000);}
 if($('fSave')){$('fSave').onclick=famSave;$('famSearch').oninput=famRender;$('famExp').onclick=famExport;$('famImp').onclick=()=>$('famFile').click();$('famFile').onchange=e=>{if(e.target.files[0])famImport(e.target.files[0]);e.target.value='';};famRender();['input','change','blur','compositionend'].forEach(ev=>$('iName').addEventListener(ev,famMatch));}
+
+/* ===== 저장 목록 (일반·전문가 공통) ===== */
+const PL={key:null,mode:'sel',sort:'saved',grp:'',q:'',editId:null};
+function plKey(){return VIEW==='easy'?'mh_family_v1':'mh_clients_v1';}
+function plRaw(){try{const a=JSON.parse(localStorage.getItem(plKey())||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function plGet(){let ch=false;const a=plRaw().map((c,i)=>{if(!c.id){c.id='p'+Date.now().toString(36)+i+Math.random().toString(36).slice(2,6);ch=true;}if(!c.created){c.created=c.saved||Date.now()-i*1000;ch=true;}if(c.group==null)c.group='';return c;});if(ch)plPut(a);return a;}
+function plPut(a){try{localStorage.setItem(plKey(),JSON.stringify(a));}catch(e){}}
+function plToast(t){document.querySelectorAll('.pltoast').forEach(x=>x.remove());const d=document.createElement('div');d.className='pltoast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}
+function plDate(ms){const d=new Date(ms);const W='일월화수목금토';return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' '+W[d.getDay()]+'요일';}
+function plBirth(c){const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤)':'음력';return cal+' '+c.y+'/'+String(c.m).padStart(2,'0')+'/'+String(c.d).padStart(2,'0')+' '+(c.t||'시각 모름')+' · '+(c.sex==='F'?'여':'남');}
+function plRender(){const all=plGet(),el=$('plList');$('plCount').textContent='('+all.length+'명)';
+ const groups=[...new Set(all.map(c=>c.group).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+ $('grpList').innerHTML=groups.map(g=>'<option value="'+esc(g)+'">').join('');
+ const gs=$('plGrpSel');gs.innerHTML='<option value="">— 그룹을 고르세요 —</option>'+groups.map(g=>'<option'+(g===PL.grp?' selected':'')+'>'+esc(g)+'</option>').join('')+'<option value="__none"'+(PL.grp==='__none'?' selected':'')+'>소속 그룹 없음</option>';
+ let L=all.filter(c=>(!PL.grp||(PL.grp==='__none'?!c.group:c.group===PL.grp))&&(!PL.q||(c.name+' '+(c.group||'')+' '+(c.memo||'')).includes(PL.q)));
+ const S={name:(a,b)=>a.name.localeCompare(b.name,'ko'),namer:(a,b)=>b.name.localeCompare(a.name,'ko'),saved:(a,b)=>(b.created||0)-(a.created||0),recent:(a,b)=>(b.opened||0)-(a.opened||0)||(b.created||0)-(a.created||0)};L.sort(S[PL.sort]);
+ document.querySelectorAll('.plsort button').forEach(b=>b.classList.toggle('on',b.dataset.s===PL.sort));
+ document.querySelectorAll('.plmode button').forEach(b=>b.classList.toggle('on',b.dataset.m===PL.mode));
+ $('plAll').classList.toggle('on',!PL.grp&&!PL.q);
+ const cur=$('iName').value.trim();
+ const ar={sel:'<span class="plarr">›</span>',edit:'<span class="plarr e">✏️</span>',del:'<span class="plarr d">🗑</span>'}[PL.mode];
+ el.innerHTML=all.length?(L.map(c=>'<div class="pli'+(c.id===PL.editId||(!PL.editId&&c.name===cur)?' cur':'')+'" data-id="'+c.id+'"><div class="plw"><b>'+esc(c.name)+'</b><div class="pl1">'+plBirth(c)+' ['+(c.group?esc(c.group):'소속그룹없음')+']'+(c.memo?' · '+esc(c.memo):'')+'</div><div class="pl2">등록일 : '+plDate(c.created)+'</div></div>'+ar+'</div>').join('')||'<div class="fempty" style="padding:10px">찾는 사람이 없습니다.</div>'):'<div class="fempty" style="padding:10px">아래에 이름·생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 쌓입니다. 인원·기한 제한이 없습니다.</div>';
+ $('plHint').textContent={sel:'',edit:'✏️ 수정모드: 고칠 사람을 누르면 아래 입력칸에 불러옵니다. 고친 뒤 [💾 고쳐 저장]을 누르세요.',del:'🗑 삭제모드: 지울 사람을 누르세요.'}[PL.mode];
+ $('plSave').textContent=PL.editId?'💾 고쳐 저장':'💾 저장';
+ el.querySelectorAll('.pli').forEach(r=>r.onclick=()=>plTap(r.dataset.id));
+ if(typeof famQuick==='function')famQuick();}
+function plTap(id){const a=plGet(),c=a.find(x=>x.id===id);if(!c)return;
+ if(PL.mode==='del'){if(!confirm(c.name+' 님을 저장 목록에서 지울까요?'))return;plPut(a.filter(x=>x.id!==id));if(PL.editId===id)PL.editId=null;plRender();plToast(c.name+' 님을 지웠습니다');return;}
+ famFill(c);$('iGrp').value=c.group||'';if($('iMemo'))$('iMemo').value=c.memo||'';
+ if(PL.mode==='edit'){PL.editId=id;plRender();$('inputCard').scrollIntoView({behavior:'smooth',block:'start'});plToast(c.name+' 님 정보를 불러왔습니다. 고친 뒤 [고쳐 저장]');return;}
+ c.opened=Date.now();plPut(a);run();}
+function plSave(){const f=cForm();if(!f.name){$('err').textContent='저장하려면 이름을 넣으세요.';$('iName').focus();return;}
+ const rec={name:f.name,sex:f.sex,cal:f.cal,y:f.y,m:f.m,d:f.d,t:f.t,group:($('iGrp').value||'').trim(),memo:f.memo||''};
+ const a=plGet();let k=PL.editId?a.findIndex(x=>x.id===PL.editId):a.findIndex(x=>x.name===rec.name&&x.y===rec.y&&x.m===rec.m&&x.d===rec.d&&x.cal===rec.cal);
+ if(k>=0){a[k]=Object.assign(a[k],rec,{updated:Date.now()});plPut(a);plToast(rec.name+' 님 정보를 고쳐 저장했습니다');}
+ else{a.push(Object.assign({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now()},rec));plPut(a);plToast(rec.name+' 님을 저장했습니다 (모두 '+a.length+'명)');}
+ PL.editId=null;if(PL.mode==='edit')PL.mode='sel';plRender();}
+function plExport(){const data=JSON.stringify({app:'매화역수',kind:'people',saved:new Date().toISOString(),list:plGet()},null,1);const n=new Date();const fn='매화역수_저장목록_'+n.getFullYear()+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0')+'.json';
+ try{const bl=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);alert('백업 파일을 저장했습니다: '+fn+'\n휴대폰은 [내 파일 → 다운로드], 컴퓨터는 [다운로드] 폴더에 있습니다.');}catch(e){manualCopy(data,'백업 내용 복사');}}
+function plImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const add=(j.list||j.clients||(Array.isArray(j)?j:[])).filter(c=>c&&c.name&&c.y);
+ const a=plGet();let n=0;add.forEach(c=>{const rec={name:c.name,sex:c.sex||'M',cal:c.cal||'solar',y:+c.y,m:+c.m,d:+c.d,t:c.t||'',group:c.group||'',memo:c.memo||'',created:c.created||c.saved||Date.now(),opened:c.opened||0};
+  const k=a.findIndex(x=>x.name===rec.name&&x.y===rec.y&&x.m===rec.m&&x.d===rec.d);if(k>=0)a[k]=Object.assign(a[k],rec);else{rec.id='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)+n;a.push(rec);n++;}});
+ plPut(a);plRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
+function famGet(){return plGet();}
+try{PL.sort=localStorage.getItem('mh_pl_sort')||'saved';}catch(e){}
+$('plSave').onclick=plSave;
+document.querySelectorAll('.plsort button').forEach(b=>b.onclick=()=>{PL.sort=b.dataset.s;try{localStorage.setItem('mh_pl_sort',PL.sort);}catch(e){}plRender();});
+document.querySelectorAll('.plmode button').forEach(b=>b.onclick=()=>{PL.mode=b.dataset.m;if(PL.mode!=='edit')PL.editId=null;plRender();});
+$('plAll').onclick=()=>{PL.grp='';PL.q='';$('plSearch').value='';$('plGrpSel').style.display='none';$('plSearch').style.display='none';plRender();};
+$('plGrpBtn').onclick=()=>{const s=$('plGrpSel');s.style.display=s.style.display==='none'?'':'none';};
+$('plGrpSel').onchange=e=>{PL.grp=e.target.value;plRender();};
+$('plSrchBtn').onclick=()=>{const s=$('plSearch');s.style.display=s.style.display==='none'?'':'none';if(s.style.display==='')s.focus();};
+$('plSearch').oninput=e=>{PL.q=e.target.value.trim();plRender();};
+$('plExp').onclick=plExport;$('plImp').onclick=()=>$('plFile').click();$('plFile').onchange=e=>{if(e.target.files[0])plImport(e.target.files[0]);e.target.value='';};
+plRender();
 $('printBtn').onclick=doPrint;
 /* ===== 소리로 듣기 ===== */
 let TTS_RATE=1;try{TTS_RATE=+localStorage.getItem('mh_rate')||1;}catch(e){}
