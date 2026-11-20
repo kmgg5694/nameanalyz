@@ -94,12 +94,24 @@
       "그래도 소리가 안 나면:\n① 휴대폰 볼륨(소리) 버튼을 올려 주세요(무음·진동이면 안 납니다).\n② [설정] → [일반] → [텍스트 음성 변환(TTS)]에서 언어를 한국어, 엔진을 삼성 또는 구글로 맞춰 주세요.";
     if (inApp() || !HAS) { if (confirm(msg)) openExternal(); } else alert(msg);
   }
-  var OK = false;
-  function stop() { ON = false; Q = []; try { if (HAS) speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 소리로 듣기"; btn.classList.remove("on"); }
+  var OK = false, WL = null, KA = null, CUR = null;
+  function wake(on) {
+    try {
+      if (on) { if ("wakeLock" in navigator && !WL) navigator.wakeLock.request("screen").then(function (l) { WL = l; l.addEventListener("release", function () { WL = null; }); }).catch(function () {}); }
+      else if (WL) { WL.release().catch(function () {}); WL = null; }
+    } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && ON) {
+      wake(true);
+      setTimeout(function () { try { if (ON && !speechSynthesis.speaking && !speechSynthesis.pending) { if (CUR) Q.unshift(CUR); next(); } else speechSynthesis.resume(); } catch (e) {} }, 300);
+    }
+  });
+  function stop() { wake(false); if (KA) { clearInterval(KA); KA = null; } CUR = null; ON = false; Q = []; try { if (HAS) speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 소리로 듣기"; btn.classList.remove("on"); }
   function next() {
-    if (!ON) return; var t = Q.shift(); if (t == null) { stop(); return; }
+    if (!ON) return; var t = Q.shift(); if (t == null) { stop(); return; } CUR = t;
     var u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = RATE; u.volume = 1; var v = voice(); if (v) u.voice = v;
-    u.onstart = function () { OK = true; }; u.onend = next;
+    u.onstart = function () { OK = true; }; u.onend = function () { CUR = null; next(); };
     u.onerror = function (e) { if (e && !OK && /not-allowed|synthesis-unavailable|audio-hardware/.test(e.error || "")) { stop(); help(); return; } next(); };
     try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u);
   }
@@ -108,7 +120,9 @@
     Q = collect(); if (!Q.length) return; OK = false;
     try { var iv = document.getElementById("introVideo"); if (iv) iv.muted = true; } catch (e) {}
     ON = true; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
-    btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); next();
+    btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); wake(true);
+    if (KA) clearInterval(KA); KA = setInterval(function () { try { if (ON && speechSynthesis.speaking) speechSynthesis.resume(); } catch (e) {} }, 5000);
+    next();
     setTimeout(function () { if (ON && !OK && !speechSynthesis.speaking) { stop(); help(); } }, 4000);
   }
   btn.onclick = function () { ON ? stop() : start(); };
@@ -124,7 +138,7 @@
     var R = root(); var vis = !!(R && R.offsetParent !== null);
     box.style.display = vis ? "flex" : "none";
     var sig = R ? (R.innerText || "").length : 0;
-    if (ON && (!vis || (last !== null && sig !== last))) stop();
+    if (ON && !R) stop();
     last = sig;
   }, 700);
   window.addEventListener("beforeunload", function () { try { if (HAS) speechSynthesis.cancel(); } catch (e) {} });

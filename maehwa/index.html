@@ -1510,10 +1510,13 @@ function ttsChunks(root){const C=root.cloneNode(true);
  C.querySelectorAll('h2,.sbig,p,.eb>div,.qrt,.okli,.ngli,.warnli,li,.ettl,.mbtn,.hbtn,.ageb,.gdesc,.rw,.big-sum').forEach(e=>{if(e.closest('.qrt')&&!e.classList.contains('qrt'))return;const t=ttsClean(e.innerText||e.textContent);if(t)out.push(t);});
  const uniq=[];out.forEach(t=>{if(!uniq.includes(t))uniq.push(t);});
  const res=[];uniq.forEach(t=>t.split(/(?<=[.!?。])\s+|\n+/).forEach(x=>{x=x.trim();if(x)res.push(x);}));return res;}
-function ttsStop(){TTS_ON=false;TTS_Q=[];try{speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');if(b){b.textContent='🔊 소리로 듣기';b.classList.remove('on');}}
-function ttsNext(){if(!TTS_ON)return;const t=TTS_Q.shift();if(t==null){ttsStop();return;}
+let TTS_WL=null,TTS_KA=null,TTS_CUR=null;
+async function ttsWake(on){try{if(on){if('wakeLock' in navigator&&!TTS_WL){TTS_WL=await navigator.wakeLock.request('screen');TTS_WL.addEventListener('release',()=>{TTS_WL=null;});}}else if(TTS_WL){await TTS_WL.release();TTS_WL=null;}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TTS_ON){ttsWake(true);setTimeout(()=>{try{if(TTS_ON&&!speechSynthesis.speaking&&!speechSynthesis.pending){if(TTS_CUR)TTS_Q.unshift(TTS_CUR);ttsNext();}else speechSynthesis.resume();}catch(e){}},300);}});
+function ttsStop(){TTS_ON=false;TTS_Q=[];TTS_CUR=null;ttsWake(false);if(TTS_KA){clearInterval(TTS_KA);TTS_KA=null;}try{speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');if(b){b.textContent='🔊 소리로 듣기';b.classList.remove('on');}}
+function ttsNext(){if(!TTS_ON)return;const t=TTS_Q.shift();if(t==null){ttsStop();return;}TTS_CUR=t;
  const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=TTS_RATE;u.volume=1;const v=ttsVoice();if(v)u.voice=v;
- u.onstart=()=>{TTS_OK=true;};u.onend=ttsNext;u.onerror=e=>{if(e&&(e.error==='not-allowed'||e.error==='synthesis-unavailable'||e.error==='audio-hardware')&&!TTS_OK){ttsStop();ttsHelp(e.error);return;}ttsNext();};
+ u.onstart=()=>{TTS_OK=true;};u.onend=()=>{TTS_CUR=null;ttsNext();};u.onerror=e=>{if(e&&(e.error==='not-allowed'||e.error==='synthesis-unavailable'||e.error==='audio-hardware')&&!TTS_OK){ttsStop();ttsHelp(e.error);return;}ttsNext();};
  try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}
 let TTS_OK=false;
 function inApp(){return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent);}
@@ -1527,7 +1530,7 @@ function ttsHelp(why){const app=inApp()||!(!!window.speechSynthesis);
 function ttsStart(){if(typeof syncResult==='function')syncResult();if(!(!!window.speechSynthesis)){ttsHelp('none');return;}TTS_OK=false;
  let root;if(VIEW==='easy')root=$('simple');else{root=document.createElement('div');['bar','big','rows'].forEach(id=>{const e=$(id);if(e)root.appendChild(e.cloneNode(true));});}
  const nm=($('iName').value.trim()||'');TTS_Q=[(nm?nm+'님의 ':'')+'매화역수 풀이를 읽어 드리겠습니다.'].concat(ttsChunks(root));TTS_Q.push('풍백테크 상담 전화는 공일공, 오육구사, 칠팔일칠 입니다.');
- TTS_ON=true;try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');ttsNext();
+ TTS_ON=true;try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');ttsWake(true);if(TTS_KA)clearInterval(TTS_KA);TTS_KA=setInterval(()=>{try{if(TTS_ON&&speechSynthesis.speaking)speechSynthesis.resume();}catch(e){}},5000);ttsNext();
  setTimeout(()=>{if(TTS_ON&&!TTS_OK&&!speechSynthesis.speaking){ttsStop();ttsHelp('silent');}},4000);}
 $('ttsBtn').onclick=()=>TTS_ON?ttsStop():ttsStart();
 document.querySelectorAll('.ttsr button').forEach(b=>{b.classList.toggle('on',+b.dataset.r===TTS_RATE);b.onclick=()=>{TTS_RATE=+b.dataset.r;try{localStorage.setItem('mh_rate',TTS_RATE);}catch(e){}document.querySelectorAll('.ttsr button').forEach(x=>x.classList.toggle('on',x===b));if(TTS_ON){ttsStop();ttsStart();}};});
