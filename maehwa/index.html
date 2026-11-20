@@ -120,11 +120,11 @@ table.list tr.today{background:#fff4d6}
 .kv div:nth-child(odd){color:var(--sub)}
 ul.do{margin:4px 0;padding-left:20px}
 .clist{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:320px;overflow:auto}
-.citem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fffdf7}
+.citem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:4px 8px;background:#fffdf7;flex:none}
 .citem .who{flex:1;cursor:pointer;min-width:0}
 .citem .who b{font-size:17px;color:var(--navy)}
-.citem .who small{display:block;color:var(--sub);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.citem .del{border:0;background:#f3e1e1;color:var(--bad);border-radius:8px;padding:8px 10px;font-weight:700;cursor:pointer;min-height:40px}
+.citem .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.citem .who b{margin-right:8px}.citem .who small{display:inline;color:var(--sub);font-size:13px}
+.citem .del{border:0;background:#f3e1e1;color:var(--bad);border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;min-height:36px}
 .cmsg{color:var(--good);font-weight:700;margin-top:6px}
 .vsw{display:inline-flex;margin-top:10px;border:2px solid #cbbf9a;border-radius:999px;overflow:hidden}
 .vsw button{font-size:17px;font-weight:700;border:0;padding:8px 22px;background:transparent;color:#f5ecd4;cursor:pointer;min-height:42px}
@@ -212,11 +212,13 @@ body:not(.easy) .easy-only{display:none!important}
 .ttsNote{font-size:17px;font-weight:800;color:#b3261e;text-align:center}
 .ttsbar.pulse{animation:ttsP 1s ease-in-out 6;box-shadow:0 0 0 4px #22a35a}
 @keyframes ttsP{50%{box-shadow:0 0 0 10px rgba(34,163,90,.35)}}
-.frows{display:flex;flex-direction:column;gap:6px}
-.frow{display:flex;align-items:stretch;border:2px solid var(--navy);border-radius:12px;background:#fff;overflow:hidden}
-.frow .fn{flex:1;text-align:left;border:0;background:transparent;padding:10px 12px;cursor:pointer;font-family:inherit;min-height:56px}
-.frow .fn b{display:block;font-size:19px;color:var(--navy)}.frow .fn span{font-size:14px;color:var(--sub)}
-.frow .fx{border:0;border-left:1px solid var(--line);background:#fff5f4;color:#b3261e;font-size:18px;padding:0 16px;cursor:pointer}
+.frows{display:flex;flex-direction:column;gap:4px}
+.frows{max-height:300px;overflow:auto}
+.frow{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;flex:none}
+.frow .fn{flex:1;min-width:0;text-align:left;border:0;background:transparent;padding:3px 10px;cursor:pointer;font-family:inherit;min-height:36px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .fn b{font-size:17px;color:var(--navy);margin-right:8px}.frow .fn span{font-size:13px;color:var(--sub)}
+.frow .fx{border:0;border-left:1px solid var(--line);background:#fff5f4;color:#b3261e;font-size:16px;padding:0 12px;cursor:pointer}
+.fbk{display:flex;gap:6px;margin-top:8px}.fbk button{flex:1;font-family:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;background:#faf6ea;padding:6px;min-height:38px;cursor:pointer}
 .fquick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fql{font-size:15px;font-weight:800;color:var(--gold);width:100%}
 .fqb{font-family:inherit;font-size:17px;font-weight:800;border:2px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);padding:8px 16px;min-height:44px;cursor:pointer}
@@ -245,7 +247,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
  <div class="zsw" id="zsw"><span>글씨</span><button type="button" data-z="1">보통</button><button type="button" data-z="1.2">크게</button><button type="button" data-z="1.4">아주 크게</button></div>
 </header>
 <main>
-<section class="card easy-only" id="famCard"><h2>👨‍👩‍👧 우리 가족 저장 <small style="font-size:14px;color:var(--sub);font-weight:400">(최대 5명 · 이 휴대폰에만 저장)</small></h2><div id="famList"></div></section>
+<section class="card easy-only" id="famCard"><h2>👨‍👩‍👧 저장 목록 <small id="famCount" style="font-size:14px;color:var(--sub);font-weight:400"></small></h2><input id="famSearch" placeholder="🔍 이름 찾기" autocomplete="off" style="display:none;width:100%;margin-bottom:6px;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><div id="famList"></div><div class="fbk"><button type="button" id="famExp">📤 백업 저장</button><button type="button" id="famImp">📥 백업 불러오기</button><input type="file" id="famFile" accept=".json,application/json" style="display:none"></div></section>
 <section class="card" id="inputCard">
  <h2>생년월일시 입력</h2>
  <div class="form">
@@ -1363,30 +1365,36 @@ function doCopyUrl(){const url=appUrl();if(!url){alert('아직 인터넷 주소�
 $('copyBtn').onclick=doCopyUrl;if(!appUrl())$('copyBtn').style.display='none';
 
 /* ===== 일반용: 우리 가족 저장 ===== */
-const FAM_KEY='mh_family_v1',FAM_MAX=5;
+const FAM_KEY='mh_family_v1';
 function famGet(){try{return JSON.parse(localStorage.getItem(FAM_KEY)||'[]');}catch(e){return [];}}
 function famPut(a){try{localStorage.setItem(FAM_KEY,JSON.stringify(a));}catch(e){}}
 function famLabel(c){const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤)':'음력';return (c.sex==='F'?'여':'남')+' · '+cal+' '+c.y+'.'+c.m+'.'+c.d+(c.t?' '+c.t:' 시각 모름');}
-function famRender(){const L=famGet(),el=$('famList');if(!el)return;
- if(!L.length){el.innerHTML='<div class="fempty">아래에 이름·생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 목록이 생깁니다.<br>다음부터는 <b>목록의 이름만 누르면</b> 바로 운세가 나옵니다.</div>';famQuick();return;}
- el.innerHTML='<div class="frows">'+L.map((c,i)=>'<div class="frow"><button type="button" class="fn" data-i="'+i+'"><b>'+esc(c.name||'이름 없음')+'</b><span>'+famLabel(c)+'</span></button><button type="button" class="fx" data-i="'+i+'" aria-label="삭제">✕</button></div>').join('')+'</div><div class="fempty" style="margin-top:6px">👆 이름을 누르면 바로 운세가 나옵니다</div>';
+function famRender(){const L=famGet(),el=$('famList');if(!el)return;$('famCount').textContent=L.length?'('+L.length+'명)':'';
+ const sb=$('famSearch');sb.style.display=L.length>=6?'':'none';const q=(sb.value||'').trim();
+ if(!L.length){el.innerHTML='<div class="fempty">이름·생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 목록이 생깁니다. 인원 제한 없이 저장됩니다.</div>';famQuick();return;}
+ const rows=L.map((c,i)=>({c,i})).filter(o=>!q||o.c.name.includes(q));
+ el.innerHTML='<div class="frows">'+(rows.map(({c,i})=>'<div class="frow"><button type="button" class="fn" data-i="'+i+'"><b>'+esc(c.name||'이름 없음')+'</b><span>'+famLabel(c)+'</span></button><button type="button" class="fx" data-i="'+i+'" aria-label="삭제">✕</button></div>').join('')||'<div class="fempty">찾는 이름이 없습니다.</div>')+'</div>';
  el.querySelectorAll('.fn').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});
  el.querySelectorAll('.fx').forEach(b=>b.onclick=()=>{const a=famGet(),c=a[+b.dataset.i];if(!c)return;if(!confirm((c.name||'이 사람')+' 님을 목록에서 지울까요?'))return;a.splice(+b.dataset.i,1);famPut(a);famRender();});
  famQuick();}
+function famExport(){const data=JSON.stringify({app:'매화역수',kind:'family',saved:new Date().toISOString(),list:famGet()},null,1);const n=new Date();const fn='매화역수_저장목록_'+n.getFullYear()+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0')+'.json';
+ try{const bl=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);alert('백업 파일을 저장했습니다: '+fn+'\n휴대폰 [내 파일 → 다운로드]에 있습니다.');}catch(e){manualCopy(data,'백업 내용 복사');}}
+function famImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const add=(j.list||j.clients||[]).map(c=>({name:c.name,sex:c.sex,cal:c.cal,y:+c.y,m:+c.m,d:+c.d,t:c.t||''})).filter(c=>c.name&&c.y);
+ const a=famGet();let n=0;add.forEach(c=>{const k=a.findIndex(x=>x.name===c.name);if(k>=0)a[k]=c;else{a.push(c);n++;}});famPut(a);famRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
 function famQuick(){const q=$('famQuick');if(!q)return;const L=famGet();if(!L.length){q.style.display='none';return;}
  const cur=$('iName').value.trim();q.style.display='';
+ if(L.length>8){q.innerHTML='<span class="fql">👨‍👩‍👧 저장 목록에서 바로 보기</span><select id="fqSel" style="width:100%;font-size:17px;padding:10px"><option value="">— 이름을 고르세요 ('+L.length+'명) —</option>'+L.map((c,i)=>'<option value="'+i+'"'+(c.name===cur?' selected':'')+'>'+esc(c.name)+' · '+famLabel(c)+'</option>').join('')+'</select>';$('fqSel').onchange=e=>{const c=famGet()[+e.target.value];if(c){famFill(c);run();}};return;}
  q.innerHTML='<span class="fql">👨‍👩‍👧 가족 바로 보기</span>'+L.map((c,i)=>'<button type="button" class="fqb'+(c.name===cur?' on':'')+'" data-i="'+i+'">'+esc(c.name)+'</button>').join('');
  q.querySelectorAll('.fqb').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
- if(a.length>=FAM_MAX){alert('가족은 '+FAM_MAX+'명까지 저장할 수 있습니다.\n필요 없는 이름 옆 ✕를 눌러 지운 뒤 저장해 주세요.');return;}
  a.push(c);famPut(a);famRender();alert(c.name+' 님을 저장했습니다.\n다음부터는 위의 이름만 누르면 됩니다.');}
 function famFill(c){$('iName').value=c.name;$('iSex').value=c.sex;$('iCal').value=c.cal;$('iY').value=c.y;$('iM').value=c.m;$('iD').value=c.d;$('iTU').checked=!c.t;$('iT').disabled=!c.t;if(c.t)$('iT').value=c.t;}
 function famMatch(){const v=$('iName').value.trim();if(!v)return;const c=famGet().find(x=>x.name===v);if(!c)return;const cur=cForm();if(cur.y===c.y&&cur.m===c.m&&cur.d===c.d&&cur.cal===c.cal&&cur.sex===c.sex&&cur.t===c.t)return;
  famFill(c);let n=$('famHint');if(!n){n=document.createElement('div');n.id='famHint';n.style.cssText='font-size:15px;font-weight:800;color:#16753e;margin-top:4px';$('iName').insertAdjacentElement('afterend',n);}
  n.textContent='✔ 저장된 '+c.name+' 님 생년월일을 불러왔습니다';clearTimeout(n._t);n._t=setTimeout(()=>{n.textContent='';},4000);}
-if($('fSave')){$('fSave').onclick=famSave;famRender();['input','change','blur','compositionend'].forEach(ev=>$('iName').addEventListener(ev,famMatch));}
+if($('fSave')){$('fSave').onclick=famSave;$('famSearch').oninput=famRender;$('famExp').onclick=famExport;$('famImp').onclick=()=>$('famFile').click();$('famFile').onchange=e=>{if(e.target.files[0])famImport(e.target.files[0]);e.target.value='';};famRender();['input','change','blur','compositionend'].forEach(ev=>$('iName').addEventListener(ev,famMatch));}
 $('printBtn').onclick=doPrint;
 /* ===== 소리로 듣기 ===== */
 let TTS_RATE=1;try{TTS_RATE=+localStorage.getItem('mh_rate')||1;}catch(e){}
