@@ -243,6 +243,8 @@ body:not(.easy) .easy-only{display:none!important}
 .plhint{font-size:14px;font-weight:700;color:#7a5a12;min-height:0;margin:2px 0}
 .pltoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1e2a4a;color:#fff;font-size:16px;font-weight:700;padding:12px 18px;border-radius:12px;z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:90%;text-align:center}
 @media print{#plCard{display:none!important}}
+body.shared #plCard,body.shared .fqlist{display:none!important}
+.fqshared{font-size:16px;font-weight:800;color:#8a5a00;background:#fff4d6;border-radius:8px;padding:6px 10px;margin-bottom:6px}
 .fqcur{font-size:17px;width:100%}.fqcur b{font-size:20px;color:var(--navy)}.fqcur span{font-size:14px;color:var(--sub);margin-left:4px}
 .fqlist{width:100%;font-family:inherit;font-size:16px;font-weight:800;border:2px solid #3b4a7a;border-radius:10px;background:#eef0f7;color:#1e2a4a;min-height:44px;cursor:pointer;margin-top:4px}
 .rstbtn{font-family:inherit;font-size:16px;font-weight:800;border:2px solid #b3261e;border-radius:10px;background:#fff4f3;color:#b3261e;padding:6px 12px;min-height:42px;cursor:pointer;white-space:nowrap}
@@ -1388,7 +1390,7 @@ $('shareBtn').onclick=doShare;
 /* ===== 사람 정보가 담긴 링크 ===== */
 function personLink(base){if(!base)return '';const c=cForm();const p=new URLSearchParams();p.set('n',c.name||'');p.set('s',c.sex);p.set('c',c.cal);p.set('b',c.y+'-'+c.m+'-'+c.d);if(c.t)p.set('t',c.t);if(typeof ES!=='undefined'&&ES.mode)p.set('v',ES.mode);return base+'?'+p.toString();}
 (function(){try{const p=new URLSearchParams(location.search);if(!p.get('b'))return;const b=p.get('b').split('-').map(Number);if(b.length!==3||!b[0])return;
- $('iName').value=p.get('n')||'';if(p.get('s'))$('iSex').value=p.get('s');if(p.get('c'))$('iCal').value=p.get('c');$('iY').value=b[0];$('iM').value=b[1];$('iD').value=b[2];
+ document.body.classList.add('shared');$('iName').value=p.get('n')||'';if(p.get('s'))$('iSex').value=p.get('s');if(p.get('c'))$('iCal').value=p.get('c');$('iY').value=b[0];$('iM').value=b[1];$('iD').value=b[2];
  const t=p.get('t');$('iTU').checked=!t;$('iT').disabled=!t;if(t)$('iT').value=t;
  if(p.get('v')&&typeof ES!=='undefined'&&['life','year','month','day','hour'].includes(p.get('v')))ES.mode=p.get('v');
  setTimeout(()=>{run();if(p.get('tts')==='1')setTimeout(ttsPrompt,400);},50);}catch(e){}})();
@@ -1418,7 +1420,7 @@ function famImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.pa
  const a=famGet();let n=0;add.forEach(c=>{const k=a.findIndex(x=>x.name===c.name);if(k>=0)a[k]=c;else{a.push(c);n++;}});famPut(a);famRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
 function famQuick(){const q=$('famQuick');if(!q)return;if(!ST.P){q.style.display='none';return;}
  const f=cForm();const cal=f.cal==='solar'?'양력':f.cal==='leap'?'음력(윤)':'음력';q.style.display='';
- q.innerHTML='<div class="fqcur">👤 <b>'+esc(f.name||'이름 없음')+'</b> 님 <span>'+cal+' '+f.y+'.'+f.m+'.'+f.d+' '+(f.t||'시각 모름')+'</span></div><div class="fqbtns"><button type="button" class="fqlist">📋 다른 사람 보기</button><button type="button" class="fqnew">🆕 새 사람 입력</button></div>';
+ q.innerHTML=(document.body.classList.contains('shared')?'<div class="fqshared">📩 카톡으로 받은 운세입니다. 내 운세는 [🆕 새 사람 입력]을 누르세요</div>':'')+'<div class="fqcur">👤 <b>'+esc(f.name||'이름 없음')+'</b> 님 <span>'+cal+' '+f.y+'.'+f.m+'.'+f.d+' '+(f.t||'시각 모름')+'</span></div><div class="fqbtns"><button type="button" class="fqlist">📋 다른 사람 보기</button><button type="button" class="fqnew">🆕 새 사람 입력</button></div>';
  q.querySelector('.fqlist').onclick=()=>{$('plCard').scrollIntoView({behavior:'smooth',block:'start'});};q.querySelector('.fqnew').onclick=resetForm;}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
@@ -1475,7 +1477,7 @@ function plImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.par
 function famGet(){return plGet();}
 try{PL.sort=localStorage.getItem('mh_pl_sort')||'saved';}catch(e){}
 
-function resetForm(){try{if(typeof ttsStop==='function')ttsStop();}catch(e){}
+function resetForm(){if(document.body.classList.contains('shared')){document.body.classList.remove('shared');try{history.replaceState(null,'',location.pathname);}catch(e){}}try{if(typeof ttsStop==='function')ttsStop();}catch(e){}
  $('iName').value='';if($('iGrp'))$('iGrp').value='';if($('iMemo'))$('iMemo').value='';$('iSex').value='M';$('iCal').value='solar';$('iY').value=1970;$('iM').value=1;$('iD').value=1;
  $('iTU').checked=false;$('iT').disabled=false;$('iT').value='12:00';$('err').textContent='';
  ST.P=null;ST.lastForm=null;if(typeof PL!=='undefined'){PL.editId=null;if(PL.mode==='edit')PL.mode='sel';}
