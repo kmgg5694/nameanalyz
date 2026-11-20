@@ -243,6 +243,8 @@ body:not(.easy) .easy-only{display:none!important}
 .plhint{font-size:14px;font-weight:700;color:#7a5a12;min-height:0;margin:2px 0}
 .pltoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1e2a4a;color:#fff;font-size:16px;font-weight:700;padding:12px 18px;border-radius:12px;z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:90%;text-align:center}
 @media print{#plCard{display:none!important}}
+.fqcur{font-size:17px;width:100%}.fqcur b{font-size:20px;color:var(--navy)}.fqcur span{font-size:14px;color:var(--sub);margin-left:4px}
+.fqlist{width:100%;font-family:inherit;font-size:16px;font-weight:800;border:2px solid #3b4a7a;border-radius:10px;background:#eef0f7;color:#1e2a4a;min-height:44px;cursor:pointer;margin-top:4px}
 footer{text-align:center;font-size:13px;color:var(--sub);padding:18px 10px 30px}
 details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 @media(max-width:560px){
@@ -1411,11 +1413,10 @@ function famExport(){const data=JSON.stringify({app:'매화역수',kind:'family'
  try{const bl=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);alert('백업 파일을 저장했습니다: '+fn+'\n휴대폰 [내 파일 → 다운로드]에 있습니다.');}catch(e){manualCopy(data,'백업 내용 복사');}}
 function famImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const add=(j.list||j.clients||[]).map(c=>({name:c.name,sex:c.sex,cal:c.cal,y:+c.y,m:+c.m,d:+c.d,t:c.t||''})).filter(c=>c.name&&c.y);
  const a=famGet();let n=0;add.forEach(c=>{const k=a.findIndex(x=>x.name===c.name);if(k>=0)a[k]=c;else{a.push(c);n++;}});famPut(a);famRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
-function famQuick(){const q=$('famQuick');if(!q)return;const L=famGet();if(!L.length){q.style.display='none';return;}
- const cur=$('iName').value.trim();q.style.display='';
- if(L.length>8){q.innerHTML='<span class="fql">👨‍👩‍👧 저장 목록에서 바로 보기</span><select id="fqSel" style="width:100%;font-size:17px;padding:10px"><option value="">— 이름을 고르세요 ('+L.length+'명) —</option>'+L.map((c,i)=>'<option value="'+i+'"'+(c.name===cur?' selected':'')+'>'+esc(c.name)+' · '+famLabel(c)+'</option>').join('')+'</select>';$('fqSel').onchange=e=>{const c=famGet()[+e.target.value];if(c){famFill(c);run();}};return;}
- q.innerHTML='<span class="fql">👨‍👩‍👧 가족 바로 보기</span>'+L.map((c,i)=>'<button type="button" class="fqb'+(c.name===cur?' on':'')+'" data-i="'+i+'">'+esc(c.name)+'</button>').join('');
- q.querySelectorAll('.fqb').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});}
+function famQuick(){const q=$('famQuick');if(!q)return;if(!ST.P){q.style.display='none';return;}
+ const f=cForm();const cal=f.cal==='solar'?'양력':f.cal==='leap'?'음력(윤)':'음력';q.style.display='';
+ q.innerHTML='<div class="fqcur">👤 <b>'+esc(f.name||'이름 없음')+'</b> 님 <span>'+cal+' '+f.y+'.'+f.m+'.'+f.d+' '+(f.t||'시각 모름')+'</span></div><button type="button" class="fqlist">📋 다른 사람 보기 (저장 목록)</button>';
+ q.querySelector('.fqlist').onclick=()=>{$('plCard').scrollIntoView({behavior:'smooth',block:'start'});};}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
