@@ -1358,14 +1358,19 @@ function famPut(a){try{localStorage.setItem(FAM_KEY,JSON.stringify(a));}catch(e)
 function famRender(){const L=famGet(),el=$('famList');if(!el)return;
  if(!L.length){el.innerHTML='<div class="fempty">아래에 생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 이름이 생깁니다.<br>다음부터는 이름만 누르면 바로 운세가 나옵니다.</div>';return;}
  el.innerHTML=L.map((c,i)=>'<span class="fchip"><button type="button" class="fn" data-i="'+i+'">'+esc(c.name||'이름 없음')+'</button><button type="button" class="fx" data-i="'+i+'" aria-label="삭제">✕</button></span>').join('');
- el.querySelectorAll('.fn').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;$('iName').value=c.name;$('iSex').value=c.sex;$('iCal').value=c.cal;$('iY').value=c.y;$('iM').value=c.m;$('iD').value=c.d;$('iTU').checked=!c.t;$('iT').disabled=!c.t;if(c.t)$('iT').value=c.t;run();});
+ el.querySelectorAll('.fn').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});
+ el.insertAdjacentHTML('beforeend','<div class="fempty" style="width:100%;margin-top:2px">👆 이름을 누르면 생년월일이 저절로 들어가고 운세가 나옵니다</div>');
  el.querySelectorAll('.fx').forEach(b=>b.onclick=()=>{const a=famGet(),c=a[+b.dataset.i];if(!c)return;if(!confirm((c.name||'이 사람')+' 님을 목록에서 지울까요?'))return;a.splice(+b.dataset.i,1);famPut(a);famRender();});}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
  if(a.length>=FAM_MAX){alert('가족은 '+FAM_MAX+'명까지 저장할 수 있습니다.\n필요 없는 이름 옆 ✕를 눌러 지운 뒤 저장해 주세요.');return;}
  a.push(c);famPut(a);famRender();alert(c.name+' 님을 저장했습니다.\n다음부터는 위의 이름만 누르면 됩니다.');}
-if($('fSave')){$('fSave').onclick=famSave;famRender();}
+function famFill(c){$('iName').value=c.name;$('iSex').value=c.sex;$('iCal').value=c.cal;$('iY').value=c.y;$('iM').value=c.m;$('iD').value=c.d;$('iTU').checked=!c.t;$('iT').disabled=!c.t;if(c.t)$('iT').value=c.t;}
+function famMatch(){const v=$('iName').value.trim();if(!v)return;const c=famGet().find(x=>x.name===v);if(!c)return;const cur=cForm();if(cur.y===c.y&&cur.m===c.m&&cur.d===c.d&&cur.cal===c.cal&&cur.sex===c.sex&&cur.t===c.t)return;
+ famFill(c);let n=$('famHint');if(!n){n=document.createElement('div');n.id='famHint';n.style.cssText='font-size:15px;font-weight:800;color:#16753e;margin-top:4px';$('iName').insertAdjacentElement('afterend',n);}
+ n.textContent='✔ 저장된 '+c.name+' 님 생년월일을 불러왔습니다';clearTimeout(n._t);n._t=setTimeout(()=>{n.textContent='';},4000);}
+if($('fSave')){$('fSave').onclick=famSave;famRender();['input','change','blur','compositionend'].forEach(ev=>$('iName').addEventListener(ev,famMatch));}
 $('printBtn').onclick=doPrint;
 /* ===== 소리로 듣기 ===== */
 let TTS_RATE=1;try{TTS_RATE=+localStorage.getItem('mh_rate')||1;}catch(e){}
