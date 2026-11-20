@@ -212,6 +212,16 @@ body:not(.easy) .easy-only{display:none!important}
 .ttsNote{font-size:17px;font-weight:800;color:#b3261e;text-align:center}
 .ttsbar.pulse{animation:ttsP 1s ease-in-out 6;box-shadow:0 0 0 4px #22a35a}
 @keyframes ttsP{50%{box-shadow:0 0 0 10px rgba(34,163,90,.35)}}
+.frows{display:flex;flex-direction:column;gap:6px}
+.frow{display:flex;align-items:stretch;border:2px solid var(--navy);border-radius:12px;background:#fff;overflow:hidden}
+.frow .fn{flex:1;text-align:left;border:0;background:transparent;padding:10px 12px;cursor:pointer;font-family:inherit;min-height:56px}
+.frow .fn b{display:block;font-size:19px;color:var(--navy)}.frow .fn span{font-size:14px;color:var(--sub)}
+.frow .fx{border:0;border-left:1px solid var(--line);background:#fff5f4;color:#b3261e;font-size:18px;padding:0 16px;cursor:pointer}
+.fquick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fql{font-size:15px;font-weight:800;color:var(--gold);width:100%}
+.fqb{font-family:inherit;font-size:17px;font-weight:800;border:2px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);padding:8px 16px;min-height:44px;cursor:pointer}
+.fqb.on{background:var(--navy);color:#fff}
+@media print{.fquick{display:none!important}}
 footer{text-align:center;font-size:13px;color:var(--sub);padding:18px 10px 30px}
 details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 @media(max-width:560px){
@@ -256,6 +266,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 </section>
 
 <div id="printHead" class="print-only card"></div>
+<div id="famQuick" class="card easy-only fquick" style="display:none"></div>
 <div id="actBar" class="card actbar" style="display:none"><button class="kakao" id="shareBtn" type="button">💬 카톡으로 보내기</button><button class="prt" id="printBtn" type="button">🖨️ 인쇄하기</button><button class="cpy" id="copyBtn" type="button">🔗 주소 복사</button></div>
 <div id="ttsBar" class="card ttsbar" style="display:none"><button type="button" id="ttsBtn">🔊 소리로 듣기</button><div class="ttsr"><span>빠르기</span><button type="button" data-r="0.8">느리게</button><button type="button" data-r="1" class="on">보통</button><button type="button" data-r="1.2">빠르게</button></div></div>
 <div id="simple" style="display:none"></div>
@@ -1302,7 +1313,7 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
  if(ng.length)SH.push('','⚠️ 조심할 점'),ng.forEach(x=>SH.push('  ✔ '+x));
  SH.push('','📞 자세한 상담: 풍백테크 010-5694-7817');ST.shareTxt=SH.join('\n');
  h+='<section class="card cta">더 자세한 풀이와 상담은<br><a href="tel:01056947817">📞 풍백테크 010-5694-7817</a></section>';
- if(typeof ttsStop==='function'&&TTS_ON)ttsStop();$('simple').innerHTML=h;applyLang($('simple'));
+ if(typeof ttsStop==='function'&&TTS_ON)ttsStop();if(typeof famQuick==='function')famQuick();$('simple').innerHTML=h;applyLang($('simple'));
  const S=$('simple');
  S.querySelectorAll('.ecell').forEach(b=>b.onclick=()=>easyCell(GB,ES.mode,+b.dataset.i));
  S.querySelectorAll('.etab').forEach(b=>b.onclick=()=>{ES.mode=b.dataset.k;renderSimple();});
@@ -1355,12 +1366,17 @@ $('copyBtn').onclick=doCopyUrl;if(!appUrl())$('copyBtn').style.display='none';
 const FAM_KEY='mh_family_v1',FAM_MAX=5;
 function famGet(){try{return JSON.parse(localStorage.getItem(FAM_KEY)||'[]');}catch(e){return [];}}
 function famPut(a){try{localStorage.setItem(FAM_KEY,JSON.stringify(a));}catch(e){}}
+function famLabel(c){const cal=c.cal==='solar'?'양력':c.cal==='leap'?'음력(윤)':'음력';return (c.sex==='F'?'여':'남')+' · '+cal+' '+c.y+'.'+c.m+'.'+c.d+(c.t?' '+c.t:' 시각 모름');}
 function famRender(){const L=famGet(),el=$('famList');if(!el)return;
- if(!L.length){el.innerHTML='<div class="fempty">아래에 생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 이름이 생깁니다.<br>다음부터는 이름만 누르면 바로 운세가 나옵니다.</div>';return;}
- el.innerHTML=L.map((c,i)=>'<span class="fchip"><button type="button" class="fn" data-i="'+i+'">'+esc(c.name||'이름 없음')+'</button><button type="button" class="fx" data-i="'+i+'" aria-label="삭제">✕</button></span>').join('');
+ if(!L.length){el.innerHTML='<div class="fempty">아래에 이름·생년월일을 넣고 <b>[💾 저장]</b>을 누르면 여기에 목록이 생깁니다.<br>다음부터는 <b>목록의 이름만 누르면</b> 바로 운세가 나옵니다.</div>';famQuick();return;}
+ el.innerHTML='<div class="frows">'+L.map((c,i)=>'<div class="frow"><button type="button" class="fn" data-i="'+i+'"><b>'+esc(c.name||'이름 없음')+'</b><span>'+famLabel(c)+'</span></button><button type="button" class="fx" data-i="'+i+'" aria-label="삭제">✕</button></div>').join('')+'</div><div class="fempty" style="margin-top:6px">👆 이름을 누르면 바로 운세가 나옵니다</div>';
  el.querySelectorAll('.fn').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});
- el.insertAdjacentHTML('beforeend','<div class="fempty" style="width:100%;margin-top:2px">👆 이름을 누르면 생년월일이 저절로 들어가고 운세가 나옵니다</div>');
- el.querySelectorAll('.fx').forEach(b=>b.onclick=()=>{const a=famGet(),c=a[+b.dataset.i];if(!c)return;if(!confirm((c.name||'이 사람')+' 님을 목록에서 지울까요?'))return;a.splice(+b.dataset.i,1);famPut(a);famRender();});}
+ el.querySelectorAll('.fx').forEach(b=>b.onclick=()=>{const a=famGet(),c=a[+b.dataset.i];if(!c)return;if(!confirm((c.name||'이 사람')+' 님을 목록에서 지울까요?'))return;a.splice(+b.dataset.i,1);famPut(a);famRender();});
+ famQuick();}
+function famQuick(){const q=$('famQuick');if(!q)return;const L=famGet();if(!L.length){q.style.display='none';return;}
+ const cur=$('iName').value.trim();q.style.display='';
+ q.innerHTML='<span class="fql">👨‍👩‍👧 가족 바로 보기</span>'+L.map((c,i)=>'<button type="button" class="fqb'+(c.name===cur?' on':'')+'" data-i="'+i+'">'+esc(c.name)+'</button>').join('');
+ q.querySelectorAll('.fqb').forEach(b=>b.onclick=()=>{const c=famGet()[+b.dataset.i];if(!c)return;famFill(c);run();});}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
