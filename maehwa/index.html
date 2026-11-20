@@ -1365,9 +1365,9 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
   openM(b.dataset.a+'세 대운 · '+gzK(a.gzI),'<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div>'+numBlock(a.num,sc)+'<div class="eb"><div class="et">이 대운과 나의 궁합</div>'+relPlain(a.gzI).html+'</div><div class="eb"><div class="et">원조 풀이</div>'+rowTexts(R)+'</div>');});}
 
 document.querySelectorAll('#vsw button').forEach(b=>b.onclick=()=>setView(b.dataset.v));setView(VIEW);
-const APP_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';
+const APP_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';const EASY_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';
 function syncResult(){try{const f=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);if(ST.lastForm!==f){run();return true;}}catch(e){}return false;}
-function doShare(){syncResult();const txt=ST.shareTxt||'매화역수 운세';const url=/^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;
+function doShare(){syncResult();const txt=ST.shareTxt||'매화역수 운세';const url=appUrl();
  const pl=personLink(url);const full=txt+(url?'\n\n👉 '+(($('iName').value.trim()||'')?$('iName').value.trim()+'님 운세 자세히 보기':'자세히 보기')+'\n'+pl+'\n\n🌸 내 운세도 무료로 보기\n'+url:'');
  const done=()=>alert('운세 내용을 복사했습니다.\n카카오톡 대화방에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.');
  if(navigator.share){navigator.share({title:'매화역수 운세',text:full}).catch(e=>{if(!e||e.name!=='AbortError')copyText(full,done,'운세 내용 복사');});return;}
@@ -1396,7 +1396,7 @@ function personLink(base){if(!base)return '';const c=cForm();const p=new URLSear
  setTimeout(()=>{run();if(p.get('tts')==='1')setTimeout(ttsPrompt,400);},50);}catch(e){}})();
 function ttsPrompt(){const bar=$('ttsBar');if(!bar)return;bar.scrollIntoView({behavior:'smooth',block:'center'});bar.classList.add('pulse');const n=document.createElement('div');n.className='ttsNote';n.textContent='👇 크롬으로 열렸습니다. 이 초록 버튼을 누르면 읽어 드립니다';bar.insertBefore(n,bar.firstChild);setTimeout(()=>bar.classList.remove('pulse'),6000);}
 
-function appUrl(){return /^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;}
+function appUrl(){if(VIEW==='pro')return EASY_URL;return /^https?:/.test(location.href)?location.href.split('#')[0].split('?')[0]:APP_URL;}
 function doCopyUrl(){const url=appUrl();if(!url){alert('아직 인터넷 주소가 없는 파일입니다.');return;}
  const done=()=>alert('주소를 복사했습니다.\n카톡·문자·블로그에 붙여넣기(길게 누르기 → 붙여넣기) 하세요.\n\n'+url);
  copyText(url,done,'앱 주소 복사');}
@@ -1434,7 +1434,10 @@ if($('fSave')){$('fSave').onclick=famSave;$('famSearch').oninput=famRender;$('fa
 
 /* ===== 저장 목록 (일반·전문가 공통) ===== */
 const PL={key:null,mode:'sel',sort:'saved',grp:'',q:'',editId:null};
-function plKey(){return VIEW==='easy'?'mh_family_v1':'mh_clients_v1';}
+function plKey(){return 'mh_family_v1';}
+(function(){try{const o=localStorage.getItem('mh_clients_v1');if(!o)return;const old=JSON.parse(o)||[];const cur=JSON.parse(localStorage.getItem('mh_family_v1')||'[]')||[];
+ const k=c=>[c.name,c.y,c.m,c.d].join('|');const have=new Set(cur.map(k));old.forEach(c=>{if(!have.has(k(c))){cur.push(c);have.add(k(c));}});
+ localStorage.setItem('mh_family_v1',JSON.stringify(cur));localStorage.setItem('mh_clients_v1_merged',o);localStorage.removeItem('mh_clients_v1');}catch(e){}})();
 function plRaw(){try{const a=JSON.parse(localStorage.getItem(plKey())||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
 function plGet(){let ch=false;const a=plRaw().map((c,i)=>{if(!c.id){c.id='p'+Date.now().toString(36)+i+Math.random().toString(36).slice(2,6);ch=true;}if(!c.created){c.created=c.saved||Date.now()-i*1000;ch=true;}if(c.group==null)c.group='';return c;});if(ch)plPut(a);return a;}
 function plPut(a){try{localStorage.setItem(plKey(),JSON.stringify(a));}catch(e){}}
