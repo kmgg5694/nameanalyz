@@ -245,6 +245,9 @@ body:not(.easy) .easy-only{display:none!important}
 @media print{#plCard{display:none!important}}
 .fqcur{font-size:17px;width:100%}.fqcur b{font-size:20px;color:var(--navy)}.fqcur span{font-size:14px;color:var(--sub);margin-left:4px}
 .fqlist{width:100%;font-family:inherit;font-size:16px;font-weight:800;border:2px solid #3b4a7a;border-radius:10px;background:#eef0f7;color:#1e2a4a;min-height:44px;cursor:pointer;margin-top:4px}
+.rstbtn{font-family:inherit;font-size:16px;font-weight:800;border:2px solid #b3261e;border-radius:10px;background:#fff4f3;color:#b3261e;padding:6px 12px;min-height:42px;cursor:pointer;white-space:nowrap}
+.fqbtns{display:flex;gap:6px;width:100%}.fqbtns button{flex:1}
+.fqnew{font-family:inherit;font-size:16px;font-weight:800;border:2px solid #b3261e;border-radius:10px;background:#fff4f3;color:#b3261e;min-height:44px;cursor:pointer;margin-top:4px}
 footer{text-align:center;font-size:13px;color:var(--sub);padding:18px 10px 30px}
 details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 @media(max-width:560px){
@@ -281,7 +284,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
  <div class="fbk"><button type="button" id="plExp">📤 백업 저장</button><button type="button" id="plImp">📥 백업 불러오기</button><input type="file" id="plFile" accept=".json,application/json" style="display:none"></div>
 </section>
 <section class="card" id="inputCard">
- <h2>생년월일시 입력</h2>
+ <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px">생년월일시 입력<button type="button" id="resetBtn" class="rstbtn">🆕 새로 입력</button></h2>
  <div class="form">
   <label>이름<input id="iName" placeholder="이름을 넣으세요" autocomplete="off"></label>
   <label>성별<select id="iSex"><option value="M">남자</option><option value="F">여자</option></select></label>
@@ -1415,8 +1418,8 @@ function famImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.pa
  const a=famGet();let n=0;add.forEach(c=>{const k=a.findIndex(x=>x.name===c.name);if(k>=0)a[k]=c;else{a.push(c);n++;}});famPut(a);famRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
 function famQuick(){const q=$('famQuick');if(!q)return;if(!ST.P){q.style.display='none';return;}
  const f=cForm();const cal=f.cal==='solar'?'양력':f.cal==='leap'?'음력(윤)':'음력';q.style.display='';
- q.innerHTML='<div class="fqcur">👤 <b>'+esc(f.name||'이름 없음')+'</b> 님 <span>'+cal+' '+f.y+'.'+f.m+'.'+f.d+' '+(f.t||'시각 모름')+'</span></div><button type="button" class="fqlist">📋 다른 사람 보기 (저장 목록)</button>';
- q.querySelector('.fqlist').onclick=()=>{$('plCard').scrollIntoView({behavior:'smooth',block:'start'});};}
+ q.innerHTML='<div class="fqcur">👤 <b>'+esc(f.name||'이름 없음')+'</b> 님 <span>'+cal+' '+f.y+'.'+f.m+'.'+f.d+' '+(f.t||'시각 모름')+'</span></div><div class="fqbtns"><button type="button" class="fqlist">📋 다른 사람 보기</button><button type="button" class="fqnew">🆕 새 사람 입력</button></div>';
+ q.querySelector('.fqlist').onclick=()=>{$('plCard').scrollIntoView({behavior:'smooth',block:'start'});};q.querySelector('.fqnew').onclick=resetForm;}
 function famSave(){const c=cForm();delete c.memo;if(!c.name){alert('이름을 먼저 넣어 주세요.');$('iName').focus();return;}
  const a=famGet();const k=a.findIndex(x=>x.name===c.name);
  if(k>=0){a[k]=c;famPut(a);famRender();alert(c.name+' 님 정보를 고쳐 저장했습니다.');return;}
@@ -1471,6 +1474,17 @@ function plImport(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.par
  plPut(a);plRender();alert('불러왔습니다. 새로 추가 '+n+'명, 모두 '+a.length+'명');}catch(e){alert('백업 파일을 읽지 못했습니다.');}};r.readAsText(f);}
 function famGet(){return plGet();}
 try{PL.sort=localStorage.getItem('mh_pl_sort')||'saved';}catch(e){}
+
+function resetForm(){try{if(typeof ttsStop==='function')ttsStop();}catch(e){}
+ $('iName').value='';if($('iGrp'))$('iGrp').value='';if($('iMemo'))$('iMemo').value='';$('iSex').value='M';$('iCal').value='solar';$('iY').value=1970;$('iM').value=1;$('iD').value=1;
+ $('iTU').checked=false;$('iT').disabled=false;$('iT').value='12:00';$('err').textContent='';
+ ST.P=null;ST.lastForm=null;if(typeof PL!=='undefined'){PL.editId=null;if(PL.mode==='edit')PL.mode='sel';}
+ ['simple','out','actBar','ttsBar','famQuick'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
+ const fh=$('famHint');if(fh)fh.textContent='';
+ if(location.search){try{history.replaceState(null,'',location.pathname);}catch(e){}}
+ if(typeof plRender==='function')plRender();
+ $('inputCard').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('iName').focus(),350);}
+$('resetBtn').onclick=resetForm;
 $('plSave').onclick=plSave;
 document.querySelectorAll('.plsort button').forEach(b=>b.onclick=()=>{PL.sort=b.dataset.s;try{localStorage.setItem('mh_pl_sort',PL.sort);}catch(e){}plRender();});
 document.querySelectorAll('.plmode button').forEach(b=>b.onclick=()=>{PL.mode=b.dataset.m;if(PL.mode!=='edit')PL.editId=null;plRender();});
