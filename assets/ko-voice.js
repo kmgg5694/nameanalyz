@@ -94,7 +94,7 @@
       "그래도 소리가 안 나면:\n① 휴대폰 볼륨(소리) 버튼을 올려 주세요(무음·진동이면 안 납니다).\n② [설정] → [일반] → [텍스트 음성 변환(TTS)]에서 언어를 한국어, 엔진을 삼성 또는 구글로 맞춰 주세요.";
     if (inApp() || !HAS) { if (confirm(msg)) openExternal(); } else alert(msg);
   }
-  var OK = false, WL = null, KA = null, CUR = null;
+  var OK = false, WL = null, KA = null, CUR = null, LAST = 0, IDLE = 0;
   function wake(on) {
     try {
       if (on) { if ("wakeLock" in navigator && !WL) navigator.wakeLock.request("screen").then(function (l) { WL = l; l.addEventListener("release", function () { WL = null; }); }).catch(function () {}); }
@@ -111,9 +111,9 @@
   function next() {
     if (!ON) return; var t = Q.shift(); if (t == null) { stop(); return; } CUR = t;
     var u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = RATE; u.volume = 1; var v = voice(); if (v) u.voice = v;
-    u.onstart = function () { OK = true; }; u.onend = function () { CUR = null; next(); };
+    u.onstart = function () { OK = true; LAST = Date.now(); }; u.onend = function () { if (window.__naTtsU !== u) return; CUR = null; next(); };
     u.onerror = function (e) { if (e && !OK && /not-allowed|synthesis-unavailable|audio-hardware/.test(e.error || "")) { stop(); help(); return; } next(); };
-    try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u);
+    window.__naTtsU = u; LAST = Date.now(); try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u);
   }
   function start() {
     if (!HAS) { help(); return; }
@@ -121,7 +121,7 @@
     try { var iv = document.getElementById("introVideo"); if (iv) iv.muted = true; } catch (e) {}
     ON = true; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
     btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); wake(true);
-    if (KA) clearInterval(KA); KA = setInterval(function () { try { if (ON && speechSynthesis.speaking) speechSynthesis.resume(); } catch (e) {} }, 5000);
+    if (KA) clearInterval(KA); KA = setInterval(function () { try { if (!ON) return; if (speechSynthesis.speaking || speechSynthesis.pending) { IDLE = 0; speechSynthesis.resume(); } else if (document.visibilityState === "visible") { IDLE++; if (IDLE >= 2) { IDLE = 0; CUR = null; next(); } } } catch (e) {} }, 800);
     next();
     setTimeout(function () { if (ON && !OK && !speechSynthesis.speaking) { stop(); help(); } }, 4000);
   }
