@@ -427,7 +427,7 @@ const HOUR_LABEL=['03:30~05:29','05:30~07:29','07:30~09:29','09:30~11:29','11:30
 
 /* ---------- 인물 ---------- */
 function makePerson(inp){// inp:{name,sex,cal:'solar'|'lunar',leap,y,m,d,hh,mi}
- let sol,lun;if(inp.cal==='solar'){sol={y:inp.y,m:inp.m,d:inp.d};lun=solarToLunar(inp.y,inp.m,inp.d);if(!lun)return{err:'양력 날짜가 올바르지 않거나 지원 범위(1900~2050년)를 벗어났습니다.'};}
+ let sol,lun;if(inp.cal==='solar'){if(inp.d<1||inp.d>new Date(inp.y,inp.m,0).getDate())return{err:'없는 날짜입니다. '+inp.m+'월은 '+new Date(inp.y,inp.m,0).getDate()+'일까지입니다.'};sol={y:inp.y,m:inp.m,d:inp.d};lun=solarToLunar(inp.y,inp.m,inp.d);if(!lun)return{err:'양력 날짜가 올바르지 않거나 지원 범위(1900~2050년)를 벗어났습니다.'};}
  else{sol=lunarToSolar(inp.y,inp.m,inp.d,inp.leap);if(!sol)return{err:inp.leap?'해당 연도에 그 윤달이 없거나 날짜가 올바르지 않습니다.':'음력 날짜가 올바르지 않습니다(작은달은 29일까지).'};lun={y:inp.y,m:inp.m,d:inp.d,leap:!!inp.leap};}
  const saju=calcSaju(sol.y,sol.m,sol.d,inp.hh,inp.mi);
  const lyIdx=((lun.y-4)%60+60)%60;// 음력 연도 간지
@@ -1012,7 +1012,7 @@ function openM(t,h){$('mT').innerHTML=t;$('mB').innerHTML=h;applyLang($('modal')
 function run(){$('err').textContent='';
  const cal=$('iCal').value;const unk=$('iTU').checked;let hh=null,mi=null;if(!unk){const tv=$('iT').value;if(!tv){$('err').textContent='태어난 시각을 입력하거나 “시각 모름”을 선택하세요.';return;}[hh,mi]=tv.split(':').map(Number);}
  const P=makePerson({name:$('iName').value.trim()||'본인',sex:$('iSex').value,cal:cal==='solar'?'solar':'lunar',leap:cal==='leap',y:+$('iY').value,m:+$('iM').value,d:+$('iD').value,hh,mi});
- if(P.err){$('err').textContent=P.err;return;}
+ if(P.err){$('err').textContent=P.err;['out','simple','actBar','ttsBar'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display='none';});return;}
  const qv=$('qD').value;if(!qv){$('err').textContent='조회 기준일을 선택하세요.';return;}const [qy,qm,qd]=qv.split('-').map(Number);
  if(!solarToLunar(qy,qm,qd)){$('err').textContent='조회 기준일은 1900~2050년 사이여야 합니다.';return;}
  const qt=($('qT').value||'12:00').split(':').map(Number);
@@ -1219,7 +1219,7 @@ function applyLang(root){if(LANG!=='hangul')return;const w=document.createTreeWa
 function setLang(l){LANG=l;try{localStorage.setItem('mh_lang',l);}catch(e){}
  $('langBtn').textContent=l==='hangul'?'漢字로 보기':'한글로 보기';
  const h1=document.querySelector('header h1');if(!h1.dataset.orig)h1.dataset.orig=h1.textContent;h1.textContent=h1.dataset.orig;
- if(ST.P){renderSaju();render();}if($('modal').classList.contains('on')&&ST.lastPopup!=null)cellPopup(ST.lastPopup);
+ if(ST.P){renderSaju();render();renderSimple();}if($('modal').classList.contains('on')&&ST.lastPopup!=null)cellPopup(ST.lastPopup);
  applyLang(document.body);}
 
 /* ===== 상담자 명부 ===== */
@@ -1276,8 +1276,11 @@ function rowTexts(R){if(!R)return '';let h='';
  [...new Set(g)].forEach(x=>h+='<div class="okli">○ '+esc(x)+'</div>');[...new Set(b)].forEach(x=>h+='<div class="ngli">⚠️ '+esc(x)+'</div>');
  if(ALWAYS_BAD.has(R.trip))h+='<div class="ngli">⚠️ 이 시기는 새 일을 벌이지 말고 지키는 데 힘쓰십시오.</div>';
  return h;}
-function numBlock(n,s){const I=NUM_INFO[n];if(!I)return '';const good=s>=0;
- return '<div class="eb"><div class="et">이 시기의 숫자 '+n+' — '+EASY_NUM[n]+'</div><div>'+esc(good?I.good:I.bad)+'</div>'+
+// 숫자 3: 일지와 깨지지 않으면 '조상의 음덕', 깨지면(충·형·파·해·원진·합파) '귀신곡할노릇'
+function is3Broken(gzI,br){br=br||brRel(ST.P.saju.dIdx%12,gzI%12,false);return !!(br.hapPa||br.t.some(x=>['충','형','삼형','자형','파','해','원진','격각'].includes(x)));}
+function numLabel(n,gzI,br,short){if(n===3&&gzI!=null)return is3Broken(gzI,br)?'귀신곡할노릇':(short?'음덕':'조상의 음덕');return short?EASY_W[n]:EASY_NUM[n];}
+function numBlock(n,s,gzI,br){const I=NUM_INFO[n];if(!I)return '';let good=s>=0;if(n===3&&gzI!=null)good=!is3Broken(gzI,br);
+ return '<div class="eb"><div class="et">이 시기의 숫자 '+n+' — '+numLabel(n,gzI,br)+'</div><div>'+esc((n===3&&gzI!=null&&!good?'귀신곡할노릇 — ':'')+(good?I.good:I.bad))+'</div>'+
  '<div class="et" style="margin-top:8px">이렇게 하세요</div><ul class="do">'+(good?I.doG:I.doB).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';}
 function cellScore(B,i){const r=Math.floor(i/3);return B.cells[i].score+(B.rows[r]?B.rows[r].g:0);}
 function nowQ(){const n=new Date();ST.q={y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate()};ST.qT=[n.getHours(),n.getMinutes()];}
@@ -1305,12 +1308,12 @@ function easyGrid(B,mode){const rn={life:['1행','2행','3행','4행'],year:['�
  let h='<section class="card"><h2>12칸 포국도 — 기본수 '+B.base+' · 주도수 '+B.lead+' ('+B.base+B.lead+'번)</h2><div class="egrid">';
  B.cells.forEach((a,i)=>{if(i%3===0)h+='<div class="erow">'+R[i/3]+'</div>';const s=cellScore(B,i),L=lightOf(s);
   const lab=mode==='life'?a.ranges.filter(r=>r[0]<=99).map(r=>r[0]===r[1]?r[0]:r[0]+'~'+r[1]).join(', ')+'세':(mode==='year'||mode==='month')?(i+1)+'월':bTime((i+2)%12).replace('~','<br>~')+'<small style="display:block;font-weight:400;color:var(--sub);font-size:11px">'+toHangul(ZHI[(i+2)%12])+'시</small>';
-  h+='<button type="button" class="ecell '+L+(a.cur?' cur':'')+'" data-i="'+i+'"><div class="el">'+lab+'</div><div class="eg"><span class="hj">'+gz(a.gzI)+'</span> <small>'+toHangul(gz(a.gzI))+'</small></div><div class="en">'+a.num+'<small>'+EASY_W[a.num]+'</small></div><div class="ets">'+easyTags(a)+'</div><span class="lt '+L+'"></span></button>';});
+  h+='<button type="button" class="ecell '+L+(a.cur?' cur':'')+'" data-i="'+i+'"><div class="el">'+lab+'</div><div class="eg"><span class="hj">'+gz(a.gzI)+'</span> <small>'+toHangul(gz(a.gzI))+'</small></div><div class="en">'+a.num+'<small>'+numLabel(a.num,a.gzI,a.br,true)+'</small></div><div class="ets">'+easyTags(a)+'</div><span class="lt '+L+'"></span></button>';});
  h+='</div><div class="hint">'+lt(1)+'좋음 '+lt(0)+'보통 '+lt(-1)+'조심 · <span class="etg g">합·생</span> 맞는 기운 <span class="etg b">충·형·파·해·원진·극</span> 부딪치는 기운 · 일주 '+gz(ST.P.saju.dIdx)+'('+toHangul(gz(ST.P.saju.dIdx))+') 기준<br>칸을 누르면 그 칸의 풀이가 나옵니다. 금색 테두리가 지금입니다.</div></section>';
  return h;}
 function easyCell(B,mode,i){const a=B.cells[i],R=B.rows[Math.floor(i/3)],sc=cellScore(B,i),rel=relPlain(a.gzI);
  const lab=mode==='life'?a.label+' 대운':(mode==='year'||mode==='month')?'음력 '+(i+1)+'월':bTime((i+2)%12)+' ('+toHangul(ZHI[(i+2)%12])+'시)';
- let h='<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div><div class="ets" style="margin:4px 0 8px">'+easyTags(a)+'</div>'+numBlock(a.num,sc)+'<div class="eb"><div class="et">궁합: 이 칸 '+gzK(a.gzI)+' ↔ 나 '+gzK(ST.P.saju.dIdx)+'</div>'+rel.html+'</div><div class="eb"><div class="et">원조 풀이 (이 줄 '+R.trip+')</div>'+rowTexts(R)+'</div>';
+ let h='<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div><div class="ets" style="margin:4px 0 8px">'+easyTags(a)+'</div>'+numBlock(a.num,sc,a.gzI,a.br)+'<div class="eb"><div class="et">궁합: 이 칸 '+gzK(a.gzI)+' ↔ 나 '+gzK(ST.P.saju.dIdx)+'</div>'+rel.html+'</div><div class="eb"><div class="et">원조 풀이 (이 줄 '+R.trip+')</div>'+rowTexts(R)+'</div>';
  openM(lab+' · '+gzK(a.gzI),h);applyLang($('mB'));}
 function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.y,q.m,q.d);
  const tabs=[['life','평생'],['year','년운'],['month','월운'],['day','일운'],['hour','시운']];
@@ -1323,13 +1326,13 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
   if(C)body+='<section class="card"><h2>타고난 성격</h2><div class="stxt"><b class="hj" style="font-size:19px;color:var(--navy)">'+C.t+'</b>'+C.d.map(x=>'<p style="margin:6px 0">'+esc(x)+'</p>').join('')+'</div></section>';
   body+='<section class="card"><h2>평생 큰 흐름</h2><div class="sbig">'+lt(gs)+LT_WORD[lightOf(gs)]+'</div><div class="stxt">'+esc(GRADE_INFO[B.grade].d.replace(/칸별 길흉을 보고 /,''))+'</div>';
   const ages=[];B.cells.forEach((c,i)=>c.ranges.forEach(r=>ages.push({r,i,c})));ages.sort((x,y)=>x.r[0]-y.r[0]);
-  body+='<div class="et" style="margin-top:10px">나이별 운의 흐름 (누르면 풀이)</div><div class="agel">'+ages.filter(a=>a.r[0]<=90).map(a=>{const s=cellScore(B,a.i);const cur=B.kAge>=a.r[0]&&B.kAge<=a.r[1];return '<button type="button" class="ageb'+(cur?' now':'')+'" data-i="'+a.i+'" data-a="'+a.r[0]+'~'+a.r[1]+'">'+lt(s)+'<b>'+a.r[0]+'~'+a.r[1]+'세</b><span>'+EASY_NUM[a.c.num]+'</span></button>';}).join('')+'</div></section>';
+  body+='<div class="et" style="margin-top:10px">나이별 운의 흐름 (누르면 풀이)</div><div class="agel">'+ages.filter(a=>a.r[0]<=90).map(a=>{const s=cellScore(B,a.i);const cur=B.kAge>=a.r[0]&&B.kAge<=a.r[1];return '<button type="button" class="ageb'+(cur?' now':'')+'" data-i="'+a.i+'" data-a="'+a.r[0]+'~'+a.r[1]+'">'+lt(s)+'<b>'+a.r[0]+'~'+a.r[1]+'세</b><span>'+numLabel(a.c.num,a.c.gzI,a.c.br)+'</span></button>';}).join('')+'</div></section>';
   ST.EB=B;}
  else if(ES.mode==='year'){const Y=applyTeach(buildYear(P,L.y,L.y===solarToLunar(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate()).y?L.m:null),P,false);GB=Y;const rel=relPlain(Y.yIdx);const s=gradeS(Y.grade)+sgn(rel.sc);
   title='음력 '+Y.ly+'년 '+gzK(Y.yIdx)+'년 · '+Y.age+'세';
   body+='<section class="card"><h2>올해 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="stxt">'+esc(GRADE_INFO[Y.grade].d.replace(/칸별 길흉을 보고/,'달별 신호등을 보고'))+
    '<div class="eb"><div class="et">올해('+gzK(Y.yIdx)+')와 나의 궁합</div>'+rel.html+'</div></div></section>';
-  body+='<section class="card"><h2>올해의 주된 기운</h2>'+numBlock(Y.lead,gradeS(Y.grade))+'</section>';
+  body+='<section class="card"><h2>올해의 주된 기운</h2>'+numBlock(Y.lead,gradeS(Y.grade),Y.yIdx)+'</section>';
   const qn=['1~3월 (봄)','4~6월 (여름)','7~9월 (가을)','10~12월 (겨울)'];
   body+='<section class="card"><h2>철마다 풀이 (음력)</h2>'+Y.rows.map((R,r)=>'<div class="qrt">'+lt(R.g)+'<b>'+qn[r]+'</b> · '+LT_WORD[lightOf(R.g)]+rowTexts(R)+'</div>').join('')+'</section>';
   body+='<section class="card"><h2>달마다 신호등 (음력)</h2><div class="mgrid">';
@@ -1338,21 +1341,21 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
  else if(ES.mode==='month'){const Y=applyTeach(buildYear(P,L.y,L.m),P,false);GB=Y;const i=L.m-1,a=Y.cells[i],R=Y.rows[Math.floor(i/3)];const rel=relPlain(a.gzI);const sc=cellScore(Y,i);const s=sgn(sc)+sgn(rel.sc);
   title='음력 '+L.y+'년 '+(L.leap?'윤':'')+L.m+'월 · '+gzK(a.gzI)+'월';
   body+='<section class="card"><h2>이달 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="eb"><div class="et">이달('+gzK(a.gzI)+')과 나의 궁합</div>'+rel.html+'</div></section>';
-  body+='<section class="card"><h2>이달의 기운</h2>'+numBlock(a.num,sc)+'</section>';
+  body+='<section class="card"><h2>이달의 기운</h2>'+numBlock(a.num,sc,a.gzI,a.br)+'</section>';
   body+='<section class="card"><h2>원조 풀이 — 음력 '+(Math.floor(i/3)*3+1)+'~'+(Math.floor(i/3)*3+3)+'월</h2><div class="stxt">'+rowTexts(R)+'</div></section>';
   const ms=lunStart(L.y,L.m);if(ms){const n=lyInfo(L.y).months.find(x=>x.m===L.m&&!!x.leap===!!L.leap);if(n){let sd='<div class="dgrid">';for(let d=0;d<n.len;d++){const so=fromJdn(n.start+d);const D=applyTeach(buildDay(P,so,null),P,false);const r=relPlain(D.dI);const ss=gradeS(D.grade)+sgn(r.sc);const isT=so.y===q.y&&so.m===q.m&&so.d===q.d;sd+='<button type="button" class="dbtn'+(isT?' now':'')+'" data-y="'+so.y+'" data-mo="'+so.m+'" data-d="'+so.d+'">'+(d+1)+lt(ss)+'</button>';}
    body+='<section class="card"><h2>이달의 날마다 신호등 (음력 날짜)</h2>'+sd+'</div><div class="hint">날짜를 누르면 그날 일운으로 넘어갑니다.</div></section>';}}}
  else{const day=ES.mode==='day';const _n=new Date();const isT=q.y===_n.getFullYear()&&q.m===_n.getMonth()+1&&q.d===_n.getDate();const cb=day?(isT?hourBranch(_n.getHours(),_n.getMinutes()):null):hourBranch(ST.qT[0],ST.qT[1]);const D=applyTeach(buildDay(P,q,cb),P,false);GB=D;const rel=relPlain(D.dI);const s=gradeS(D.grade)+sgn(rel.sc);
   if(day){title='양력 '+q.y+'.'+q.m+'.'+q.d+' (음력 '+D.lun.m+'.'+D.lun.d+') '+gzK(D.dI)+'일';
    body+='<section class="card"><h2>오늘 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="stxt">'+esc(GRADE_INFO[D.grade].d.replace(/칸별 길흉을 보고 /,'시간대별 신호등을 보고 '))+'</div><div class="eb"><div class="et">이날('+gzK(D.dI)+')과 나의 궁합</div>'+rel.html+'</div></section>';
-   body+='<section class="card"><h2>이날의 주된 기운</h2>'+numBlock(D.lead,gradeS(D.grade))+'</section>';
+   body+='<section class="card"><h2>이날의 주된 기운</h2>'+numBlock(D.lead,gradeS(D.grade),D.dI)+'</section>';
    const tn=['새벽~아침 (03:30~09:29)','낮 (09:30~15:29)','오후~저녁 (15:30~21:29)','밤 (21:30~03:29)'];
    body+='<section class="card"><h2>시간대별 풀이</h2>'+D.rows.map((R,r)=>'<div class="qrt">'+lt(R.g)+'<b>'+tn[r]+'</b> · '+LT_WORD[lightOf(R.g)]+rowTexts(R)+'</div>').join('')+'</section>';
    body+='<section class="card"><h2>두 시간마다 신호등</h2><div class="mgrid">'+D.cells.map((c,i)=>{const b=(i+2)%12;const st=(23*60+30+b*120)%1440;return '<button type="button" class="hbtn" data-t="'+st+'">'+bTime(b).replace('~','<br>~')+lt(cellScore(D,i))+'<small>'+toHangul(ZHI[b])+'시</small></button>';}).join('')+'</div><div class="hint">누르면 그 시간의 시운으로 넘어갑니다.</div></section>';}
   else{const i=(cb-2+12)%12,a=D.cells[i],R=D.rows[Math.floor(i/3)];const hr=relPlain(a.gzI);const sc=cellScore(D,i);const hs=sgn(sc)+sgn(hr.sc);
    title=q.y+'.'+q.m+'.'+q.d+' '+bTime(cb)+' ('+gzK(a.gzI)+'시)';
    body+='<section class="card"><h2>이 시간 총평</h2><div class="sbig">'+lt(hs)+LT_WORD[lightOf(hs)]+'</div><div class="eb"><div class="et">이 시간('+gzK(a.gzI)+')과 나의 궁합</div>'+hr.html+'</div><div class="hint">그날 전체는 '+LT_EMO[lightOf(s)]+' '+LT_WORD[lightOf(s)]+'입니다.</div></section>';
-   body+='<section class="card"><h2>이 시간의 기운</h2>'+numBlock(a.num,sc)+'</section>';
+   body+='<section class="card"><h2>이 시간의 기운</h2>'+numBlock(a.num,sc,a.gzI,a.br)+'</section>';
    body+='<section class="card"><h2>원조 풀이 — 이 시간대</h2><div class="stxt">'+rowTexts(R)+'</div></section>';}}
  const navW={life:'',year:'해',month:'달',day:'날',hour:'시간'}[ES.mode];
  h+='<div class="enav">'+(navW?'<button type="button" class="btn sub" id="eP">◀ 전 '+navW+'</button>':'')+'<div class="ettl">'+esc(title)+'</div>'+(navW?'<button type="button" class="btn sub" id="eN">다음 '+navW+' ▶</button>':'')+'</div>';
@@ -1382,7 +1385,7 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
  S.querySelectorAll('.dbtn').forEach(b=>b.onclick=()=>easyGo('day',{y:+b.dataset.y,m:+b.dataset.mo,d:+b.dataset.d}));
  S.querySelectorAll('.hbtn').forEach(b=>b.onclick=()=>{const t=+b.dataset.t;easyGo('hour',null,[Math.floor(t/60),t%60]);});
  S.querySelectorAll('.ageb').forEach(b=>b.onclick=()=>{const B=ST.EB,i=+b.dataset.i,a=B.cells[i],R=B.rows[Math.floor(i/3)];const sc=cellScore(B,i);const rel=relPlain(a.gzI);
-  openM(b.dataset.a+'세 대운 · '+gzK(a.gzI),'<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div>'+numBlock(a.num,sc)+'<div class="eb"><div class="et">이 대운과 나의 궁합</div>'+relPlain(a.gzI).html+'</div><div class="eb"><div class="et">원조 풀이</div>'+rowTexts(R)+'</div>');});}
+  openM(b.dataset.a+'세 대운 · '+gzK(a.gzI),'<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div>'+numBlock(a.num,sc,a.gzI,a.br)+'<div class="eb"><div class="et">이 대운과 나의 궁합</div>'+relPlain(a.gzI).html+'</div><div class="eb"><div class="et">원조 풀이</div>'+rowTexts(R)+'</div>');});}
 
 document.querySelectorAll('#vsw button').forEach(b=>b.onclick=()=>setView(b.dataset.v));setView(VIEW);
 const APP_URL='';const EASY_URL='https://kmgg5694.github.io/nameanalyz/maehwa/';
