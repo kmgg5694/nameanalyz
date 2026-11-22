@@ -8,7 +8,7 @@
 
   var css = document.createElement("style");
   css.textContent =
-    "#naTts{position:fixed;right:8px;bottom:84px;z-index:9998;display:none;flex-direction:row;gap:4px;align-items:center;opacity:.88}" +
+    "#naTts{position:fixed;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:9998;display:none;flex-direction:row;gap:4px;align-items:center;opacity:.88}" +
     "#naTts button{font-family:inherit;border:0;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;font-weight:900}" +
     "#naTtsBtn{background:#22a35a;color:#fff;font-size:15px;padding:7px 12px;min-height:38px}" +
     "#naTtsBtn.on{background:#d93025}" +
