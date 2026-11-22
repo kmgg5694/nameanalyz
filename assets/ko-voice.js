@@ -8,21 +8,21 @@
 
   var css = document.createElement("style");
   css.textContent =
-    "#naTts{position:fixed;right:12px;bottom:84px;z-index:9998;display:none;flex-direction:column;gap:6px;align-items:flex-end}" +
-    "#naTts button{font-family:inherit;border:0;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;font-weight:900}" +
-    "#naTtsBtn{background:#22a35a;color:#fff;font-size:18px;padding:14px 20px;min-height:56px}" +
+    "#naTts{position:fixed;right:8px;bottom:84px;z-index:9998;display:none;flex-direction:row;gap:4px;align-items:center;opacity:.88}" +
+    "#naTts button{font-family:inherit;border:0;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;font-weight:900}" +
+    "#naTtsBtn{background:#22a35a;color:#fff;font-size:15px;padding:7px 12px;min-height:38px}" +
     "#naTtsBtn.on{background:#d93025}" +
-    "#naTtsRate{background:#fff;color:#1e2a4a;font-size:14px;padding:8px 14px;border:2px solid #1e2a4a!important}" +
+    "#naTtsRate{background:#fff;color:#1e2a4a;font-size:13px;padding:5px 9px;min-height:32px;border:1.5px solid #1e2a4a!important}" +
     "@media print{#naTts{display:none!important}}";
   document.head.appendChild(css);
 
   var box = document.createElement("div");
   box.id = "naTts";
-  box.innerHTML = '<button type="button" id="naTtsRate"></button><button type="button" id="naTtsBtn">🔊 소리로 듣기</button>';
+  box.innerHTML = '<button type="button" id="naTtsRate"></button><button type="button" id="naTtsBtn">🔊 듣기</button>';
   document.body.appendChild(box);
   var btn = box.querySelector("#naTtsBtn"), rb = box.querySelector("#naTtsRate");
   function rateLabel() { for (var i = 0; i < RATES.length; i++) if (RATES[i][0] === RATE) return RATES[i][1]; return "보통"; }
-  rb.textContent = "빠르기: " + rateLabel();
+  rb.textContent = rateLabel();
 
   function voice() {
     var vs = speechSynthesis.getVoices().filter(function (v) { return /ko/i.test(v.lang); });
@@ -107,7 +107,7 @@
       setTimeout(function () { try { if (ON && !speechSynthesis.speaking && !speechSynthesis.pending) { if (CUR) Q.unshift(CUR); next(); } else speechSynthesis.resume(); } catch (e) {} }, 300);
     }
   });
-  function stop() { wake(false); if (KA) { clearInterval(KA); KA = null; } CUR = null; ON = false; Q = []; try { if (HAS) speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 소리로 듣기"; btn.classList.remove("on"); }
+  function stop() { wake(false); if (KA) { clearInterval(KA); KA = null; } CUR = null; ON = false; Q = []; try { if (HAS) speechSynthesis.cancel(); } catch (e) {} btn.textContent = "🔊 듣기"; btn.classList.remove("on"); }
   function next() {
     if (!ON) return; var t = Q.shift(); if (t == null) { stop(); return; } CUR = t;
     var u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = RATE; u.volume = 1; var v = voice(); if (v) u.voice = v;
@@ -120,7 +120,7 @@
     Q = collect(); if (!Q.length) return; OK = false;
     try { var iv = document.getElementById("introVideo"); if (iv) iv.muted = true; } catch (e) {}
     ON = true; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
-    btn.textContent = "⏹ 그만 듣기"; btn.classList.add("on"); wake(true);
+    btn.textContent = "⏹ 멈춤"; btn.classList.add("on"); wake(true);
     if (KA) clearInterval(KA); KA = setInterval(function () { try { if (!ON) return; if (speechSynthesis.speaking || speechSynthesis.pending) { IDLE = 0; speechSynthesis.resume(); } else if (document.visibilityState === "visible") { IDLE++; if (IDLE >= 2) { IDLE = 0; CUR = null; next(); } } } catch (e) {} }, 800);
     next();
     setTimeout(function () { if (ON && !OK && !speechSynthesis.speaking) { stop(); help(); } }, 4000);
@@ -129,7 +129,7 @@
   rb.onclick = function () {
     var i = 0; for (; i < RATES.length; i++) if (RATES[i][0] === RATE) break;
     RATE = RATES[(i + 1) % RATES.length][0]; try { localStorage.setItem("na_tts_rate", RATE); } catch (e) {}
-    rb.textContent = "빠르기: " + rateLabel(); if (ON) { stop(); start(); }
+    rb.textContent = rateLabel(); if (ON) { stop(); start(); }
   };
   try { if (HAS) speechSynthesis.getVoices(); } catch (e) {}
   // 결과 화면이 보일 때만 버튼 표시, 결과가 바뀌면 읽기 멈춤
