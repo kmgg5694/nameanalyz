@@ -263,6 +263,32 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
  .nav .ttl{order:-1;flex-basis:100%;font-size:16px}
 }
 @media print{.tabs,.nav button,#inputCard,#clientCard,.btn{display:none!important}.modal{display:none!important}body{background:#fff}}
+/* ===== 회원 관문·잠금·복사 방지 ===== */
+.mbar{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:15px;color:#f5ecd4}
+.mbar button{font-size:15px;font-weight:700;border:2px solid #cbbf9a;border-radius:999px;background:transparent;color:#f5ecd4;padding:6px 14px;min-height:38px;cursor:pointer}
+.mbar button.join{background:#f5ecd4;color:#1e2a4a}
+.mbar .qc{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px}
+.lockwrap{position:relative;margin-top:4px;border-radius:14px;overflow:hidden}
+.lockfake{filter:blur(6px);-webkit-filter:blur(6px);pointer-events:none;user-select:none;opacity:.75}
+.lockfake .fk{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.lockfake .fk b{display:block;font-size:18px;color:var(--navy);margin-bottom:8px}
+.lockfake .bar{height:12px;border-radius:6px;background:#d9cfb4;margin:7px 0}
+.lockfake .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.lockfake .grid i{height:54px;border-radius:8px;background:#e8dfc6}
+.lockbox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(245,240,228,.35)}
+.lockin{background:#fff;border:2px solid var(--navy);border-radius:16px;padding:20px 16px;max-width:420px;width:100%;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.lockin .ico{font-size:38px;line-height:1}
+.lockin p{font-size:18px;font-weight:700;color:var(--navy);line-height:1.55;margin:10px 0 14px;word-break:keep-all}
+.lockin button{width:100%;font-size:19px;font-weight:800;padding:14px;border:0;border-radius:12px;background:var(--navy);color:#f5ecd4;cursor:pointer}
+.authf label{display:block;font-size:16px;font-weight:700;margin:10px 0 4px}
+.authf input{width:100%;font-size:18px;padding:10px;border:2px solid var(--line);border-radius:10px;box-sizing:border-box}
+.authf .btn{width:100%;margin-top:14px;font-size:19px}
+.authf .gbtn{width:100%;margin-top:10px;font-size:17px;font-weight:700;padding:12px;border:2px solid #999;border-radius:10px;background:#fff;cursor:pointer}
+.authf .sw{margin-top:12px;text-align:center;font-size:16px}.authf .sw a{color:var(--navy);font-weight:800;cursor:pointer;text-decoration:underline}
+.authf .am{color:#b3261e;font-weight:700;margin-top:8px;min-height:1em}
+.limitbox{text-align:center;font-size:18px;line-height:1.6}
+#simple,#mB{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none}
+#mB input,#mB textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+@media print{.mbar,.lockbox button{display:none!important}}
 </style>
 </head>
 <body>
@@ -271,6 +297,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
  <h1 class="hj">秘法 數理易學 梅花易數</h1>
  <p>무료 운세 · 타고난 성격 · 올해 · 달마다 · 오늘의 운</p>
  <div class="zsw" id="zsw"><span>글씨</span><button type="button" data-z="1">보통</button><button type="button" data-z="1.2">크게</button><button type="button" data-z="1.4">아주 크게</button></div>
+ <div class="mbar" id="mbar"></div>
 </header>
 <main>
 <section class="card" id="inputCard">
@@ -996,6 +1023,7 @@ function run(){$('err').textContent='';
  const qv=$('qD').value;if(!qv){$('err').textContent='조회 기준일을 선택하세요.';return;}const [qy,qm,qd]=qv.split('-').map(Number);
  if(!solarToLunar(qy,qm,qd)){$('err').textContent='조회 기준일은 1900~2050년 사이여야 합니다.';return;}
  const qt=($('qT').value||'12:00').split(':').map(Number);
+ if(!mhQuota(JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']))){mhLimitMsg();return;}
  ST.P=P;ST.lastForm=JSON.stringify(cForm(),['name','sex','cal','y','m','d','t']);setTimeout(()=>{if(typeof plRender==='function')plRender();},0);ST.q={y:qy,m:qm,d:qd};ST.qT=qt;$('simple').style.display='';$('actBar').style.display='';$('ttsBar').style.display='';ttsStop();renderSimple();$('simple').scrollIntoView({behavior:'smooth'});}
 function setQ(sol){ST.q=sol;$('qD').value=sol.y+'-'+String(sol.m).padStart(2,'0')+'-'+String(sol.d).padStart(2,'0');render();}
 const elc=i=>'el'+i;
@@ -1228,6 +1256,93 @@ initForm();
 /* ================= 일반인 화면 ================= */
 let VIEW='easy';
 const ES={mode:'year'};
+/* ================= 회원 관문 (맛보기 / 회원) =================
+ ※ 진짜 회원 관리(어느 기기에서나 같은 아이디로 로그인, 회원 목록 확인)를 하려면
+   아래 FB_CONFIG 에 Firebase(구글 무료) 설정값을 넣으면 됩니다.
+   FB_CONFIG 가 null 이면 '이 기기 전용 간편 회원' 방식으로 동작합니다. */
+const FB_CONFIG=null; // 예: {apiKey:'...',authDomain:'...firebaseapp.com',projectId:'...',appId:'...'}
+const DAY_LIMIT=5;    // 회원 1일 조회 횟수
+const AUTH={user:null,mode:FB_CONFIG?'fb':'local',ready:false,fb:null};
+function mhToday(){const n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate();}
+function mhHash(t){let h1=0x811c9dc5,h2=5381;for(let i=0;i<t.length;i++){const c=t.charCodeAt(i);h1=Math.imul(h1^c,16777619)>>>0;h2=(Math.imul(h2,33)+c)>>>0;}return h1.toString(16)+h2.toString(16);}
+function mhGet(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+function mhSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+/* --- 조회 횟수 --- */
+function mhQRec(){const k='mh_quota_'+(AUTH.user?AUTH.user.uid:'x');let r=mhGet(k,null);if(!r||r.d!==mhToday())r={d:mhToday(),l:[]};return {k,r};}
+function mhQuota(sig){if(!AUTH.user)return true;const {k,r}=mhQRec();if(r.l.includes(sig))return true;if(r.l.length>=DAY_LIMIT)return false;r.l.push(sig);mhSet(k,r);mhBar();return true;}
+function mhUsed(){return AUTH.user?mhQRec().r.l.length:0;}
+function mhLimitMsg(){if(typeof ttsStop==='function')ttsStop();['simple','actBar','ttsBar'].forEach(i=>{const e=$(i);if(e)e.style.display='none';});ST.P=null;ST.shareTxt='';
+ $('err').textContent='오늘 조회 '+DAY_LIMIT+'회를 모두 사용하셨습니다. 오늘 이미 보신 분은 다시 볼 수 있고, 새로운 분은 내일 다시 보실 수 있습니다. (자세한 상담: 010-5694-7817)';}
+/* --- 상단 회원 표시줄 --- */
+function mhBar(){const b=$('mbar');if(!b)return;
+ if(AUTH.user){b.innerHTML='<span>👤 '+esc(AUTH.user.name||'회원')+'님</span><span class="qc">오늘 조회 '+mhUsed()+'/'+DAY_LIMIT+'</span><button type="button" id="mhOut">로그아웃</button>';$('mhOut').onclick=mhLogout;}
+ else{b.innerHTML='<button type="button" class="join" id="mhJoin">무료 회원가입</button><button type="button" id="mhIn">로그인</button>';$('mhJoin').onclick=()=>mhOpen('join');$('mhIn').onclick=()=>mhOpen('login');}}
+function mhChanged(){mhBar();if(ST.P||($('simple')&&$('simple').style.display!=='none'&&$('simple').innerHTML))run();}
+/* --- 로그인 / 회원가입 창 --- */
+function mhOpen(tab){const fb=AUTH.mode==='fb';const join=tab==='join';const idL=fb?'이메일':'휴대폰 번호';const idP=fb?'예: hong@naver.com':'예: 010-1234-5678';
+ openM(join?'🌸 무료 회원가입':'🔑 로그인','<div class="authf">'+(join?'<label>이름</label><input id="aN" autocomplete="name" placeholder="예: 홍길동">':'')+
+ '<label>'+idL+'</label><input id="aI" '+(fb?'type="email" autocomplete="email"':'type="tel" inputmode="tel" autocomplete="tel"')+' placeholder="'+idP+'">'+
+ '<label>비밀번호 <small style="font-weight:400">('+(fb?'6자 이상':'4자 이상')+')</small></label><input id="aP" type="password" autocomplete="'+(join?'new-password':'current-password')+'">'+
+ '<div class="am" id="aM"></div><button type="button" class="btn" id="aGo">'+(join?'가입하고 바로 보기':'로그인')+'</button>'+
+ (fb?'<button type="button" class="gbtn" id="aG">G 구글 계정으로 '+(join?'가입':'로그인')+'</button>':'')+
+ '<div class="sw">'+(join?'이미 회원이신가요? <a id="aSw">로그인</a>':'아직 회원이 아니신가요? <a id="aSw">무료 회원가입</a>')+'</div>'+
+ (fb?'':'<div class="hint" style="margin-top:8px">※ 이 휴대폰(기기)에 회원 정보가 저장됩니다.</div>')+'</div>');
+ $('aSw').onclick=()=>mhOpen(join?'login':'join');$('aGo').onclick=()=>mhSubmit(join);if($('aG'))$('aG').onclick=mhGoogle;
+ $('aP').onkeydown=e=>{if(e.key==='Enter')mhSubmit(join);};}
+function mhClose(){$('modal').classList.remove('on');}
+function mhMsg(t){const m=$('aM');if(m)m.textContent=t;}
+const FB_ERR={'auth/email-already-in-use':'이미 가입된 이메일입니다. [로그인]을 눌러 주세요.','auth/invalid-email':'이메일 주소를 바르게 넣어 주세요.','auth/weak-password':'비밀번호를 6자 이상으로 넣어 주세요.','auth/wrong-password':'비밀번호가 맞지 않습니다.','auth/user-not-found':'가입되지 않은 이메일입니다. [무료 회원가입]을 눌러 주세요.','auth/invalid-credential':'이메일 또는 비밀번호가 맞지 않습니다.','auth/invalid-login-credentials':'이메일 또는 비밀번호가 맞지 않습니다.','auth/too-many-requests':'잠시 후 다시 시도해 주세요.','auth/network-request-failed':'인터넷 연결을 확인해 주세요.','auth/popup-blocked':'팝업이 막혔습니다. 크롬으로 열어 주세요.','auth/operation-not-supported-in-this-environment':'카톡 안에서는 구글 로그인이 안 됩니다. 이메일로 가입하거나 크롬으로 열어 주세요.'};
+async function mhSubmit(join){const n=join?($('aN').value||'').trim():'';const id=($('aI').value||'').trim();const pw=$('aP').value||'';
+ if(join&&!n){mhMsg('이름을 넣어 주세요.');return;}if(!id){mhMsg((AUTH.mode==='fb'?'이메일':'휴대폰 번호')+'를 넣어 주세요.');return;}
+ if(pw.length<(AUTH.mode==='fb'?6:4)){mhMsg('비밀번호를 '+(AUTH.mode==='fb'?6:4)+'자 이상 넣어 주세요.');return;}
+ if(AUTH.mode==='fb'){if(!AUTH.fb){mhMsg('잠시 후 다시 눌러 주세요.');return;}mhMsg('처리 중…');
+  try{const A=AUTH.fb.auth();if(join){const c=await A.createUserWithEmailAndPassword(id,pw);await c.user.updateProfile({displayName:n});AUTH.user={uid:c.user.uid,name:n};}else await A.signInWithEmailAndPassword(id,pw);mhClose();mhChanged();}
+  catch(e){mhMsg(FB_ERR[e&&e.code]||('오류: '+((e&&e.code)||e)));}return;}
+ const key=id.replace(/\D/g,'');if(key.length<9){mhMsg('휴대폰 번호를 바르게 넣어 주세요.');return;}
+ const M=mhGet('mh_members',{});
+ if(join){if(M[key]){mhMsg('이미 가입된 번호입니다. [로그인]을 눌러 주세요.');return;}M[key]={n,h:mhHash(key+'|'+pw),at:Date.now()};mhSet('mh_members',M);}
+ else{if(!M[key]){mhMsg('가입되지 않은 번호입니다. [무료 회원가입]을 눌러 주세요.');return;}if(M[key].h!==mhHash(key+'|'+pw)){mhMsg('비밀번호가 맞지 않습니다.');return;}}
+ mhSet('mh_session',key);AUTH.user={uid:'p'+key,name:M[key].n};mhClose();mhChanged();}
+async function mhGoogle(){if(!AUTH.fb)return;try{const A=AUTH.fb.auth(),pv=new AUTH.fb.auth.GoogleAuthProvider();try{await A.signInWithPopup(pv);}catch(e){if(e&&/popup|cancelled|not-supported/.test(e.code||''))await A.signInWithRedirect(pv);else throw e;}mhClose();}catch(e){mhMsg(FB_ERR[e&&e.code]||('오류: '+((e&&e.code)||e)));}}
+function mhLogout(){if(!confirm('로그아웃 하시겠습니까?'))return;if(AUTH.mode==='fb'&&AUTH.fb){AUTH.fb.auth().signOut();}else{try{localStorage.removeItem('mh_session');}catch(e){}AUTH.user=null;mhChanged();}}
+function mhLoadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+function mhInit(){
+ if(AUTH.mode==='local'){const k=mhGet('mh_session',null);const M=mhGet('mh_members',{});if(k&&M[k])AUTH.user={uid:'p'+k,name:M[k].n};AUTH.ready=true;mhBar();return;}
+ mhBar();const V='https://www.gstatic.com/firebasejs/10.12.2/';
+ mhLoadScript(V+'firebase-app-compat.js').then(()=>mhLoadScript(V+'firebase-auth-compat.js')).then(()=>{firebase.initializeApp(FB_CONFIG);AUTH.fb=firebase;
+  firebase.auth().onAuthStateChanged(u=>{const was=!!AUTH.user;AUTH.user=u?{uid:u.uid,name:u.displayName||(u.email||'').split('@')[0]}:null;AUTH.ready=true;if(was!==!!u)mhChanged();else mhBar();});})
+ .catch(()=>{AUTH.mode='local';mhInit();});}
+/* --- 공유 문구 (기존 로직 그대로) --- */
+function mhShareTxt(title,body,TN){
+ const SH=['🌸 [매화역수] '+($('iName').value.trim()||'본인')+'님의 '+TN,'📅 '+toHangul(title).replace(/([가-힣]+)\(\1\)/g,'$1')];
+ const tmp=document.createElement('div');tmp.innerHTML=body;
+ const sb=tmp.querySelector('.sbig');if(sb){const w=sb.textContent.trim();SH.push('🚦 총평: '+({'좋음':'🟢','보통':'🟡','조심':'🔴'}[w]||'')+' '+w);}
+ const rel=[...tmp.querySelectorAll('.eb>div:not(.et)')].map(x=>x.textContent.replace(/^·\s*/,'').trim()).filter(Boolean).slice(0,2);
+ rel.forEach(x=>SH.push('• '+toHangul(x)));
+ const cl=t=>toHangul(t.replace(/^[○⚠️\s]+/,'').replace(/^[^—]{1,8}—\s*/,'').trim());
+ const ok=[...tmp.querySelectorAll('.okli')].map(x=>cl(x.textContent)).filter(Boolean).slice(0,2);
+ const ng=[...tmp.querySelectorAll('.ngli')].map(x=>cl(x.textContent)).filter(Boolean).slice(0,2);
+ if(ok.length)SH.push('','👍 좋은 점'),ok.forEach(x=>SH.push('  ✔ '+x));
+ if(ng.length)SH.push('','⚠️ 조심할 점'),ng.forEach(x=>SH.push('  ✔ '+x));
+ SH.push('','📞 자세한 상담: 풍백테크 010-5694-7817');ST.shareTxt=SH.join('\n');
+}
+/* --- 비로그인 맛보기 화면: 오늘의 일진만 --- */
+function lockHTML(){const fk=t=>'<div class="fk"><b>'+t+'</b><div class="bar" style="width:92%"></div><div class="bar" style="width:78%"></div><div class="bar" style="width:85%"></div></div>';
+ return '<div class="lockwrap"><div class="lockfake" aria-hidden="true">'+fk('이날의 주된 기운 · 주도수')+'<div class="fk"><b>12칸 포국도</b><div class="grid">'+'<i></i>'.repeat(12)+'</div></div>'+fk('합·충·극 원리')+fk('평생운 · 년운 · 월운 · 일운 · 시운 상세')+fk('길한 달 · 조심할 달 풀이')+'</div>'+
+ '<div class="lockbox"><div class="lockin"><div class="ico">🔒</div><p>상세 평생운과 연·월·시 풀이는<br>무료 회원가입 후 바로 확인하실 수 있습니다.</p><button type="button" class="lockgo">무료 회원가입 / 로그인</button></div></div></div>';}
+function renderTaster(){const P=ST.P;const n=new Date();const q={y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate()};const cb=hourBranch(n.getHours(),n.getMinutes());
+ const D=applyTeach(buildDay(P,q,cb),P,false);const rel=relPlain(D.dI);const s=gradeS(D.grade)+sgn(rel.sc);
+ const title='오늘의 일진 — 양력 '+q.y+'.'+q.m+'.'+q.d+' (음력 '+D.lun.m+'.'+D.lun.d+') '+gzK(D.dI)+'일';
+ const body='<section class="card"><h2>오늘 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="stxt">'+esc(GRADE_INFO[D.grade].d.replace(/칸별 길흉을 보고 /,'시간대별 신호등을 보고 '))+adjNote(D.grade,s,'이날')+'</div><div class="eb"><div class="et">이날 '+gzK(D.dI)+'과 나의 궁합</div>'+rel.html+'</div></section>';
+ let h='<div class="enav"><div class="ettl">'+esc(title)+'</div></div>'+body+lockHTML();
+ mhShareTxt(title,body,'오늘 운');
+ h+='<section class="card cta">더 자세한 풀이와 상담은<br><a href="tel:01056947817">📞 풍백테크 010-5694-7817</a></section>';
+ if(typeof ttsStop==='function'&&TTS_ON)ttsStop();if(typeof plRender==='function')plRender();$('simple').innerHTML=h;applyLang($('simple'));
+ $('simple').querySelectorAll('.lockgo').forEach(b=>b.onclick=()=>mhOpen('join'));}
+/* --- 결과 영역 우클릭·드래그·복사 방지 --- */
+(function(){const inRes=t=>t&&t.closest&&t.closest('#simple,#mB')&&!t.closest('input,textarea');
+ ['contextmenu','copy','cut','dragstart','selectstart'].forEach(ev=>document.addEventListener(ev,e=>{if(inRes(e.target))e.preventDefault();},true));
+ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&/^[acsux]$/i.test(e.key)){const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;const sel=window.getSelection&&window.getSelection();const n=sel&&sel.anchorNode;const el=n&&(n.nodeType===1?n:n.parentElement);if((/^[ac]$/i.test(e.key)&&(!el||inRes(el)||e.key.toLowerCase()==='a'))||(/^[su]$/i.test(e.key)))e.preventDefault();}},true);})();
 const EASY_NUM={1:'귀인·새 출발',2:'변화·변동',3:'갈등·마음고생',4:'안정·여유',5:'과감·혁신',6:'명예·승진',7:'건강 주의·물러남',8:'재물',9:'문서·명예'};
 const LT_WORD={G:'좋음',Y:'보통',R:'조심'};const LT_EMO={G:'🟢',Y:'🟡',R:'🔴'};
 function lightOf(s){return s>0?'G':s<0?'R':'Y';}
@@ -1296,7 +1411,7 @@ function easyCell(B,mode,i){const a=B.cells[i],R=B.rows[Math.floor(i/3)],sc=cell
  const lab=mode==='life'?a.label+' 대운':(mode==='year'||mode==='month')?'음력 '+(i+1)+'월':bTime((i+2)%12)+' ('+toHangul(ZHI[(i+2)%12])+'시)';
  let h='<div class="sbig">'+lt(sc)+LT_WORD[lightOf(sc)]+'</div><div class="ets" style="margin:4px 0 8px">'+easyTags(a)+'</div>'+numBlock(a.num,sc,a.gzI,a.br)+'<div class="eb"><div class="et">궁합: 이 칸 '+gzK(a.gzI)+' ↔ 나 '+gzK(ST.P.saju.dIdx)+'</div>'+rel.html+'</div><div class="eb"><div class="et">원조 풀이 (이 줄 '+R.trip+')</div>'+rowTexts(R)+'</div>';
  openM(lab+' · '+gzK(a.gzI),h);applyLang($('mB'));}
-function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.y,q.m,q.d);
+function renderSimple(){const P=ST.P;if(!P)return;if(!AUTH.user){renderTaster();return;}const q=ST.q,L=solarToLunar(q.y,q.m,q.d);
  const tabs=[['life','평생'],['year','년운'],['month','월운'],['day','일운'],['hour','시운']];
  let h='<div class="etabs">'+tabs.map(([k,n])=>'<button type="button" class="etab'+(ES.mode===k?' on':'')+'" data-k="'+k+'">'+n+'</button>').join('')+'</div>';
  let title='',body='';
@@ -1344,18 +1459,7 @@ function renderSimple(){const P=ST.P;if(!P)return;const q=ST.q,L=solarToLunar(q.
  if(GB)h+=easyGrid(GB,ES.mode);
  h+=body;
  // 공유 문구(지금 보는 화면 기준) — 받는 사람이 읽기 쉽게
- const TN={life:'평생운',year:'올해 운',month:'이달 운',day:'오늘 운',hour:'이 시간 운'}[ES.mode];
- const SH=['🌸 [매화역수] '+($('iName').value.trim()||'본인')+'님의 '+TN,'📅 '+toHangul(title).replace(/([가-힣]+)\(\1\)/g,'$1')];
- const tmp=document.createElement('div');tmp.innerHTML=body;
- const sb=tmp.querySelector('.sbig');if(sb){const w=sb.textContent.trim();SH.push('🚦 총평: '+({'좋음':'🟢','보통':'🟡','조심':'🔴'}[w]||'')+' '+w);}
- const rel=[...tmp.querySelectorAll('.eb>div:not(.et)')].map(x=>x.textContent.replace(/^·\s*/,'').trim()).filter(Boolean).slice(0,2);
- rel.forEach(x=>SH.push('• '+toHangul(x)));
- const cl=t=>toHangul(t.replace(/^[○⚠️\s]+/,'').replace(/^[^—]{1,8}—\s*/,'').trim());
- const ok=[...tmp.querySelectorAll('.okli')].map(x=>cl(x.textContent)).filter(Boolean).slice(0,2);
- const ng=[...tmp.querySelectorAll('.ngli')].map(x=>cl(x.textContent)).filter(Boolean).slice(0,2);
- if(ok.length)SH.push('','👍 좋은 점'),ok.forEach(x=>SH.push('  ✔ '+x));
- if(ng.length)SH.push('','⚠️ 조심할 점'),ng.forEach(x=>SH.push('  ✔ '+x));
- SH.push('','📞 자세한 상담: 풍백테크 010-5694-7817');ST.shareTxt=SH.join('\n');
+ mhShareTxt(title,body,{life:'평생운',year:'올해 운',month:'이달 운',day:'오늘 운',hour:'이 시간 운'}[ES.mode]);
  h+='<section class="card cta">더 자세한 풀이와 상담은<br><a href="tel:01056947817">📞 풍백테크 010-5694-7817</a></section>';
  if(typeof ttsStop==='function'&&TTS_ON)ttsStop();if(typeof plRender==='function')plRender();$('simple').innerHTML=h;applyLang($('simple'));
  const S=$('simple');
@@ -1513,7 +1617,7 @@ function ttsClean(s){return toHangul(s).replace(/\n+/g,'\u0001').replace(/⚠️
 function ttsChunks(root){const C=root.cloneNode(true);
  C.querySelectorAll('.sbig .lt,.qrt>.lt').forEach(e=>e.remove());
  C.querySelectorAll('.lt').forEach(e=>{const w=e.classList.contains('G')?'좋음':e.classList.contains('R')?'조심':'보통';e.replaceWith(' '+w+' ');});
- C.querySelectorAll('.etabs,.enav button,#e0,.cta,.dgrid,.hint,details>summary,button.ageb small,script,style').forEach(e=>e.remove());
+ C.querySelectorAll('.lockwrap,.etabs,.enav button,#e0,.cta,.dgrid,.hint,details>summary,button.ageb small,script,style').forEach(e=>e.remove());
  C.querySelectorAll('p,div,li').forEach(e=>e.insertAdjacentText('beforebegin','\n'));
  const out=[];
  C.querySelectorAll('h2,.sbig,p,.eb>div,.qrt,.okli,.ngli,.warnli,li,.ettl,.mbtn,.hbtn,.ageb,.gdesc,.rw,.big-sum').forEach(e=>{if(e.closest('.qrt')&&!e.classList.contains('qrt'))return;const t=ttsClean(e.innerText||e.textContent);if(t)out.push(t);});
@@ -1538,7 +1642,7 @@ function ttsHelp(why){const app=inApp()||!(!!window.speechSynthesis);
  const x=$('extBtn');if(x)x.onclick=openExternal;}
 function ttsStart(){if(typeof syncResult==='function')syncResult();if(!(!!window.speechSynthesis)){ttsHelp('none');return;}TTS_OK=false;
  let root;if(VIEW==='easy')root=$('simple');else{root=document.createElement('div');['bar','big','rows'].forEach(id=>{const e=$(id);if(e)root.appendChild(e.cloneNode(true));});}
- const nm=($('iName').value.trim()||'');TTS_Q=[(nm?nm+'님의 ':'')+'매화역수 풀이를 읽어 드리겠습니다.'].concat(ttsChunks(root));TTS_Q.push('풍백테크 상담 전화는 공일공, 오육구사, 칠팔일칠 입니다.');
+ const nm=($('iName').value.trim()||'');TTS_Q=[(nm?nm+'님의 ':'')+'매화역수 풀이를 읽어 드리겠습니다.'].concat(ttsChunks(root));if(VIEW==='easy'&&!AUTH.user)TTS_Q.push('상세 평생운과 연, 월, 시 풀이는 무료 회원가입 후 바로 확인하실 수 있습니다.');TTS_Q.push('풍백테크 상담 전화는 공일공, 오육구사, 칠팔일칠 입니다.');
  TTS_ON=true;try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();}catch(e){}const b=$('ttsBtn');b.textContent='⏹ 그만 듣기';b.classList.add('on');ttsWake(true);if(TTS_KA)clearInterval(TTS_KA);TTS_KA=setInterval(()=>{try{if(!TTS_ON)return;if(speechSynthesis.speaking||speechSynthesis.pending){TTS_IDLE=0;speechSynthesis.resume();}else if(document.visibilityState==='visible'){TTS_IDLE++;if(TTS_IDLE>=2){TTS_IDLE=0;TTS_CUR=null;ttsNext();}}}catch(e){}},800);ttsNext();
  setTimeout(()=>{if(TTS_ON&&!TTS_OK&&!speechSynthesis.speaking){ttsStop();ttsHelp('silent');}},4000);}
 $('ttsBtn').onclick=()=>TTS_ON?ttsStop():ttsStart();
@@ -1555,6 +1659,7 @@ document.querySelectorAll('#zsw button').forEach(b=>b.onclick=()=>setZoom(b.data
 window.addEventListener('beforeprint',()=>{document.body.dataset.z=document.body.style.zoom;document.body.style.zoom=1;});
 window.addEventListener('afterprint',()=>{document.body.style.zoom=document.body.dataset.z||1;});
 $('langBtn').onclick=()=>setLang(LANG==='hangul'?'hanja':'hangul');setLang(LANG);
+mhInit();
 </script>
 </body>
 </html>
