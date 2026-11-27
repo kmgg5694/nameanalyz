@@ -1333,7 +1333,8 @@ function lockHTML(){const fk=t=>'<div class="fk"><b>'+t+'</b><div class="bar" st
 function renderTaster(){const P=ST.P;const n=new Date();const q={y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate()};const cb=hourBranch(n.getHours(),n.getMinutes());
  const D=applyTeach(buildDay(P,q,cb),P,false);const rel=relPlain(D.dI);const s=gradeS(D.grade)+sgn(rel.sc);
  const title='오늘의 일진 — 양력 '+q.y+'.'+q.m+'.'+q.d+' (음력 '+D.lun.m+'.'+D.lun.d+') '+gzK(D.dI)+'일';
- const body='<section class="card"><h2>오늘 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="stxt">'+esc(GRADE_INFO[D.grade].d.replace(/칸별 길흉을 보고 /,'시간대별 신호등을 보고 '))+adjNote(D.grade,s,'이날')+'</div><div class="eb"><div class="et">이날 '+gzK(D.dI)+'과 나의 궁합</div>'+rel.html+'</div></section>';
+ const body='<section class="card"><h2>오늘 총평</h2><div class="sbig">'+lt(s)+LT_WORD[lightOf(s)]+'</div><div class="stxt">'+esc(GRADE_INFO[D.grade].d.replace(/칸별 길흉을 보고 /,'시간대별 신호등을 보고 '))+adjNote(D.grade,s,'이날')+'</div><div class="eb"><div class="et">이날 '+gzK(D.dI)+'과 나의 궁합</div>'+rel.html+'</div></section>'
+  +'<section class="card"><h2>오늘 시간별 운세 (두 시간마다)</h2><div class="mgrid">'+D.cells.map((c,i)=>{const b=(i+2)%12;const sc=cellScore(D,i);const now=b===cb;return '<div class="hbtn"'+(now?' style="border-color:var(--navy);border-width:3px;background:#fff8e1"':'')+'>'+(now?'<b style="display:block;font-size:12px;color:var(--navy)">지금</b>':'')+bTime(b).replace('~','<br>~')+lt(sc)+'<b style="display:block;font-size:14px">'+LT_WORD[lightOf(sc)]+'</b><small>'+toHangul(ZHI[b])+'시</small></div>';}).join('')+'</div><div class="hint">🟢좋음 시간에 중요한 일을, 🔴조심 시간에는 몸가짐을 조심하세요.</div></section>';
  let h='<div class="enav"><div class="ettl">'+esc(title)+'</div></div>'+body+lockHTML();
  mhShareTxt(title,body,'오늘 운');
  h+='<section class="card cta">더 자세한 풀이와 상담은<br><a href="tel:01056947817">📞 풍백테크 010-5694-7817</a></section>';
